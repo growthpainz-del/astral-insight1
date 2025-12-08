@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card as CardEntity } from "@/entities/all";
 import { base44 } from "@/api/base44Client";
@@ -6,12 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Wand2, CheckCircle2, AlertTriangle, XCircle, Info, Sparkles, Palette, ImageIcon, RefreshCw, Edit3, Eye, Copy, FileText, AlertCircleIcon, History, Clock, User, Lock, Unlock } from "lucide-react";
-import { TOKEN_COSTS } from "@/components/pricing/TokenCostPreview";
-import { TokenCostPreview } from "@/components/pricing/TokenCostPreview";
+import { Loader2, Wand2, CheckCircle2, AlertTriangle, XCircle, Info, Zap, Sparkles, Palette, ImageIcon, RefreshCw, Edit3, Shuffle, Eye, Copy, FileText, AlertCircleIcon, History, Clock, User, Download, Lock, Unlock } from "lucide-react";
+import TokenCostPreview, { TOKEN_COSTS } from "@/components/pricing/TokenCostPreview";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { queueApiCall } from "@/components/utils/apiQueue";
 
