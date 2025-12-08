@@ -590,7 +590,7 @@ export default function Dashboard() {
         Astral Insight • Your Gateway to Cosmic Wisdom
       </div>
 
-      <style jsx>{`
+      <style>{`
         .scrollbar-hide::-webkit-scrollbar {
           display: none;
         }

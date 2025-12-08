@@ -567,7 +567,7 @@ export default function CardEditor({ deckId, card, isOpen, onClose, onSave }) {
         }}
       />
 
-      <style jsx>{`
+      <style>{`
         .custom-scrollbar::-webkit-scrollbar {
           width: 8px;
         }

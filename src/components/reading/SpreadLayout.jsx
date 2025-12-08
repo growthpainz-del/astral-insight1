@@ -1022,7 +1022,7 @@ export default function SpreadLayout(props) {
         )}
       </div>
 
-      <style jsx>{`
+      <style>{`
         .mystical-grid-container {
           background: linear-gradient(135deg, rgba(88, 28, 135, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
           border: 1px solid rgba(168, 85, 247, 0.2);
