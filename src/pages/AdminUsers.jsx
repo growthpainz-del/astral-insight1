@@ -1,11 +1,16 @@
-
 import React, { useState, useEffect, useCallback } from "react";
 import { User } from "@/entities/User";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Users,
+  Crown,
+  UserCheck,
+  Mail,
   ArrowLeft,
+  Search,
   Plus,
+  Sparkles,
   RotateCcw, // Added RotateCcw icon
   Coins,      // Added Coins icon
   Settings    // Added Settings icon
@@ -99,6 +104,36 @@ export default function AdminUsersPage() {
     } catch (error) {
       console.error("Failed to set tokens:", error);
       alert(`❌ Failed to set tokens: ${error.message}`);
+    }
+  };
+
+  const handleSetSubscription = async (user) => {
+    const tiers = ['free', 'mystic', 'oracle_pro', 'creator'];
+    const tier = prompt(
+      `Set subscription tier for ${user.email}?\n\nCurrent: ${user.subscription_tier || 'free'}\n\nAvailable: ${tiers.join(', ')}`, 
+      user.subscription_tier || 'free'
+    );
+    
+    if (!tier) return;
+    
+    if (!tiers.includes(tier.toLowerCase())) {
+      alert(`Invalid tier. Must be one of: ${tiers.join(', ')}`);
+      return;
+    }
+
+    try {
+      await User.update(user.id, {
+        subscription_tier: tier.toLowerCase(),
+        subscription_status: tier.toLowerCase() === 'free' ? 'cancelled' : 'active',
+        // Extend for 1 year if setting to paid
+        subscription_end_date: tier.toLowerCase() === 'free' ? null : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+      });
+
+      alert(`✅ Set subscription to ${tier} for ${user.email}`);
+      loadUsers();
+    } catch (error) {
+      console.error("Failed to set subscription:", error);
+      alert(`❌ Failed to set subscription: ${error.message}`);
     }
   };
 
@@ -214,6 +249,15 @@ export default function AdminUsersPage() {
                         >
                           <Settings className="w-3 h-3 mr-1" />
                           Set Balance
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleSetSubscription(user)}
+                          className="border-blue-500 text-blue-300 hover:bg-blue-900/30"
+                        >
+                          <Crown className="w-3 h-3 mr-1" />
+                          Set Sub
                         </Button>
                       </div>
                     </td>
