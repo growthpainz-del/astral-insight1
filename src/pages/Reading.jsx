@@ -3,9 +3,10 @@ import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { createPageUrl } from "@/utils";
 import {
   Shuffle,
@@ -15,6 +16,7 @@ import {
   Loader2,
   AlertTriangle,
   BookOpen,
+  Eye,
   X,
   RefreshCw,
   FileText,
@@ -46,6 +48,18 @@ const BUILT_IN_SPREADS = [
       { name: "Past", meaning: "What has brought you here" },
       { name: "Present", meaning: "Where you are now" },
       { name: "Future", meaning: "Where you are heading" }
+    ],
+    isBuiltIn: true,
+  },
+  {
+    id: "crescent",
+    name: "Crescent Moon",
+    positions: [
+      { name: "New Beginnings", meaning: "What is emerging", x: 15, y: 15 },
+      { name: "Growing Energy", meaning: "What is gaining strength", x: 30, y: 35 },
+      { name: "Peak Illumination", meaning: "What is fully revealed", x: 50, y: 50 },
+      { name: "Waning Wisdom", meaning: "What is releasing", x: 70, y: 35 },
+      { name: "Completion", meaning: "What is coming to rest", x: 85, y: 15 }
     ],
     isBuiltIn: true,
   },
