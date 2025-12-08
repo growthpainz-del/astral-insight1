@@ -1,12 +1,11 @@
-
 import React, { useState, useEffect } from "react";
 import { Card as CardEntity } from "@/entities/Card";
 import { Deck } from "@/entities/Deck"; // ADDED: Import Deck entity
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Image as ImageIcon, Search, Grid3x3, List, Upload, Eye, Pencil, ChevronDown } from "lucide-react";
-import { CardEditor } from "@/components/deck/CardEditor";
+import { Image as ImageIcon, Plus, Search, Grid3x3, List, Upload, Eye, Pencil, Trash2, ChevronDown } from "lucide-react";
+import CardEditor from "@/components/deck/CardEditor";
 import { safeUploadFile } from "@/components/utils/safeUpload";
 import { queueApiCall } from "@/components/utils/apiQueue";
 import {
