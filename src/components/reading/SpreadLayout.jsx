@@ -1,0 +1,1034 @@
+import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Badge } from "@/components/ui/badge";
+import { CARD_ASPECT_RATIO } from "@/components/utils/cardSizing";
+import { Move, Bug } from "lucide-react";
+import ScratchRevealCard from "@/components/reading/ScratchRevealCard";
+
+// FIXED: Larger card size for better visibility
+const DEFAULT_CARD_WIDTH = 140; // Increased for better card viewing
+
+// IMPROVED: Extract position data from cards if available
+function extractPositionsFromCards(cards) {
+  if (!Array.isArray(cards) || cards.length === 0) return null;
+
+  // Check if cards have embedded position coordinates
+  const hasEmbeddedPositions = cards.some(card =>
+    card &&
+    typeof card.position_x === 'number' &&
+    typeof card.position_y === 'number'
+  );
+
+  if (!hasEmbeddedPositions) return null;
+
+  // Extract position data from cards
+  return cards.map((card, idx) => ({
+    name: card.position || `Position ${idx + 1}`,
+    meaning: card.position_meaning || '',
+    x: typeof card.position_x === 'number' ? card.position_x : 50,
+    y: typeof card.position_y === 'number' ? card.position_y : 50,
+    rotation: typeof card.position_rotation === 'number' ? card.position_rotation : 0,
+  }));
+}
+
+function normalizeSpreadPositions(spread, positions, cards) {
+  // PRIORITY 1: Use position data embedded in cards (from custom spreads)
+  const embeddedPositions = extractPositionsFromCards(cards);
+  if (embeddedPositions) {
+    console.log('📍 Using embedded positions from cards:', embeddedPositions.length);
+    // FIXED: Ensure position names include sequential numbers
+    return embeddedPositions.map((pos, idx) => {
+      let posName = pos.name || `Position ${idx + 1}`;
+      if (!posName.match(/\d/)) {
+        posName = `${idx + 1}. ${posName}`;
+      }
+      return {
+        ...pos,
+        name: posName,
+        position_number: idx + 1,
+      };
+    });
+  }
+
+  // Handle case where positions array itself is empty or invalid after checking cards
+  if (!positions || !Array.isArray(positions) || positions.length === 0) {
+    return [];
+  }
+
+  // PRIORITY 2: Check if positions already contain coordinate data
+  const hasCoordinates = positions.some(p =>
+    typeof p === 'object' && p !== null &&
+    (typeof p.x === 'number' || typeof p.y === 'number')
+  );
+
+  if (hasCoordinates) {
+    console.log('📍 Using coordinate positions from spread definition');
+    return positions.map((pos, idx) => {
+      const x = typeof pos?.x === 'number' ? Math.min(100, Math.max(0, pos.x)) : 50;
+      const y = typeof pos?.y === 'number' ? Math.min(100, Math.max(0, pos.y)) : 50;
+      const rotation = typeof pos?.rotation === 'number' ? pos.rotation : 0;
+
+      let posName = typeof pos === 'string' ? pos : (pos.name || `Position ${idx + 1}`);
+      if (!posName.match(/\d/)) {
+        posName = `${idx + 1}. ${posName}`;
+      }
+
+      return {
+        name: posName,
+        meaning: typeof pos === 'string' ? '' : (pos.meaning || ''),
+        x,
+        y,
+        rotation,
+        position_number: idx + 1,
+      };
+    });
+  }
+
+  // PRIORITY 3: Fallback layouts for built-in spreads
+  console.log('📍 Using fallback layout for:', positions.length, 'positions');
+  const count = positions.length;
+
+  // Single card - center
+  if (count === 1) {
+    let posName = typeof positions[0] === 'string' ? positions[0] : positions[0]?.name || 'Card';
+    if (!posName.match(/\d/)) {
+      posName = `1. ${posName}`;
+    }
+    return [{
+      name: posName,
+      meaning: typeof positions[0] === 'string' ? '' : (positions[0]?.meaning || ''),
+      x: 50,
+      y: 50,
+      rotation: 0,
+      position_number: 1,
+    }];
+  }
+
+  // Three cards - horizontal line
+  if (count === 3) {
+    return positions.map((pos, idx) => {
+      let posName = typeof pos === 'string' ? pos : (pos.name || `Position ${idx + 1}`);
+      if (!posName.match(/\d/)) {
+        posName = `${idx + 1}. ${posName}`;
+      }
+
+      return {
+        name: posName,
+        meaning: typeof pos === 'string' ? '' : (pos.meaning || ''),
+        x: 20 + (idx * 30),
+        y: 50,
+        rotation: 0,
+        position_number: idx + 1,
+      };
+    });
+  }
+
+  // Celtic Cross layout (10 cards)
+  if (count === 10 && spread?.name?.toLowerCase().includes('celtic cross')) {
+    const celticPositions = [
+      { x: 50, y: 50, rotation: 0 },
+      { x: 50, y: 50, rotation: 90 },
+      { x: 50, y: 25, rotation: 0 },
+      { x: 50, y: 75, rotation: 0 },
+      { x: 25, y: 50, rotation: 0 },
+      { x: 75, y: 50, rotation: 0 },
+      { x: 85, y: 80, rotation: 0 },
+      { x: 85, y: 60, rotation: 0 },
+      { x: 85, y: 40, rotation: 0 },
+      { x: 85, y: 20, rotation: 0 },
+    ];
+
+    return positions.map((pos, idx) => {
+      let posName = typeof pos === 'string' ? pos : (pos.name || `Position ${idx + 1}`);
+      if (!posName.match(/\d/)) {
+        posName = `${idx + 1}. ${posName}`;
+      }
+
+      return {
+        name: posName,
+        meaning: typeof pos === 'string' ? '' : (pos.meaning || ''),
+        x: celticPositions[idx]?.x ?? 50,
+        y: celticPositions[idx]?.y ?? 50,
+        rotation: celticPositions[idx]?.rotation ?? 0,
+        position_number: idx + 1,
+      };
+    });
+  }
+
+  // Default: distribute evenly in a grid
+  const cols = Math.min(5, Math.ceil(Math.sqrt(count)));
+  const rows = Math.ceil(count / cols);
+
+  return positions.map((pos, idx) => {
+    const col = idx % cols;
+    const row = Math.floor(idx / cols);
+
+    let posName = typeof pos === 'string' ? pos : (pos.name || `Position ${idx + 1}`);
+    if (!posName.match(/\d/)) {
+      posName = `${idx + 1}. ${posName}`;
+    }
+
+    return {
+      name: posName,
+      meaning: typeof pos === 'string' ? '' : (pos.meaning || ''),
+      x: 15 + (col * (70 / (cols - 1 || 1))),
+      y: 20 + (row * (60 / (rows - 1 || 1))),
+      rotation: 0,
+      position_number: idx + 1,
+    };
+  });
+}
+
+export default function SpreadLayout(props) {
+  const {
+    spread,
+    positions = [],
+    cards = [],
+    requiresPositions = true,
+    showPositionLabels = true,
+    hideEmptySlots = false,
+    revealMode = "instant",
+    animateSpread = false,
+    onCardClick = () => {},
+    deck,
+    containerMinH = null,
+    defaultCardWidth = DEFAULT_CARD_WIDTH,
+    allowReposition = false,
+    onPositionUpdate = () => {},
+    revealedCards = new Set(),
+    onCardReveal = () => {},
+    useScratchReveal = false,
+  } = props;
+
+  // DEBUG: Log received props
+  console.log('🎴 SpreadLayout: Props received', {
+    spreadName: spread?.name,
+    spreadPositions: spread?.positions?.length || positions.length,
+    cardsReceived: cards?.length,
+    cardsData: cards,
+    animateSpread,
+    showPositionLabels
+  });
+
+  const containerRef = React.useRef(null);
+
+  // NEW: Animation state
+  const [showPositions, setShowPositions] = React.useState(false);
+  const [showCards, setShowCards] = React.useState(false);
+
+  // NEW: MOBILE DEBUG PANEL STATE
+  const [showMobileDebug, setShowMobileDebug] = React.useState(false);
+
+  // NEW: Dragging state for repositioning
+  const [isDragging, setIsDragging] = React.useState(false); // Indicates if any card is currently being dragged
+  const [draggedCardIndex, setDraggedCardIndex] = React.useState(null); // Which card is being dragged
+  const [cardPositionsTemp, setCardPositionsTemp] = React.useState([]); // Stores { x, y } for each card index during drag
+  const dragOffsetRef = React.useRef({ x: 0, y: 0 });
+
+  // NEW: Scroll lock references
+  const wasBodyOverflow = React.useRef({ body: "", html: "" });
+  const preventWheelRef = React.useRef((e) => {
+    try {
+      e.preventDefault();
+      e.stopPropagation();
+    } catch (err) {
+      console.error('Error preventing wheel:', err);
+    }
+  });
+  const preventTouchMoveRef = React.useRef((e) => {
+    try {
+      e.preventDefault();
+      e.stopPropagation();
+    } catch (err) {
+      console.error('Error preventing touch move:', err);
+    }
+  });
+
+  // NEW: Lock scroll function
+  const lockScroll = React.useCallback(() => {
+    try {
+      // Store original overflow values
+      wasBodyOverflow.current = {
+        body: document.body.style.overflow,
+        html: document.documentElement.style.overflow,
+      };
+
+      // Lock scroll
+      document.body.style.overflow = "hidden";
+      document.documentElement.style.overflow = "hidden";
+      document.body.style.touchAction = "none"; // Important for mobile
+
+      // Prevent wheel and touch scrolling
+      window.addEventListener("wheel", preventWheelRef.current, { passive: false, capture: true });
+      window.addEventListener("touchmove", preventTouchMoveRef.current, { passive: false, capture: true });
+
+      // console.log('🔒 Scroll locked');
+    } catch (error) {
+      console.error('Error locking scroll:', error);
+    }
+  }, []);
+
+  // NEW: Unlock scroll function
+  const unlockScroll = React.useCallback(() => {
+    try {
+      // Restore original overflow values
+      document.body.style.overflow = wasBodyOverflow.current.body || "";
+      document.documentElement.style.overflow = wasBodyOverflow.current.html || "";
+      document.body.style.touchAction = "";
+
+      // Remove event listeners
+      window.removeEventListener("wheel", preventWheelRef.current, { capture: true });
+      window.removeEventListener("touchmove", preventTouchMoveRef.current, { capture: true });
+
+      // console.log('🔓 Scroll unlocked');
+    } catch (error) {
+      console.error('Error unlocking scroll:', error);
+    }
+  }, []);
+
+  // Cleanup on unmount
+  React.useEffect(() => {
+    return () => {
+      unlockScroll();
+    };
+  }, [unlockScroll]);
+
+  // FIXED: Use smaller default card width directly
+  const defaultSlot = defaultCardWidth || DEFAULT_CARD_WIDTH;
+
+  // IMPROVED: Pass cards to normalization function
+  const normalizedPositions = React.useMemo(() => {
+    try {
+      // DEBUG: Log inputs to normalization
+      console.log('📐 SpreadLayout: Calculating normalizedPositions', {
+        spread: spread?.name,
+        inputPositions: positions?.length,
+        cardsForNormalization: cards?.length,
+        cardsData: cards
+      });
+      
+      const result = normalizeSpreadPositions(spread, positions, cards);
+      
+      // DEBUG: Log result
+      console.log('📐 SpreadLayout: normalizedPositions result', {
+        count: result?.length,
+        positions: result
+      });
+      
+      return result;
+    } catch (err) {
+      console.error('Error in normalizedPositions:', err);
+      return [];
+    }
+  }, [spread, positions, cards]);
+
+  const cardsOnly = React.useMemo(() => {
+    const result = Array.isArray(cards) ? cards.filter(Boolean) : [];
+    
+    // DEBUG: Log cardsOnly derivation
+    console.log('🎴 SpreadLayout: cardsOnly derived', {
+      inputCardsLength: cards?.length,
+      cardsOnlyLength: result.length,
+      cardsOnly: result
+    });
+    
+    return result;
+  }, [cards]);
+
+  const visibleCount = hideEmptySlots
+    ? normalizedPositions.filter((_, i) => cardsOnly[i]).length
+    : normalizedPositions.length;
+
+  // Build render pairs including temporary drag positions
+  const renderItems = React.useMemo(() => {
+    try {
+      // DEBUG: Log renderItems calculation
+      console.log('🔧 SpreadLayout: Building renderItems', {
+        normalizedPositionsCount: normalizedPositions.length,
+        cardsOnlyCount: cardsOnly.length,
+        draggedCardIndex
+      });
+      
+      const items = normalizedPositions.map((pos, i) => {
+        const card = cardsOnly[i] || null;
+        
+        // DEBUG: Log each position-card pair
+        console.log(`🔧 SpreadLayout: Position ${i} (${pos.name})`, {
+          hasCard: !!card,
+          cardName: card?.name,
+          cardData: card
+        });
+        
+        if (draggedCardIndex === i && cardPositionsTemp[i]) {
+          return {
+            pos: {
+              ...pos,
+              x: cardPositionsTemp[i].x,
+              y: cardPositionsTemp[i].y,
+            },
+            card,
+          };
+        }
+        return { pos, card };
+      });
+      
+      // DEBUG: Log final renderItems
+      console.log('🔧 SpreadLayout: renderItems complete', {
+        totalItems: items.length,
+        itemsWithCards: items.filter(item => item.card).length,
+        items
+      });
+      
+      return items;
+    } catch (err) {
+      console.error('Error in renderItems:', err);
+      return [];
+    }
+  }, [normalizedPositions, cardsOnly, draggedCardIndex, cardPositionsTemp]);
+
+  // Animation sequence
+  React.useEffect(() => {
+    try {
+      if (!animateSpread || cardsOnly.length === 0) {
+        console.log('✅ SpreadLayout: Setting showPositions=true, showCards=true (no animation)');
+        setShowPositions(true);
+        setShowCards(true);
+        return;
+      }
+
+      console.log('🎬 SpreadLayout: Starting animation sequence');
+      setShowPositions(true);
+      setShowCards(false);
+
+      const timer = setTimeout(() => {
+        console.log('🎬 SpreadLayout: Animation complete, showing cards');
+        setShowCards(true);
+      }, 1200);
+
+      return () => clearTimeout(timer);
+    } catch (err) {
+      console.error('Error in animation sequence:', err);
+      setShowPositions(true);
+      setShowCards(true);
+    }
+  }, [animateSpread, cardsOnly.length]);
+
+  // --- Card repositioning handlers ---
+  const handleCardDragStart = (e, idx) => {
+    try {
+      if (!allowReposition) return;
+
+      e.stopPropagation();
+      setIsDragging(true);
+      setDraggedCardIndex(idx);
+      lockScroll();
+
+      const container = containerRef.current;
+      if (!container || !renderItems[idx]) {
+        console.warn("Container or renderItems not ready for drag start.");
+        setIsDragging(false);
+        setDraggedCardIndex(null);
+        unlockScroll();
+        return;
+      }
+
+      const rect = container.getBoundingClientRect();
+      const point = e.touches ? e.touches[0] : e;
+
+      // Calculate initial card position based on renderItems to get the base position
+      const currentPos = renderItems[idx].pos;
+      const cardCenterX = rect.left + (rect.width * (currentPos?.x || 50) / 100);
+      const cardCenterY = rect.top + (rect.height * (currentPos?.y || 50) / 100);
+
+      // Calculate offset from card center to cursor
+      dragOffsetRef.current = {
+        x: point.clientX - cardCenterX,
+        y: point.clientY - cardCenterY
+      };
+
+      if (e.preventDefault) e.preventDefault();
+
+      document.addEventListener('mousemove', handleCardDragMove, { passive: false, capture: true });
+      document.addEventListener('mouseup', handleCardDragEnd, { passive: false, capture: true });
+      document.addEventListener('touchmove', handleCardDragMove, { passive: false, capture: true });
+      document.addEventListener('touchend', handleCardDragEnd, { passive: false, capture: true });
+    } catch (err) {
+      console.error('Error starting card drag:', err);
+      setIsDragging(false);
+      setDraggedCardIndex(null);
+      unlockScroll();
+    }
+  };
+
+  const handleCardDragMove = (e) => {
+    try {
+      if (draggedCardIndex === null || !allowReposition) return;
+
+      const container = containerRef.current;
+      if (!container) return;
+
+      const rect = container.getBoundingClientRect();
+      const point = e.touches ? e.touches[0] : e;
+
+      // Calculate new position as percentage relative to container
+      const x = ((point.clientX - dragOffsetRef.current.x - rect.left) / rect.width) * 100;
+      const y = ((point.clientY - dragOffsetRef.current.y - rect.top) / rect.height) * 100;
+
+      // Clamp to container bounds with padding
+      const clampedX = Math.max(5, Math.min(95, x)); // Using 5% and 95%
+      const clampedY = Math.max(5, Math.min(95, y)); // Using 5% and 95%
+
+      // Update temporary card positions
+      setCardPositionsTemp(prev => {
+        const newPositions = [...prev];
+        if (!newPositions[draggedCardIndex]) {
+          newPositions[draggedCardIndex] = {};
+        }
+        newPositions[draggedCardIndex] = {
+          x: clampedX,
+          y: clampedY
+        };
+        return newPositions;
+      });
+
+      if (e.preventDefault) e.preventDefault();
+      if (e.stopPropagation) e.stopPropagation();
+    } catch (err) {
+      console.error('Error during card drag:', err);
+    }
+  };
+
+  const handleCardDragEnd = () => {
+    try {
+      if (draggedCardIndex === null) return;
+
+      unlockScroll();
+
+      // Construct the updated list of positions to pass to onPositionUpdate
+      const updatedPositions = normalizedPositions.map((pos, idx) => {
+        if (idx === draggedCardIndex && cardPositionsTemp[idx]) {
+          return {
+            ...pos, // Keep name, meaning, rotation from original
+            x: cardPositionsTemp[idx].x,
+            y: cardPositionsTemp[idx].y,
+          };
+        }
+        return pos; // Use original normalized position for other cards
+      });
+
+      if (onPositionUpdate && typeof onPositionUpdate === 'function') {
+        onPositionUpdate(updatedPositions);
+      }
+
+      setIsDragging(false);
+      setDraggedCardIndex(null);
+      setCardPositionsTemp([]); // Clear temporary positions after drag ends
+
+      document.removeEventListener('mousemove', handleCardDragMove, { capture: true });
+      document.removeEventListener('mouseup', handleCardDragEnd, { capture: true });
+      document.removeEventListener('touchmove', handleCardDragMove, { capture: true });
+      document.removeEventListener('touchend', handleCardDragEnd, { capture: true });
+    } catch (err) {
+      console.error('Error ending card drag:', err);
+      setIsDragging(false);
+      setDraggedCardIndex(null);
+      unlockScroll();
+    }
+  };
+
+  // FIXED: Better responsive container sizing
+  const isVerticalSpread = React.useMemo(() => {
+    if (normalizedPositions.length <= 3) return false;
+    const xValues = normalizedPositions.map(item => item.x);
+    const xRange = Math.max(...xValues) - Math.min(...xValues);
+    return xRange < 15; // If X coordinates are within a small range, it's vertical
+  }, [normalizedPositions]);
+
+  const computedContainerMinHeight = React.useMemo(() => {
+    if (containerMinH) return containerMinH;
+    const cardHeight = Math.round(defaultSlot * CARD_ASPECT_RATIO);
+
+    if (visibleCount === 1) return `${Math.max(cardHeight * 2, 400)}px`;
+
+    // For multi-card layouts, provide more space
+    // These values are empirical based on number of cards and default slot size
+    if (visibleCount <= 3) return `${cardHeight * 1.8}px`;
+    if (visibleCount <= 5) return `${cardHeight * 2.2}px`;
+    if (visibleCount <= 7) return `${cardHeight * 2.6}px`;
+    return `${cardHeight * 3}px`;
+  }, [containerMinH, visibleCount, defaultSlot]);
+
+
+  // Safety wrapper for rendering - only show if there are positions defined
+  if (!Array.isArray(normalizedPositions) || normalizedPositions.length === 0) {
+    console.warn('⚠️ SpreadLayout: No positions to display');
+    return (
+      <div className="w-full">
+        <div className="bg-red-900/20 border-2 border-red-500/50 rounded-lg p-4 text-red-200 text-center">
+          <div className="font-bold mb-2">⚠️ SpreadLayout Error</div>
+          <div className="text-sm">No positions to display</div>
+          <div className="text-xs mt-2 opacity-60">
+            normalizedPositions: {normalizedPositions?.length || 0} | 
+            cards: {cards?.length || 0}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // DEBUG: Log rendering state
+  console.log('🎨 SpreadLayout: Rendering with state', {
+    showPositions,
+    showCards,
+    visibleCount,
+    renderItemsCount: renderItems.length,
+    renderItemsWithCards: renderItems.filter(item => item.card).length
+  });
+
+  return (
+    <div className="w-full" ref={containerRef}>
+      {/* NEW: MOBILE DEBUG PANEL FOR SPREADLAYOUT */}
+      <div className="mb-4">
+        <button
+          onClick={() => setShowMobileDebug(!showMobileDebug)}
+          className="flex items-center gap-2 bg-orange-600/20 border border-orange-500/50 rounded-lg px-3 py-2 text-xs text-orange-200 hover:bg-orange-600/30 w-full"
+        >
+          <Bug className="w-4 h-4" />
+          <span className="font-semibold">SpreadLayout Debug {showMobileDebug ? '▼' : '▶'}</span>
+        </button>
+
+        {showMobileDebug && (
+          <div className="mt-2 bg-orange-900/30 border-2 border-orange-500/50 rounded-lg p-3 text-xs space-y-2 text-orange-100">
+            <div className="font-bold text-orange-200 mb-2">📐 SpreadLayout State:</div>
+            
+            <div className="bg-black/30 rounded p-2 space-y-1">
+              <div>• normalizedPositions: {normalizedPositions.length}</div>
+              <div>• cardsOnly: {cardsOnly.length}</div>
+              <div>• renderItems: {renderItems.length}</div>
+              <div>• visibleCount: {visibleCount}</div>
+            </div>
+
+            <div className="bg-black/30 rounded p-2 space-y-1">
+              <div>• showPositions: {showPositions ? '✅ YES' : '❌ NO'}</div>
+              <div>• showCards: {showCards ? '✅ YES' : '❌ NO'}</div>
+              <div>• animateSpread: {animateSpread ? '✅ YES' : '❌ NO'}</div>
+            </div>
+
+            <div className="bg-black/30 rounded p-2 space-y-1">
+              <div className="font-semibold text-orange-200 mb-1">Render Items:</div>
+              {renderItems.map((item, idx) => (
+                <div key={idx} className="text-[10px] border-l-2 border-orange-500/30 pl-2">
+                  {idx + 1}. {item.card ? `✅ ${item.card.name}` : '❌ No card'} 
+                  @ ({item.pos.x?.toFixed(0)}%, {item.pos.y?.toFixed(0)}%)
+                </div>
+              ))}
+            </div>
+
+            <div className="text-orange-300 text-[10px] italic mt-2">
+              💡 If renderItems show cards but they're not visible below, check CSS/rendering
+            </div>
+          </div>
+        )}
+      </div>
+
+      {allowReposition && (
+        <div className="mb-3 text-center">
+          <div className="inline-flex items-center gap-2 bg-purple-600/20 border border-purple-400/40 rounded-lg px-3 py-2 text-xs text-purple-300">
+            <Move className="w-4 h-4" />
+            <span>Drag cards to reposition them</span>
+          </div>
+        </div>
+      )}
+
+      <div
+        className="relative w-full rounded-xl overflow-hidden flex items-center justify-center mystical-grid-container"
+        style={{
+          minHeight: computedContainerMinHeight,
+          padding: visibleCount === 1 ? '3rem 2rem' : '2rem 1rem',
+          position: 'relative'
+        }}
+      >
+        {/* Mystical grid background */}
+        <div className="absolute inset-0 pointer-events-none opacity-20">
+          <svg width="100%" height="100%" style={{ position: 'absolute', top: 0, left: 0 }}>
+            <defs>
+              <pattern id="smallGrid" width="20" height="20" patternUnits="userSpaceOnUse">
+                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(168,85,247,0.3)" strokeWidth="0.5"/>
+              </pattern>
+              <pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse">
+                <rect width="100" height="100" fill="url(#smallGrid)"/>
+                <path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(168,85,247,0.5)" strokeWidth="1"/>
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid)" />
+          </svg>
+        </div>
+
+        {/* Single card - direct flexbox centering */}
+        {visibleCount === 1 ? (
+          renderItems.map(({ pos, card }, idx) => {
+            if (hideEmptySlots && !card) return null;
+
+            const isCurrentDragged = draggedCardIndex === idx;
+
+            return (
+              <motion.div
+                key={`card-${idx}`}
+                className="relative flex flex-col items-center justify-center z-10 p-2"
+                style={{
+                  width: defaultSlot,
+                  height: Math.round(defaultSlot * CARD_ASPECT_RATIO),
+                  maxWidth: '90vw',
+                  cursor: allowReposition ? 'grab' : 'pointer',
+                  zIndex: isCurrentDragged ? 100 : 10,
+                }}
+                initial={animateSpread ? { scale: 0, opacity: 0 } : false}
+                animate={
+                  showPositions
+                    ? { scale: 1, opacity: 1 }
+                    : { scale: 0, opacity: 0 }
+                }
+                transition={{
+                  delay: animateSpread ? idx * 0.1 : 0,
+                  duration: 0.4,
+                  type: "spring",
+                  stiffness: 200,
+                  damping: 20
+                }}
+                data-spread-slot
+              >
+                {/* Position marker */}
+                {showPositionLabels && showPositions && !card && (
+                  <div className="absolute inset-0 rounded-lg border-2 border-dashed border-purple-500/40 bg-purple-900/10 flex items-center justify-center backdrop-blur-sm">
+                    <div className="text-center p-2">
+                      <div className="text-purple-300 font-semibold text-sm mb-1">{pos.name}</div>
+                      {pos.meaning && (
+                        <div className="text-purple-400 text-xs opacity-70">{pos.meaning}</div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Card */}
+                <AnimatePresence>
+                  {card && showCards && (
+                    console.log('🎨 SpreadLayout: Rendering single card', {
+                      cardName: card.name,
+                      position: pos.name,
+                      showCards,
+                      showPositions
+                    }),
+                    <motion.div
+                      initial={animateSpread ? {
+                        scale: 0.1,
+                        opacity: 0,
+                        y: -400,
+                        x: Math.random() * 200 - 100,
+                        rotateZ: (pos.rotation || 0) + (Math.random() * 120 - 60),
+                        rotateY: 180
+                      } : false}
+                      animate={{
+                        scale: 1,
+                        opacity: 1,
+                        y: 0,
+                        x: 0,
+                        rotateZ: pos.rotation || 0,
+                        rotateY: 0,
+                      }}
+                      transition={{
+                        delay: animateSpread ? 1.2 + idx * 0.2 : 0,
+                        duration: 0.9,
+                        type: "spring",
+                        stiffness: 120,
+                        damping: 18
+                      }}
+                      className="w-full h-full flex flex-col"
+                    >
+                      {useScratchReveal && !revealedCards.has(idx) ? (
+                        <div
+                          onClick={() => !allowReposition && onCardClick(card, idx)}
+                          className="w-full h-full"
+                        >
+                          <ScratchRevealCard
+                            frontImage={card.image_url}
+                            backImage={deck?.back_image_url}
+                            cardName={card.name}
+                            isReversed={card.is_reversed}
+                            onReveal={() => onCardReveal(idx)}
+                            width="100%"
+                            height="100%"
+                          />
+                        </div>
+                      ) : !revealedCards.has(idx) ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onCardReveal(idx);
+                            setTimeout(() => onCardClick(card, idx), 300);
+                          }}
+                          className="relative w-full h-full rounded-lg overflow-hidden shadow-2xl hover:shadow-purple-500/50 hover:scale-105 transition-all"
+                        >
+                          {deck?.back_image_url ? (
+                            <img
+                              src={deck.back_image_url}
+                              alt="Card back"
+                              className="w-full h-full object-cover"
+                              draggable={false}
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-purple-800 to-indigo-800 flex items-center justify-center">
+                              <span className="text-white/70 text-xs">Tap to reveal</span>
+                            </div>
+                          )}
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => onCardClick(card, idx)}
+                          onMouseDown={(e) => allowReposition && handleCardDragStart(e, idx)}
+                          onTouchStart={(e) => allowReposition && handleCardDragStart(e, idx)}
+                          className={`relative w-full h-full rounded-lg overflow-hidden shadow-2xl transition-all duration-300 group ${isCurrentDragged ? 'shadow-purple-500/80 scale-105' : 'hover:shadow-purple-500/50 hover:scale-105'}`}
+                          style={{
+                            transform: `rotate(${pos.rotation || 0}deg)`,
+                            transformOrigin: 'center',
+                            cursor: allowReposition ? (isCurrentDragged ? 'grabbing' : 'grab') : 'pointer'
+                          }}
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 to-blue-600/20 group-hover:from-purple-500/30 group-hover:to-blue-500/30 transition-all" />
+
+                          {card.image_url ? (
+                            <img
+                              src={card.image_url}
+                              alt={card.name}
+                              className={`w-full h-full object-cover ${card.is_reversed ? 'rotate-180' : ''}`}
+                              loading="lazy"
+                              draggable={false}
+                            />
+                          ) : (
+                            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-purple-900 to-indigo-900">
+                              <span className="text-white/90 text-center px-2 font-semibold text-sm">{card.name}</span>
+                            </div>
+                          )}
+                          {allowReposition && (
+                            <div className="absolute top-2 right-2 bg-purple-500/80 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                              <Move className="w-3 h-3" />
+                            </div>
+                          )}
+                        </button>
+                      )}
+
+                      {showPositionLabels && (
+                        <div className="mt-2 text-center">
+                          <Badge className="bg-purple-600/80 text-white text-xs px-2 py-1">
+                            {pos.name}
+                          </Badge>
+                        </div>
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Empty slot */}
+                {!card && !hideEmptySlots && showCards && (
+                  <div className="w-full h-full rounded-lg border-2 border-dashed border-purple-500/30 bg-purple-900/5 flex items-center justify-center text-purple-300 text-xs">
+                    {showPositionLabels ? pos?.name : "Empty Slot"}
+                  </div>
+                )}
+              </motion.div>
+            );
+          })
+        ) : (
+          // Multi-card layout with absolute positioning
+          <div className="relative z-10 w-full h-full" style={{
+            maxWidth: isVerticalSpread ? '400px' : '100%',
+            padding: '1rem'
+          }}>
+            {renderItems.map(({ pos, card }, idx) => {
+              if (hideEmptySlots && !card) return null;
+
+              const safeX = Math.max(5, Math.min(95, pos.x));
+              const safeY = Math.max(5, Math.min(95, pos.y));
+              const isCurrentDragged = draggedCardIndex === idx;
+
+              return (
+                <motion.div
+                  key={`card-${idx}`}
+                  className="absolute -translate-x-1/2 -translate-y-1/2 p-1"
+                  style={{
+                    left: `${safeX}%`,
+                    top: `${safeY}%`,
+                    width: defaultSlot,
+                    height: Math.round(defaultSlot * CARD_ASPECT_RATIO),
+                    maxWidth: '90vw',
+                    cursor: allowReposition ? 'grab' : 'default',
+                    zIndex: isCurrentDragged ? 100 : 10,
+                  }}
+                  initial={animateSpread ? { scale: 0, opacity: 0 } : false}
+                  animate={{
+                    scale: showPositions ? 1 : 0,
+                    opacity: showPositions ? 1 : 0
+                  }}
+                  transition={{
+                    delay: animateSpread ? idx * 0.12 : 0,
+                    duration: 0.5,
+                    type: "spring",
+                    stiffness: 180,
+                    damping: 22
+                  }}
+                  data-spread-slot
+                >
+                  {/* Position marker */}
+                  {showPositionLabels && showPositions && !card && (
+                    <div className="absolute inset-0 rounded-lg border-2 border-dashed border-purple-500/40 bg-purple-900/10 flex items-center justify-center backdrop-blur-sm">
+                      <div className="text-center p-1">
+                        <div className="text-purple-300 font-semibold text-xs">{pos.name}</div>
+                      </div>
+                    </div>
+                  )}
+
+                  <AnimatePresence>
+                    {card && showCards && (
+                      console.log('🎨 SpreadLayout: Rendering multi-card', {
+                        cardName: card.name,
+                        position: pos.name,
+                        x: safeX,
+                        y: safeY,
+                        showCards,
+                        showPositions
+                      }),
+                      <motion.div
+                        initial={animateSpread ? {
+                          scale: 0.1,
+                          opacity: 0,
+                          y: -400,
+                          x: Math.random() * 300 - 150,
+                          rotateZ: (pos.rotation || 0) + (Math.random() * 120 - 60),
+                          rotateY: 180
+                        } : false}
+                        animate={{
+                          scale: 1,
+                          opacity: 1,
+                          y: 0,
+                          x: 0,
+                          rotateZ: pos.rotation || 0,
+                          rotateY: 0
+                        }}
+                        transition={{
+                          delay: animateSpread ? 1.2 + idx * 0.2 : 0,
+                          duration: 0.9,
+                          type: "spring",
+                          stiffness: 120,
+                          damping: 18
+                        }}
+                        className="w-full h-full flex flex-col"
+                      >
+                        {useScratchReveal && !revealedCards.has(idx) ? (
+                          <div
+                            onClick={() => !allowReposition && onCardClick(card, idx)}
+                            className="w-full h-full"
+                          >
+                            <ScratchRevealCard
+                              frontImage={card.image_url}
+                              backImage={deck?.back_image_url}
+                              cardName={card.name}
+                              isReversed={card.is_reversed}
+                              onReveal={() => onCardReveal(idx)}
+                              width="100%"
+                              height="100%"
+                            />
+                          </div>
+                        ) : !revealedCards.has(idx) ? (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              onCardReveal(idx);
+                              setTimeout(() => onCardClick(card, idx), 300);
+                            }}
+                            className="relative w-full h-full rounded-lg overflow-hidden shadow-xl hover:shadow-purple-500/50 hover:scale-110 transition-all"
+                          >
+                            {deck?.back_image_url ? (
+                              <img
+                                src={deck.back_image_url}
+                                alt="Card back"
+                                className="w-full h-full object-cover"
+                                draggable={false}
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-gradient-to-br from-purple-800 to-indigo-800 flex items-center justify-center">
+                                <span className="text-white/70 text-[10px]">Tap to reveal</span>
+                              </div>
+                            )}
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => onCardClick(card, idx)}
+                            onMouseDown={(e) => allowReposition && handleCardDragStart(e, idx)}
+                            onTouchStart={(e) => allowReposition && handleCardDragStart(e, idx)}
+                            className={`relative w-full h-full rounded-lg overflow-hidden shadow-xl transition-all duration-300 group ${isCurrentDragged ? 'shadow-purple-500/80 scale-110' : 'hover:shadow-purple-500/50 hover:scale-110'}`}
+                            style={{
+                              transform: `rotate(${pos.rotation}deg)`,
+                              transformOrigin: 'center',
+                              cursor: allowReposition ? (isCurrentDragged ? 'grabbing' : 'grab') : 'pointer'
+                            }}
+                          >
+                            <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 to-blue-600/20 group-hover:from-purple-500/30 group-hover:to-blue-500/30 transition-all" />
+
+                            {card.image_url ? (
+                              <img
+                                src={card.image_url}
+                                alt={card.name}
+                                className={`w-full h-full object-cover ${card.is_reversed ? 'rotate-180' : ''}`}
+                                loading="lazy"
+                                draggable={false}
+                              />
+                            ) : (
+                              <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-purple-900 to-indigo-900">
+                                <span className="text-white/90 text-center px-1 font-semibold text-[10px]">{card.name}</span>
+                              </div>
+                            )}
+                            {allowReposition && (
+                              <div className="absolute top-2 right-2 bg-purple-500/80 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                                <Move className="w-3 h-3" />
+                              </div>
+                            )}
+                          </button>
+                        )}
+
+                        {showPositionLabels && (
+                          <div
+                            className="absolute left-1/2 transform -translate-x-1/2 pointer-events-none"
+                            style={{ top: '100%', marginTop: '4px' }}
+                          >
+                            <Badge className="bg-purple-600/90 text-white text-[10px] px-1.5 py-0.5 whitespace-nowrap">
+                              {pos.name}
+                            </Badge>
+                          </div>
+                        )}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  {/* Empty slot */}
+                  {!card && !hideEmptySlots && showCards && (
+                    <div className="w-full h-full rounded-lg border-2 border-dashed border-purple-500/20 bg-purple-900/5 flex items-center justify-center text-purple-300 text-xs">
+                      {showPositionLabels ? pos?.name : "Empty Slot"}
+                    </div>
+                  )}
+                </motion.div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      <style jsx>{`
+        .mystical-grid-container {
+          background: linear-gradient(135deg, rgba(88, 28, 135, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+          border: 1px solid rgba(168, 85, 247, 0.2);
+          box-shadow: 0 0 20px rgba(168, 85, 247, 0.1) inset;
+        }
+      `}</style>
+    </div>
+  );
+}

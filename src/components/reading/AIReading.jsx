@@ -1,0 +1,346 @@
+import React, { useState, useEffect } from "react";
+import { base44 } from "@/api/base44Client";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Loader2, Sparkles, AlertTriangle, Copy, Check } from "lucide-react";
+import { User } from "@/entities/User";
+import FreeLimitReached from "@/components/pricing/FreeLimitReached";
+import TokenCostPreview from "@/components/pricing/TokenCostPreview";
+import { Progress } from "@/components/ui/progress";
+
+export default function ChanneledReading({ isOpen, drawnCards, deck, spread, question, onClose }) {
+  const [interpretation, setInterpretation] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState("");
+  const [user, setUser] = useState(null);
+  const [copied, setCopied] = useState(false);
+  const [selectedTier, setSelectedTier] = useState("standard");
+  const [progress, setProgress] = useState({ current: 0, total: 0, message: "" });
+
+  useEffect(() => {
+    if (isOpen) {
+      User.me().then(setUser).catch(() => setUser(null));
+    }
+  }, [isOpen]);
+
+  const generateInterpretation = async (tier = "standard") => {
+    if (!drawnCards || drawnCards.length === 0) {
+      setError("No cards drawn to interpret");
+      return;
+    }
+
+    setIsGenerating(true);
+    setError("");
+    setInterpretation("");
+    setSelectedTier(tier);
+    setProgress({ current: 1, total: 5, message: "Connecting to source..." });
+
+    try {
+      const tokenCost = tier === "quick" ? 1 : tier === "deep" ? 4 : 2;
+
+      if (user && typeof user.token_balance === "number" && user.token_balance < tokenCost) {
+        setError(`Insufficient tokens. This ${tier} reading costs ${tokenCost} token${tokenCost > 1 ? 's' : ''}.`);
+        setProgress({ current: 0, total: 0, message: "" });
+        setIsGenerating(false);
+        return;
+      }
+
+      setProgress({ current: 2, total: 5, message: "Reading the energy..." });
+
+      // FIXED: Build spread position structure from spread.positions to ensure accuracy
+      const spreadPositions = spread?.positions || [];
+      const numPositions = spreadPositions.length;
+      
+      // CRITICAL: Only include cards up to the number of positions in the spread
+      const relevantCards = drawnCards.slice(0, numPositions);
+      
+      const cardDescriptions = relevantCards
+        .map((card, idx) => {
+          // Get position info from spread definition (most reliable)
+          const spreadPos = spreadPositions[idx];
+          const posName = spreadPos?.name || card.position || `Position ${idx + 1}`;
+          const posMeaning = spreadPos?.meaning || card.position_meaning || "";
+          
+          const cardName = card.name || "Unknown Card";
+          const reversed = card.is_reversed || card.isReversed ? " (Reversed)" : "";
+
+          // Build position header with meaning
+          let positionHeader = `POSITION ${idx + 1}: ${posName} - ${cardName}${reversed}`;
+          if (posMeaning) {
+            positionHeader += `\n   → Position Represents: ${posMeaning}`;
+          }
+
+          // Build card meanings
+          let meanings = [];
+          if (card.overall_meaning) meanings.push(`Card Meaning: ${card.overall_meaning}`);
+          if ((card.is_reversed || card.isReversed) && card.reversed_meaning) {
+            meanings.push(`Reversed Meaning: ${card.reversed_meaning}`);
+          } else if (card.upright_meaning) {
+            meanings.push(`Upright Meaning: ${card.upright_meaning}`);
+          }
+
+          const meaningText = meanings.length > 0 ? meanings.join("\n   ") : "No description available";
+          return `${positionHeader}\n   ${meaningText}`;
+        })
+        .join("\n\n");
+
+      const deckDescription = deck?.description || "";
+      const spreadDescription = spread?.description || spread?.name || "General spread";
+      
+      // Build spread structure overview
+      const spreadStructure = `This is a ${numPositions}-card ${spreadDescription} spread with these positions:\n${spreadPositions.map((p, i) => `${i + 1}. ${p.name || p}${p.meaning ? ` - ${p.meaning}` : ''}`).join('\n')}`;
+      const userPersona = user?.reading_persona || {};
+      const personaName = user?.reading_persona_name || userPersona.name || "Mystical Guide";
+      const personaPreamble = user?.reading_persona_preamble || userPersona.tone || "Provide insightful and empowering guidance";
+
+      setProgress({ current: 3, total: 5, message: "Channeling cosmic wisdom..." });
+
+      const lengthInstructions = {
+        quick: "Provide a concise 1-2 paragraph interpretation focusing on the key message.",
+        standard: "Provide a balanced 3-4 paragraph interpretation with practical insights.",
+        deep: "Provide a comprehensive 5-7 paragraph deep-dive interpretation exploring all nuances, connections between cards, and actionable guidance."
+      };
+
+      const aiCoach = deck?.ai_reading_coach || "";
+      const coachInstruction = aiCoach ? `\n\nIMPORTANT DECK-SPECIFIC GUIDANCE:\n${aiCoach}` : "";
+
+      // Make the question more prominent and central to the reading
+      const questionEmphasis = question && question.trim() 
+        ? `\n\n🎯 THE QUERENT'S QUESTION (MUST BE DIRECTLY ADDRESSED):\n"${question}"\n\nThis question is the CORE of your reading. Every card interpretation should relate back to answering this specific question.`
+        : "";
+
+      const prompt = `You are ${personaName}, a skilled and compassionate card reader. ${personaPreamble}
+
+CRITICAL TONE GUIDELINES - READ CAREFULLY:
+- NEVER use apocalyptic, doom-based, or catastrophic language
+- AVOID words like: apocalypse, end of the world, destruction, catastrophe, disaster, collapse
+- Focus on EMPOWERMENT, GROWTH, and PRACTICAL WISDOM
+- Even challenging cards represent OPPORTUNITIES for growth, not disasters
+- Frame obstacles as TEMPORARY and SOLVABLE with the right approach
+- Use uplifting, constructive language that inspires ACTION and HOPE
+- Balance realism with optimism - acknowledge difficulties but emphasize potential
+- Treat "difficult" cards as wake-up calls or invitations to transform, NOT as prophecies of doom
+
+${lengthInstructions[tier]}
+
+DECK: ${deck?.name || "Oracle Deck"}
+${deckDescription ? `Deck Theme: ${deckDescription}` : ""}
+${coachInstruction}
+
+SPREAD STRUCTURE:
+${spreadStructure}
+${questionEmphasis}
+
+CARDS IN THIS READING (${relevantCards.length} cards):
+${cardDescriptions}
+
+CRITICAL: You MUST interpret ONLY these ${relevantCards.length} cards shown above. Do not mention any other cards or positions.
+
+READING STRUCTURE - FOLLOW THIS EXACTLY:
+1. ${question && question.trim() ? `START by acknowledging their specific question: "${question}"` : 'START with a warm opening'}
+2. Interpret each card IN THE CONTEXT OF THE QUESTION - how does this card answer or illuminate their query?
+3. Show how the cards work together to answer the question
+4. ${question && question.trim() ? 'END with a clear, direct answer to their question based on the cards' : 'END with practical guidance'}
+
+Provide a ${tier} reading that:
+1. ${question && question.trim() ? 'DIRECTLY ANSWERS THE QUESTION in your opening paragraph' : 'Addresses the general situation'}
+2. Interprets each card specifically in relation to ${question && question.trim() ? 'the question asked' : 'their path'}
+3. Weaves the cards into a cohesive narrative that ${question && question.trim() ? 'answers their question' : 'provides guidance'}
+4. Offers practical, actionable guidance that ${question && question.trim() ? 'helps them act on the answer' : 'inspires confidence'}
+5. ${tier === "deep" ? "Explores deep connections WITHOUT doom language" : tier === "standard" ? "Balances depth with clarity" : "Delivers the core answer clearly"}
+6. FRAMES CHALLENGES AS OPPORTUNITIES - never as disasters
+7. EMPHASIZES the querent's power to SHAPE their future through conscious choices
+8. ${question && question.trim() ? 'CONCLUDES by summarizing the answer to their question' : 'Concludes with empowering guidance'}
+
+REMEMBER: ${question && question.trim() ? `Every sentence should help answer: "${question}"` : 'Focus on empowerment and growth'}
+
+Write in a ${personaPreamble.toLowerCase()} tone that is UPLIFTING and CONSTRUCTIVE. Begin your interpretation:`;
+
+      setProgress({ current: 4, total: 5, message: "Weaving your interpretation..." });
+
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt: prompt,
+        add_context_from_internet: false
+      });
+
+      if (!response || typeof response !== "string") {
+        throw new Error("Invalid response from interpretation service");
+      }
+
+      setInterpretation(response.trim());
+
+      setProgress({ current: 5, total: 5, message: "Reading complete!" });
+
+      if (user && typeof user.token_balance === "number") {
+        const newBalance = Math.max(0, user.token_balance - tokenCost);
+        await base44.entities.User.update(user.id, {
+          token_balance: newBalance,
+          lifetime_tokens_used: (user.lifetime_tokens_used || 0) + tokenCost
+        });
+        setUser(prev => ({ ...prev, token_balance: newBalance }));
+      }
+
+      setTimeout(() => {
+        setProgress({ current: 0, total: 0, message: "" });
+      }, 1500);
+
+    } catch (err) {
+      console.error("Error generating interpretation:", err);
+      setError(err.message || "Failed to generate reading. Please try again.");
+      setProgress({ current: 0, total: 0, message: "" });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(interpretation);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  if (!isOpen) return null;
+
+  const hasInsufficientTokens = user && typeof user.token_balance === "number" && user.token_balance < 1;
+
+  return (
+    <div className="space-y-6">
+      <div className="text-center">
+        <h2 className="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400 mb-2">
+          Channeled Interpretation
+        </h2>
+        <p className="text-purple-200 text-sm md:text-base">
+          {deck?.name ? `${deck.name} Reading` : "Your Reading"}
+        </p>
+      </div>
+
+      {hasInsufficientTokens && (
+        <FreeLimitReached />
+      )}
+
+      {!interpretation && !isGenerating && !hasInsufficientTokens && (
+        <div className="space-y-4">
+          <p className="text-white/80 text-center text-sm md:text-base">
+            Choose your reading depth:
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <Button
+              onClick={() => generateInterpretation("quick")}
+              disabled={isGenerating}
+              className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white flex flex-col items-center gap-2 py-6"
+            >
+              <Sparkles className="w-5 h-5" />
+              <div>
+                <div className="font-bold">Quick Reading</div>
+                <div className="text-xs opacity-80">1-2 paragraphs</div>
+                <TokenCostPreview action="reading_quick" />
+              </div>
+            </Button>
+
+            <Button
+              onClick={() => generateInterpretation("standard")}
+              disabled={isGenerating}
+              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white flex flex-col items-center gap-2 py-6 border-2 border-amber-400/50"
+            >
+              <Sparkles className="w-5 h-5" />
+              <div>
+                <div className="font-bold">Standard Reading</div>
+                <div className="text-xs opacity-80">3-4 paragraphs</div>
+                <TokenCostPreview action="reading_standard" />
+              </div>
+            </Button>
+
+            <Button
+              onClick={() => generateInterpretation("deep")}
+              disabled={isGenerating}
+              className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white flex flex-col items-center gap-2 py-6"
+            >
+              <Sparkles className="w-5 h-5" />
+              <div>
+                <div className="font-bold">Deep Reading</div>
+                <div className="text-xs opacity-80">5-7 paragraphs</div>
+                <TokenCostPreview action="reading_deep" />
+              </div>
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {isGenerating && progress.total > 0 && (
+        <div className="bg-purple-900/20 border border-purple-500/40 rounded-lg p-4 md:p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <Loader2 className="w-5 h-5 md:w-6 md:h-6 text-purple-400 animate-spin flex-shrink-0" />
+            <div className="flex-1">
+              <p className="font-semibold text-purple-300 text-sm md:text-base">{progress.message}</p>
+              <p className="text-xs text-purple-200 mt-1">
+                Step {progress.current} of {progress.total}
+              </p>
+            </div>
+          </div>
+          <Progress
+            value={(progress.current / progress.total) * 100}
+            className="h-2"
+          />
+          <p className="text-xs text-purple-300 text-center mt-3">
+            Channeling your {selectedTier} reading... This may take 10-30 seconds.
+          </p>
+        </div>
+      )}
+
+      {error && (
+        <Alert className="bg-red-900/20 border-red-500/40 text-red-200">
+          <AlertTriangle className="w-4 h-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      {interpretation && (
+        <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-4 md:p-6 space-y-4">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg md:text-xl font-bold text-purple-300 flex items-center gap-2">
+              <Sparkles className="w-5 h-5" />
+              Your {selectedTier.charAt(0).toUpperCase() + selectedTier.slice(1)} Reading
+            </h3>
+            <Button
+              onClick={copyToClipboard}
+              variant="ghost"
+              size="sm"
+              className="text-purple-300 hover:text-white"
+            >
+              {copied ? (
+                <>
+                  <Check className="w-4 h-4 mr-2" />
+                  Copied!
+                </>
+              ) : (
+                <>
+                  <Copy className="w-4 h-4 mr-2" />
+                  Copy
+                </>
+              )}
+            </Button>
+          </div>
+
+          <div className="prose prose-invert prose-purple max-w-none">
+            <div className="text-white/90 whitespace-pre-wrap leading-relaxed text-sm md:text-base">
+              {interpretation}
+            </div>
+          </div>
+
+          <div className="pt-4 border-t border-white/10">
+            <Button
+              onClick={() => {
+                setInterpretation("");
+                setError("");
+              }}
+              variant="outline"
+              className="w-full border-purple-500/30 text-purple-300 hover:bg-purple-900/30"
+            >
+              Generate Another Reading
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
