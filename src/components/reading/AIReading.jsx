@@ -74,99 +74,14 @@ export default function ChanneledReading({ isOpen, drawnCards, deck, spread, que
       // CRITICAL: Only include cards up to the number of positions in the spread
       const relevantCards = drawnCards.slice(0, numPositions);
       
-      const cardDescriptions = relevantCards
-        .map((card, idx) => {
-          // Get position info from spread definition (most reliable)
-          const spreadPos = spreadPositions[idx];
-          const posName = spreadPos?.name || card.position || `Position ${idx + 1}`;
-          const posMeaning = spreadPos?.meaning || card.position_meaning || "";
-          
-          const cardName = card.name || "Unknown Card";
-          const reversed = card.is_reversed || card.isReversed ? " (Reversed)" : "";
-
-          // Build position header with meaning
-          let positionHeader = `POSITION ${idx + 1}: ${posName} - ${cardName}${reversed}`;
-          if (posMeaning) {
-            positionHeader += `\n   → Position Represents: ${posMeaning}`;
-          }
-
-          // Build card meanings
-          let meanings = [];
-          if (card.overall_meaning) meanings.push(`Card Meaning: ${card.overall_meaning}`);
-          if ((card.is_reversed || card.isReversed) && card.reversed_meaning) {
-            meanings.push(`Reversed Meaning: ${card.reversed_meaning}`);
-          } else if (card.upright_meaning) {
-            meanings.push(`Upright Meaning: ${card.upright_meaning}`);
-          }
-
-          const meaningText = meanings.length > 0 ? meanings.join("\n   ") : "No description available";
-          return `${positionHeader}\n   ${meaningText}`;
-        })
-        .join("\n\n");
-
-      const deckDescription = deck?.description || "";
-      const spreadDescription = spread?.description || spread?.name || "General spread";
-      
-      // Build spread structure overview
-      const spreadStructure = `This is a ${numPositions}-card ${spreadDescription} spread with these positions:\n${spreadPositions.map((p, i) => `${i + 1}. ${p.name || p}${p.meaning ? ` - ${p.meaning}` : ''}`).join('\n')}`;
+      // Card descriptions and spread structure generation moved to backend
       const userPersona = user?.reading_persona || {};
       const personaName = user?.reading_persona_name || userPersona.name || "Mystical Guide";
       const personaPreamble = user?.reading_persona_preamble || userPersona.tone || "Provide insightful and empowering guidance";
 
       setProgress({ current: 3, total: 5, message: includeMoonPhase ? "Consulting the Moon..." : "Channeling cosmic wisdom..." });
 
-      const aiCoach = deck?.ai_reading_coach || "";
-      const coachInstruction = aiCoach ? `\n\nIMPORTANT DECK-SPECIFIC GUIDANCE:\n${aiCoach}` : "";
-
-      // Make the question more prominent and central to the reading
-      const questionEmphasis = question && question.trim() 
-        ? `\n\n🎯 THE QUERENT'S QUESTION (MUST BE DIRECTLY ADDRESSED):\n"${question}"\n\nThis question is the CORE of your reading. Every card interpretation should relate back to answering this specific question.`
-        : "";
-
-      const prompt = `You are ${personaName}, a skilled and compassionate card reader. ${personaPreamble}
-
-CRITICAL TONE GUIDELINES - READ CAREFULLY:
-- NEVER use apocalyptic, doom-based, or catastrophic language
-- AVOID words like: apocalypse, end of the world, destruction, catastrophe, disaster, collapse
-- Focus on EMPOWERMENT, GROWTH, and PRACTICAL WISDOM
-- Even challenging cards represent OPPORTUNITIES for growth, not disasters
-- Frame obstacles as TEMPORARY and SOLVABLE with the right approach
-- Use uplifting, constructive language that inspires ACTION and HOPE
-- Balance realism with optimism - acknowledge difficulties but emphasize potential
-- Treat "difficult" cards as wake-up calls or invitations to transform, NOT as prophecies of doom
-
-${lengthInstructions[tier]}
-
-DECK: ${deck?.name || "Oracle Deck"}
-${deckDescription ? `Deck Theme: ${deckDescription}` : ""}
-${coachInstruction}
-
-SPREAD STRUCTURE:
-${spreadStructure}
-${questionEmphasis}
-
-CARDS IN THIS READING (${relevantCards.length} cards):
-${cardDescriptions}
-
-CRITICAL: You MUST interpret ONLY these ${relevantCards.length} cards shown above. Do not mention any other cards or positions.
-
-READING STRUCTURE - FOLLOW THIS EXACTLY:
-1. ${question && question.trim() ? `START by acknowledging their specific question: "${question}"` : 'START with a warm opening'}
-2. Interpret each card IN THE CONTEXT OF THE QUESTION. You MUST explicitly name the card you are discussing (e.g. "The [Card Name] reveals...").
-3. Show how the cards work together to answer the question
-4. ${question && question.trim() ? 'END with a clear, direct answer to their question based on the cards' : 'END with practical guidance'}
-
-Provide a ${tier} reading that:
-1. ${question && question.trim() ? 'DIRECTLY ANSWERS THE QUESTION in your opening paragraph' : 'Addresses the general situation'}
-2. Interprets each card specifically in relation to ${question && question.trim() ? 'the question asked' : 'their path'}, always referring to cards by their full names
-3. Weaves the cards into a cohesive narrative that ${question && question.trim() ? 'answers their question' : 'provides guidance'}
-4. Offers practical, actionable guidance that ${question && question.trim() ? 'helps them act on the answer' : 'inspires confidence'}
-5. ${tier === "deep" ? "Explores deep connections WITHOUT doom language" : tier === "standard" ? "Balances depth with clarity" : "Delivers the core answer clearly"}
-6. FRAMES CHALLENGES AS OPPORTUNITIES - never as disasters
-7. EMPHASIZES the querent's power to SHAPE their future through conscious choices
-8. ${question && question.trim() ? 'CONCLUDES by summarizing the answer to their question' : 'Concludes with empowering guidance'}
-
-REMEMBER: ${question && question.trim() ? `Every sentence should help answer: "${question}"` : 'Focus on empowerment and growth'}
+      // Prompt generation moved to backend
 
 setProgress({ current: 4, total: 5, message: "Weaving your interpretation..." });
 
