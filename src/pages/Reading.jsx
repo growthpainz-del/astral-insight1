@@ -706,7 +706,7 @@ export default function ReadingPage() {
                 onCardClick={handleCardClick}
                 revealedCards={revealedCards}
                 onCardReveal={handleCardReveal}
-                useScratchReveal={deck?.name?.toLowerCase().includes('wiccan')}
+                useScratchReveal={(deck?.censor_mode === 'scratch') || deck?.name?.toLowerCase().includes('wiccan')}
                 animateSpread={true}
               />
             </div>
