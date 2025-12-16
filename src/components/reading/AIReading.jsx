@@ -156,13 +156,13 @@ CRITICAL: You MUST interpret ONLY these ${relevantCards.length} cards shown abov
 
 READING STRUCTURE - FOLLOW THIS EXACTLY:
 1. ${question && question.trim() ? `START by acknowledging their specific question: "${question}"` : 'START with a warm opening'}
-2. Interpret each card IN THE CONTEXT OF THE QUESTION - how does this card answer or illuminate their query?
+2. Interpret each card IN THE CONTEXT OF THE QUESTION. You MUST explicitly name the card you are discussing (e.g. "The [Card Name] reveals...").
 3. Show how the cards work together to answer the question
 4. ${question && question.trim() ? 'END with a clear, direct answer to their question based on the cards' : 'END with practical guidance'}
 
 Provide a ${tier} reading that:
 1. ${question && question.trim() ? 'DIRECTLY ANSWERS THE QUESTION in your opening paragraph' : 'Addresses the general situation'}
-2. Interprets each card specifically in relation to ${question && question.trim() ? 'the question asked' : 'their path'}
+2. Interprets each card specifically in relation to ${question && question.trim() ? 'the question asked' : 'their path'}, always referring to cards by their full names
 3. Weaves the cards into a cohesive narrative that ${question && question.trim() ? 'answers their question' : 'provides guidance'}
 4. Offers practical, actionable guidance that ${question && question.trim() ? 'helps them act on the answer' : 'inspires confidence'}
 5. ${tier === "deep" ? "Explores deep connections WITHOUT doom language" : tier === "standard" ? "Balances depth with clarity" : "Delivers the core answer clearly"}
