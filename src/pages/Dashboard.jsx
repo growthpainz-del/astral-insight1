@@ -359,7 +359,7 @@ export default function Dashboard() {
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
         <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12">
           <h1 className="text-5xl md:text-7xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400">
-            Astral Insight
+            Savage Bull Shark
           </h1>
           <p className="text-xl md:text-2xl text-white/80 mb-6 max-w-2xl">
             Your mystical journey into oracle readings, tarot, and cosmic guidance
@@ -587,7 +587,7 @@ export default function Dashboard() {
 
       {/* Footer */}
       <div className="px-8 py-12 text-center text-white/30 text-sm">
-        Astral Insight • Your Gateway to Cosmic Wisdom
+        Savage Bull Shark • Your Gateway to Cosmic Wisdom
       </div>
 
       <style>{`
