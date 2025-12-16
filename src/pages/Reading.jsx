@@ -107,6 +107,7 @@ export default function ReadingPage() {
   const [sessionNotes, setSessionNotes] = useState("");
   const [showEnhancedViewer, setShowEnhancedViewer] = useState(false);
   const [viewerCard, setViewerCard] = useState(null);
+  const [showRelationshipsOverlay, setShowRelationshipsOverlay] = useState(false);
 
   // NEW: Debug panel state
   const [showDebugPanel, setShowDebugPanel] = useState(false);
@@ -634,7 +635,7 @@ export default function ReadingPage() {
                 <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400">
                   Your Reading
                 </h2>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap justify-end">
                   <Button
                     size="sm"
                     variant="outline"
@@ -655,6 +656,28 @@ export default function ReadingPage() {
                     <Save className="w-4 h-4 mr-2" />
                     Save Session
                   </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setShowRelationshipsOverlay(true)}
+                    className="border-purple-500/40 text-purple-300 hover:bg-purple-500/10"
+                  >
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Relationships
+                  </Button>
+                  {selectedSpread?.isCustom && selectedSpread?.id ? (
+                    <Link to={createPageUrl(`SpreadDesigner?id=${selectedSpread.id}`)}>
+                      <Button size="sm" variant="outline" className="border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10">
+                        Edit Spread
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Link to={createPageUrl('SpreadManager')}>
+                      <Button size="sm" variant="outline" className="border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10">
+                        Edit Spread
+                      </Button>
+                    </Link>
+                  )}
                 </div>
               </div>
 
@@ -684,6 +707,7 @@ export default function ReadingPage() {
                 revealedCards={revealedCards}
                 onCardReveal={handleCardReveal}
                 useScratchReveal={deck?.name?.toLowerCase().includes('wiccan')}
+                animateSpread={true}
               />
             </div>
 
@@ -768,6 +792,21 @@ export default function ReadingPage() {
           </div>
         )}
       </div>
+
+      {/* Relationships Overlay */}
+      {showRelationshipsOverlay && (
+        <div className="fixed inset-0 z-[9998] bg-black/80 backdrop-blur-sm p-4 md:p-8">
+          <div className="relative max-w-6xl mx-auto bg-slate-900 rounded-xl border border-purple-500/30 p-4 md:p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-white font-semibold">Card Relationships</h3>
+              <button onClick={() => setShowRelationshipsOverlay(false)} className="text-white/70 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <CardRelationshipVisualizer deckId={deck.id} cards={drawnCards} selectedCards={drawnCards} />
+          </div>
+        </div>
+      )}
 
       {/* Enhanced Card Viewer Modal - MOVED TO TOP LEVEL WITH HIGHER Z-INDEX */}
       {viewerCard && showEnhancedViewer && (
