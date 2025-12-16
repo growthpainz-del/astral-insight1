@@ -282,6 +282,7 @@ if (user && typeof user.token_balance === "number") {
             </Button>
           </div>
         </div>
+        </div>
       )}
 
       {isGenerating && progress.total > 0 && (
