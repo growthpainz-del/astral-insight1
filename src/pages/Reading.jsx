@@ -108,6 +108,8 @@ export default function ReadingPage() {
   const [showEnhancedViewer, setShowEnhancedViewer] = useState(false);
   const [viewerCard, setViewerCard] = useState(null);
   const [showRelationshipsOverlay, setShowRelationshipsOverlay] = useState(false);
+  // Drag-to-position state (live, per reading)
+  const [readingPositions, setReadingPositions] = useState([]);
 
   // NEW: Debug panel state
   const [showDebugPanel, setShowDebugPanel] = useState(false);
@@ -276,6 +278,11 @@ export default function ReadingPage() {
   }, [deckIdFromUrl]);
 
   const selectedSpread = allSpreads.find(s => s.id === selectedSpreadId) || BUILT_IN_SPREADS[1];
+
+  // Keep local editable positions in sync with the selected spread
+  useEffect(() => {
+    setReadingPositions(selectedSpread?.positions || []);
+  }, [selectedSpread]);
 
   const handleDrawCards = () => {
     console.log('🎴 handleDrawCards called');
@@ -810,7 +817,7 @@ export default function ReadingPage() {
 
               <SpreadLayout
                 spread={selectedSpread}
-                positions={selectedSpread?.positions || []}
+                positions={readingPositions}
                 cards={drawnCards}
                 deck={deck}
                 onCardClick={handleCardClick}
@@ -818,6 +825,18 @@ export default function ReadingPage() {
                 onCardReveal={handleCardReveal}
                 useScratchReveal={(deck?.censor_mode === 'scratch') || deck?.name?.toLowerCase().includes('wiccan')}
                 animateSpread={true}
+                allowReposition={true}
+                onPositionUpdate={(updated) => {
+                  setReadingPositions(updated);
+                  setDrawnCards(prev => prev.map((c, idx) => ({
+                    ...c,
+                    position_x: typeof updated[idx]?.x === 'number' ? updated[idx].x : c.position_x,
+                    position_y: typeof updated[idx]?.y === 'number' ? updated[idx].y : c.position_y,
+                    position_rotation: typeof updated[idx]?.rotation === 'number' ? updated[idx].rotation : (c.position_rotation || 0),
+                    position: updated[idx]?.name || c.position,
+                    position_meaning: typeof updated[idx]?.meaning === 'string' ? updated[idx].meaning : c.position_meaning,
+                  })));
+                }}
               />
             </div>
 
