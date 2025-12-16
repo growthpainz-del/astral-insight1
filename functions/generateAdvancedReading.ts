@@ -91,9 +91,9 @@ Deno.serve(async (req) => {
         const spreadStructure = `This is a ${numPositions}-card ${spreadDescription} spread with these positions:\n${spreadPositions.map((p, i) => `${i + 1}. ${p.name || p}${p.meaning ? ` - ${p.meaning}` : ''}`).join('\n')}`;
 
         const lengthInstructions = {
-            quick: "Provide a concise 1-2 paragraph interpretation focusing on the key message.",
-            standard: "Provide a balanced 3-4 paragraph interpretation with practical insights.",
-            deep: "Provide a comprehensive 5-7 paragraph deep-dive interpretation exploring all nuances, connections between cards, and actionable guidance."
+            quick: "Ultra concise: 2 short paragraphs max (≈120–180 words). Each card: 1–2 sentences. Include a 2–3 sentence synthesis at the end.",
+            standard: "Concise: 3 short paragraphs max (≈200–300 words). Each card: 1–2 sentences. Include a 2–3 sentence synthesis at the end.",
+            deep: "Focused depth: 4–5 paragraphs max (≈320–500 words). Each card: 2 sentences max; avoid repeating points. Include a 2–3 sentence synthesis and actionable guidance."
         };
 
         const aiCoach = deck?.ai_reading_coach || "";
@@ -150,6 +150,12 @@ FORMAT AND MARKUP RULES:
 - Write in clean paragraphs and full sentences only.
 
 ${lengthInstructions[tier]}
+
+CONCISENESS RULES:
+- For each card, write at most 2 sentences specific to its position and the question.
+- Avoid repeating ideas across cards; if overlap exists, acknowledge it briefly without re-explaining.
+- Remove filler and small talk; be direct and concrete.
+- End with a 2–3 sentence synthesis tying the spread together and answering the question directly.
 
 DECK: ${deck?.name || "Oracle Deck"}
 ${deckDescription ? `Deck Theme: ${deckDescription}` : ""}

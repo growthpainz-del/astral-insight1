@@ -16,7 +16,7 @@ export default function ChanneledReading({ isOpen, drawnCards, deck, spread, que
   const [error, setError] = useState("");
   const [user, setUser] = useState(null);
   const [copied, setCopied] = useState(false);
-  const [selectedTier, setSelectedTier] = useState("standard");
+  const [selectedTier, setSelectedTier] = useState("quick");
   const [includeMoonPhase, setIncludeMoonPhase] = useState(false);
   const [progress, setProgress] = useState({ current: 0, total: 0, message: "" });
   
@@ -43,7 +43,7 @@ export default function ChanneledReading({ isOpen, drawnCards, deck, spread, que
     }
   }, [isOpen]);
 
-  const generateInterpretation = async (tier = "standard") => {
+  const generateInterpretation = async (tier = "quick") => {
     if (!drawnCards || drawnCards.length === 0) {
       setError("No cards drawn to interpret");
       return;
