@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, Sparkles, AlertTriangle, Copy, Check, Volume2, StopCircle } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Loader2, Sparkles, AlertTriangle, Copy, Check, Volume2, StopCircle, Mic } from "lucide-react";
 import AudioPlayer from "@/components/reading/AudioPlayer";
 import { User } from "@/entities/User";
 import FreeLimitReached from "@/components/pricing/FreeLimitReached";
@@ -20,6 +21,17 @@ export default function ChanneledReading({ isOpen, drawnCards, deck, spread, que
   
   // Audio state
   const [audioUrl, setAudioUrl] = useState(null);
+  const [selectedVoice, setSelectedVoice] = useState("21m00Tcm4TlvDq8ikWAM"); // Default to Rachel
+
+  const AVAILABLE_VOICES = [
+    { id: "21m00Tcm4TlvDq8ikWAM", name: "Rachel (Calm & Clear)", gender: "Female" },
+    { id: "AZnzlk1XvdvUeBnXmlld", name: "Domi (Strong & Confident)", gender: "Female" },
+    { id: "EXAVITQu4vr4xnSDxMaL", name: "Bella (Soft & Serious)", gender: "Female" },
+    { id: "TxGEqnHWrfWFTfGW9XjX", name: "Josh (Deep & Resonant)", gender: "Male" },
+    { id: "VR6AewLTigWg4xSOukaG", name: "Arnold (Crisp & Authoritative)", gender: "Male" },
+    { id: "pNInz6obpgDQGcFmaJgB", name: "Adam (Deep Narrator)", gender: "Male" },
+    { id: "MF3mGyEYCl7XYWbV9V6O", name: "Elli (Young & Bright)", gender: "Female" },
+  ];
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
 
@@ -219,7 +231,8 @@ Write in a ${personaPreamble.toLowerCase()} tone that is UPLIFTING and CONSTRUCT
       }
 
       const { data } = await base44.functions.invoke('generateSpeech', { 
-        text: interpretation 
+        text: interpretation,
+        voiceId: selectedVoice
       });
 
       if (data.error) throw new Error(data.error);
@@ -362,7 +375,22 @@ Write in a ${personaPreamble.toLowerCase()} tone that is UPLIFTING and CONSTRUCT
               <Sparkles className="w-5 h-5" />
               Your {selectedTier.charAt(0).toUpperCase() + selectedTier.slice(1)} Reading
             </h3>
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2 flex-wrap justify-end">
+              <div className="w-[180px]">
+                <Select value={selectedVoice} onValueChange={setSelectedVoice} disabled={isGeneratingAudio || isSpeaking}>
+                  <SelectTrigger className="h-8 bg-black/40 border-purple-500/30 text-xs text-purple-200">
+                    <SelectValue placeholder="Select Voice" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-900 border-purple-500/30 text-purple-200">
+                    {AVAILABLE_VOICES.map(voice => (
+                      <SelectItem key={voice.id} value={voice.id} className="text-xs focus:bg-purple-900/50 focus:text-white">
+                        {voice.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
               <Button
                 onClick={handleGenerateSpeech}
                 variant="ghost"
