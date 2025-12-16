@@ -461,7 +461,7 @@ export default function Layout({ children, currentPageName }) {
             <div className="flex items-center justify-between h-16 px-4 border-b border-purple-800/40 flex-shrink-0">
               <Link to={createPageUrl('Home')} className="flex items-center gap-2">
                 <img src="https://growthpainz.com/wp-content/uploads/2024/05/LOGO_CIRCLE_ICON_ONLY_GrowthPaiNz-150x150.png" alt="Logo" className="h-8 w-8" />
-                <span className="font-bold text-lg text-white">Savage Bull Shark</span>
+                <span className="font-bold text-lg text-white">Astral Insight</span>
               </Link>
               <button onClick={() => setIsSidebarOpen(false)} className="md:hidden text-purple-300">
                 <X className="w-6 h-6" />
