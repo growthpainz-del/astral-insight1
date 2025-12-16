@@ -23,6 +23,12 @@ Deno.serve(async (req) => {
         }
 
         // 3. Call ElevenLabs API
+        const isGypsy = voiceId === "X8Na0RDzhqa1gJFsWu5a";
+        const modelId = isGypsy ? "eleven_multilingual_v2" : "eleven_monolingual_v1";
+        const voiceSettings = isGypsy
+            ? { stability: 0.25, similarity_boost: 0.95, style: 0.85, use_speaker_boost: true }
+            : { stability: 0.5, similarity_boost: 0.75 };
+
         const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
             method: 'POST',
             headers: {
@@ -30,12 +36,9 @@ Deno.serve(async (req) => {
                 'xi-api-key': apiKey,
             },
             body: JSON.stringify({
-                text: text,
-                model_id: "eleven_monolingual_v1",
-                voice_settings: {
-                    stability: 0.5,
-                    similarity_boost: 0.75
-                }
+                text,
+                model_id: modelId,
+                voice_settings: voiceSettings
             })
         });
 
