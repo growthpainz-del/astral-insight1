@@ -32,6 +32,7 @@ export default function ChanneledReading({ isOpen, drawnCards, deck, spread, que
     { id: "VR6AewLTigWg4xSOukaG", name: "Arnold (Crisp & Authoritative)", gender: "Male" },
     { id: "pNInz6obpgDQGcFmaJgB", name: "Adam (Deep Narrator)", gender: "Male" },
     { id: "MF3mGyEYCl7XYWbV9V6O", name: "Elli (Young & Bright)", gender: "Female" },
+    { id: "L6DEKzL1j1D0wWd2t3t", name: "Gypsy (Mystical Seer)", gender: "Female" },
   ];
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
