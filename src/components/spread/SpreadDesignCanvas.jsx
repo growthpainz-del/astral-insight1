@@ -16,8 +16,41 @@ export default function SpreadDesignCanvas({
   lockScrollWhileDragging = true,
 }) {
   const ref = React.useRef(null);
-  const draggingRef = React.useRef({ idx: -1, startX: 0, startY: 0 });
+  const draggingRef = React.useRef({ idx: -1, startX: 0, startY: 0, startedAt: 0, moved: false });
   const [selectedCard, setSelectedCard] = React.useState(null);
+  const [fineAdjustIdx, setFineAdjustIdx] = React.useState(null);
+  const longPressTimerRef = React.useRef(null);
+  const LONG_PRESS_MS = 450;
+
+  const clearLongPressTimer = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  };
+
+  const degNorm = (d) => ((d % 360) + 360) % 360;
+  const presetOptions = [315, 0, 45];
+  const cyclePreset = (idx) => {
+    const curr = degNorm(positions[idx]?.rotation || 0);
+    let curIndex = presetOptions.findIndex((p) => Math.abs(p - curr) <= 10);
+    if (curIndex === -1) {
+      let minDist = 999, minIdx = 0;
+      for (let i = 0; i < presetOptions.length; i++) {
+        const a = presetOptions[i];
+        let diff = Math.abs(a - curr);
+        diff = Math.min(diff, 360 - diff);
+        if (diff < minDist) { minDist = diff; minIdx = i; }
+      }
+      curIndex = minIdx;
+    }
+    const next = presetOptions[(curIndex + 1) % presetOptions.length];
+    updateRotation(idx, next);
+  };
+
+  React.useEffect(() => {
+    return () => clearLongPressTimer();
+  }, []);
 
   const updatePos = (idx, px, py) => {
     const el = ref.current;
@@ -53,6 +86,13 @@ export default function SpreadDesignCanvas({
     const point = e.touches ? e.touches[0] : e;
     draggingRef.current.startX = point.clientX;
     draggingRef.current.startY = point.clientY;
+    draggingRef.current.startedAt = Date.now();
+    draggingRef.current.moved = false;
+
+    clearLongPressTimer();
+    longPressTimerRef.current = setTimeout(() => {
+      setFineAdjustIdx(idx);
+    }, LONG_PRESS_MS);
 
     document.addEventListener("mousemove", onMove, { passive: false });
     document.addEventListener("mouseup", onUp, { passive: false });
@@ -68,16 +108,37 @@ export default function SpreadDesignCanvas({
     e.stopPropagation();
     
     const point = e.touches ? e.touches[0] : e;
+    const dx = Math.abs(point.clientX - draggingRef.current.startX);
+    const dy = Math.abs(point.clientY - draggingRef.current.startY);
+    if (!draggingRef.current.moved && (dx > 6 || dy > 6)) {
+      draggingRef.current.moved = true;
+      clearLongPressTimer();
+    }
     updatePos(idx, point.clientX, point.clientY);
   };
 
   const onUp = () => {
-    draggingRef.current.idx = -1;
+    const idx = draggingRef.current.idx;
+    const wasMoved = draggingRef.current.moved;
+    const startedAt = draggingRef.current.startedAt;
+
+    clearLongPressTimer();
 
     document.removeEventListener("mousemove", onMove);
     document.removeEventListener("mouseup", onUp);
     document.removeEventListener("touchmove", onMove);
     document.removeEventListener("touchend", onUp);
+
+    if (idx >= 0) {
+      const duration = Date.now() - (startedAt || 0);
+      if (!wasMoved && duration < LONG_PRESS_MS) {
+        // Tap detected: cycle rotation presets
+        cyclePreset(idx);
+      }
+    }
+
+    draggingRef.current.idx = -1;
+    draggingRef.current.moved = false;
   };
 
   const handleRotate = (idx, degrees) => {
@@ -149,7 +210,7 @@ export default function SpreadDesignCanvas({
               onTouchStart={(e) => onDown(e, i)}
               onClick={(e) => {
                 e.stopPropagation();
-                setSelectedCard(isSelected ? null : i);
+                // Tap rotation handled onUp; selection managed onDown
               }}
               className={`relative w-full h-full cursor-move transition-all duration-200 group ${
                 isSelected ? 'ring-4 ring-cyan-400 ring-offset-2 ring-offset-slate-900 shadow-2xl' : 'hover:shadow-xl'
@@ -194,45 +255,45 @@ export default function SpreadDesignCanvas({
               </Badge>
             </div>
 
-            {/* Rotation controls - FIXED: Better positioning and styling */}
-            {isSelected && (
+            {/* Rotation controls - Long-press fine adjust */}
+            {isSelected && fineAdjustIdx === i && (
               <div 
-                className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-1 mt-2 bg-slate-900/95 backdrop-blur-sm rounded-lg p-1.5 shadow-2xl border border-cyan-400/40"
+                className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-2 mt-2 bg-slate-900/95 backdrop-blur-sm rounded-xl p-2 shadow-2xl border border-cyan-400/40"
                 style={{ top: 'calc(100% + 26px)' }}
                 onClick={(e) => e.stopPropagation()}
               >
                 <Button
-                  size="sm"
-                  className="h-8 w-8 p-0 bg-cyan-600 hover:bg-cyan-700 text-white"
+                  size="lg"
+                  className="h-10 px-4 bg-cyan-600 hover:bg-cyan-700 text-white text-sm font-bold"
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleRotate(i, -45);
+                    handleRotate(i, -15);
                   }}
-                  title="Rotate -45°"
+                  title="Rotate -15°"
                 >
-                  <RotateCcw className="w-4 h-4" />
+                  <RotateCcw className="w-4 h-4 mr-1" /> -15°
                 </Button>
                 
-                <div className="px-3 py-1 bg-slate-800 rounded text-xs font-bold text-cyan-300 min-w-[60px] text-center">
+                <div className="px-3 py-1 bg-slate-800 rounded text-sm font-bold text-cyan-300 min-w-[64px] text-center">
                   {rotation}°
                 </div>
                 
                 <Button
-                  size="sm"
-                  className="h-8 w-8 p-0 bg-cyan-600 hover:bg-cyan-700 text-white"
+                  size="lg"
+                  className="h-10 px-4 bg-cyan-600 hover:bg-cyan-700 text-white text-sm font-bold"
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleRotate(i, 45);
+                    handleRotate(i, 15);
                   }}
-                  title="Rotate +45°"
+                  title="Rotate +15°"
                 >
-                  <RotateCw className="w-4 h-4" />
+                  +15° <RotateCw className="w-4 h-4 ml-1" />
                 </Button>
 
                 {rotation !== 0 && (
                   <Button
-                    size="sm"
-                    className="h-8 w-8 p-0 bg-slate-700 hover:bg-slate-600 text-white ml-1"
+                    size="lg"
+                    className="h-10 w-10 p-0 bg-slate-700 hover:bg-slate-600 text-white ml-1"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleResetRotation(i);
@@ -253,7 +314,7 @@ export default function SpreadDesignCanvas({
         <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-sm rounded-lg px-3 py-2 text-xs text-white/80 pointer-events-none shadow-lg">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-            <span className="font-semibold">Drag to move • Click to rotate</span>
+            <span className="font-semibold">Drag to move • Tap to cycle • Long-press for fine adjust</span>
           </div>
         </div>
       )}
