@@ -410,7 +410,7 @@ export default function Dashboard() {
           <QuickAction
             label="Explore Decks"
             icon={Sparkles}
-            to={createPageUrl("Reading")}
+            to={createPageUrl("ReadingRoom")}
             gradient="bg-gradient-to-br from-cyan-600 to-blue-600"
           />
         </div>
@@ -424,7 +424,7 @@ export default function Dashboard() {
               <Sparkles className="w-6 h-6 text-cyan-400" />
               Official Decks ({publicDecks.length})
             </h2>
-            <Link to={createPageUrl("Reading")} className="text-white/60 hover:text-white flex items-center gap-1 text-sm">
+            <Link to={createPageUrl("ReadingRoom")} className="text-white/60 hover:text-white flex items-center gap-1 text-sm">
               Browse All <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
