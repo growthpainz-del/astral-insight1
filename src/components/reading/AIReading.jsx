@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, Sparkles, AlertTriangle, Copy, Check } from "lucide-react";
+import { Loader2, Sparkles, AlertTriangle, Copy, Check, Volume2, StopCircle } from "lucide-react";
+import AudioPlayer from "@/components/reading/AudioPlayer";
 import { User } from "@/entities/User";
 import FreeLimitReached from "@/components/pricing/FreeLimitReached";
 import TokenCostPreview from "@/components/pricing/TokenCostPreview";
@@ -16,6 +17,11 @@ export default function ChanneledReading({ isOpen, drawnCards, deck, spread, que
   const [copied, setCopied] = useState(false);
   const [selectedTier, setSelectedTier] = useState("standard");
   const [progress, setProgress] = useState({ current: 0, total: 0, message: "" });
+  
+  // Audio state
+  const [audioUrl, setAudioUrl] = useState(null);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -199,6 +205,61 @@ Write in a ${personaPreamble.toLowerCase()} tone that is UPLIFTING and CONSTRUCT
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleGenerateSpeech = async () => {
+    if (!interpretation) return;
+    
+    setIsGeneratingAudio(true);
+    setError("");
+
+    try {
+      // Clear previous audio
+      if (audioUrl) {
+        URL.revokeObjectURL(audioUrl);
+        setAudioUrl(null);
+      }
+
+      const { data } = await base44.functions.invoke('generateSpeech', { 
+        text: interpretation 
+      });
+
+      if (data.error) throw new Error(data.error);
+      
+      if (data.audioContent) {
+        // Convert base64 to blob
+        const byteCharacters = atob(data.audioContent);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: 'audio/mpeg' });
+        const url = URL.createObjectURL(blob);
+        setAudioUrl(url);
+        setIsSpeaking(true);
+      }
+    } catch (err) {
+      console.error("Speech generation error:", err);
+      setError("Failed to generate audio. Please check API configuration.");
+    } finally {
+      setIsGeneratingAudio(false);
+    }
+  };
+
+  // Cleanup audio URL on unmount or when interpretation changes
+  useEffect(() => {
+    return () => {
+      if (audioUrl) URL.revokeObjectURL(audioUrl);
+    };
+  }, [audioUrl]);
+
+  // Reset audio when new interpretation is generated
+  useEffect(() => {
+    if (isGenerating) {
+      setAudioUrl(null);
+      setIsSpeaking(false);
+    }
+  }, [isGenerating]);
+
   if (!isOpen) return null;
 
   const hasInsufficientTokens = user && typeof user.token_balance === "number" && user.token_balance < 1;
@@ -301,25 +362,47 @@ Write in a ${personaPreamble.toLowerCase()} tone that is UPLIFTING and CONSTRUCT
               <Sparkles className="w-5 h-5" />
               Your {selectedTier.charAt(0).toUpperCase() + selectedTier.slice(1)} Reading
             </h3>
-            <Button
-              onClick={copyToClipboard}
-              variant="ghost"
-              size="sm"
-              className="text-purple-300 hover:text-white"
-            >
-              {copied ? (
-                <>
-                  <Check className="w-4 h-4 mr-2" />
-                  Copied!
-                </>
-              ) : (
-                <>
-                  <Copy className="w-4 h-4 mr-2" />
-                  Copy
-                </>
-              )}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={handleGenerateSpeech}
+                variant="ghost"
+                size="sm"
+                disabled={isGeneratingAudio}
+                className="text-purple-300 hover:text-white"
+              >
+                {isGeneratingAudio ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Volume2 className="w-4 h-4 mr-2" />
+                )}
+                Listen
+              </Button>
+              <Button
+                onClick={copyToClipboard}
+                variant="ghost"
+                size="sm"
+                className="text-purple-300 hover:text-white"
+              >
+                {copied ? (
+                  <>
+                    <Check className="w-4 h-4 mr-2" />
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-4 h-4 mr-2" />
+                    Copy
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
+
+          {audioUrl && (
+            <div className="mb-4">
+              <AudioPlayer src={audioUrl} title="AI Interpretation" />
+            </div>
+          )}
 
           <div className="prose prose-invert prose-purple max-w-none">
             <div className="text-white/90 whitespace-pre-wrap leading-relaxed text-sm md:text-base">
