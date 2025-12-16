@@ -144,6 +144,11 @@ CRITICAL TONE GUIDELINES - READ CAREFULLY:
 - Balance realism with optimism - acknowledge difficulties but emphasize potential
 - Treat "difficult" cards as wake-up calls or invitations to transform, NOT as prophecies of doom
 
+FORMAT AND MARKUP RULES:
+- Do not use the asterisk (*) character anywhere (no emphasis, bullets, or decoration).
+- Avoid Markdown: no bold/italics, no bullet lists, no code blocks.
+- Write in clean paragraphs and full sentences only.
+
 ${lengthInstructions[tier]}
 
 DECK: ${deck?.name || "Oracle Deck"}

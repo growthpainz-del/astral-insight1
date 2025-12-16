@@ -102,7 +102,7 @@ const { data } = await base44.functions.invoke('generateAdvancedReading', {
 
 if (data.error) throw new Error(data.error);
 
-setInterpretation(data.interpretation);
+setInterpretation((data.interpretation || "").replace(/\*/g, ""));
 
 setProgress({ current: 5, total: 5, message: "Reading complete!" });
 
