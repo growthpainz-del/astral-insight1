@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Sparkles, AlertTriangle, Copy, Check, Volume2, StopCircle, Mic } from "lucide-react";
+import { Loader2, Sparkles, AlertTriangle, Copy, Check, Volume2, StopCircle, Mic, Moon } from "lucide-react";
 import AudioPlayer from "@/components/reading/AudioPlayer";
 import { User } from "@/entities/User";
 import FreeLimitReached from "@/components/pricing/FreeLimitReached";
@@ -17,6 +17,7 @@ export default function ChanneledReading({ isOpen, drawnCards, deck, spread, que
   const [user, setUser] = useState(null);
   const [copied, setCopied] = useState(false);
   const [selectedTier, setSelectedTier] = useState("standard");
+  const [includeMoonPhase, setIncludeMoonPhase] = useState(false);
   const [progress, setProgress] = useState({ current: 0, total: 0, message: "" });
   
   // Audio state
@@ -54,16 +55,17 @@ export default function ChanneledReading({ isOpen, drawnCards, deck, spread, que
     setProgress({ current: 1, total: 5, message: "Connecting to source..." });
 
     try {
-      const tokenCost = tier === "quick" ? 1 : tier === "deep" ? 4 : 2;
+      let tokenCost = tier === "quick" ? 1 : tier === "deep" ? 4 : 2;
+      if (includeMoonPhase) tokenCost += 1;
 
       if (user && typeof user.token_balance === "number" && user.token_balance < tokenCost) {
-        setError(`Insufficient tokens. This ${tier} reading costs ${tokenCost} token${tokenCost > 1 ? 's' : ''}.`);
+        setError(`Insufficient tokens. This reading costs ${tokenCost} token${tokenCost > 1 ? 's' : ''}.`);
         setProgress({ current: 0, total: 0, message: "" });
         setIsGenerating(false);
         return;
       }
 
-      setProgress({ current: 2, total: 5, message: "Reading the energy..." });
+      setProgress({ current: 2, total: 5, message: includeMoonPhase ? "Aligning with lunar cycles..." : "Reading the energy..." });
 
       // FIXED: Build spread position structure from spread.positions to ensure accuracy
       const spreadPositions = spread?.positions || [];
@@ -111,13 +113,7 @@ export default function ChanneledReading({ isOpen, drawnCards, deck, spread, que
       const personaName = user?.reading_persona_name || userPersona.name || "Mystical Guide";
       const personaPreamble = user?.reading_persona_preamble || userPersona.tone || "Provide insightful and empowering guidance";
 
-      setProgress({ current: 3, total: 5, message: "Channeling cosmic wisdom..." });
-
-      const lengthInstructions = {
-        quick: "Provide a concise 1-2 paragraph interpretation focusing on the key message.",
-        standard: "Provide a balanced 3-4 paragraph interpretation with practical insights.",
-        deep: "Provide a comprehensive 5-7 paragraph deep-dive interpretation exploring all nuances, connections between cards, and actionable guidance."
-      };
+      setProgress({ current: 3, total: 5, message: includeMoonPhase ? "Consulting the Moon..." : "Channeling cosmic wisdom..." });
 
       const aiCoach = deck?.ai_reading_coach || "";
       const coachInstruction = aiCoach ? `\n\nIMPORTANT DECK-SPECIFIC GUIDANCE:\n${aiCoach}` : "";
@@ -172,31 +168,33 @@ Provide a ${tier} reading that:
 
 REMEMBER: ${question && question.trim() ? `Every sentence should help answer: "${question}"` : 'Focus on empowerment and growth'}
 
-Write in a ${personaPreamble.toLowerCase()} tone that is UPLIFTING and CONSTRUCTIVE. Begin your interpretation:`;
+setProgress({ current: 4, total: 5, message: "Weaving your interpretation..." });
 
-      setProgress({ current: 4, total: 5, message: "Weaving your interpretation..." });
+// Call backend function
+const { data } = await base44.functions.invoke('generateAdvancedReading', {
+  drawnCards: relevantCards, // Use the prepared cards from frontend logic or rely on backend to slice
+  // Actually, let's pass the raw cards and let backend handle slicing to match existing logic
+  drawnCards, 
+  deck,
+  spread,
+  question,
+  tier,
+  includeMoonPhase,
+  personaName,
+  personaPreamble
+});
 
-      const response = await base44.integrations.Core.InvokeLLM({
-        prompt: prompt,
-        add_context_from_internet: false
-      });
+if (data.error) throw new Error(data.error);
 
-      if (!response || typeof response !== "string") {
-        throw new Error("Invalid response from interpretation service");
-      }
+setInterpretation(data.interpretation);
 
-      setInterpretation(response.trim());
+setProgress({ current: 5, total: 5, message: "Reading complete!" });
 
-      setProgress({ current: 5, total: 5, message: "Reading complete!" });
-
-      if (user && typeof user.token_balance === "number") {
-        const newBalance = Math.max(0, user.token_balance - tokenCost);
-        await base44.entities.User.update(user.id, {
-          token_balance: newBalance,
-          lifetime_tokens_used: (user.lifetime_tokens_used || 0) + tokenCost
-        });
-        setUser(prev => ({ ...prev, token_balance: newBalance }));
-      }
+// Update local user state for UI responsiveness (backend handles actual DB update)
+if (user && typeof user.token_balance === "number") {
+  const newBalance = Math.max(0, user.token_balance - tokenCost);
+  setUser(prev => ({ ...prev, token_balance: newBalance }));
+}
 
       setTimeout(() => {
         setProgress({ current: 0, total: 0, message: "" });
@@ -293,11 +291,36 @@ Write in a ${personaPreamble.toLowerCase()} tone that is UPLIFTING and CONSTRUCT
       )}
 
       {!interpretation && !isGenerating && !hasInsufficientTokens && (
-        <div className="space-y-4">
-          <p className="text-white/80 text-center text-sm md:text-base">
-            Choose your reading depth:
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="space-y-6">
+          {/* Cosmic Influences Toggle */}
+          <div className="bg-slate-900/50 rounded-xl p-4 border border-indigo-500/30">
+             <h3 className="text-sm font-semibold text-indigo-300 mb-3 uppercase tracking-wider flex items-center gap-2">
+                <Sparkles className="w-4 h-4" /> Cosmic Influences
+             </h3>
+             <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                   <div className={`p-2 rounded-lg ${includeMoonPhase ? 'bg-indigo-500/20 text-indigo-300' : 'bg-slate-800 text-slate-500'}`}>
+                      <Moon className="w-5 h-5" />
+                   </div>
+                   <div>
+                      <div className="font-medium text-white">Moon Phase Alignment</div>
+                      <div className="text-xs text-white/50">Analyze lunar cycle influence (+1 Token)</div>
+                   </div>
+                </div>
+                <button
+                   onClick={() => setIncludeMoonPhase(!includeMoonPhase)}
+                   className={`w-12 h-6 rounded-full transition-colors relative ${includeMoonPhase ? 'bg-indigo-600' : 'bg-slate-700'}`}
+                >
+                   <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${includeMoonPhase ? 'left-7' : 'left-1'}`} />
+                </button>
+             </div>
+          </div>
+
+          <div className="space-y-4">
+            <p className="text-white/80 text-center text-sm md:text-base">
+              Choose your reading depth:
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <Button
               onClick={() => generateInterpretation("quick")}
               disabled={isGenerating}
@@ -307,7 +330,9 @@ Write in a ${personaPreamble.toLowerCase()} tone that is UPLIFTING and CONSTRUCT
               <div>
                 <div className="font-bold">Quick Reading</div>
                 <div className="text-xs opacity-80">1-2 paragraphs</div>
-                <TokenCostPreview action="reading_quick" />
+                <div className="text-xs font-mono mt-1 bg-black/20 px-2 py-0.5 rounded">
+                   {1 + (includeMoonPhase ? 1 : 0)} Tokens
+                </div>
               </div>
             </Button>
 
@@ -320,7 +345,9 @@ Write in a ${personaPreamble.toLowerCase()} tone that is UPLIFTING and CONSTRUCT
               <div>
                 <div className="font-bold">Standard Reading</div>
                 <div className="text-xs opacity-80">3-4 paragraphs</div>
-                <TokenCostPreview action="reading_standard" />
+                <div className="text-xs font-mono mt-1 bg-black/20 px-2 py-0.5 rounded">
+                   {2 + (includeMoonPhase ? 1 : 0)} Tokens
+                </div>
               </div>
             </Button>
 
@@ -333,7 +360,9 @@ Write in a ${personaPreamble.toLowerCase()} tone that is UPLIFTING and CONSTRUCT
               <div>
                 <div className="font-bold">Deep Reading</div>
                 <div className="text-xs opacity-80">5-7 paragraphs</div>
-                <TokenCostPreview action="reading_deep" />
+                <div className="text-xs font-mono mt-1 bg-black/20 px-2 py-0.5 rounded">
+                   {4 + (includeMoonPhase ? 1 : 0)} Tokens
+                </div>
               </div>
             </Button>
           </div>
