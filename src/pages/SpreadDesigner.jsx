@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
@@ -10,9 +9,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { createPageUrl } from "@/utils";
-import { ArrowLeft, Plus, Trash2, Save, Eye, EyeOff, Info } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Save, Eye, EyeOff, Info, Sparkles } from "lucide-react";
 import SpreadDesignCanvas from "@/components/spread/SpreadDesignCanvas";
 import SpreadLayout from "@/components/reading/SpreadLayout";
+import AISpreadAssistant from "@/components/spread/AISpreadAssistant";
 import { getDesignerAspectRatio } from "@/components/utils/cardSizing";
 
 export default function SpreadDesigner() {
@@ -304,6 +304,27 @@ export default function SpreadDesigner() {
 
           {/* Right Column: Spread Settings & Position Details */}
           <div className="space-y-6 order-1 lg:order-2">
+            {/* AI Assistant */}
+            <AISpreadAssistant
+              onApply={(s) => {
+                try {
+                  if (s?.spread_name) setSpreadName(s.spread_name);
+                  if (s?.description) setSpreadDescription(s.description);
+                  if (s?.category) setSpreadCategory(s.category);
+                  if (Array.isArray(s?.positions)) {
+                    const cleaned = s.positions.map((p, i) => ({
+                      name: p.name || `Position ${i + 1}`,
+                      meaning: p.meaning || '',
+                      x: typeof p.x === 'number' ? Math.max(0, Math.min(100, p.x)) : 50,
+                      y: typeof p.y === 'number' ? Math.max(0, Math.min(100, p.y)) : 50,
+                      rotation: typeof p.rotation === 'number' ? p.rotation : 0,
+                    }));
+                    setPositions(cleaned);
+                  }
+                } catch (e) { /* no-op */ }
+              }}
+            />
+
             {/* Basic Info */}
             <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-6 space-y-4">
               <h2 className="text-xl font-bold text-purple-300">Spread Details</h2>
