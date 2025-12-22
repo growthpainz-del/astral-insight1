@@ -224,6 +224,8 @@ export default function SpreadLayout(props) {
   const [draggedCardIndex, setDraggedCardIndex] = React.useState(null); // Which card is being dragged
   const [cardPositionsTemp, setCardPositionsTemp] = React.useState([]); // Stores { x, y } for each card index during drag
   const dragOffsetRef = React.useRef({ x: 0, y: 0 });
+  const dragTimeoutRef = React.useRef(null);
+  const visibilityHandlerRef = React.useRef(null);
 
   // NEW: Scroll lock references
   const wasBodyOverflow = React.useRef({ body: "", html: "" });
@@ -452,6 +454,18 @@ export default function SpreadLayout(props) {
       document.addEventListener('mouseup', handleCardDragEnd, { passive: false, capture: true });
       document.addEventListener('touchmove', handleCardDragMove, { passive: false, capture: true });
       document.addEventListener('touchend', handleCardDragEnd, { passive: false, capture: true });
+      document.addEventListener('touchcancel', handleCardDragEnd, { passive: false, capture: true });
+
+      // Safety: auto-unlock if something interrupts touchend
+      const onVisibilityChange = () => {
+        if (document.hidden) handleCardDragEnd();
+      };
+      visibilityHandlerRef.current = onVisibilityChange;
+      document.addEventListener('visibilitychange', onVisibilityChange);
+
+      // Safety timeout as last resort
+      if (dragTimeoutRef.current) clearTimeout(dragTimeoutRef.current);
+      dragTimeoutRef.current = setTimeout(() => handleCardDragEnd(), 5000);
     } catch (err) {
       console.error('Error starting card drag:', err);
       setIsDragging(false);
@@ -477,6 +491,10 @@ export default function SpreadLayout(props) {
       // Clamp to container bounds with padding
       const clampedX = Math.max(5, Math.min(95, x)); // Using 5% and 95%
       const clampedY = Math.max(5, Math.min(95, y)); // Using 5% and 95%
+
+      // Refresh safety timeout while dragging
+      if (dragTimeoutRef.current) clearTimeout(dragTimeoutRef.current);
+      dragTimeoutRef.current = setTimeout(() => handleCardDragEnd(), 5000);
 
       // Update temporary card positions
       setCardPositionsTemp(prev => {
@@ -528,6 +546,9 @@ export default function SpreadLayout(props) {
       document.removeEventListener('mouseup', handleCardDragEnd, { capture: true });
       document.removeEventListener('touchmove', handleCardDragMove, { capture: true });
       document.removeEventListener('touchend', handleCardDragEnd, { capture: true });
+      document.removeEventListener('touchcancel', handleCardDragEnd, { capture: true });
+      if (dragTimeoutRef.current) { clearTimeout(dragTimeoutRef.current); dragTimeoutRef.current = null; }
+      if (visibilityHandlerRef.current) { document.removeEventListener('visibilitychange', visibilityHandlerRef.current); visibilityHandlerRef.current = null; }
     } catch (err) {
       console.error('Error ending card drag:', err);
       setIsDragging(false);

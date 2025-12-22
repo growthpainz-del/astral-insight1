@@ -1,93 +1,93 @@
-import Dashboard from './pages/Dashboard';
-import CreateDeck from './pages/CreateDeck';
-import History from './pages/History';
-import Help from './pages/Help';
-import Upgrade from './pages/Upgrade';
-import AdminUsers from './pages/AdminUsers';
-import SpreadManager from './pages/SpreadManager';
-import ZodiacReading from './pages/ZodiacReading';
-import CardGallery from './pages/CardGallery';
-import FusionReading from './pages/FusionReading';
-import Rebel8Ball from './pages/Rebel8Ball';
-import DeckCreationWizard from './pages/DeckCreationWizard';
-import Home from './pages/Home';
-import ManualsLibrary from './pages/ManualsLibrary';
-import PhotoUploader from './pages/PhotoUploader';
-import DeckView from './pages/DeckView';
-import WiccanSeeder from './pages/WiccanSeeder';
-import FusionManager from './pages/FusionManager';
-import Persona from './pages/Persona';
-import SpreadDesigner from './pages/SpreadDesigner';
-import FusionRecipeEditor from './pages/FusionRecipeEditor';
-import MyFusions from './pages/MyFusions';
-import CardNames from './pages/CardNames';
-import Deck from './pages/Deck';
-import DeckGallery from './pages/DeckGallery';
-import CardInfo from './pages/CardInfo';
-import SpreadCleaner from './pages/SpreadCleaner';
-import FusionBuilder from './pages/FusionBuilder';
-import Fusions from './pages/Fusions';
-import SubscriptionManagement from './pages/SubscriptionManagement';
-import WebhookTester from './pages/WebhookTester';
-import AdminTokenGrant from './pages/AdminTokenGrant';
-import AdminDeckReview from './pages/AdminDeckReview';
-import SpreadSeeder from './pages/SpreadSeeder';
-import Explore from './pages/Explore';
-import UserProfile from './pages/UserProfile';
-import ReadingRoom from './pages/ReadingRoom';
-import Studio from './pages/Studio';
-import ReadingSimple from './pages/ReadingSimple';
-import Reading from './pages/Reading';
-import Journal from './pages/Journal';
 import AIWorkspace from './pages/AIWorkspace';
+import AdminDeckReview from './pages/AdminDeckReview';
+import AdminTokenGrant from './pages/AdminTokenGrant';
+import AdminUsers from './pages/AdminUsers';
+import CardGallery from './pages/CardGallery';
+import CardInfo from './pages/CardInfo';
+import CardNames from './pages/CardNames';
+import CreateDeck from './pages/CreateDeck';
+import Dashboard from './pages/Dashboard';
+import Deck from './pages/Deck';
+import DeckCreationWizard from './pages/DeckCreationWizard';
+import DeckGallery from './pages/DeckGallery';
+import DeckView from './pages/DeckView';
+import Explore from './pages/Explore';
+import FusionBuilder from './pages/FusionBuilder';
+import FusionManager from './pages/FusionManager';
+import FusionReading from './pages/FusionReading';
+import FusionRecipeEditor from './pages/FusionRecipeEditor';
+import Fusions from './pages/Fusions';
+import Help from './pages/Help';
+import History from './pages/History';
+import Home from './pages/Home';
+import Journal from './pages/Journal';
+import ManualsLibrary from './pages/ManualsLibrary';
+import MyFusions from './pages/MyFusions';
+import Persona from './pages/Persona';
+import PhotoUploader from './pages/PhotoUploader';
+import Reading from './pages/Reading';
+import ReadingRoom from './pages/ReadingRoom';
+import ReadingSimple from './pages/ReadingSimple';
+import Rebel8Ball from './pages/Rebel8Ball';
 import SharedReading from './pages/SharedReading';
+import SpreadCleaner from './pages/SpreadCleaner';
+import SpreadDesigner from './pages/SpreadDesigner';
+import SpreadManager from './pages/SpreadManager';
+import SpreadSeeder from './pages/SpreadSeeder';
+import Studio from './pages/Studio';
+import SubscriptionManagement from './pages/SubscriptionManagement';
+import Upgrade from './pages/Upgrade';
+import UserProfile from './pages/UserProfile';
+import WebhookTester from './pages/WebhookTester';
+import WiccanSeeder from './pages/WiccanSeeder';
+import ZodiacReading from './pages/ZodiacReading';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "Dashboard": Dashboard,
-    "CreateDeck": CreateDeck,
-    "History": History,
-    "Help": Help,
-    "Upgrade": Upgrade,
-    "AdminUsers": AdminUsers,
-    "SpreadManager": SpreadManager,
-    "ZodiacReading": ZodiacReading,
-    "CardGallery": CardGallery,
-    "FusionReading": FusionReading,
-    "Rebel8Ball": Rebel8Ball,
-    "DeckCreationWizard": DeckCreationWizard,
-    "Home": Home,
-    "ManualsLibrary": ManualsLibrary,
-    "PhotoUploader": PhotoUploader,
-    "DeckView": DeckView,
-    "WiccanSeeder": WiccanSeeder,
-    "FusionManager": FusionManager,
-    "Persona": Persona,
-    "SpreadDesigner": SpreadDesigner,
-    "FusionRecipeEditor": FusionRecipeEditor,
-    "MyFusions": MyFusions,
-    "CardNames": CardNames,
-    "Deck": Deck,
-    "DeckGallery": DeckGallery,
-    "CardInfo": CardInfo,
-    "SpreadCleaner": SpreadCleaner,
-    "FusionBuilder": FusionBuilder,
-    "Fusions": Fusions,
-    "SubscriptionManagement": SubscriptionManagement,
-    "WebhookTester": WebhookTester,
-    "AdminTokenGrant": AdminTokenGrant,
-    "AdminDeckReview": AdminDeckReview,
-    "SpreadSeeder": SpreadSeeder,
-    "Explore": Explore,
-    "UserProfile": UserProfile,
-    "ReadingRoom": ReadingRoom,
-    "Studio": Studio,
-    "ReadingSimple": ReadingSimple,
-    "Reading": Reading,
-    "Journal": Journal,
     "AIWorkspace": AIWorkspace,
+    "AdminDeckReview": AdminDeckReview,
+    "AdminTokenGrant": AdminTokenGrant,
+    "AdminUsers": AdminUsers,
+    "CardGallery": CardGallery,
+    "CardInfo": CardInfo,
+    "CardNames": CardNames,
+    "CreateDeck": CreateDeck,
+    "Dashboard": Dashboard,
+    "Deck": Deck,
+    "DeckCreationWizard": DeckCreationWizard,
+    "DeckGallery": DeckGallery,
+    "DeckView": DeckView,
+    "Explore": Explore,
+    "FusionBuilder": FusionBuilder,
+    "FusionManager": FusionManager,
+    "FusionReading": FusionReading,
+    "FusionRecipeEditor": FusionRecipeEditor,
+    "Fusions": Fusions,
+    "Help": Help,
+    "History": History,
+    "Home": Home,
+    "Journal": Journal,
+    "ManualsLibrary": ManualsLibrary,
+    "MyFusions": MyFusions,
+    "Persona": Persona,
+    "PhotoUploader": PhotoUploader,
+    "Reading": Reading,
+    "ReadingRoom": ReadingRoom,
+    "ReadingSimple": ReadingSimple,
+    "Rebel8Ball": Rebel8Ball,
     "SharedReading": SharedReading,
+    "SpreadCleaner": SpreadCleaner,
+    "SpreadDesigner": SpreadDesigner,
+    "SpreadManager": SpreadManager,
+    "SpreadSeeder": SpreadSeeder,
+    "Studio": Studio,
+    "SubscriptionManagement": SubscriptionManagement,
+    "Upgrade": Upgrade,
+    "UserProfile": UserProfile,
+    "WebhookTester": WebhookTester,
+    "WiccanSeeder": WiccanSeeder,
+    "ZodiacReading": ZodiacReading,
 }
 
 export const pagesConfig = {
