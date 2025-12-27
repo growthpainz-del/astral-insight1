@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Deck, Card } from "@/entities/all"; // Added Card import
 import { base44 } from "@/api/base44Client";
@@ -300,9 +299,9 @@ export default function DeckView() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900">
-      <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className="max-w-7xl mx-auto px-4 py-6 pan-2d">
         {/* Tab Navigation - ENHANCED: Made scrollable on mobile */}
-        <div className="flex gap-2 mb-6 border-b border-white/10 overflow-x-auto pb-2 scrollbar-hide">
+        <div className="flex gap-2 mb-6 border-b border-white/10 overflow-auto pb-2 scrollbar-hide pan-2d">
           <Button
             variant={activeTab === "cards" ? "default" : "ghost"}
             onClick={() => {
@@ -906,6 +905,13 @@ export default function DeckView() {
         .scrollbar-hide {
           -ms-overflow-style: none;
           scrollbar-width: none;
+        }
+        /* Enable two-axis swipe/pan on Mobile Chrome */
+        .pan-2d {
+          touch-action: pan-x pan-y;
+          -ms-touch-action: pan-x pan-y;
+          overscroll-behavior: contain;
+          -webkit-overflow-scrolling: touch;
         }
       `}</style>
     </div>
