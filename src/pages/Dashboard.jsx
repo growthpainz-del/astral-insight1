@@ -551,7 +551,7 @@ export default function Dashboard() {
                   Hide
                 </Button>
               </div>
-              <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+              <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide pan-2d">
                 {nsfwDecks.map(deck => (
                   <DeckCard key={deck.id} deck={deck} isOwned={isOwnedByUser(deck)} />
                 ))}
@@ -597,6 +597,12 @@ export default function Dashboard() {
         .scrollbar-hide {
           -ms-overflow-style: none;
           scrollbar-width: none;
+        }
+        /* Independent 2D pan/scroll areas for mobile */
+        .pan-2d { 
+          touch-action: pan-x pan-y; 
+          overscroll-behavior: contain; 
+          -webkit-overflow-scrolling: touch; 
         }
       `}</style>
     </div>
