@@ -381,12 +381,12 @@ export default function Dashboard() {
       </div>
 
       {/* Quick Actions */}
-      <div className="px-8 mb-12">
+      <div className="px-8 mb-12 sticky top-0 z-30 bg-slate-900/80 backdrop-blur supports-[backdrop-filter]:bg-slate-900/60 pt-4 pan-2d">
         <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
           <TrendingUp className="w-6 h-6 text-purple-400" />
           Quick Actions
         </h2>
-        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide pan-2d">
           {draftDecks.length > 0 && (
             <QuickAction
               label={`My Drafts (${draftDecks.length})`}
@@ -428,7 +428,7 @@ export default function Dashboard() {
               Browse All <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
-          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide pan-2d">
             {publicDecks.slice(0, 12).map(deck => (
               <DeckCard key={deck.id} deck={deck} isOwned={isOwnedByUser(deck)} />
             ))}
@@ -445,7 +445,7 @@ export default function Dashboard() {
               Create New <Plus className="w-4 h-4" />
             </Link>
           </div>
-          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide pan-2d">
             {myDecks.map(deck => (
               <DeckCard key={deck.id} deck={deck} isOwned={true} />
             ))}
@@ -465,7 +465,7 @@ export default function Dashboard() {
               Create New <Plus className="w-4 h-4" />
             </Link>
           </div>
-          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide pan-2d">
             {draftDecks.map(deck => (
               <Link key={deck.id} to={createPageUrl(`DeckView?id=${deck.id}`)} className="group block">
                 <div className="relative flex-shrink-0 w-48 aspect-[2/3] rounded-lg overflow-hidden bg-gradient-to-br from-amber-900/40 to-slate-900/40 border border-amber-500/30 hover:border-amber-400/60 transition-all duration-300 hover:scale-105">
@@ -573,7 +573,7 @@ export default function Dashboard() {
               View All <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
-          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide pan-2d">
             {recentReadings.slice(0, 8).map(reading => (
               <ReadingCard
                 key={reading.id}
