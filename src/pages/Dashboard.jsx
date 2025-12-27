@@ -348,7 +348,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-black text-white">
       {/* NETFLIX-STYLE HERO SECTION */}
-      <div className="relative h-[70vh] mb-8">
+      <div className="relative h-[70vh] mb-8 sticky top-0 z-40 pan-2d">
         <div className="absolute inset-0 bg-gradient-to-r from-purple-900/40 to-blue-900/40">
           <img
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d2a300021f94d0f312c039/700bd7a94_0DC18799-794E-447B-AD87-0A5B20D22CE5.png"
@@ -418,7 +418,7 @@ export default function Dashboard() {
 
       {/* Official Decks */}
       {publicDecks.length > 0 && (
-        <div className="px-8 mb-12">
+        <div className="px-8 mb-12 section-scroll pan-2d">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold flex items-center gap-2">
               <Sparkles className="w-6 h-6 text-cyan-400" />
@@ -438,7 +438,7 @@ export default function Dashboard() {
 
       {/* My Decks */}
       {myDecks.length > 0 && (
-        <div className="px-8 mb-12">
+        <div className="px-8 mb-12 section-scroll pan-2d">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold">My Decks ({myDecks.length})</h2>
             <Link to={createPageUrl("CreateDeck")} className="text-white/60 hover:text-white flex items-center gap-1 text-sm">
@@ -455,7 +455,7 @@ export default function Dashboard() {
 
       {/* My Drafts */}
       {draftDecks.length > 0 && (
-        <div className="px-8 mb-12">
+        <div className="px-8 mb-12 section-scroll pan-2d">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold flex items-center gap-2">
               <Clock className="w-6 h-6 text-amber-400" />
@@ -507,7 +507,7 @@ export default function Dashboard() {
 
       {/* NSFW Decks Section */}
       {nsfwDecks.length > 0 && (
-        <div className="px-8 mb-12">
+        <div className="px-8 mb-12 section-scroll pan-2d">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold flex items-center gap-2">
               🔞 Adult Content (18+)
@@ -563,7 +563,7 @@ export default function Dashboard() {
 
       {/* Recent Readings */}
       {recentReadings.length > 0 && (
-        <div className="px-8 mb-12">
+        <div className="px-8 mb-12 section-scroll pan-2d">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold flex items-center gap-2">
               <Clock className="w-6 h-6 text-indigo-400" />
@@ -603,6 +603,13 @@ export default function Dashboard() {
           touch-action: pan-x pan-y; 
           overscroll-behavior: contain; 
           -webkit-overflow-scrolling: touch; 
+        }
+        /* Each dashboard section can scroll vertically without moving the sticky top */
+        .section-scroll {
+          max-height: 55vh;
+          overflow-y: auto;
+          overscroll-behavior: contain;
+          -webkit-overflow-scrolling: touch;
         }
       `}</style>
     </div>
