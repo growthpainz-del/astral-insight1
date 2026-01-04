@@ -478,19 +478,23 @@ export default function ReadingPage() {
                   <h2 className="text-xl font-semibold mb-3">My Decks</h2>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                     {pickerDecks.myDecks.map((d) => (
-                      <Link key={d.id} to={createPageUrl(`Reading?deckId=${d.id}`)} className="group">
-                        <div className="aspect-[2/3] rounded-lg overflow-hidden border border-white/10 bg-white/5 hover:border-purple-400/60 transition">
-                          {d.cover_image ? (
-                            <img src={d.cover_image} alt={d.name} className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-white/40">
-                              <BookOpen className="w-8 h-8" />
-                            </div>
-                          )}
-                        </div>
+                      <div key={d.id} className="group">
+                        <Link to={createPageUrl(`Reading?deckId=${d.id}`)}>
+                          <div className="aspect-[2/3] rounded-lg overflow-hidden border border-white/10 bg-white/5 hover:border-purple-400/60 transition">
+                            {d.cover_image ? (
+                              <img src={d.cover_image} alt={d.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-white/40">
+                                <BookOpen className="w-8 h-8" />
+                              </div>
+                            )}
+                          </div>
+                        </Link>
                         <div className="mt-2 text-sm truncate">{d.name}</div>
-                        <Button size="sm" className="mt-2 w-full bg-purple-600 hover:bg-purple-700">Use Deck</Button>
-                      </Link>
+                        <Link to={createPageUrl(`Reading?deckId=${d.id}`)}>
+                          <Button size="sm" className="mt-2 w-full bg-purple-600 hover:bg-purple-700">Use Deck</Button>
+                        </Link>
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -503,19 +507,23 @@ export default function ReadingPage() {
                 ) : (
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                     {pickerDecks.publicDecks.map((d) => (
-                      <Link key={d.id} to={createPageUrl(`Reading?deckId=${d.id}`)} className="group">
-                        <div className="aspect-[2/3] rounded-lg overflow-hidden border border-white/10 bg-white/5 hover:border-purple-400/60 transition">
-                          {d.cover_image ? (
-                            <img src={d.cover_image} alt={d.name} className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-white/40">
-                              <BookOpen className="w-8 h-8" />
-                            </div>
-                          )}
-                        </div>
+                      <div key={d.id} className="group">
+                        <Link to={createPageUrl(`Reading?deckId=${d.id}`)}>
+                          <div className="aspect-[2/3] rounded-lg overflow-hidden border border-white/10 bg-white/5 hover:border-purple-400/60 transition">
+                            {d.cover_image ? (
+                              <img src={d.cover_image} alt={d.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-white/40">
+                                <BookOpen className="w-8 h-8" />
+                              </div>
+                            )}
+                          </div>
+                        </Link>
                         <div className="mt-2 text-sm truncate">{d.name}</div>
-                        <Button size="sm" className="mt-2 w-full bg-purple-600 hover:bg-purple-700">Use Deck</Button>
-                      </Link>
+                        <Link to={createPageUrl(`Reading?deckId=${d.id}`)}>
+                          <Button size="sm" className="mt-2 w-full bg-purple-600 hover:bg-purple-700">Use Deck</Button>
+                        </Link>
+                      </div>
                     ))}
                   </div>
                 )}
