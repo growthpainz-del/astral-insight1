@@ -459,6 +459,8 @@ export default function ReadingRoom() {
   }
 
   const allAvailableDecks = [...publicDecks, ...myDecks];
+  const searchParams = new URLSearchParams(window.location.search);
+  const showAllOfficial = searchParams.get('all') === '1';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-black text-white">
@@ -565,12 +567,12 @@ export default function ReadingRoom() {
               <Sparkles className="w-6 h-6 text-cyan-400" />
               Official Decks ({publicDecks.length})
             </h2>
-            <Link to={createPageUrl("Reading")} className="text-white/60 hover:text-white flex items-center gap-1 text-sm">
-              Browse All <ChevronRight className="w-4 h-4" />
+            <Link to={createPageUrl("ReadingRoom?all=1")} className="text-white/60 hover:text-white flex items-center gap-1 text-sm">
+              View All Decks <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
           <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-            {publicDecks.slice(0, 12).map(deck => (
+            {(showAllOfficial ? publicDecks : publicDecks.slice(0, 12)).map(deck => (
               <DeckCard key={deck.id} deck={deck} isOwned={false} />
             ))}
           </div>
