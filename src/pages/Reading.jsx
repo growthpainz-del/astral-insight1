@@ -479,8 +479,9 @@ export default function ReadingPage() {
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                     {pickerDecks.myDecks.map((d) => (
                       <div key={d.id} className="group">
-                        <Link to={createPageUrl(`Reading?deckId=${d.id}`)}>
-                          <div className="aspect-[2/3] rounded-lg overflow-hidden border border-white/10 bg-white/5 hover:border-purple-400/60 transition">
+                        <Button asChild variant="ghost" className="p-0 h-auto">
+                          <Link to={createPageUrl(`Reading?deckId=${d.id}`)}>
+                            <div className="aspect-[2/3] rounded-lg overflow-hidden border border-white/10 bg-white/5 hover:border-purple-400/60 transition">
                             {d.cover_image ? (
                               <img src={d.cover_image} alt={d.name} className="w-full h-full object-cover" />
                             ) : (
@@ -508,8 +509,9 @@ export default function ReadingPage() {
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                     {pickerDecks.publicDecks.map((d) => (
                       <div key={d.id} className="group">
-                        <Link to={createPageUrl(`Reading?deckId=${d.id}`)}>
-                          <div className="aspect-[2/3] rounded-lg overflow-hidden border border-white/10 bg-white/5 hover:border-purple-400/60 transition">
+                        <Button asChild variant="ghost" className="p-0 h-auto">
+                          <Link to={createPageUrl(`Reading?deckId=${d.id}`)}>
+                            <div className="aspect-[2/3] rounded-lg overflow-hidden border border-white/10 bg-white/5 hover:border-purple-400/60 transition">
                             {d.cover_image ? (
                               <img src={d.cover_image} alt={d.name} className="w-full h-full object-cover" />
                             ) : (
