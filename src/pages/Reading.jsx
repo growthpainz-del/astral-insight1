@@ -491,9 +491,9 @@ export default function ReadingPage() {
                           </div>
                         </Link>
                         <div className="mt-2 text-sm truncate">{d.name}</div>
-                        <Link to={createPageUrl(`Reading?deckId=${d.id}`)}>
-                          <Button size="sm" className="mt-2 w-full bg-purple-600 hover:bg-purple-700">Use Deck</Button>
-                        </Link>
+                        <Button asChild size="sm" className="mt-2 w-full bg-purple-600 hover:bg-purple-700">
+                          <Link to={createPageUrl(`Reading?deckId=${d.id}`)}>Use Deck</Link>
+                        </Button>
                       </div>
                     ))}
                   </div>
@@ -520,9 +520,9 @@ export default function ReadingPage() {
                           </div>
                         </Link>
                         <div className="mt-2 text-sm truncate">{d.name}</div>
-                        <Link to={createPageUrl(`Reading?deckId=${d.id}`)}>
-                          <Button size="sm" className="mt-2 w-full bg-purple-600 hover:bg-purple-700">Use Deck</Button>
-                        </Link>
+                        <Button asChild size="sm" className="mt-2 w-full bg-purple-600 hover:bg-purple-700">
+                          <Link to={createPageUrl(`Reading?deckId=${d.id}`)}>Use Deck</Link>
+                        </Button>
                       </div>
                     ))}
                   </div>
