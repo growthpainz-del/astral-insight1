@@ -662,11 +662,13 @@ export default function SpreadLayout(props) {
       )}
 
       <div
-        className="relative w-full rounded-xl overflow-hidden flex items-center justify-center mystical-grid-container"
+        className="relative w-full rounded-xl flex items-center justify-center mystical-grid-container"
         style={{
           minHeight: computedContainerMinHeight,
           padding: visibleCount === 1 ? '3rem 2rem' : '2rem 1rem',
-          position: 'relative'
+          position: 'relative',
+          WebkitOverflowScrolling: 'touch',
+          overflowY: 'auto'
         }}
       >
         {/* Mystical grid background */}
