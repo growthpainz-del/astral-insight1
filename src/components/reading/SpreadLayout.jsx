@@ -735,12 +735,7 @@ export default function SpreadLayout(props) {
                 {/* Card */}
                 <AnimatePresence>
                   {card && showCards && (
-                    console.log('🎨 SpreadLayout: Rendering single card', {
-                      cardName: card.name,
-                      position: pos.name,
-                      showCards,
-                      showPositions
-                    }),
+
                     <motion.div
                       initial={animateSpread ? {
                         scale: 0.1,
@@ -776,7 +771,7 @@ export default function SpreadLayout(props) {
                             frontImage={card.image_url}
                             backImage={deck?.back_image_url}
                             cardName={card.name}
-                            isReversed={card.is_reversed}
+                            isReversed={(card.isReversed || card.is_reversed)}
                             onReveal={() => onCardReveal(idx)}
                             width="100%"
                             height="100%"
@@ -823,7 +818,7 @@ export default function SpreadLayout(props) {
                             <img
                               src={card.image_url}
                               alt={card.name}
-                              className={`w-full h-full object-cover ${card.is_reversed ? 'rotate-180' : ''}`}
+                              className={`w-full h-full object-cover ${(card.isReversed || card.is_reversed) ? 'rotate-180' : ''}`}
                               loading="lazy"
                               draggable={false}
                             />
@@ -911,14 +906,7 @@ export default function SpreadLayout(props) {
 
                   <AnimatePresence>
                     {card && showCards && (
-                      console.log('🎨 SpreadLayout: Rendering multi-card', {
-                        cardName: card.name,
-                        position: pos.name,
-                        x: safeX,
-                        y: safeY,
-                        showCards,
-                        showPositions
-                      }),
+
                       <motion.div
                         initial={animateSpread ? {
                           scale: 0.1,
@@ -954,7 +942,7 @@ export default function SpreadLayout(props) {
                               frontImage={card.image_url}
                               backImage={deck?.back_image_url}
                               cardName={card.name}
-                              isReversed={card.is_reversed}
+                              isReversed={(card.isReversed || card.is_reversed)}
                               onReveal={() => onCardReveal(idx)}
                               width="100%"
                               height="100%"
@@ -1001,7 +989,7 @@ export default function SpreadLayout(props) {
                               <img
                                 src={card.image_url}
                                 alt={card.name}
-                                className={`w-full h-full object-cover ${card.is_reversed ? 'rotate-180' : ''}`}
+                                className={`w-full h-full object-cover ${(card.isReversed || card.is_reversed) ? 'rotate-180' : ''}`}
                                 loading="lazy"
                                 draggable={false}
                               />

@@ -45,14 +45,14 @@ function DeckCard({ deck, isOwned = false }) {
         </div>
 
         <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 md:opacity-100 transition-opacity">
-          <Link
-            to={createPageUrl(`DeckGallery?deckId=${deck.id}`)}
-            onClick={(e) => e.stopPropagation()}
+          <button
+            type="button"
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.href = createPageUrl(`DeckGallery?deckId=${deck.id}`); }}
             className="bg-black/70 hover:bg-black/90 backdrop-blur-sm p-2 rounded-lg border border-white/20 transition-all hover:scale-110"
             title="View Gallery"
           >
             <Eye className="w-4 h-4 text-white" />
-          </Link>
+          </button>
         </div>
       </div>
       <div className="mt-2">

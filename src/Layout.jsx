@@ -442,16 +442,7 @@ export default function Layout({ children, currentPageName }) {
             }
           `}
         </style>
-        <style>{`
-          input[placeholder="Type your question..."],
-          textarea[placeholder="Type your question..."] {
-            display: none !important;
-          }
-          div:has(> input[placeholder="Type your question..."]),
-          div:has(> textarea[placeholder="Type your question..."]) {
-            display: none !important;
-          }
-        `}</style>
+
         <div className="flex flex-1 bg-transparent">
           <aside
             className={`bg-slate-900/80 backdrop-blur-lg border-r border-purple-800/40 w-64 flex flex-col overflow-hidden fixed inset-y-0 left-0 z-50 transform ${
