@@ -566,12 +566,12 @@ export default function ReadingPage() {
       <div className="max-w-7xl mx-auto px-4 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between py-6">
-          <Link to={createPageUrl("Dashboard")}>
-            <Button variant="ghost" className="text-purple-200">
+          <Button asChild variant="ghost" className="text-purple-200">
+            <Link to={createPageUrl("Dashboard")}> 
               <ChevronLeft className="w-4 h-4 mr-2" />
               Back
-            </Button>
-          </Link>
+            </Link>
+          </Button>
           
           {deck && (
             <div className="text-center flex-1">
