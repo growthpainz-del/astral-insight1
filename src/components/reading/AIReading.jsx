@@ -337,7 +337,7 @@ if (user && typeof user.token_balance === "number") {
                   <StopCircle className="w-4 h-4 mr-2" />
                   Stop
                 </Button>
-              )
+              )}
               <Button
                 onClick={copyToClipboard}
                 variant="ghost"
