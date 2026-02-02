@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, Sparkles, AlertTriangle, Copy, Check, Volume2, StopCircle, Mic, Moon } from "lucide-react";
-import AudioPlayer from "@/components/reading/AudioPlayer";
+// removed: AudioPlayer import (switched to SpeechSynthesis)
 import { User } from "@/entities/User";
 import FreeLimitReached from "@/components/pricing/FreeLimitReached";
 import TokenCostPreview from "@/components/pricing/TokenCostPreview";
@@ -20,28 +20,33 @@ export default function ChanneledReading({ isOpen, drawnCards, deck, spread, que
   const [includeMoonPhase, setIncludeMoonPhase] = useState(false);
   const [progress, setProgress] = useState({ current: 0, total: 0, message: "" });
   
-  // Audio state
-  const [audioUrl, setAudioUrl] = useState(null);
-  const [selectedVoice, setSelectedVoice] = useState("21m00Tcm4TlvDq8ikWAM"); // Default to Rachel
-
-  const AVAILABLE_VOICES = [
-    { id: "21m00Tcm4TlvDq8ikWAM", name: "Rachel (Calm & Clear)", gender: "Female" },
-    { id: "AZnzlk1XvdvUeBnXmlld", name: "Domi (Strong & Confident)", gender: "Female" },
-    { id: "EXAVITQu4vr4xnSDxMaL", name: "Bella (Soft & Serious)", gender: "Female" },
-    { id: "TxGEqnHWrfWFTfGW9XjX", name: "Josh (Deep & Resonant)", gender: "Male" },
-    { id: "VR6AewLTigWg4xSOukaG", name: "Arnold (Crisp & Authoritative)", gender: "Male" },
-    { id: "pNInz6obpgDQGcFmaJgB", name: "Adam (Deep Narrator)", gender: "Male" },
-    { id: "MF3mGyEYCl7XYWbV9V6O", name: "Elli (Young & Bright)", gender: "Female" },
-    { id: "X8Na0RDzhqa1gJFsWu5a", name: "Gypsy (Mystical Seer)", gender: "Female" },
-  ];
+  // Voice (browser SpeechSynthesis)
+  const [voices, setVoices] = useState([]);
+  const [selectedVoiceName, setSelectedVoiceName] = useState("");
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
+  const utterRef = useRef(null);
 
   useEffect(() => {
     if (isOpen) {
       User.me().then(setUser).catch(() => setUser(null));
     }
   }, [isOpen]);
+
+  // Load available TTS voices
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.speechSynthesis) return;
+    const load = () => {
+      const v = window.speechSynthesis.getVoices();
+      setVoices(v);
+      if (!selectedVoiceName && v.length) {
+        const preferred = v.find(vo => /female|samantha|victoria|google us english|english/i.test(vo.name)) || v[0];
+        setSelectedVoiceName(preferred.name);
+      }
+    };
+    load();
+    window.speechSynthesis.onvoiceschanged = load;
+    return () => { window.speechSynthesis.onvoiceschanged = null; };
+  }, [selectedVoiceName]);
 
   const generateInterpretation = async (tier = "quick") => {
     if (!drawnCards || drawnCards.length === 0) {
@@ -131,60 +136,35 @@ if (user && typeof user.token_balance === "number") {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleGenerateSpeech = async () => {
-    if (!interpretation) return;
-    
-    setIsGeneratingAudio(true);
-    setError("");
-
-    try {
-      // Clear previous audio
-      if (audioUrl) {
-        URL.revokeObjectURL(audioUrl);
-        setAudioUrl(null);
-      }
-
-      const { data } = await base44.functions.invoke('generateSpeech', { 
-        text: interpretation,
-        voiceId: selectedVoice
-      });
-
-      if (data.error) throw new Error(data.error);
-      
-      if (data.audioContent) {
-        // Convert base64 to blob
-        const byteCharacters = atob(data.audioContent);
-        const byteNumbers = new Array(byteCharacters.length);
-        for (let i = 0; i < byteCharacters.length; i++) {
-          byteNumbers[i] = byteCharacters.charCodeAt(i);
-        }
-        const byteArray = new Uint8Array(byteNumbers);
-        const blob = new Blob([byteArray], { type: 'audio/mpeg' });
-        const url = URL.createObjectURL(blob);
-        setAudioUrl(url);
-        setIsSpeaking(true);
-      }
-    } catch (err) {
-      console.error("Speech generation error:", err);
-      setError("Failed to generate audio. Please check API configuration.");
-    } finally {
-      setIsGeneratingAudio(false);
-    }
+  const handleSpeak = () => {
+    if (!interpretation || typeof window === 'undefined' || !window.speechSynthesis) return;
+    // stop any existing
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(interpretation);
+    const voice = voices.find(v => v.name === selectedVoiceName);
+    if (voice) utter.voice = voice;
+    utter.rate = 1;
+    utter.pitch = 1;
+    utter.onend = () => { setIsSpeaking(false); utterRef.current = null; };
+    utter.onerror = () => { setIsSpeaking(false); utterRef.current = null; };
+    utterRef.current = utter;
+    setIsSpeaking(true);
+    window.speechSynthesis.speak(utter);
   };
 
-  // Cleanup audio URL on unmount or when interpretation changes
-  useEffect(() => {
-    return () => {
-      if (audioUrl) URL.revokeObjectURL(audioUrl);
-    };
-  }, [audioUrl]);
+  const handleStop = () => {
+    if (typeof window === 'undefined' || !window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    setIsSpeaking(false);
+    utterRef.current = null;
+  };
 
-  // Reset audio when new interpretation is generated
+  // Stop TTS on unmount or when regenerating
   useEffect(() => {
     if (isGenerating) {
-      setAudioUrl(null);
-      setIsSpeaking(false);
+      handleStop();
     }
+    return () => handleStop();
   }, [isGenerating]);
 
   if (!isOpen) return null;
@@ -322,35 +302,42 @@ if (user && typeof user.token_balance === "number") {
               Your {selectedTier.charAt(0).toUpperCase() + selectedTier.slice(1)} Reading
             </h3>
             <div className="flex items-center gap-2 flex-wrap justify-end">
-              <div className="w-[180px]">
-                <Select value={selectedVoice} onValueChange={setSelectedVoice} disabled={isGeneratingAudio || isSpeaking}>
+              <div className="w-[220px]">
+                <Select value={selectedVoiceName} onValueChange={setSelectedVoiceName} disabled={isSpeaking || voices.length === 0}>
                   <SelectTrigger className="h-8 bg-black/40 border-purple-500/30 text-xs text-purple-200">
-                    <SelectValue placeholder="Select Voice" />
+                    <SelectValue placeholder={voices.length ? "Voice" : "Loading voices..."} />
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-900 border-purple-500/30 text-purple-200">
-                    {AVAILABLE_VOICES.map(voice => (
-                      <SelectItem key={voice.id} value={voice.id} className="text-xs focus:bg-purple-900/50 focus:text-white">
-                        {voice.name}
+                  <SelectContent className="bg-slate-900 border-purple-500/30 text-purple-200 max-h-64">
+                    {voices.map(v => (
+                      <SelectItem key={v.name} value={v.name} className="text-xs focus:bg-purple-900/50 focus:text-white">
+                        {v.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
-              <Button
-                onClick={handleGenerateSpeech}
-                variant="ghost"
-                size="sm"
-                disabled={isGeneratingAudio}
-                className="text-purple-300 hover:text-white"
-              >
-                {isGeneratingAudio ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
+              {!isSpeaking ? (
+                <Button
+                  onClick={handleSpeak}
+                  variant="ghost"
+                  size="sm"
+                  className="text-purple-300 hover:text-white"
+                >
                   <Volume2 className="w-4 h-4 mr-2" />
-                )}
-                Listen
-              </Button>
+                  Listen
+                </Button>
+              ) : (
+                <Button
+                  onClick={handleStop}
+                  variant="ghost"
+                  size="sm"
+                  className="text-purple-300 hover:text-white"
+                >
+                  <StopCircle className="w-4 h-4 mr-2" />
+                  Stop
+                </Button>
+              )
               <Button
                 onClick={copyToClipboard}
                 variant="ghost"
@@ -372,11 +359,7 @@ if (user && typeof user.token_balance === "number") {
             </div>
           </div>
 
-          {audioUrl && (
-            <div className="mb-4">
-              <AudioPlayer src={audioUrl} title="AI Interpretation" />
-            </div>
-          )}
+
 
           <div className="prose prose-invert prose-purple max-w-none">
             <div className="text-white/90 whitespace-pre-wrap leading-relaxed text-sm md:text-base">
