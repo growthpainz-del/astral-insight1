@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.4';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
 Deno.serve(async (req) => {
     try {
@@ -9,6 +9,7 @@ Deno.serve(async (req) => {
         if (!user) {
             return Response.json({ error: 'Unauthorized' }, { status: 401 });
         }
+        return Response.json({ error: 'TTS function deprecated: use browser SpeechSynthesis' }, { status: 410 });
 
         // 2. Parse Payload
         const { text, voiceId = "21m00Tcm4TlvDq8ikWAM" } = await req.json();
