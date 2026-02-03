@@ -795,27 +795,36 @@ export default function ReadingPage() {
                     Save Session
                   </Button>
                   <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setShowRelationshipsOverlay(true)}
-                    className="border-purple-500/40 text-purple-300 hover:bg-purple-500/10"
-                  >
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    Relationships
-                  </Button>
-                  {selectedSpread?.isCustom && selectedSpread?.id ? (
-                    <Link to={createPageUrl(`SpreadDesigner?id=${selectedSpread.id}`)}>
-                      <Button size="sm" variant="outline" className="border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10">
-                        Edit Spread
-                      </Button>
-                    </Link>
-                  ) : (
-                    <Link to={createPageUrl('SpreadManager')}>
-                      <Button size="sm" variant="outline" className="border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10">
-                        Edit Spread
-                      </Button>
-                    </Link>
-                  )}
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setShowRelationshipsOverlay(true)}
+                      className="border-purple-500/40 text-purple-300 hover:bg-purple-500/10"
+                    >
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      Relationships
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setShowCompactSpreadOverlay(true)}
+                      className="border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10"
+                    >
+                      <Eye className="w-4 h-4 mr-2" />
+                      Compact Spread
+                    </Button>
+                    {selectedSpread?.isCustom && selectedSpread?.id ? (
+                      <Link to={createPageUrl(`SpreadDesigner?id=${selectedSpread.id}`)}>
+                        <Button size="sm" variant="outline" className="border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10">
+                          Edit Spread
+                        </Button>
+                      </Link>
+                    ) : (
+                      <Link to={createPageUrl('SpreadManager')}>
+                        <Button size="sm" variant="outline" className="border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10">
+                          Edit Spread
+                        </Button>
+                      </Link>
+                    )}
                 </div>
               </div>
 
@@ -958,7 +967,46 @@ export default function ReadingPage() {
         </div>
       )}
 
-      {/* Enhanced Card Viewer Modal - MOVED TO TOP LEVEL WITH HIGHER Z-INDEX */}
+      {/* Compact Spread Overlay */}
+      {showCompactSpreadOverlay && (
+        <div className="fixed inset-0 z-[9998] bg-black/80 backdrop-blur-sm p-4 md:p-8">
+          <div className="relative max-w-6xl mx-auto bg-slate-900 rounded-xl border border-cyan-500/30 p-4 md:p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-white font-semibold">Compact Spread</h3>
+              <button onClick={() => setShowCompactSpreadOverlay(false)} className="text-white/70 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <SpreadLayout
+              spread={selectedSpread}
+              positions={readingPositions}
+              cards={drawnCards}
+              deck={deck}
+              onCardClick={handleCardClick}
+              revealedCards={revealedCards}
+              onCardReveal={handleCardReveal}
+              useScratchReveal={(deck?.censor_mode === 'scratch') || deck?.name?.toLowerCase().includes('wiccan')}
+              animateSpread={true}
+              allowReposition={true}
+              defaultCardWidth={90}
+              containerMinH="70vh"
+              onPositionUpdate={(updated) => {
+                setReadingPositions(updated);
+                setDrawnCards(prev => prev.map((c, idx) => ({
+                  ...c,
+                  position_x: typeof updated[idx]?.x === 'number' ? updated[idx].x : c.position_x,
+                  position_y: typeof updated[idx]?.y === 'number' ? updated[idx].y : c.position_y,
+                  position_rotation: typeof updated[idx]?.rotation === 'number' ? updated[idx].rotation : (c.position_rotation || 0),
+                  position: updated[idx]?.name || c.position,
+                  position_meaning: typeof updated[idx]?.meaning === 'string' ? updated[idx].meaning : c.position_meaning,
+                })));
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+       {/* Enhanced Card Viewer Modal - MOVED TO TOP LEVEL WITH HIGHER Z-INDEX */}
       {viewerCard && showEnhancedViewer && (
         <div className="fixed inset-0 z-[9999] pointer-events-auto">
           <EnhancedCardViewer
