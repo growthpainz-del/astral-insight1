@@ -805,7 +805,7 @@ export default function SpreadLayout(props) {
                           onClick={() => onCardClick(card, idx)}
                           onMouseDown={(e) => allowReposition && handleCardDragStart(e, idx)}
                           onTouchStart={(e) => allowReposition && handleCardDragStart(e, idx)}
-                          className={`relative w-full h-full rounded-lg overflow-hidden shadow-2xl transition-all duration-300 group ${isCurrentDragged ? 'shadow-purple-500/80 scale-105' : 'hover:shadow-purple-500/50 hover:scale-105'}`}}}}}}}}}}
+                          className={`relative w-full h-full rounded-lg overflow-hidden shadow-2xl transition-all duration-300 group ${isCurrentDragged ? 'shadow-purple-500/80 scale-105' : 'hover:shadow-purple-500/50 hover:scale-105'}`
                           style={{
                             transform: `rotate(${pos.rotation || 0}deg)`,
                             transformOrigin: 'center',
