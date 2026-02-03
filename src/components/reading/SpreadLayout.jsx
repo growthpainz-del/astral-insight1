@@ -974,9 +974,9 @@ export default function SpreadLayout(props) {
                           <button
                             type="button"
                             onClick={() => onCardClick(card, idx)}
-                            onMouseDown={(e) => allowReposition && handleCardDragStart(e, idx)}
-                            
-                            className={`relative w-full h-full rounded-lg overflow-hidden shadow-xl transition-all duration-300 group ${isCurrentDragged ? 'shadow-purple-500/80 scale-110' : 'hover:shadow-purple-500/50 hover:scale-110'}`}
+                                                          onMouseDown={(e) => allowReposition && handleCardDragStart(e, idx)}
+                                                          onTouchStart={(e) => allowReposition && handleCardDragStart(e, idx)}
+                                                          className={`relative w-full h-full rounded-lg overflow-hidden shadow-xl transition-all duration-300 group ${isCurrentDragged ? 'shadow-purple-500/80 scale-110' : 'hover:shadow-purple-500/50 hover:scale-110'}`}
                             style={{
                               transform: `rotate(${pos.rotation}deg)`,
                               transformOrigin: 'center',
