@@ -108,6 +108,7 @@ export default function ReadingPage() {
   const [showEnhancedViewer, setShowEnhancedViewer] = useState(false);
   const [viewerCard, setViewerCard] = useState(null);
   const [showRelationshipsOverlay, setShowRelationshipsOverlay] = useState(false);
+const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
   // Drag-to-position state (live, per reading)
   const [readingPositions, setReadingPositions] = useState([]);
 
