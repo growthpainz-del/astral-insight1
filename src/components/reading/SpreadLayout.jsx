@@ -700,7 +700,7 @@ export default function SpreadLayout(props) {
             return (
               <motion.div
                 key={`card-${idx}`}
-                className={`relative flex flex-col items-center justify-center z-10 ${viewMode === 'compact' ? 'p-1' : viewMode === 'detailed' ? 'p-3' : 'p-2'}`
+                className={`relative flex flex-col items-center justify-center z-10 ${viewMode === 'compact' ? 'p-1' : viewMode === 'detailed' ? 'p-3' : 'p-2'}`}
                 style={{
                   width: defaultSlot,
                   height: Math.round(defaultSlot * CARD_ASPECT_RATIO),
