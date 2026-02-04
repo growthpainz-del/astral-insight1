@@ -882,7 +882,7 @@ export default function SpreadLayout(props) {
               return (
                 <motion.div
                   key={`card-${idx}`}
-                  className={`absolute -translate-x-1/2 -translate-y-1/2 ${viewMode === 'compact' ? 'p-0.5' : viewMode === 'detailed' ? 'p-2' : 'p-1'}`
+                  className={`absolute -translate-x-1/2 -translate-y-1/2 ${viewMode === 'compact' ? 'p-0.5' : viewMode === 'detailed' ? 'p-2' : 'p-1'}`}
                   style={{
                     left: `${safeX}%`,
                     top: `${safeY}%`,
