@@ -32,6 +32,7 @@ import CardRelationshipVisualizer from "@/components/deck/CardRelationshipVisual
 import { Badge } from "@/components/ui/badge";
 import ReadingSessionManager from "@/components/reading/ReadingSessionManager";
 import EnhancedCardViewer from "@/components/reading/EnhancedCardViewer";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 // Built-in spreads with proper position structure for SpreadLayout
 const BUILT_IN_SPREADS = [
@@ -114,6 +115,7 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
 
   // NEW: Debug panel state
   const [showDebugPanel, setShowDebugPanel] = useState(false);
+  const [viewMode, setViewMode] = useState('compact');
   
   // NEW: Card reveal states
   const [revealedCards, setRevealedCards] = useState(new Set());
@@ -775,6 +777,10 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
                   Your Reading
                 </h2>
                 <div className="flex gap-2 flex-wrap justify-end">
+                  <ToggleGroup type="single" value={viewMode} onValueChange={(v) => v && setViewMode(v)} className="rounded-md border border-white/10">
+                    <ToggleGroupItem value="compact" className={`${viewMode==='compact' ? 'bg-cyan-500/20 text-cyan-200' : 'text-white/80'} px-3 py-1`}>Compact</ToggleGroupItem>
+                    <ToggleGroupItem value="detailed" className={`${viewMode==='detailed' ? 'bg-purple-500/20 text-purple-200' : 'text-white/80'} px-3 py-1`}>Detailed</ToggleGroupItem>
+                  </ToggleGroup>
                   <Button
                     size="sm"
                     variant="outline"
@@ -856,6 +862,8 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
                 onCardReveal={handleCardReveal}
                 useScratchReveal={(deck?.censor_mode === 'scratch') || deck?.name?.toLowerCase().includes('wiccan')}
                 animateSpread={true}
+               viewMode="compact"
+                viewMode={viewMode}
                 allowReposition={true}
                 onPositionUpdate={(updated) => {
                   setReadingPositions(updated);

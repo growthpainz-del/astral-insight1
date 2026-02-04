@@ -198,6 +198,7 @@ export default function SpreadLayout(props) {
     revealedCards = new Set(),
     onCardReveal = () => {},
     useScratchReveal = false,
+    viewMode = "normal",
   } = props;
 
   // DEBUG: Log received props
@@ -295,8 +296,10 @@ export default function SpreadLayout(props) {
     };
   }, [unlockScroll]);
 
-  // FIXED: Use smaller default card width directly
-  const defaultSlot = defaultCardWidth || DEFAULT_CARD_WIDTH;
+  // FIXED: Use smaller default card width directly (adjusted by viewMode)
+  const baseSlot = defaultCardWidth || DEFAULT_CARD_WIDTH;
+  const sizeMultiplier = viewMode === 'compact' ? 0.75 : viewMode === 'detailed' ? 1.3 : 1;
+  const defaultSlot = Math.round(baseSlot * sizeMultiplier);
 
   // IMPROVED: Pass cards to normalization function
   const normalizedPositions = React.useMemo(() => {
@@ -665,7 +668,7 @@ export default function SpreadLayout(props) {
         className="relative w-full rounded-xl flex items-center justify-center mystical-grid-container"
         style={{
           minHeight: computedContainerMinHeight,
-          padding: visibleCount === 1 ? '3rem 2rem' : '2rem 1rem',
+          padding: visibleCount === 1 ? '3rem 2rem' : (viewMode === 'compact' ? '1rem 0.5rem' : viewMode === 'detailed' ? '3rem 2rem' : '2rem 1rem'),
           position: 'relative',
           WebkitOverflowScrolling: 'touch',
           overflowY: 'auto'
@@ -697,7 +700,7 @@ export default function SpreadLayout(props) {
             return (
               <motion.div
                 key={`card-${idx}`}
-                className="relative flex flex-col items-center justify-center z-10 p-2"
+                className={`relative flex flex-col items-center justify-center z-10 ${viewMode === 'compact' ? 'p-1' : viewMode === 'detailed' ? 'p-3' : 'p-2'}`
                 style={{
                   width: defaultSlot,
                   height: Math.round(defaultSlot * CARD_ASPECT_RATIO),
@@ -837,12 +840,19 @@ export default function SpreadLayout(props) {
                       )}
 
                       {showPositionLabels && (
-                        <div className="mt-2 text-center">
-                          <Badge className="bg-purple-600/80 text-white text-xs px-2 py-1">
-                            {pos.name}
-                          </Badge>
-                        </div>
-                      )}
+                              <div className="mt-2 text-center">
+                                <Badge className={`bg-purple-600/80 text-white ${viewMode === 'compact' ? 'text-[10px] px-1.5 py-0.5' : viewMode === 'detailed' ? 'text-sm px-3 py-1.5' : 'text-xs px-2 py-1'}`}>
+                                  {pos.name}
+                                </Badge>
+                              </div>
+                            )}
+
+                            {viewMode === 'detailed' && (
+                              <div className="mt-2 text-center space-y-1">
+                                {card?.name && <div className="text-sm font-semibold text-white">{card.name}</div>}
+                                {pos?.meaning && <div className="text-xs text-purple-200/80">{pos.meaning}</div>}
+                              </div>
+                            )}
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -872,7 +882,7 @@ export default function SpreadLayout(props) {
               return (
                 <motion.div
                   key={`card-${idx}`}
-                  className="absolute -translate-x-1/2 -translate-y-1/2 p-1"
+                  className={`absolute -translate-x-1/2 -translate-y-1/2 ${viewMode === 'compact' ? 'p-0.5' : viewMode === 'detailed' ? 'p-2' : 'p-1'}`
                   style={{
                     left: `${safeX}%`,
                     top: `${safeY}%`,
@@ -1012,9 +1022,15 @@ export default function SpreadLayout(props) {
                             className="absolute left-1/2 transform -translate-x-1/2 pointer-events-none"
                             style={{ top: '100%', marginTop: '4px' }}
                           >
-                            <Badge className="bg-purple-600/90 text-white text-[10px] px-1.5 py-0.5 whitespace-nowrap">
+                            <Badge className={`bg-purple-600/90 text-white whitespace-nowrap ${viewMode === 'compact' ? 'text-[10px] px-1.5 py-0.5' : viewMode === 'detailed' ? 'text-sm px-3 py-1.5' : 'text-xs px-2 py-1'}`}>
                               {pos.name}
                             </Badge>
+                            {viewMode === 'detailed' && (
+                              <div className="mt-1 text-center">
+                                {card?.name && <div className="text-xs font-semibold text-white">{card.name}</div>}
+                                {pos?.meaning && <div className="text-[10px] text-purple-200/80">{pos.meaning}</div>}
+                              </div>
+                            )}
                           </div>
                         )}
                       </motion.div>
