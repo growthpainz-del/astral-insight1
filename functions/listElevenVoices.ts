@@ -28,10 +28,6 @@ Deno.serve(async (req) => {
       ? json.voices.map(v => ({ id: v.voice_id || v.id, name: v.name || 'Unknown Voice' }))
       : [];
 
-    // Also include a known working fallback id so the UI isn't empty if API scoping hides voices
-    if (!voices.find(v => v.id === 'X8Na0RDzhqa1gJFsWu5a')) {
-      voices = [{ id: 'X8Na0RDzhqa1gJFsWu5a', name: 'Gypsy (Custom)' }, ...voices];
-    }
 
     return Response.json({ voices });
   } catch (error) {

@@ -22,7 +22,7 @@ export default function ChanneledReading({ isOpen, drawnCards, deck, spread, que
   
   // ElevenLabs TTS
   const [elevenVoices, setElevenVoices] = useState([]);
-  const [selectedVoiceId, setSelectedVoiceId] = useState("X8Na0RDzhqa1gJFsWu5a");
+  const [selectedVoiceId, setSelectedVoiceId] = useState("21m00Tcm4TlvDq8ikWAM");
   const [isSpeaking, setIsSpeaking] = useState(false);
   const audioRef = useRef(null);
 
@@ -40,9 +40,10 @@ export default function ChanneledReading({ isOpen, drawnCards, deck, spread, que
         const { data } = await base44.functions.invoke('listElevenVoices');
         const list = Array.isArray(data?.voices) ? data.voices : (Array.isArray(data) ? data : []);
         setElevenVoices(list);
-        if (!selectedVoiceId && list.length) {
-          const preferred = list.find(v => v.id === "X8Na0RDzhqa1gJFsWu5a") || list[0];
-          if (preferred) setSelectedVoiceId(preferred.id);
+        const availableIds = new Set(list.map(v => v.id));
+        if (!availableIds.has(selectedVoiceId)) {
+          const rachel = list.find(v => v.id === "21m00Tcm4TlvDq8ikWAM");
+          setSelectedVoiceId((rachel?.id) || (list[0]?.id) || "21m00Tcm4TlvDq8ikWAM");
         }
       } catch (e) {
         console.error('Failed to load ElevenLabs voices', e);
