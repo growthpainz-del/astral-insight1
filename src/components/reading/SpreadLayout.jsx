@@ -77,6 +77,38 @@ function normalizeSpreadPositions(spread, positions, cards) {
           }
         }
 
+        // SPECIAL CASE: Path Forward (7) — right-pointing arrow/chevron if no explicit coords
+        if (
+          Array.isArray(positions) && positions.length === 7 &&
+          spread?.name?.toLowerCase()?.includes('path') &&
+          spread?.name?.toLowerCase()?.includes('forward')
+        ) {
+          const hasCoords = positions.some(p => typeof p === 'object' && p && (typeof p.x === 'number' || typeof p.y === 'number'));
+          if (!hasCoords) {
+            const arrow = [
+              { x: 15, y: 30, rotation: 0 },
+              { x: 30, y: 40, rotation: 0 },
+              { x: 45, y: 50, rotation: 0 },
+              { x: 80, y: 50, rotation: 0 }, // tip
+              { x: 45, y: 60, rotation: 0 },
+              { x: 30, y: 70, rotation: 0 },
+              { x: 15, y: 80, rotation: 0 },
+            ];
+            return positions.map((pos, idx) => {
+              let posName = typeof pos === 'string' ? pos : (pos.name || `Position ${idx + 1}`);
+              if (!posName.match(/\d/)) posName = `${idx + 1}. ${posName}`;
+              return {
+                name: posName,
+                meaning: typeof pos === 'string' ? '' : (pos.meaning || ''),
+                x: arrow[idx]?.x ?? 50,
+                y: arrow[idx]?.y ?? 50,
+                rotation: arrow[idx]?.rotation ?? 0,
+                position_number: idx + 1,
+              };
+            });
+          }
+        }
+
         // PRIORITY 2: Use position data embedded in cards (from custom spreads)
         const embeddedPositions = extractPositionsFromCards(cards);
         if (embeddedPositions) {
@@ -197,38 +229,7 @@ function normalizeSpreadPositions(spread, positions, cards) {
     });
   }
 
-  // Path Forward layout (7 cards) - right-pointing arrow/chevron
-  if (
-    count === 7 &&
-    spread?.name?.toLowerCase().includes('path') &&
-    spread?.name?.toLowerCase().includes('forward')
-  ) {
-    const arrow = [
-      { x: 15, y: 30, rotation: 0 },
-      { x: 30, y: 40, rotation: 0 },
-      { x: 45, y: 50, rotation: 0 },
-      { x: 80, y: 50, rotation: 0 }, // tip
-      { x: 45, y: 60, rotation: 0 },
-      { x: 30, y: 70, rotation: 0 },
-      { x: 15, y: 80, rotation: 0 },
-    ];
 
-    return positions.map((pos, idx) => {
-      let posName = typeof pos === 'string' ? pos : (pos.name || `Position ${idx + 1}`);
-      if (!posName.match(/\d/)) {
-        posName = `${idx + 1}. ${posName}`;
-      }
-
-      return {
-        name: posName,
-        meaning: typeof pos === 'string' ? '' : (pos.meaning || ''),
-        x: arrow[idx]?.x ?? 50,
-        y: arrow[idx]?.y ?? 50,
-        rotation: arrow[idx]?.rotation ?? 0,
-        position_number: idx + 1,
-      };
-    });
-  }
 
   // Default: distribute evenly in a grid
   const cols = Math.min(5, Math.ceil(Math.sqrt(count)));
