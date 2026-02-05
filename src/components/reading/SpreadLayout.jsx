@@ -1,7 +1,7 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
-import { CARD_ASPECT_RATIO } from "@/components/utils/cardSizing";
+import { CARD_ASPECT_RATIO, calculateCardSize, getDesignerAspectRatio } from "@/components/utils/cardSizing";
 import { Move, Bug } from "lucide-react";
 import ScratchRevealCard from "@/components/reading/ScratchRevealCard";
 
@@ -288,6 +288,20 @@ export default function SpreadLayout(props) {
   });
 
   const containerRef = React.useRef(null);
+  const [containerWidth, setContainerWidth] = React.useState(0);
+  React.useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const cw = entry.contentRect?.width || el.clientWidth || 0;
+        setContainerWidth(Math.round(cw));
+      }
+    });
+    ro.observe(el);
+    setContainerWidth(Math.round(el.clientWidth || 0));
+    return () => ro.disconnect();
+  }, []);
 
   // NEW: Animation state
   const [showPositions, setShowPositions] = React.useState(false);
@@ -372,10 +386,19 @@ export default function SpreadLayout(props) {
     };
   }, [unlockScroll]);
 
-  // FIXED: Use smaller default card width directly (adjusted by viewMode)
+  // Responsive card width for mobile/large spreads
   const baseSlot = defaultCardWidth || DEFAULT_CARD_WIDTH;
-  const sizeMultiplier = viewMode === 'compact' ? 0.75 : viewMode === 'detailed' ? 1.3 : 1;
-  const defaultSlot = Math.round(baseSlot * sizeMultiplier);
+  const sizeMultiplier = viewMode === 'compact' ? 0.75 : viewMode === 'detailed' ? 1.2 : 1;
+  let computedWidth = baseSlot;
+  if (containerWidth) {
+    const { cardWidth } = calculateCardSize(containerWidth, visibleCount);
+    computedWidth = Math.max(80, Math.min(cardWidth, 220));
+  }
+  // Clamp further for dense spreads on small screens
+  if (visibleCount >= 7 && containerWidth && containerWidth < 520) {
+    computedWidth = Math.min(computedWidth, 110);
+  }
+  const defaultSlot = Math.round(computedWidth * sizeMultiplier);
 
   // IMPROVED: Pass cards to normalization function
   const normalizedPositions = React.useMemo(() => {
@@ -744,6 +767,7 @@ export default function SpreadLayout(props) {
         className="relative w-full rounded-xl flex items-center justify-center mystical-grid-container"
         style={{
           minHeight: computedContainerMinHeight,
+          aspectRatio: getDesignerAspectRatio(visibleCount),
           padding: visibleCount === 1 ? '3rem 2rem' : (viewMode === 'compact' ? '1rem 0.5rem' : viewMode === 'detailed' ? '3rem 2rem' : '2rem 1rem'),
           position: 'relative',
           WebkitOverflowScrolling: 'touch',
