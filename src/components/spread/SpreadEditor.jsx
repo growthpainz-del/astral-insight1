@@ -80,7 +80,8 @@ export default function SpreadEditor({ spread, decks, user, onSave, onCancel }) 
       name: `Position ${formData.positions.length + 1}`,
       meaning: '',
       x: 50,
-      y: 50
+      y: 50,
+      rotation: 0
     };
     setFormData(prev => ({
       ...prev,
@@ -298,6 +299,18 @@ export default function SpreadEditor({ spread, decks, user, onSave, onCancel }) 
                           placeholder="What does this position represent?"
                           className="text-xs h-16 bg-white/10 border-white/20 text-white"
                         />
+                        <div className="mt-3">
+                          <label className="block text-[11px] text-purple-200 mb-1">Rotation: <span className="font-semibold">{(position.rotation ?? 0)}°</span></label>
+                          <input
+                            type="range"
+                            min={0}
+                            max={360}
+                            step={1}
+                            value={position.rotation ?? 0}
+                            onChange={(e) => updatePosition(index, 'rotation', parseInt(e.target.value, 10))}
+                            className="w-full"
+                          />
+                        </div>
                       </CardContent>
                     </Card>
                   ))}
@@ -362,7 +375,7 @@ export default function SpreadEditor({ spread, decks, user, onSave, onCancel }) 
                       e.stopPropagation();
                       setDraggedPosition(index);
                     }}
-                    style={{ touchAction: 'none', userSelect: 'none' }}
+                    style={{ touchAction: 'none', userSelect: 'none', transform: `rotate(${position.rotation ?? 0}deg)` }}
                     >
                       <div className="text-xs font-bold text-white mb-1">
                         {index + 1}
