@@ -203,7 +203,8 @@ export default function Layout({ children, currentPageName }) {
   const moreLinks = [
     { href: "Help", icon: HelpCircle, label: "Help & Guides" },
     { href: "SubscriptionManagement", icon: Coins, label: "Subscription" },
-    { href: "AIWorkspace", icon: Sparkles, label: "🤖 AI Workspace" }, // Added AIWorkspace link
+    // AI Workspace is admin-only; we'll filter it from non-admin view below
+    { href: "AIWorkspace", icon: Sparkles, label: "🤖 AI Workspace" },
   ];
 
   const adminLinks = [
