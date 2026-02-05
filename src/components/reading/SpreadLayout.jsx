@@ -40,9 +40,24 @@ function normalizeSpreadPositions(spread, positions, cards) {
           );
           if (hasCoordinates) {
             console.log('📍 Using coordinate positions from spread definition');
+
+            // Preserve spacing for any positions without x/y by using a fallback grid
+            const count = positions.length;
+            const cols = Math.min(5, Math.ceil(Math.sqrt(count)));
+            const rows = Math.ceil(count / cols);
+
+            const getFallbackXY = (i) => {
+              const col = i % cols;
+              const row = Math.floor(i / cols);
+              const fx = 15 + (col * (70 / (cols - 1 || 1)));
+              const fy = 20 + (row * (60 / (rows - 1 || 1)));
+              return { fx, fy };
+            };
+
             return positions.map((pos, idx) => {
-              const x = typeof pos?.x === 'number' ? Math.min(100, Math.max(0, pos.x)) : 50;
-              const y = typeof pos?.y === 'number' ? Math.min(100, Math.max(0, pos.y)) : 50;
+              const { fx, fy } = getFallbackXY(idx);
+              const x = typeof pos?.x === 'number' ? Math.min(100, Math.max(0, pos.x)) : fx;
+              const y = typeof pos?.y === 'number' ? Math.min(100, Math.max(0, pos.y)) : fy;
               const rotation = typeof pos?.rotation === 'number' ? pos.rotation : 0;
 
               let posName = typeof pos === 'string' ? pos : (pos.name || `Position ${idx + 1}`);
