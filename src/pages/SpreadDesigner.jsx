@@ -14,6 +14,7 @@ import SpreadDesignCanvas from "@/components/spread/SpreadDesignCanvas";
 import SpreadLayout from "@/components/reading/SpreadLayout";
 import AISpreadAssistant from "@/components/spread/AISpreadAssistant";
 import { getDesignerAspectRatio } from "@/components/utils/cardSizing";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function SpreadDesigner() {
   const [spreadName, setSpreadName] = useState("");
@@ -201,7 +202,152 @@ export default function SpreadDesigner() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Mobile: Full-screen tabs */}
+        <div className="lg:hidden">
+          <Tabs defaultValue="canvas" className="w-full">
+            <TabsList className="grid grid-cols-3 w-full sticky top-0 z-10 bg-slate-900/80 backdrop-blur rounded-xl">
+              <TabsTrigger value="canvas">Canvas</TabsTrigger>
+              <TabsTrigger value="details">Details</TabsTrigger>
+              <TabsTrigger value="controls">Controls</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="canvas">
+              <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-4 h-[calc(100vh-180px)] overflow-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="text-lg font-bold text-purple-300">Visual Layout</h2>
+                  <Button onClick={addPosition} size="sm" className="bg-purple-600 hover:bg-purple-700">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Card
+                  </Button>
+                </div>
+
+                {positions.length > 0 ? (
+                  <SpreadDesignCanvas
+                    positions={positions}
+                    onChange={setPositions}
+                    showGrid={true}
+                    aspectRatio={aspectRatio}
+                  />
+                ) : (
+                  <div className="border-2 border-dashed border-white/20 rounded-xl p-10 text-center min-h-[50vh] flex items-center justify-center">
+                    <div>
+                      <p className="text-white/60 mb-4">Add positions to start designing your spread layout</p>
+                      <Button onClick={addPosition} className="bg-purple-600 hover:bg-purple-700">
+                        <Plus className="w-4 h-4 mr-2" /> Add First Position
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="details">
+              <div className="space-y-6 p-4 h-[calc(100vh-180px)] overflow-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
+                {/* Spread Details */}
+                <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-6 space-y-4">
+                  <h2 className="text-xl font-bold text-purple-300">Spread Details</h2>
+                  <div>
+                    <Label htmlFor="spread-name">Spread Name *</Label>
+                    <Input id="spread-name" value={spreadName} onChange={(e) => setSpreadName(e.target.value)} placeholder="e.g., Celtic Cross, Three Card Spread" className="bg-black/50 border-white/20 text-white" />
+                  </div>
+                  <div>
+                    <Label htmlFor="spread-description">Description</Label>
+                    <Textarea id="spread-description" value={spreadDescription} onChange={(e) => setSpreadDescription(e.target.value)} placeholder="Describe what this spread is for and how to use it..." className="bg-black/50 border-white/20 text-white min-h-[80px]" />
+                  </div>
+                  <div>
+                    <Label htmlFor="spread-category">Category</Label>
+                    <Select value={spreadCategory} onValueChange={setSpreadCategory}>
+                      <SelectTrigger id="spread-category" className="bg-black/50 border-white/20 text白 text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-900 border-white/20 text-white">
+                        <SelectItem value="General">General</SelectItem>
+                        <SelectItem value="Love">Love & Relationships</SelectItem>
+                        <SelectItem value="Career">Career & Finance</SelectItem>
+                        <SelectItem value="Spiritual">Spiritual Growth</SelectItem>
+                        <SelectItem value="Runes">Runes</SelectItem>
+                        <SelectItem value="Custom">Custom</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex items-center justify-between py-2">
+                    <div>
+                      <Label htmlFor="requires-positions">Show Position Labels</Label>
+                      <p className="text-xs text-white/60">Display position names/meanings during readings</p>
+                    </div>
+                    <Switch id="requires-positions" checked={requiresPositions} onCheckedChange={setRequiresPositions} />
+                  </div>
+                  <div className="flex items-center justify-between py-2">
+                    <div>
+                      <Label htmlFor="is-public">Make Public</Label>
+                      <p className="text-xs text-white/60">Allow others to use this spread</p>
+                    </div>
+                    <Switch id="is-public" checked={isPublic} onCheckedChange={setIsPublic} />
+                  </div>
+                </div>
+
+                {/* Position Details */}
+                <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-6 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-xl font-bold text-purple-300">Position Details ({positions.length})</h2>
+                  </div>
+                  {positions.length === 0 ? (
+                    <div className="text-center py-8 text-white/60">
+                      <p className="mb-2">No positions yet.</p>
+                      <p className="text-sm">Tap "Add Card" in the Canvas tab to start.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-2" style={{ WebkitOverflowScrolling: 'touch' }}>
+                      {positions.map((pos, idx) => (
+                        <div key={idx} className="bg-black/30 rounded-lg p-4 space-y-3 border border白/10 border-white/10">
+                          <div className="flex items-center justify-between">
+                            <Badge className="bg-purple-600/50">Position {idx + 1}</Badge>
+                            <span className="text-xs text-white/60">{Math.round(pos.x)}%, {Math.round(pos.y)}%, {pos.rotation || 0}°</span>
+                          </div>
+                          <div>
+                            <Label className="text-xs">Position Name *</Label>
+                            <Input value={pos.name || ""} onChange={(e) => updatePositionField(idx, "name", e.target.value)} placeholder="e.g., Past, Present, Future" className="bg-black/50 border-white/20 text-white text-sm" />
+                          </div>
+                          <div>
+                            <Label className="text-xs">Meaning *</Label>
+                            <Textarea value={pos.meaning || ""} onChange={(e) => updatePositionField(idx, "meaning", e.target.value)} placeholder="What this position represents..." className="bg-black/50 border-white/20 text-white text-sm min-h-[60px]" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <Button onClick={handleSave} disabled={isSaving} className="w-full bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 text-white py-5 text-lg font-bold">
+                  <Save className="w-5 h-5 mr-2" /> {isSaving ? "Saving..." : spreadId ? "Update Spread" : "Create Spread"}
+                </Button>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="controls">
+              <div className="p-4 space-y-4 h-[calc(100vh-180px)] overflow-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-bold text-purple-300">Controls</h2>
+                  <Button onClick={() => setPreviewMode(!previewMode)} variant="outline" className={`border-cyan-500/40 ${previewMode ? 'bg-cyan-600/20 text-cyan-300' : 'text-white'}`}>
+                    {previewMode ? (<><EyeOff className="w-4 h-4 mr-2" /> Hide Preview</>) : (<><Eye className="w-4 h-4 mr-2" /> Show Preview</>)}
+                  </Button>
+                </div>
+                <div className="bg-cyan-900/20 border border-cyan-500/30 rounded-lg p-3">
+                  <h3 className="text-sm font-semibold text-cyan-300 mb-2 flex items-center gap-2"><Info className="w-4 h-4" /> How to Use</h3>
+                  <ul className="text-xs text-cyan-200/80 space-y-1 list-disc pl-5">
+                    <li>Drag the small handle on a card to move it</li>
+                    <li>Tap a card to show the rotation toolbar</li>
+                    <li>Use the slider/buttons to set angle (0–360°)</li>
+                    <li>Use Preview to see the reading view</li>
+                  </ul>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
+
+        {/* Desktop layout */}
+        <div className="hidden lg:grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left Column: Visual Designer */}
           <div className="space-y-4 order-2 lg:order-1">
             {previewMode ? (
