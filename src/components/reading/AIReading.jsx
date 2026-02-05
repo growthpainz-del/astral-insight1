@@ -20,11 +20,11 @@ export default function ChanneledReading({ isOpen, drawnCards, deck, spread, que
   const [includeMoonPhase, setIncludeMoonPhase] = useState(false);
   const [progress, setProgress] = useState({ current: 0, total: 0, message: "" });
   
-  // Voice (browser SpeechSynthesis)
-  const [voices, setVoices] = useState([]);
-  const [selectedVoiceName, setSelectedVoiceName] = useState("");
+  // ElevenLabs TTS
+  const [elevenVoices, setElevenVoices] = useState([]);
+  const [selectedVoiceId, setSelectedVoiceId] = useState("X8Na0RDzhqa1gJFsWu5a");
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const utterRef = useRef(null);
+  const audioRef = useRef(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -32,21 +32,24 @@ export default function ChanneledReading({ isOpen, drawnCards, deck, spread, que
     }
   }, [isOpen]);
 
-  // Load available TTS voices
+  // Load ElevenLabs voices when panel opens
   useEffect(() => {
-    if (typeof window === 'undefined' || !window.speechSynthesis) return;
-    const load = () => {
-      const v = window.speechSynthesis.getVoices();
-      setVoices(v);
-      if (!selectedVoiceName && v.length) {
-        const preferred = v.find(vo => /female|samantha|victoria|google us english|english/i.test(vo.name)) || v[0];
-        setSelectedVoiceName(preferred.name);
+    if (!isOpen) return;
+    const fetchVoices = async () => {
+      try {
+        const { data } = await base44.functions.invoke('listElevenVoices');
+        const list = Array.isArray(data?.voices) ? data.voices : (Array.isArray(data) ? data : []);
+        setElevenVoices(list);
+        if (!selectedVoiceId && list.length) {
+          const preferred = list.find(v => v.id === "X8Na0RDzhqa1gJFsWu5a") || list[0];
+          if (preferred) setSelectedVoiceId(preferred.id);
+        }
+      } catch (e) {
+        console.error('Failed to load ElevenLabs voices', e);
       }
     };
-    load();
-    window.speechSynthesis.onvoiceschanged = load;
-    return () => { window.speechSynthesis.onvoiceschanged = null; };
-  }, [selectedVoiceName]);
+    fetchVoices();
+  }, [isOpen, selectedVoiceId]);
 
   const generateInterpretation = async (tier = "quick") => {
     if (!drawnCards || drawnCards.length === 0) {
@@ -136,27 +139,32 @@ if (user && typeof user.token_balance === "number") {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleSpeak = () => {
-    if (!interpretation || typeof window === 'undefined' || !window.speechSynthesis) return;
-    // stop any existing
-    window.speechSynthesis.cancel();
-    const utter = new SpeechSynthesisUtterance(interpretation);
-    const voice = voices.find(v => v.name === selectedVoiceName);
-    if (voice) utter.voice = voice;
-    utter.rate = 1;
-    utter.pitch = 1;
-    utter.onend = () => { setIsSpeaking(false); utterRef.current = null; };
-    utter.onerror = () => { setIsSpeaking(false); utterRef.current = null; };
-    utterRef.current = utter;
+  const handleSpeak = async () => {
+    if (!interpretation) return;
     setIsSpeaking(true);
-    window.speechSynthesis.speak(utter);
+    try {
+      const { data } = await base44.functions.invoke('generateSpeech', {
+        text: interpretation,
+        voiceId: selectedVoiceId,
+      });
+      const b64 = data?.audioContent;
+      if (!b64) throw new Error('No audio returned from TTS');
+      if (!audioRef.current) audioRef.current = new Audio();
+      audioRef.current.src = `data:audio/mpeg;base64,${b64}`;
+      audioRef.current.onended = () => setIsSpeaking(false);
+      await audioRef.current.play();
+    } catch (err) {
+      console.error('TTS error:', err);
+      setIsSpeaking(false);
+    }
   };
 
   const handleStop = () => {
-    if (typeof window === 'undefined' || !window.speechSynthesis) return;
-    window.speechSynthesis.cancel();
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
     setIsSpeaking(false);
-    utterRef.current = null;
   };
 
   // Stop TTS on unmount or when regenerating
@@ -302,14 +310,14 @@ if (user && typeof user.token_balance === "number") {
               Your {selectedTier.charAt(0).toUpperCase() + selectedTier.slice(1)} Reading
             </h3>
             <div className="flex items-center gap-2 flex-wrap justify-end">
-              <div className="w-[220px]">
-                <Select value={selectedVoiceName} onValueChange={setSelectedVoiceName} disabled={isSpeaking || voices.length === 0}>
+              <div className="w-[260px]">
+                <Select value={selectedVoiceId} onValueChange={setSelectedVoiceId} disabled={isSpeaking || elevenVoices.length === 0}>
                   <SelectTrigger className="h-8 bg-black/40 border-purple-500/30 text-xs text-purple-200">
-                    <SelectValue placeholder={voices.length ? "Voice" : "Loading voices..."} />
+                    <SelectValue placeholder={elevenVoices.length ? "Select voice" : "Loading voices..."} />
                   </SelectTrigger>
                   <SelectContent className="bg-slate-900 border-purple-500/30 text-purple-200 max-h-64">
-                    {voices.map(v => (
-                      <SelectItem key={v.name} value={v.name} className="text-xs focus:bg-purple-900/50 focus:text-white">
+                    {elevenVoices.map(v => (
+                      <SelectItem key={v.id} value={v.id} className="text-xs focus:bg-purple-900/50 focus:text-white">
                         {v.name}
                       </SelectItem>
                     ))}

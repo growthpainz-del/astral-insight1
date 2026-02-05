@@ -1,0 +1,38 @@
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+
+Deno.serve(async (req) => {
+  try {
+    const base44 = createClientFromRequest(req);
+
+    // Auth check
+    const user = await base44.auth.me();
+    if (!user) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const apiKey = Deno.env.get('ELEVENLABS_API_KEY');
+    if (!apiKey) {
+      return Response.json({ error: 'ElevenLabs API key not configured' }, { status: 500 });
+    }
+
+    const res = await fetch('https://api.elevenlabs.io/v1/voices', {
+      headers: { 'xi-api-key': apiKey }
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      console.error('ElevenLabs voices error:', text);
+      return Response.json({ error: 'Failed to fetch ElevenLabs voices' }, { status: res.status });
+    }
+
+    const json = await res.json();
+    const voices = Array.isArray(json?.voices)
+      ? json.voices.map(v => ({ id: v.voice_id || v.id, name: v.name || 'Unknown Voice' }))
+      : [];
+
+    return Response.json({ voices });
+  } catch (error) {
+    console.error('Error listing ElevenLabs voices:', error);
+    return Response.json({ error: error.message }, { status: 500 });
+  }
+});

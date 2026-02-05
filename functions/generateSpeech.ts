@@ -9,7 +9,7 @@ Deno.serve(async (req) => {
         if (!user) {
             return Response.json({ error: 'Unauthorized' }, { status: 401 });
         }
-        return Response.json({ error: 'TTS function deprecated: use browser SpeechSynthesis' }, { status: 410 });
+        // Deprecated notice removed to enable ElevenLabs TTS
 
         // 2. Parse Payload
         const { text, voiceId = "21m00Tcm4TlvDq8ikWAM" } = await req.json();
