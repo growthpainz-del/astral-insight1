@@ -14,7 +14,7 @@ Deno.serve(async (req) => {
     }
 
     const res = await fetch('https://api.elevenlabs.io/v1/voices', {
-      headers: { 'xi-api-key': apiKey }
+      headers: { 'xi-api-key': apiKey, 'Accept': 'application/json' }
     });
 
     if (!res.ok) {
