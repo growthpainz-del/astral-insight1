@@ -566,9 +566,9 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
   return (
     <div className="min-h-screen pb-32 md:pb-24 bg-gradient-to-br from-indigo-950 via-purple-950 to-slate-900">
       {/* Always-visible Exit on mobile (and handy on overflow lock) */}
-      <div className="fixed top-3 left-3 z-[10000] pointer-events-auto">
+      <div className="fixed top-3 left-3 z-[2147483647] pointer-events-auto">
         <Link to={createPageUrl("Dashboard")}>
-          <Button size="sm" variant="outline" className="bg-black/60 text-white border-white/30 hover:bg-black/80">
+          <Button size="sm" variant="outline" onClick={() => { window.location.href = createPageUrl('Dashboard'); }} className="bg-black/60 text-white border-white/30 hover:bg-black/80">
             Exit
           </Button>
         </Link>
