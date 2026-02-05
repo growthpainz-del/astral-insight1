@@ -928,12 +928,14 @@ export default function SpreadLayout(props) {
               const isCurrentDragged = draggedCardIndex === idx;
 
               return (
-                <motion.div
-                  key={`card-${idx}`}
-                  className={`absolute -translate-x-1/2 -translate-y-1/2 ${viewMode === 'compact' ? 'p-0.5' : viewMode === 'detailed' ? 'p-2' : 'p-1'}`}
-                  style={{
-                    left: `${safeX}%`,
-                    top: `${safeY}%`,
+                                    <motion.div
+                                      key={`card-${idx}`}
+                                      className={`absolute -translate-x-1/2 -translate-y-1/2 ${viewMode === 'compact' ? 'p-0.5' : viewMode === 'detailed' ? 'p-2' : 'p-1'}`}
+                                      style={{
+                                        left: `${safeX}%`,
+                                        top: `${safeY}%`,
+                                        pointerEvents: isDragging && draggedCardIndex !== idx ? 'none' : 'auto',
+                                        cursor: allowReposition ? (isCurrentDragged ? 'grabbing' : 'grab') : 'default',
                     width: defaultSlot,
                     height: Math.round(defaultSlot * CARD_ASPECT_RATIO),
                     maxWidth: '90vw',
