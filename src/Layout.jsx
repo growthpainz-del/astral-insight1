@@ -214,6 +214,13 @@ export default function Layout({ children, currentPageName }) {
   ];
 
   const adminPages = new Set(adminLinks.map(l => l.href));
+
+  // Redirect non-admins from AIWorkspace to Dashboard
+  React.useEffect(() => {
+    if (currentPageName === 'AIWorkspace' && !isAdmin) {
+      window.location.href = createPageUrl('Dashboard');
+    }
+  }, [currentPageName, isAdmin]);
   const hideFloatingSaveOn = new Set(["DeckView", "Reading", "DeckGallery", "CreateDeck"]);
 
   // Show initialization error ONLY for critical failures and while still loading
