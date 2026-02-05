@@ -869,7 +869,7 @@ export default function SpreadLayout(props) {
             transformOrigin: 'center center',
             willChange: 'transform',
             touchAction: zoom > 1 ? 'none' : 'pan-x pan-y',
-            pointerEvents: 'auto'
+            pointerEvents: zoom > 1 ? 'auto' : 'none'
           }}
         >
         {/* Single card - direct flexbox centering */}
@@ -966,16 +966,23 @@ export default function SpreadLayout(props) {
                         </div>
                       ) : !revealedCards.has(idx) ? (
                                                     <button
-                                                      type="button"
-                                                      onMouseDown={(e) => allowReposition && handleCardDragStart(e, idx)}
-                                                      onTouchStart={(e) => allowReposition && handleCardDragStart(e, idx)}
-                                                      onClick={() => {
-                                                        if (allowReposition && isDragging) return;
-                                                        onCardReveal(idx);
-                                                        setTimeout(() => onCardClick(card, idx), 300);
-                                                      }}
-                                                      className="relative w-full h-full rounded-lg overflow-hidden shadow-2xl hover:shadow-purple-500/50 hover:scale-105 transition-all"
-                                                    >
+                                                       type="button"
+                                                       onMouseDown={(e) => allowReposition && handleCardDragStart(e, idx)}
+                                                       onTouchStart={(e) => allowReposition && handleCardDragStart(e, idx)}
+                                                       onTouchEnd={(e) => {
+                                                         if (allowReposition) return;
+                                                         e.preventDefault();
+                                                         onCardReveal(idx);
+                                                         setTimeout(() => onCardClick(card, idx), 300);
+                                                       }}
+                                                       onClick={() => {
+                                                         if (allowReposition && isDragging) return;
+                                                         onCardReveal(idx);
+                                                         setTimeout(() => onCardClick(card, idx), 300);
+                                                       }}
+                                                       className="relative w-full h-full rounded-lg overflow-hidden shadow-2xl hover:shadow-purple-500/50 hover:scale-105 transition-all"
+                                                       style={{ touchAction: 'manipulation' }}
+                                                     >
                           {deck?.back_image_url ? (
                             <img
                               src={deck.back_image_url}
@@ -1153,12 +1160,19 @@ export default function SpreadLayout(props) {
                                                           type="button"
                                                           onMouseDown={(e) => allowReposition && handleCardDragStart(e, idx)}
                                                           onTouchStart={(e) => allowReposition && handleCardDragStart(e, idx)}
+                                                          onTouchEnd={(e) => {
+                                                            if (allowReposition) return;
+                                                            e.preventDefault();
+                                                            onCardReveal(idx);
+                                                            setTimeout(() => onCardClick(card, idx), 300);
+                                                          }}
                                                           onClick={() => {
                                                             if (allowReposition && isDragging) return;
                                                             onCardReveal(idx);
                                                             setTimeout(() => onCardClick(card, idx), 300);
                                                           }}
                                                           className="relative w-full h-full rounded-lg overflow-hidden shadow-xl hover:shadow-purple-500/50 hover:scale-110 transition-all"
+                                                          style={{ touchAction: 'manipulation' }}
                                                         >
                             {deck?.back_image_url ? (
                               <img
