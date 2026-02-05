@@ -20,6 +20,7 @@ export default function SpreadDesignCanvas({
   const [selectedCard, setSelectedCard] = React.useState(null);
   const [fineAdjustIdx, setFineAdjustIdx] = React.useState(null);
   const longPressTimerRef = React.useRef(null);
+  const preTouchMoveHandlerRef = React.useRef(null);
   const LONG_PRESS_MS = 450;
 
   const clearLongPressTimer = () => {
@@ -82,24 +83,53 @@ export default function SpreadDesignCanvas({
   };
 
   const onDown = (e, idx) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
+    const isTouch = !!e.touches;
     setSelectedCard(idx);
-    draggingRef.current.idx = idx;
-    
-    const point = e.touches ? e.touches[0] : e;
+
+    const point = isTouch ? e.touches[0] : e;
     draggingRef.current.startX = point.clientX;
     draggingRef.current.startY = point.clientY;
     draggingRef.current.startedAt = Date.now();
     draggingRef.current.moved = false;
 
-    // Long-press disabled for simpler mobile UX
+    const beginDrag = () => {
+      draggingRef.current.idx = idx;
+      document.addEventListener("mousemove", onMove, { passive: false });
+      document.addEventListener("mouseup", onUp, { passive: false });
+      document.addEventListener("touchmove", onMove, { passive: false });
+      document.addEventListener("touchend", onUp, { passive: false });
+    };
 
-    document.addEventListener("mousemove", onMove, { passive: false });
-    document.addEventListener("mouseup", onUp, { passive: false });
-    document.addEventListener("touchmove", onMove, { passive: false });
-    document.addEventListener("touchend", onUp, { passive: false });
+    if (isTouch) {
+      // Don't block scrolling unless user long-presses to drag
+      clearLongPressTimer();
+      longPressTimerRef.current = setTimeout(() => {
+        beginDrag();
+      }, 200);
+
+      const preMove = (te) => {
+        const p = te.touches ? te.touches[0] : te;
+        const dx = Math.abs(p.clientX - draggingRef.current.startX);
+        const dy = Math.abs(p.clientY - draggingRef.current.startY);
+        if (dx > 8 || dy > 8) {
+          // user is scrolling, cancel drag
+          clearLongPressTimer();
+          if (ref.current && preTouchMoveHandlerRef.current) {
+            ref.current.removeEventListener("touchmove", preTouchMoveHandlerRef.current);
+            preTouchMoveHandlerRef.current = null;
+          }
+        }
+      };
+      preTouchMoveHandlerRef.current = preMove;
+      if (ref.current) {
+        ref.current.addEventListener("touchmove", preMove, { passive: true });
+      }
+    } else {
+      // Mouse: start dragging immediately
+      e.preventDefault();
+      e.stopPropagation();
+      beginDrag();
+    }
   };
 
   const onMove = (e) => {
@@ -116,19 +146,17 @@ export default function SpreadDesignCanvas({
 
   const onUp = () => {
     const idx = draggingRef.current.idx;
-    const wasMoved = draggingRef.current.moved;
-    const startedAt = draggingRef.current.startedAt;
 
     clearLongPressTimer();
+    if (ref.current && preTouchMoveHandlerRef.current) {
+      ref.current.removeEventListener("touchmove", preTouchMoveHandlerRef.current);
+      preTouchMoveHandlerRef.current = null;
+    }
 
     document.removeEventListener("mousemove", onMove);
     document.removeEventListener("mouseup", onUp);
     document.removeEventListener("touchmove", onMove);
     document.removeEventListener("touchend", onUp);
-
-    if (idx >= 0) {
-      // Tap: select only, rotation unchanged
-    }
 
     draggingRef.current.idx = -1;
     draggingRef.current.moved = false;

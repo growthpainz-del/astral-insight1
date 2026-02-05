@@ -264,6 +264,7 @@ export default function SpreadDesigner() {
                     How to Use:
                   </h3>
                   <ul className="text-xs text-cyan-200/80 space-y-1">
+                    <li>• <strong>Long‑press on a card</strong> to drag on mobile</li>
                     <li>• <strong>Drag cards</strong> to position them</li>
                     <li>• <strong>Tap</strong> a card to select it</li>
                     <li>• <strong>Rotate with buttons</strong> below the selected card</li>
@@ -408,7 +409,7 @@ export default function SpreadDesigner() {
                   <p className="text-sm">Click "Add Card" in the designer to start.</p>
                 </div>
               ) : (
-                <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
+                <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2" style={{ WebkitOverflowScrolling: 'touch' }}>
                   {positions.map((pos, idx) => (
                     <div key={idx} className="bg-black/30 rounded-lg p-4 space-y-3 border border-white/10">
                       <div className="flex items-center justify-between">
