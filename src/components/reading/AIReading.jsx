@@ -46,6 +46,13 @@ export default function ChanneledReading({ isOpen, drawnCards, deck, spread, que
         }
       } catch (e) {
         console.error('Failed to load ElevenLabs voices', e);
+        // Fallback to a minimal built-in list so the dropdown isn't empty
+        const fallback = [
+          { id: 'X8Na0RDzhqa1gJFsWu5a', name: 'Gypsy (Custom)' },
+          { id: '21m00Tcm4TlvDq8ikWAM', name: 'Rachel' },
+        ];
+        setElevenVoices(fallback);
+        if (!selectedVoiceId) setSelectedVoiceId(fallback[0].id);
       }
     };
     fetchVoices();
