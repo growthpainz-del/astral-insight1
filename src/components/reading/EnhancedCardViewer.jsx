@@ -64,7 +64,7 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={(open)=>{ if(!open) onClose(false); }}>
       <DialogContent className="max-w-5xl h-[92dvh] md:h-[95vh] bg-slate-900 text-white border border-purple-500/30 p-0">
         <div className="grid h-full overflow-hidden md:grid-cols-[400px,1fr] grid-rows-[auto,1fr] md:grid-rows-1">
           {/* Left: Card Image */}
