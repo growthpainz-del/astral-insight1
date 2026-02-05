@@ -867,7 +867,8 @@ export default function SpreadLayout(props) {
             transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
             transformOrigin: 'center center',
             willChange: 'transform',
-            touchAction: zoom > 1 ? 'none' : 'pan-x pan-y'
+            touchAction: zoom > 1 ? 'none' : 'pan-x pan-y',
+            pointerEvents: zoom > 1 ? 'auto' : 'none'
           }}
         >
         {/* Single card - direct flexbox centering */}
