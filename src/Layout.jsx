@@ -4,26 +4,27 @@ import { createPageUrl } from "@/utils";
 import { User } from "@/entities/User";
 import { Button } from "@/components/ui/button";
 import {
-  Home,
-  BookOpen,
-  History,
-  HelpCircle,
-  Users,
-  LogOut,
-  ChevronDown,
-  LayoutGrid,
-  Star,
-  Sprout,
-  Heart,
-  Combine,
-  X,
-  Image as ImageIcon,
-  Coins,
-  CheckCircle2,
-  Palette,
-  Layers,
-  Sparkles // Added Sparkles import
-} from "lucide-react";
+        Home,
+        BookOpen,
+        History,
+        HelpCircle,
+        Users,
+        LogOut,
+        ChevronDown,
+        ChevronLeft,
+        LayoutGrid,
+        Star,
+        Sprout,
+        Heart,
+        Combine,
+        X,
+        Image as ImageIcon,
+        Coins,
+        CheckCircle2,
+        Palette,
+        Layers,
+        Sparkles // Added Sparkles import
+      } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -177,6 +178,14 @@ export default function Layout({ children, currentPageName }) {
   const handleLogout = async () => {
     await User.logout();
     window.location.href = "/";
+  };
+
+  const handleMobileBack = () => {
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      window.location.href = createPageUrl('Dashboard');
+    }
   };
 
   const readingLinks = [
@@ -572,6 +581,13 @@ export default function Layout({ children, currentPageName }) {
               <Link to={createPageUrl('Home')} className="flex items-center gap-2">
                 <img src="https://growthpainz.com/wp-content/uploads/2022/05/LOGO_CIRCLE_ICON_ONLY_GrowthPaiNz-150x150.png" alt="Logo" className="h-8 w-8" />
               </Link>
+              <button 
+                onClick={handleMobileBack} 
+                className="text-purple-300 hover:text-purple-100 active:scale-95 transition-all p-2 -mr-2 touch-manipulation"
+                style={{ WebkitTapHighlightColor: 'transparent' }}
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
             </header>
 
             <main className="flex-1 w-full" style={{ 
