@@ -307,7 +307,7 @@ export default function SpreadEditor({ spread, decks, user, onSave, onCancel }) 
           </div>
 
           {/* Right Panel - Visual Layout Designer */}
-          <div className="flex-1 p-6">
+          <div className="flex-1 p-6 overflow-y-auto min-h-0">
             <div className="h-full flex flex-col">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold text-white">Visual Layout</h3>
@@ -321,7 +321,7 @@ export default function SpreadEditor({ spread, decks, user, onSave, onCancel }) 
               <div 
                 ref={containerRef}
                 className="flex-1 relative bg-gradient-to-br from-purple-900/20 to-blue-900/20 border-2 border-dashed border-white/20 rounded-2xl overflow-hidden cursor-default"
-                style={{ touchAction: 'none', userSelect: 'none' }}
+                style={{ touchAction: 'pan-y', userSelect: 'none' }}
                 onMouseMove={(e) => draggingIndexRef.current >= 0 && onDragMove(e)}
                 onTouchMove={(e) => draggingIndexRef.current >= 0 && onDragMove(e)}
                 onMouseUp={endDrag}
