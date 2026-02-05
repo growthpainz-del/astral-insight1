@@ -65,10 +65,10 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl h-[95vh] bg-slate-900 text-white border border-purple-500/30 p-0">
-        <div className="grid md:grid-cols-[400px,1fr] h-full overflow-hidden">
+      <DialogContent className="max-w-5xl h-[92dvh] md:h-[95vh] bg-slate-900 text-white border border-purple-500/30 p-0">
+        <div className="grid h-full overflow-hidden md:grid-cols-[400px,1fr] grid-rows-[auto,1fr] md:grid-rows-1">
           {/* Left: Card Image */}
-          <div className="relative bg-black/40 flex items-center justify-center p-6 border-r border-white/10 overflow-y-auto">
+          <div className="relative bg-black/40 flex items-center justify-center p-6 border-b md:border-b-0 md:border-r border-white/10 max-h-[48dvh] md:max-h-none overflow-auto md:overflow-y-auto">
             <button
               onClick={onClose}
               className="absolute top-4 right-4 p-2 rounded-full bg-black/60 hover:bg-black/80 text-white/80 hover:text-white transition-all z-10"
@@ -182,7 +182,7 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
                 </TabsTrigger>
               </TabsList>
 
-              <div className="flex-1 overflow-y-auto p-6" style={{ WebkitOverflowScrolling: 'touch' }}>
+              <div className="flex-1 overflow-y-auto p-6 overscroll-contain" style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
                 <TabsContent value="overview" className="mt-0 space-y-4">
                   {/* Main Meaning */}
                   <div className={`rounded-lg p-4 ${isReversed ? 'bg-purple-900/20 border border-purple-500/30' : 'bg-cyan-900/20 border border-cyan-500/30'}`}>
@@ -321,8 +321,8 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
                   )}
                 </TabsContent>
               </div>
-            </Tabs>
-          </div>
+              </Tabs>
+              </div>
         </div>
       </DialogContent>
     </Dialog>
