@@ -246,10 +246,14 @@ export default function Studio() {
               <Clock className="w-6 h-6 text-amber-400" />
               <h2 className="text-2xl font-bold">In Progress ({draftDecks.length})</h2>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {draftDecks.map(deck => (
-                <DeckCard key={deck.id} deck={deck} />
-              ))}
+            <div className="relative">
+              <div className="flex gap-6 overflow-x-auto pb-2 px-1 snap-x snap-mandatory">
+                {draftDecks.map(deck => (
+                  <div key={deck.id} className="snap-start min-w-[180px] sm:min-w-[220px] md:min-w-[240px]">
+                    <DeckCard deck={deck} />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}
@@ -261,10 +265,14 @@ export default function Studio() {
               <Palette className="w-6 h-6 text-purple-400" />
               <h2 className="text-2xl font-bold">My Published Decks ({publishedDecks.length})</h2>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {publishedDecks.map(deck => (
-                <DeckCard key={deck.id} deck={deck} />
-              ))}
+            <div className="relative">
+              <div className="flex gap-6 overflow-x-auto pb-2 px-1 snap-x snap-mandatory">
+                {publishedDecks.map(deck => (
+                  <div key={deck.id} className="snap-start min-w-[180px] sm:min-w-[220px] md:min-w-[240px]">
+                    <DeckCard deck={deck} />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}
