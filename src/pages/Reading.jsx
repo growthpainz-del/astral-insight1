@@ -862,7 +862,6 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
                 onCardReveal={handleCardReveal}
                 useScratchReveal={(deck?.censor_mode === 'scratch') || deck?.name?.toLowerCase().includes('wiccan')}
                 animateSpread={true}
-               viewMode="compact"
                 viewMode={viewMode}
                 allowReposition={true}
                 onPositionUpdate={(updated) => {

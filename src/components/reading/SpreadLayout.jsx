@@ -1,7 +1,7 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
-import { CARD_ASPECT_RATIO, calculateCardSize, getDesignerAspectRatio } from "@/components/utils/cardSizing";
+import { CARD_ASPECT_RATIO, calculateCardSize, calculateContainerHeight, getDesignerAspectRatio } from "@/components/utils/cardSizing";
 import { Move, Bug } from "lucide-react";
 import ScratchRevealCard from "@/components/reading/ScratchRevealCard";
 
@@ -86,13 +86,13 @@ function normalizeSpreadPositions(spread, positions, cards) {
           const hasCoords = positions.some(p => typeof p === 'object' && p && (typeof p.x === 'number' || typeof p.y === 'number'));
           if (!hasCoords) {
             const arrow = [
-              { x: 15, y: 30, rotation: 0 },
-              { x: 30, y: 40, rotation: 0 },
-              { x: 45, y: 50, rotation: 0 },
-              { x: 80, y: 50, rotation: 0 }, // tip
-              { x: 45, y: 60, rotation: 0 },
-              { x: 30, y: 70, rotation: 0 },
-              { x: 15, y: 80, rotation: 0 },
+              { x: 10, y: 30, rotation: 0 },
+                      { x: 32, y: 40, rotation: 0 },
+                      { x: 54, y: 50, rotation: 0 },
+                      { x: 80, y: 50, rotation: 0 }, // tip
+                      { x: 54, y: 60, rotation: 0 },
+                      { x: 32, y: 70, rotation: 0 },
+                      { x: 10, y: 80, rotation: 0 },
             ];
             return positions.map((pos, idx) => {
               let posName = typeof pos === 'string' ? pos : (pos.name || `Position ${idx + 1}`);
@@ -396,7 +396,7 @@ export default function SpreadLayout(props) {
   }
   // Clamp further for dense spreads on small screens
   if (visibleCount >= 7 && containerWidth && containerWidth < 520) {
-    computedWidth = Math.min(computedWidth, 110);
+    computedWidth = Math.min(computedWidth, 95);
   }
   const defaultSlot = Math.round(computedWidth * sizeMultiplier);
 
@@ -669,17 +669,10 @@ export default function SpreadLayout(props) {
 
   const computedContainerMinHeight = React.useMemo(() => {
     if (containerMinH) return containerMinH;
-    const cardHeight = Math.round(defaultSlot * CARD_ASPECT_RATIO);
-
-    if (visibleCount === 1) return `${Math.max(cardHeight * 2, 400)}px`;
-
-    // For multi-card layouts, provide more space
-    // These values are empirical based on number of cards and default slot size
-    if (visibleCount <= 3) return `${cardHeight * 1.8}px`;
-    if (visibleCount <= 5) return `${cardHeight * 2.2}px`;
-    if (visibleCount <= 7) return `${cardHeight * 2.6}px`;
-    return `${cardHeight * 3}px`;
-  }, [containerMinH, visibleCount, defaultSlot]);
+    const base = calculateContainerHeight(defaultSlot, visibleCount, isVerticalSpread, requiresPositions);
+    const adjusted = visibleCount >= 7 ? Math.max(base, Math.round(defaultSlot * CARD_ASPECT_RATIO * 4.5)) : base;
+    return `${Math.max(adjusted, 420)}px`;
+  }, [containerMinH, visibleCount, defaultSlot, isVerticalSpread, requiresPositions]);
 
 
   // Safety wrapper for rendering - only show if there are positions defined
