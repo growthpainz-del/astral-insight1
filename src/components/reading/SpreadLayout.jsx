@@ -713,7 +713,8 @@ export default function SpreadLayout(props) {
           padding: visibleCount === 1 ? '3rem 2rem' : (viewMode === 'compact' ? '1rem 0.5rem' : viewMode === 'detailed' ? '3rem 2rem' : '2rem 1rem'),
           position: 'relative',
           WebkitOverflowScrolling: 'touch',
-          overflowY: 'auto'
+          overflowY: isDragging ? 'hidden' : 'auto',
+          touchAction: (isDragging || allowReposition) ? 'none' : 'auto'
         }}
       >
         {/* Mystical grid background */}
