@@ -1,7 +1,7 @@
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { RotateCw, RotateCcw, X } from "lucide-react";
+import { RotateCw, RotateCcw, X, GripVertical } from "lucide-react";
 import { CARD_ASPECT_RATIO } from "@/components/utils/cardSizing";
 
 const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
@@ -82,7 +82,7 @@ export default function SpreadDesignCanvas({
     }
   };
 
-  const onDown = (e, idx) => {
+  const onDown = (e, idx, immediate = false) => {
     const isTouch = !!e.touches;
     setSelectedCard(idx);
 
@@ -99,6 +99,13 @@ export default function SpreadDesignCanvas({
       document.addEventListener("touchmove", onMove, { passive: false });
       document.addEventListener("touchend", onUp, { passive: false });
     };
+
+    if (immediate) {
+      if (e.preventDefault) e.preventDefault();
+      if (e.stopPropagation) e.stopPropagation();
+      beginDrag();
+      return;
+    }
 
     if (isTouch) {
       // Don't block scrolling unless user long-presses to drag
@@ -126,8 +133,8 @@ export default function SpreadDesignCanvas({
       }
     } else {
       // Mouse: start dragging immediately
-      e.preventDefault();
-      e.stopPropagation();
+      if (e.preventDefault) e.preventDefault();
+      if (e.stopPropagation) e.stopPropagation();
       beginDrag();
     }
   };
@@ -226,15 +233,27 @@ export default function SpreadDesignCanvas({
               zIndex: isSelected ? 100 : 10,
             }}
           >
+            {/* Drag handle (does not rotate) */}
+            <div className="absolute top-1 left-1 z-20">
+              <button
+                type="button"
+                aria-label="Drag to move"
+                className="h-6 w-6 rounded-full bg-white/90 text-purple-700 flex items-center justify-center shadow border border-purple-300 active:scale-95"
+                style={{ touchAction: "none" }}
+                onMouseDown={(e) => onDown(e, i, true)}
+                onTouchStart={(e) => onDown(e, i, true)}
+              >
+                <GripVertical className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
             {/* Card */}
             <div
-              onMouseDown={(e) => onDown(e, i)}
-              onTouchStart={(e) => onDown(e, i)}
               onClick={(e) => {
                 e.stopPropagation();
-                // Tap rotation handled onUp; selection managed onDown
+                setSelectedCard(i);
               }}
-              className={`relative w-full h-full cursor-move transition-all duration-200 group ${
+              className={`relative w-full h-full cursor-default transition-all duration-200 group ${
                 isSelected ? 'ring-4 ring-cyan-400 ring-offset-2 ring-offset-slate-900 shadow-2xl' : 'hover:shadow-xl'
               }`}
               style={{ 
@@ -346,7 +365,7 @@ export default function SpreadDesignCanvas({
         <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-sm rounded-lg px-3 py-2 text-xs text-white/80 pointer-events-none shadow-lg">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-            <span className="font-semibold">Drag to move • Tap to select • Use rotate buttons</span>
+            <span className="font-semibold">Use handle to move • Tap to select • Rotate below</span>
           </div>
         </div>
       )}
