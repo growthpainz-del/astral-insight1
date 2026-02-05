@@ -326,7 +326,7 @@ if (user && typeof user.token_balance === "number") {
                           {v.name}
                         </SelectItem>
                       ))
-                    )
+                    )}
                   </SelectContent>
                 </Select>
               </div>
