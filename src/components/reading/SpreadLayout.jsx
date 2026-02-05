@@ -32,34 +32,61 @@ function extractPositionsFromCards(cards) {
 }
 
 function normalizeSpreadPositions(spread, positions, cards) {
-  // PRIORITY 1: Use position data embedded in cards (from custom spreads)
-  const embeddedPositions = extractPositionsFromCards(cards);
-  if (embeddedPositions) {
-    console.log('📍 Using embedded positions from cards:', embeddedPositions.length);
-    // FIXED: Ensure position names include sequential numbers
-    return embeddedPositions.map((pos, idx) => {
-      let posName = pos.name || `Position ${idx + 1}`;
-      if (!posName.match(/\d/)) {
-        posName = `${idx + 1}. ${posName}`;
-      }
-      return {
-        ...pos,
-        name: posName,
-        position_number: idx + 1,
-      };
-    });
-  }
+        // PRIORITY 1: Use coordinates from the spread definition if present (designer is the source of truth)
+        if (positions && Array.isArray(positions) && positions.length > 0) {
+          const hasCoordinates = positions.some(p =>
+            typeof p === 'object' && p !== null &&
+            (typeof p.x === 'number' || typeof p.y === 'number')
+          );
+          if (hasCoordinates) {
+            console.log('📍 Using coordinate positions from spread definition');
+            return positions.map((pos, idx) => {
+              const x = typeof pos?.x === 'number' ? Math.min(100, Math.max(0, pos.x)) : 50;
+              const y = typeof pos?.y === 'number' ? Math.min(100, Math.max(0, pos.y)) : 50;
+              const rotation = typeof pos?.rotation === 'number' ? pos.rotation : 0;
 
-  // Handle case where positions array itself is empty or invalid after checking cards
-  if (!positions || !Array.isArray(positions) || positions.length === 0) {
-    return [];
-  }
+              let posName = typeof pos === 'string' ? pos : (pos.name || `Position ${idx + 1}`);
+              if (!posName.match(/\d/)) {
+                posName = `${idx + 1}. ${posName}`;
+              }
 
-  // PRIORITY 2: Check if positions already contain coordinate data
-  const hasCoordinates = positions.some(p =>
-    typeof p === 'object' && p !== null &&
-    (typeof p.x === 'number' || typeof p.y === 'number')
-  );
+              return {
+                name: posName,
+                meaning: typeof pos === 'string' ? '' : (pos.meaning || ''),
+                x,
+                y,
+                rotation,
+                position_number: idx + 1,
+              };
+            });
+          }
+        }
+
+        // PRIORITY 2: Use position data embedded in cards (from custom spreads)
+        const embeddedPositions = extractPositionsFromCards(cards);
+        if (embeddedPositions) {
+          console.log('📍 Using embedded positions from cards:', embeddedPositions.length);
+          // FIXED: Ensure position names include sequential numbers
+          return embeddedPositions.map((pos, idx) => {
+            let posName = pos.name || `Position ${idx + 1}`;
+            if (!posName.match(/\d/)) {
+              posName = `${idx + 1}. ${posName}`;
+            }
+            return {
+              ...pos,
+              name: posName,
+              position_number: idx + 1,
+            };
+          });
+        }
+
+        // Handle case where positions array itself is empty or invalid
+        if (!positions || !Array.isArray(positions) || positions.length === 0) {
+          return [];
+        }
+
+        // No coordinates anywhere: continue with named-only handling below
+        const hasCoordinates = false;
 
   if (hasCoordinates) {
     console.log('📍 Using coordinate positions from spread definition');
@@ -767,9 +794,11 @@ export default function SpreadLayout(props) {
                     >
                       {useScratchReveal && !revealedCards.has(idx) ? (
                         <div
-                          onClick={() => !allowReposition && onCardClick(card, idx)}
-                          className="w-full h-full"
-                        >
+                                                            onMouseDown={(e) => allowReposition && handleCardDragStart(e, idx)}
+                                                            onTouchStart={(e) => allowReposition && handleCardDragStart(e, idx)}
+                                                            onClick={() => !allowReposition && onCardClick(card, idx)}
+                                                            className="w-full h-full"
+                                                          >
                           <ScratchRevealCard
                             frontImage={card.image_url}
                             backImage={deck?.back_image_url}
@@ -781,14 +810,17 @@ export default function SpreadLayout(props) {
                           />
                         </div>
                       ) : !revealedCards.has(idx) ? (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            onCardReveal(idx);
-                            setTimeout(() => onCardClick(card, idx), 300);
-                          }}
-                          className="relative w-full h-full rounded-lg overflow-hidden shadow-2xl hover:shadow-purple-500/50 hover:scale-105 transition-all"
-                        >
+                                                    <button
+                                                      type="button"
+                                                      onMouseDown={(e) => allowReposition && handleCardDragStart(e, idx)}
+                                                      onTouchStart={(e) => allowReposition && handleCardDragStart(e, idx)}
+                                                      onClick={() => {
+                                                        if (allowReposition && isDragging) return;
+                                                        onCardReveal(idx);
+                                                        setTimeout(() => onCardClick(card, idx), 300);
+                                                      }}
+                                                      className="relative w-full h-full rounded-lg overflow-hidden shadow-2xl hover:shadow-purple-500/50 hover:scale-105 transition-all"
+                                                    >
                           {deck?.back_image_url ? (
                             <img
                               src={deck.back_image_url}
@@ -960,14 +992,17 @@ export default function SpreadLayout(props) {
                             />
                           </div>
                         ) : !revealedCards.has(idx) ? (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              onCardReveal(idx);
-                              setTimeout(() => onCardClick(card, idx), 300);
-                            }}
-                            className="relative w-full h-full rounded-lg overflow-hidden shadow-xl hover:shadow-purple-500/50 hover:scale-110 transition-all"
-                          >
+                                                        <button
+                                                          type="button"
+                                                          onMouseDown={(e) => allowReposition && handleCardDragStart(e, idx)}
+                                                          onTouchStart={(e) => allowReposition && handleCardDragStart(e, idx)}
+                                                          onClick={() => {
+                                                            if (allowReposition && isDragging) return;
+                                                            onCardReveal(idx);
+                                                            setTimeout(() => onCardClick(card, idx), 300);
+                                                          }}
+                                                          className="relative w-full h-full rounded-lg overflow-hidden shadow-xl hover:shadow-purple-500/50 hover:scale-110 transition-all"
+                                                        >
                             {deck?.back_image_url ? (
                               <img
                                 src={deck.back_image_url}
