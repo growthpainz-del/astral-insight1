@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import SpreadLayout from "@/components/reading/SpreadLayout";
 import { Sparkles, Loader2 } from "lucide-react";
 
 export default function AISpreadAssistant({ onApply }) {
@@ -100,7 +102,39 @@ export default function AISpreadAssistant({ onApply }) {
         )}
       </div>
 
-      <p className="text-[11px] text-white/50">AI suggests names, meanings, and coordinates. You can tweak them in the designer.</p>
+      {lastSuggestion && (
+        <div className="mt-3 grid gap-3">
+          <div className="bg-white/5 border border-white/10 rounded p-3">
+            <div className="flex items-center gap-2 mb-2">
+              <Badge className="bg-purple-600/80 text-white">Visual Suggestions</Badge>
+              <span className="text-sm text-purple-200 font-semibold">{lastSuggestion.spread_name}</span>
+            </div>
+            <div className="text-xs text-purple-200/80 space-y-1">
+              {lastSuggestion?.visual_guidance?.arrangement && <div>• Arrangement: {lastSuggestion.visual_guidance.arrangement}</div>}
+              {lastSuggestion?.visual_guidance?.orientation_notes && <div>• Orientation: {lastSuggestion.visual_guidance.orientation_notes}</div>}
+              {lastSuggestion?.visual_guidance?.spacing_notes && <div>• Spacing: {lastSuggestion.visual_guidance.spacing_notes}</div>}
+              {lastSuggestion?.visual_guidance?.rotation_strategy && <div>• Rotations: {lastSuggestion.visual_guidance.rotation_strategy}</div>}
+              {lastSuggestion?.visual_guidance?.suggested_shape && <div>• Shape: {lastSuggestion.visual_guidance.suggested_shape}</div>}
+            </div>
+          </div>
+
+          <div className="bg-white/5 border border-white/10 rounded p-3">
+            <div className="text-xs text-white/70 mb-2">Quick Preview</div>
+            <SpreadLayout
+              spread={{ name: lastSuggestion.spread_name, positions: lastSuggestion.positions }}
+              positions={lastSuggestion.positions}
+              cards={[]}
+              deck={null}
+              animateSpread={false}
+              defaultCardWidth={90}
+              containerMinH="40vh"
+              viewMode="compact"
+            />
+          </div>
+        </div>
+      )}
+
+      <p className="text-[11px] text-white/50">AI suggests names, meanings, coordinates, and visual guidance. You can tweak them in the designer.</p>
     </div>
   );
 }

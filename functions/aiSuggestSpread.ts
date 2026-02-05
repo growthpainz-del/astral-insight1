@@ -15,18 +15,19 @@ Deno.serve(async (req) => {
     if (typeof numCards !== 'number' || isNaN(numCards)) numCards = 3;
     numCards = Math.max(1, Math.min(15, Math.round(numCards)));
 
-    // Build a clear system instruction for structured output
+    // Build a clear system instruction for structured output, including visual guidance
     const prompt = `You are an expert tarot/oracle spread designer.
 Design a custom spread tailored to the user's intent.
 
 Requirements:
 - Exactly ${numCards} positions.
 - Reading type/category: ${readingType}.
-- User theme/hints: ${theme || 'None provided'}.
+- User theme/description: ${theme || 'None provided'}.
 - Provide distinctive, evocative position names and concise meanings (1 sentence each).
 - Provide suggested visual coordinates for each position as percentages of the canvas (0-100 where (50,50) is center). Keep cards within 10-90% range to avoid clipping.
-- Propose a clear, balanced layout (lines, arcs, crosses, circles, paths) that fits the reading type.
-- Rotations are optional: 0 for normal; 90 can indicate crossing if the structure makes sense.
+- Propose a clear, balanced layout (lines, arcs, crosses, circles, paths, chevrons, arrows) that matches the theme.
+- Rotations: suggest 0 by default; use 90/180 where it semantically enhances the design (e.g., crossing card, emphasis), but keep it readable on mobile.
+- Include a visual_guidance section describing the arrangement pattern, orientation notes, spacing suggestions, rotation strategy, and suggested shape name.
 
 Output must follow the JSON schema strictly.`;
 
@@ -48,6 +49,16 @@ Output must follow the JSON schema strictly.`;
               rotation: { type: 'number' }
             },
             required: ['name', 'meaning', 'x', 'y']
+          }
+        },
+        visual_guidance: {
+          type: 'object',
+          properties: {
+            arrangement: { type: 'string' },
+            orientation_notes: { type: 'string' },
+            spacing_notes: { type: 'string' },
+            rotation_strategy: { type: 'string' },
+            suggested_shape: { type: 'string' }
           }
         }
       },
@@ -83,11 +94,20 @@ Output must follow the JSON schema strictly.`;
       }
     }
 
+    const visual = {
+      arrangement: String(out?.visual_guidance?.arrangement || ''),
+      orientation_notes: String(out?.visual_guidance?.orientation_notes || ''),
+      spacing_notes: String(out?.visual_guidance?.spacing_notes || ''),
+      rotation_strategy: String(out?.visual_guidance?.rotation_strategy || ''),
+      suggested_shape: String(out?.visual_guidance?.suggested_shape || ''),
+    };
+
     const suggestion = {
       spread_name: String(out.spread_name || `${readingType} Spread (${numCards})`).slice(0, 80),
       description: String(out.description || `An AI-generated ${readingType.toLowerCase()} spread with ${numCards} positions.`),
       category: String(out.category || readingType || 'General'),
       positions,
+      visual_guidance: visual,
     };
 
     return Response.json({ suggestion });
