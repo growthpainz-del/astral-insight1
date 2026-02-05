@@ -868,7 +868,7 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
                 animateSpread={true}
                 viewMode={viewMode}
                 sizeScale={0.8}
-                allowReposition={true}
+                allowReposition={false}
                 onPositionUpdate={(updated) => {
                   setReadingPositions(updated);
                   setDrawnCards(prev => prev.map((c, idx) => ({
