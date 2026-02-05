@@ -39,7 +39,7 @@ export default function SpreadEditor({ spread, decks, user, onSave, onCancel }) 
     const rect = el.getBoundingClientRect();
     const xPct = ((clientX - rect.left) / rect.width) * 100;
     const yPct = ((clientY - rect.top) / rect.height) * 100;
-    const step = 5;
+    const step = 1;
     const xSnap = clamp(Math.round(clamp(xPct, 5, 95) / step) * step, 5, 95);
     const ySnap = clamp(Math.round(clamp(yPct, 5, 95) / step) * step, 5, 95);
     updatePosition(index, 'x', xSnap);
@@ -322,6 +322,10 @@ export default function SpreadEditor({ spread, decks, user, onSave, onCancel }) 
                 ref={containerRef}
                 className="flex-1 relative bg-gradient-to-br from-purple-900/20 to-blue-900/20 border-2 border-dashed border-white/20 rounded-2xl overflow-hidden cursor-default"
                 style={{ touchAction: 'none', userSelect: 'none' }}
+                onMouseMove={(e) => draggingIndexRef.current >= 0 && onDragMove(e)}
+                onTouchMove={(e) => draggingIndexRef.current >= 0 && onDragMove(e)}
+                onMouseUp={endDrag}
+                onTouchEnd={endDrag}
               >
                 {/* Grid overlay */}
                 <div className="absolute inset-0 opacity-10">
