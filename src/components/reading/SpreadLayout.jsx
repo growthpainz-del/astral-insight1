@@ -858,7 +858,7 @@ export default function SpreadLayout(props) {
 
         {/* Zoom wrapper (captures pinch/pan) */}
         <div
-          className="absolute inset-0 z-10"
+          className="absolute inset-0 z-10 flex items-center justify-center"
           onTouchStart={handleTouchStartZoom}
           onTouchMove={handleTouchMoveZoom}
           onTouchEnd={handleTouchEndZoom}
@@ -866,7 +866,8 @@ export default function SpreadLayout(props) {
           style={{
             transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
             transformOrigin: 'center center',
-            willChange: 'transform'
+            willChange: 'transform',
+            touchAction: zoom > 1 ? 'none' : 'pan-x pan-y'
           }}
         >
         {/* Single card - direct flexbox centering */}
