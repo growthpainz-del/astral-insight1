@@ -22,7 +22,7 @@ export default function ChanneledReading({ isOpen, drawnCards, deck, spread, que
   
   // ElevenLabs TTS
   const [elevenVoices, setElevenVoices] = useState([]);
-  const [selectedVoiceId, setSelectedVoiceId] = useState("21m00Tcm4TlvDq8ikWAM");
+  const [selectedVoiceId, setSelectedVoiceId] = useState("X8Na0RDzhqa1gJFsWu5a");
   const [isSpeaking, setIsSpeaking] = useState(false);
   const audioRef = useRef(null);
 
@@ -164,7 +164,31 @@ if (user && typeof user.token_balance === "number") {
       await audioRef.current.play();
     } catch (err) {
       console.error('TTS error:', err);
-      setError(`Text-to-speech failed: ${err.message || 'Unknown error'}`);
+      const msg = String(err?.message || '');
+      const code = err?.response?.status || (/(\b401\b|\b403\b)/.test(msg) ? 401 : 0);
+      if (code === 401 || code === 403) {
+        try {
+          const FALLBACK_ID = "21m00Tcm4TlvDq8ikWAM"; // Rachel (public)
+          const { data: data2 } = await base44.functions.invoke('generateSpeech', {
+            text: interpretation,
+            voiceId: FALLBACK_ID,
+          });
+          const b64 = data2?.audioContent;
+          if (!b64) throw new Error('No audio returned from TTS (fallback)');
+          if (!audioRef.current) audioRef.current = new Audio();
+          audioRef.current.src = `data:audio/mpeg;base64,${b64}`;
+          audioRef.current.onended = () => setIsSpeaking(false);
+          await audioRef.current.play();
+          setSelectedVoiceId(FALLBACK_ID);
+          setError("");
+          return;
+        } catch (err2) {
+          console.error('TTS fallback error:', err2);
+          setError('Text-to-speech failed (401/403). Please verify ElevenLabs key/voice access or pick another voice.');
+        }
+      } else {
+        setError(`Text-to-speech failed: ${err.message || 'Unknown error'}`);
+      }
       setIsSpeaking(false);
     }
   };
