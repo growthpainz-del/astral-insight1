@@ -836,7 +836,7 @@ export default function SpreadLayout(props) {
           padding: visibleCount === 1 ? '3rem 2rem' : (viewMode === 'compact' ? '1rem 0.5rem' : viewMode === 'detailed' ? '3rem 2rem' : '2rem 1rem'),
           position: 'relative',
           WebkitOverflowScrolling: 'touch',
-          overflowY: (isDragging || zoom > 1) ? 'hidden' : 'auto',
+          overflowY: (isDragging || zoom > 1) ? 'hidden' : 'visible',
           touchAction: isDragging ? 'none' : (zoom > 1 ? 'none' : 'pan-x pan-y')
         }}
       >
