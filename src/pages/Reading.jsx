@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -84,8 +84,11 @@ const BUILT_IN_SPREADS = [
 ];
 
 export default function ReadingPage() {
-  const searchParams = new URLSearchParams(window.location.search);
-  const deckIdFromUrl = searchParams.get("deckId");
+  const location = useLocation();
+  const deckIdFromUrl = React.useMemo(() => {
+    const sp = new URLSearchParams(location.search);
+    return sp.get("deckId");
+  }, [location.search]);
 
   const [deck, setDeck] = useState(null);
   const [cards, setCards] = useState([]);
@@ -203,6 +206,7 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
     }, 20000);
 
     const loadData = async () => {
+      console.log('🔎 ReadingPage: deckIdFromUrl =', deckIdFromUrl);
       try {
         setIsLoading(true);
         console.log('📚 Loading deck and cards for deckId:', deckIdFromUrl);
