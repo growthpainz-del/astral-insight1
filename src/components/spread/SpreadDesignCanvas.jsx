@@ -105,7 +105,7 @@ export default function SpreadDesignCanvas({
       clearLongPressTimer();
       longPressTimerRef.current = setTimeout(() => {
         beginDrag();
-      }, 200);
+      }, 300);
 
       const preMove = (te) => {
         const p = te.touches ? te.touches[0] : te;
@@ -296,9 +296,19 @@ export default function SpreadDesignCanvas({
                   <RotateCcw className="w-4 h-4 mr-1" /> -15°
                 </Button>
                 
-                <div className="px-3 py-1 bg-slate-800 rounded text-sm font-bold text-cyan-300 min-w-[64px] text-center">
+                <div className="px-3 py-1 bg-slate-800 rounded text-sm font-bold text-cyan-300 min-w-[56px] text-center">
                   {rotation}°
                 </div>
+                
+                <input
+                  type="range"
+                  min={0}
+                  max={360}
+                  step={1}
+                  value={rotation}
+                  onChange={(e) => updateRotation(i, parseInt(e.target.value, 10))}
+                  className="w-28 sm:w-40 accent-cyan-500"
+                />
                 
                 <Button
                   size="lg"

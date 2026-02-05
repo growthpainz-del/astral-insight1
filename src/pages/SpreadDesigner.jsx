@@ -267,7 +267,7 @@ export default function SpreadDesigner() {
                     <li>• <strong>Long‑press on a card</strong> to drag on mobile</li>
                     <li>• <strong>Drag cards</strong> to position them</li>
                     <li>• <strong>Tap</strong> a card to select it</li>
-                    <li>• <strong>Rotate with buttons</strong> below the selected card</li>
+                    <li>• <strong>Rotate with buttons or slider</strong> below the selected card</li>
                     <li>• <strong>Snap to grid</strong> helps clean alignment</li>
                     <li>• Edit names/meanings in the right panel</li>
                   </ul>
