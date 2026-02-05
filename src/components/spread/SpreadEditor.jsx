@@ -187,7 +187,7 @@ export default function SpreadEditor({ spread, decks, user, onSave, onCancel }) 
 
         <div className="flex-1 flex overflow-hidden">
           {/* Left Panel - Form */}
-          <div className="w-1/3 p-6 overflow-y-auto border-r border-white/10">
+          <div className="w-1/3 p-6 overflow-y-auto min-h-0 border-r border-white/10" style={{ WebkitOverflowScrolling: 'touch' }}>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-purple-200 mb-2">
@@ -307,7 +307,7 @@ export default function SpreadEditor({ spread, decks, user, onSave, onCancel }) 
           </div>
 
           {/* Right Panel - Visual Layout Designer */}
-          <div className="flex-1 p-6 overflow-y-auto min-h-0">
+          <div className="flex-1 p-6 overflow-y-auto min-h-0" style={{ WebkitOverflowScrolling: 'touch' }}>
             <div className="h-full flex flex-col">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold text-white">Visual Layout</h3>
