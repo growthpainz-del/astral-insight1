@@ -311,6 +311,74 @@ export default function SpreadLayout(props) {
   // NEW: MOBILE DEBUG PANEL STATE
   const [showMobileDebug, setShowMobileDebug] = React.useState(false);
 
+  // NEW: Pinch-to-zoom state
+  const [zoom, setZoom] = React.useState(1);
+  const [pan, setPan] = React.useState({ x: 0, y: 0 });
+  const gestureRef = React.useRef({
+    pinching: false,
+    startDistance: 0,
+    startScale: 1,
+    lastCenter: { x: 0, y: 0 },
+    panning: false,
+    lastPoint: { x: 0, y: 0 },
+  });
+
+  const clamp = (val, min, max) => Math.max(min, Math.min(max, val));
+  const getTouchCenter = (touches) => ({
+    x: (touches[0].clientX + touches[1].clientX) / 2,
+    y: (touches[0].clientY + touches[1].clientY) / 2,
+  });
+  const getDistance = (touches) => {
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.hypot(dx, dy);
+  };
+
+  const handleTouchStartZoom = (e) => {
+    if (e.touches.length === 2) {
+      const d = getDistance(e.touches);
+      gestureRef.current.pinching = true;
+      gestureRef.current.startDistance = d;
+      gestureRef.current.startScale = zoom;
+      gestureRef.current.lastCenter = getTouchCenter(e.touches);
+      e.preventDefault();
+    } else if (e.touches.length === 1 && zoom > 1) {
+      gestureRef.current.panning = true;
+      gestureRef.current.lastPoint = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      e.preventDefault();
+    }
+  };
+
+  const handleTouchMoveZoom = (e) => {
+    if (gestureRef.current.pinching && e.touches.length === 2) {
+      const dist = getDistance(e.touches);
+      const scale = clamp(
+        gestureRef.current.startScale * (dist / gestureRef.current.startDistance),
+        0.7,
+        2.8
+      );
+      setZoom(scale);
+      const center = getTouchCenter(e.touches);
+      const dx = center.x - gestureRef.current.lastCenter.x;
+      const dy = center.y - gestureRef.current.lastCenter.y;
+      setPan((p) => ({ x: p.x + dx, y: p.y + dy }));
+      gestureRef.current.lastCenter = center;
+      e.preventDefault();
+    } else if (gestureRef.current.panning && e.touches.length === 1) {
+      const point = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      const dx = point.x - gestureRef.current.lastPoint.x;
+      const dy = point.y - gestureRef.current.lastPoint.y;
+      setPan((p) => ({ x: p.x + dx, y: p.y + dy }));
+      gestureRef.current.lastPoint = point;
+      e.preventDefault();
+    }
+  };
+
+  const handleTouchEndZoom = () => {
+    gestureRef.current.pinching = false;
+    gestureRef.current.panning = false;
+  };
+
   // NEW: Dragging state for repositioning
   const [isDragging, setIsDragging] = React.useState(false); // Indicates if any card is currently being dragged
   const [draggedCardIndex, setDraggedCardIndex] = React.useState(null); // Which card is being dragged
@@ -768,8 +836,8 @@ export default function SpreadLayout(props) {
           padding: visibleCount === 1 ? '3rem 2rem' : (viewMode === 'compact' ? '1rem 0.5rem' : viewMode === 'detailed' ? '3rem 2rem' : '2rem 1rem'),
           position: 'relative',
           WebkitOverflowScrolling: 'touch',
-          overflowY: isDragging ? 'hidden' : 'auto',
-          touchAction: isDragging ? 'none' : 'pan-x pan-y pinch-zoom'
+          overflowY: (isDragging || zoom > 1) ? 'hidden' : 'auto',
+          touchAction: isDragging ? 'none' : (zoom > 1 ? 'none' : 'pan-x pan-y')
         }}
       >
         {/* Mystical grid background */}
@@ -788,6 +856,19 @@ export default function SpreadLayout(props) {
           </svg>
         </div>
 
+        {/* Zoom wrapper (captures pinch/pan) */}
+        <div
+          className="absolute inset-0 z-10"
+          onTouchStart={handleTouchStartZoom}
+          onTouchMove={handleTouchMoveZoom}
+          onTouchEnd={handleTouchEndZoom}
+          onTouchCancel={handleTouchEndZoom}
+          style={{
+            transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+            transformOrigin: 'center center',
+            willChange: 'transform'
+          }}
+        >
         {/* Single card - direct flexbox centering */}
         {visibleCount === 1 ? (
           renderItems.map(({ pos, card }, idx) => {
@@ -1156,6 +1237,7 @@ export default function SpreadLayout(props) {
             })}
           </div>
         )}
+      </div>
       </div>
 
       <style>{`
