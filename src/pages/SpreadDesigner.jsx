@@ -446,6 +446,21 @@ export default function SpreadDesigner() {
                           placeholder="What this position represents..."
                           className="bg-black/50 border-white/20 text-white text-sm min-h-[60px]"
                         />
+                        <div className="mt-3">
+                          <Label className="text-xs">Rotation (0–360°)</Label>
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="range"
+                              min={0}
+                              max={360}
+                              step={1}
+                              value={typeof pos.rotation === 'number' ? pos.rotation : 0}
+                              onChange={(e) => updatePositionField(idx, "rotation", parseInt(e.target.value, 10))}
+                              className="flex-1"
+                            />
+                            <span className="text-xs w-10 text-right">{typeof pos.rotation === 'number' ? pos.rotation : 0}°</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   ))}

@@ -157,13 +157,13 @@ export default function SpreadDesignCanvas({
       ref={ref}
       className={`relative w-full border border-white/20 rounded-xl overflow-visible ${className}`}
       style={{
-        aspectRatio,
-        backgroundImage: backgroundImage ? `url(${backgroundImage})` : "none",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        touchAction: "none",
-        userSelect: "none",
-      }}
+         aspectRatio,
+         backgroundImage: backgroundImage ? `url(${backgroundImage})` : "none",
+         backgroundSize: "cover",
+         backgroundPosition: "center",
+         touchAction: "pan-y",
+         userSelect: "none",
+       }}
       onClick={() => setSelectedCard(null)}
     >
       {/* Grid background */}
@@ -210,7 +210,7 @@ export default function SpreadDesignCanvas({
                 isSelected ? 'ring-4 ring-cyan-400 ring-offset-2 ring-offset-slate-900 shadow-2xl' : 'hover:shadow-xl'
               }`}
               style={{ 
-                touchAction: "none", 
+                touchAction: "pan-y", 
                 transform: `rotate(${rotation}deg)`,
               }}
             >
