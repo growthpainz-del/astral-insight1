@@ -834,6 +834,7 @@ export default function SpreadLayout(props) {
           minHeight: computedContainerMinHeight,
           aspectRatio: getDesignerAspectRatio(visibleCount),
           padding: visibleCount === 1 ? '3rem 2rem' : (viewMode === 'compact' ? '1rem 0.5rem' : viewMode === 'detailed' ? '3rem 2rem' : '2rem 1rem'),
+          overflow: 'auto',
           position: 'relative',
           WebkitOverflowScrolling: 'touch',
           overflowY: (isDragging || zoom > 1) ? 'hidden' : 'visible',
