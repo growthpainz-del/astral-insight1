@@ -768,7 +768,7 @@ export default function SpreadLayout(props) {
           position: 'relative',
           WebkitOverflowScrolling: 'touch',
           overflowY: isDragging ? 'hidden' : 'auto',
-          touchAction: (isDragging || allowReposition) ? 'none' : 'auto'
+          touchAction: isDragging ? 'none' : 'manipulation'
         }}
       >
         {/* Mystical grid background */}
