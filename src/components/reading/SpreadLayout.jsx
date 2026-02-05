@@ -275,7 +275,8 @@ export default function SpreadLayout(props) {
     onCardReveal = () => {},
     useScratchReveal = false,
     viewMode = "normal",
-  } = props;
+    sizeScale = 1,
+    } = props;
 
   // DEBUG: Log received props
   console.log('🎴 SpreadLayout: Props received', {
@@ -444,7 +445,7 @@ export default function SpreadLayout(props) {
   if (visibleCount >= 7 && containerWidth && containerWidth < 520) {
     computedWidth = Math.min(computedWidth, 95);
   }
-  const defaultSlot = Math.round(computedWidth * sizeMultiplier);
+  const defaultSlot = Math.round(computedWidth * sizeMultiplier * sizeScale);
 
   // Build render pairs including temporary drag positions
   const renderItems = React.useMemo(() => {
