@@ -4,11 +4,9 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
 
-    // Auth check
-    const user = await base44.auth.me();
-    if (!user) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    // Optional auth check (allow public access)
+    const authed = await base44.auth.isAuthenticated().catch(() => false);
+    // Proceed regardless of auth state
 
     const apiKey = Deno.env.get('ELEVENLABS_API_KEY');
     if (!apiKey) {

@@ -142,6 +142,7 @@ if (user && typeof user.token_balance === "number") {
   const handleSpeak = async () => {
     if (!interpretation) return;
     setIsSpeaking(true);
+    setError("");
     try {
       const { data } = await base44.functions.invoke('generateSpeech', {
         text: interpretation,
@@ -155,6 +156,7 @@ if (user && typeof user.token_balance === "number") {
       await audioRef.current.play();
     } catch (err) {
       console.error('TTS error:', err);
+      setError(`Text-to-speech failed: ${err.message || 'Unknown error'}`);
       setIsSpeaking(false);
     }
   };

@@ -4,11 +4,9 @@ Deno.serve(async (req) => {
     try {
         const base44 = createClientFromRequest(req);
         
-        // 1. Auth Check
-        const user = await base44.auth.me();
-        if (!user) {
-            return Response.json({ error: 'Unauthorized' }, { status: 401 });
-        }
+        // 1. Optional Auth Check (allow public access)
+        const isAuthed = await base44.auth.isAuthenticated().catch(() => false);
+        // Proceed regardless of auth
         // Deprecated notice removed to enable ElevenLabs TTS
 
         // 2. Parse Payload
@@ -34,6 +32,7 @@ Deno.serve(async (req) => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Accept': 'audio/mpeg',
                 'xi-api-key': apiKey,
             },
             body: JSON.stringify({
