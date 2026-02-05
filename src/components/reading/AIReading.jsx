@@ -22,7 +22,7 @@ export default function ChanneledReading({ isOpen, drawnCards, deck, spread, que
   
   // ElevenLabs TTS
   const [elevenVoices, setElevenVoices] = useState([]);
-  const [selectedVoiceId, setSelectedVoiceId] = useState("21m00Tcm4TlvDq8ikWAM");
+  const [selectedVoiceId, setSelectedVoiceId] = useState("X8Na0RDzhqa1gJFsWu5a");
   const [isSpeaking, setIsSpeaking] = useState(false);
   const audioRef = useRef(null);
 
