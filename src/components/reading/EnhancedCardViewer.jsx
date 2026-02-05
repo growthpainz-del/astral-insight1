@@ -70,7 +70,7 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
           {/* Left: Card Image */}
           <div className="relative bg-black/40 flex items-center justify-center p-6 border-b md:border-b-0 md:border-r border-white/10 max-h-[48dvh] md:max-h-none overflow-auto md:overflow-y-auto">
             <button
-              onClick={onClose}
+              onClick={(e)=>{ e.stopPropagation?.(); onClose(false); }}
               className="absolute top-4 right-4 p-2 rounded-full bg-black/60 hover:bg-black/80 text-white/80 hover:text-white transition-all z-10"
             >
               <X className="w-5 h-5" />
