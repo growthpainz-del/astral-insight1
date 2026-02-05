@@ -318,11 +318,15 @@ if (user && typeof user.token_balance === "number") {
                     <SelectValue placeholder={elevenVoices.length ? "Select voice" : "Loading voices..."} />
                   </SelectTrigger>
                   <SelectContent className="bg-slate-900 border-purple-500/30 text-purple-200 max-h-64">
-                    {elevenVoices.map(v => (
-                      <SelectItem key={v.id} value={v.id} className="text-xs focus:bg-purple-900/50 focus:text-white">
-                        {v.name}
-                      </SelectItem>
-                    ))}
+                    {elevenVoices.length === 0 ? (
+                      <div className="px-3 py-2 text-xs text-white/60">No voices found</div>
+                    ) : (
+                      elevenVoices.map(v => (
+                        <SelectItem key={`${v.id}-${v.name}`} value={v.id} className="text-xs focus:bg-purple-900/50 focus:text-white">
+                          {v.name}
+                        </SelectItem>
+                      ))
+                    )
                   </SelectContent>
                 </Select>
               </div>
