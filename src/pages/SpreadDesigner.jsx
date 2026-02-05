@@ -265,8 +265,9 @@ export default function SpreadDesigner() {
                   </h3>
                   <ul className="text-xs text-cyan-200/80 space-y-1">
                     <li>• <strong>Drag cards</strong> to position them</li>
-                    <li>• <strong>Click a card</strong> to select it</li>
-                    <li>• <strong>Rotate buttons</strong> appear below selected card</li>
+                    <li>• <strong>Tap</strong> a card to select it</li>
+                    <li>• <strong>Rotate with buttons</strong> below the selected card</li>
+                    <li>• <strong>Snap to grid</strong> helps clean alignment</li>
                     <li>• Edit names/meanings in the right panel</li>
                   </ul>
                 </div>
@@ -293,9 +294,9 @@ export default function SpreadDesigner() {
                 )}
 
                 <div className="mt-4 text-xs text-white/60 space-y-1">
-                  <p>• <strong>Drag:</strong> Move cards around the canvas</p>
-                  <p>• <strong>Click:</strong> Select card to show rotation controls</p>
-                  <p>• <strong>Rotate:</strong> Use buttons below selected card (-45° / +45°)</p>
+                  <p>• <strong>Drag:</strong> Move cards around the canvas (snaps to grid)</p>
+                  <p>• <strong>Tap:</strong> Select card to show rotation controls</p>
+                  <p>• <strong>Rotate:</strong> Use buttons below selected card (-15° / +15°)</p>
                   <p>• Toggle preview to see how it looks in readings</p>
                 </div>
               </div>

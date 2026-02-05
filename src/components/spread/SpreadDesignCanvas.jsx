@@ -57,9 +57,14 @@ export default function SpreadDesignCanvas({
     if (!el || !positions || !Array.isArray(positions)) return;
     
     const rect = el.getBoundingClientRect();
-    const xPct = clamp(((px - rect.left) / rect.width) * 100, 5, 95);
-    const yPct = clamp(((py - rect.top) / rect.height) * 100, 5, 95);
-    const next = positions.map((p, i) => (i === idx ? { ...p, x: Math.round(xPct), y: Math.round(yPct) } : p));
+    const rawX = ((px - rect.left) / rect.width) * 100;
+    const rawY = ((py - rect.top) / rect.height) * 100;
+    const xPct = clamp(rawX, 5, 95);
+    const yPct = clamp(rawY, 5, 95);
+    const step = 5;
+    const xSnap = clamp(Math.round(xPct / step) * step, 5, 95);
+    const ySnap = clamp(Math.round(yPct / step) * step, 5, 95);
+    const next = positions.map((p, i) => (i === idx ? { ...p, x: xSnap, y: ySnap } : p));
     
     if (onChange && typeof onChange === 'function') {
       onChange(next);
@@ -89,10 +94,7 @@ export default function SpreadDesignCanvas({
     draggingRef.current.startedAt = Date.now();
     draggingRef.current.moved = false;
 
-    clearLongPressTimer();
-    longPressTimerRef.current = setTimeout(() => {
-      setFineAdjustIdx(idx);
-    }, LONG_PRESS_MS);
+    // Long-press disabled for simpler mobile UX
 
     document.addEventListener("mousemove", onMove, { passive: false });
     document.addEventListener("mouseup", onUp, { passive: false });
@@ -108,12 +110,7 @@ export default function SpreadDesignCanvas({
     e.stopPropagation();
     
     const point = e.touches ? e.touches[0] : e;
-    const dx = Math.abs(point.clientX - draggingRef.current.startX);
-    const dy = Math.abs(point.clientY - draggingRef.current.startY);
-    if (!draggingRef.current.moved && (dx > 6 || dy > 6)) {
-      draggingRef.current.moved = true;
-      clearLongPressTimer();
-    }
+    draggingRef.current.moved = true;
     updatePos(idx, point.clientX, point.clientY);
   };
 
@@ -130,11 +127,7 @@ export default function SpreadDesignCanvas({
     document.removeEventListener("touchend", onUp);
 
     if (idx >= 0) {
-      const duration = Date.now() - (startedAt || 0);
-      if (!wasMoved && duration < LONG_PRESS_MS) {
-        // Tap detected: cycle rotation presets
-        cyclePreset(idx);
-      }
+      // Tap: select only, rotation unchanged
     }
 
     draggingRef.current.idx = -1;
@@ -155,7 +148,8 @@ export default function SpreadDesignCanvas({
     return Array.isArray(positions) ? positions : [];
   }, [positions]);
 
-  const cardWidth = 60;
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+  const cardWidth = isMobile ? 80 : 60;
   const cardHeight = Math.round(cardWidth * CARD_ASPECT_RATIO);
 
   return (
@@ -256,7 +250,7 @@ export default function SpreadDesignCanvas({
             </div>
 
             {/* Rotation controls - Long-press fine adjust */}
-            {isSelected && fineAdjustIdx === i && (
+            {isSelected && (
               <div 
                 className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-2 mt-2 bg-slate-900/95 backdrop-blur-sm rounded-xl p-2 shadow-2xl border border-cyan-400/40"
                 style={{ top: 'calc(100% + 26px)' }}
@@ -314,7 +308,7 @@ export default function SpreadDesignCanvas({
         <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-sm rounded-lg px-3 py-2 text-xs text-white/80 pointer-events-none shadow-lg">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-            <span className="font-semibold">Drag to move • Tap to cycle • Long-press for fine adjust</span>
+            <span className="font-semibold">Drag to move • Tap to select • Use rotate buttons</span>
           </div>
         </div>
       )}
