@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Spread } from '@/entities/Spread';
 import { Button } from '@/components/ui/button';
@@ -27,6 +26,54 @@ export default function SpreadEditor({ spread, decks, user, onSave, onCancel }) 
   const [draggedPosition, setDraggedPosition] = useState(null);
   const [showPreview, setShowPreview] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Drag-to-move setup
+  const containerRef = useRef(null);
+  const draggingIndexRef = useRef(-1);
+
+  const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+
+  const updatePositionByClient = (index, clientX, clientY) => {
+    const el = containerRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const xPct = ((clientX - rect.left) / rect.width) * 100;
+    const yPct = ((clientY - rect.top) / rect.height) * 100;
+    const step = 5;
+    const xSnap = clamp(Math.round(clamp(xPct, 5, 95) / step) * step, 5, 95);
+    const ySnap = clamp(Math.round(clamp(yPct, 5, 95) / step) * step, 5, 95);
+    updatePosition(index, 'x', xSnap);
+    updatePosition(index, 'y', ySnap);
+  };
+
+  const onDragMove = (e) => {
+    const idx = draggingIndexRef.current;
+    if (idx < 0) return;
+    const point = e.touches ? e.touches[0] : e;
+    updatePositionByClient(idx, point.clientX, point.clientY);
+    if (e.preventDefault) e.preventDefault();
+  };
+
+  const endDrag = () => {
+    draggingIndexRef.current = -1;
+    document.removeEventListener('mousemove', onDragMove);
+    document.removeEventListener('mouseup', endDrag);
+    document.removeEventListener('touchmove', onDragMove);
+    document.removeEventListener('touchend', endDrag);
+  };
+
+  const startDrag = (e, index) => {
+    e.preventDefault();
+    e.stopPropagation();
+    draggingIndexRef.current = index;
+    setDraggedPosition(index);
+    const point = e.touches ? e.touches[0] : e;
+    updatePositionByClient(index, point.clientX, point.clientY);
+    document.addEventListener('mousemove', onDragMove, { passive: false });
+    document.addEventListener('mouseup', endDrag, { passive: false });
+    document.addEventListener('touchmove', onDragMove, { passive: false });
+    document.addEventListener('touchend', endDrag, { passive: false });
+  };
 
   const addPosition = () => {
     const newPosition = {
@@ -266,14 +313,15 @@ export default function SpreadEditor({ spread, decks, user, onSave, onCancel }) 
                 <h3 className="text-lg font-semibold text-white">Visual Layout</h3>
                 {draggedPosition !== null && (
                   <Badge className="bg-purple-600 text-white animate-pulse">
-                    Click anywhere to place Position {draggedPosition + 1}
+                    Drag to move Position {draggedPosition + 1}
                   </Badge>
                 )}
               </div>
               
               <div 
-                className="flex-1 relative bg-gradient-to-br from-purple-900/20 to-blue-900/20 border-2 border-dashed border-white/20 rounded-2xl overflow-hidden cursor-crosshair"
-                onClick={handleLayoutClick}
+                ref={containerRef}
+                className="flex-1 relative bg-gradient-to-br from-purple-900/20 to-blue-900/20 border-2 border-dashed border-white/20 rounded-2xl overflow-hidden cursor-default"
+                style={{ touchAction: 'none', userSelect: 'none' }}
               >
                 {/* Grid overlay */}
                 <div className="absolute inset-0 opacity-10">
@@ -299,15 +347,18 @@ export default function SpreadEditor({ spread, decks, user, onSave, onCancel }) 
                     animate={{ scale: 1 }}
                     whileHover={{ scale: 1.1 }}
                   >
-                    <div className={`w-16 h-24 rounded-lg border-2 flex flex-col items-center justify-center text-center cursor-pointer transition-all ${
+                    <div className={`w-16 h-24 rounded-lg border-2 flex flex-col items-center justify-center text-center cursor-move transition-all ${
                       draggedPosition === index
                         ? 'bg-purple-600 border-purple-400 shadow-lg shadow-purple-500/50'
                         : 'bg-white/10 border-white/30 hover:border-white/50 hover:bg-white/20'
                     }`}
+                    onMouseDown={(e) => startDrag(e, index)}
+                    onTouchStart={(e) => startDrag(e, index)}
                     onClick={(e) => {
                       e.stopPropagation();
                       setDraggedPosition(index);
                     }}
+                    style={{ touchAction: 'none', userSelect: 'none' }}
                     >
                       <div className="text-xs font-bold text-white mb-1">
                         {index + 1}
