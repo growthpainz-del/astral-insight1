@@ -48,7 +48,7 @@ Deno.serve(async (req) => {
             body: buildRequest(usedVoiceId).body
         });
 
-        if (!response.ok && (response.status === 401 || response.status === 403) && usedVoiceId !== RACHEL_ID) {
+        if (!response.ok && (response.status === 401 || response.status === 403 || response.status === 404) && usedVoiceId !== RACHEL_ID) {
             // Fallback to public Rachel voice if unauthorized (401)
             const fallbackVid = RACHEL_ID;
             const req2 = buildRequest(fallbackVid);
@@ -81,7 +81,7 @@ Deno.serve(async (req) => {
         }
         const base64Audio = btoa(binary);
 
-        return Response.json({ audioContent: base64Audio });
+        return Response.json({ audioContent: base64Audio, voiceIdUsed: usedVoiceId });
 
     } catch (error) {
         console.error("Error generating speech:", error);

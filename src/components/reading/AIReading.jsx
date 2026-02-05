@@ -165,7 +165,7 @@ if (user && typeof user.token_balance === "number") {
     } catch (err) {
       console.error('TTS error:', err);
       const msg = String(err?.message || '');
-      const code = err?.response?.status || (/(\b401\b|\b403\b)/.test(msg) ? 401 : 0);
+      const code = err?.response?.status || (/(\b401\b|\b403\b|\b404\b)/.test(msg) ? 401 : 0);
       if (code === 401 || code === 403) {
         try {
           const FALLBACK_ID = "21m00Tcm4TlvDq8ikWAM"; // Rachel (public)
