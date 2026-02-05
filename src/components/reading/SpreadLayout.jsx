@@ -386,19 +386,8 @@ export default function SpreadLayout(props) {
     };
   }, [unlockScroll]);
 
-  // Responsive card width for mobile/large spreads
-  const baseSlot = defaultCardWidth || DEFAULT_CARD_WIDTH;
-  const sizeMultiplier = viewMode === 'compact' ? 0.75 : viewMode === 'detailed' ? 1.2 : 1;
-  let computedWidth = baseSlot;
-  if (containerWidth) {
-    const { cardWidth } = calculateCardSize(containerWidth, visibleCount);
-    computedWidth = Math.max(80, Math.min(cardWidth, 220));
-  }
-  // Clamp further for dense spreads on small screens
-  if (visibleCount >= 7 && containerWidth && containerWidth < 520) {
-    computedWidth = Math.min(computedWidth, 95);
-  }
-  const defaultSlot = Math.round(computedWidth * sizeMultiplier);
+  // Card sizing moved below (needs visibleCount)
+  // const defaultSlot = ... (defined after visibleCount)
 
   // IMPROVED: Pass cards to normalization function
   const normalizedPositions = React.useMemo(() => {
@@ -442,6 +431,20 @@ export default function SpreadLayout(props) {
   const visibleCount = hideEmptySlots
     ? normalizedPositions.filter((_, i) => cardsOnly[i]).length
     : normalizedPositions.length;
+
+  // Responsive card width for mobile/large spreads (after visibleCount)
+  const baseSlot = defaultCardWidth || DEFAULT_CARD_WIDTH;
+  const sizeMultiplier = viewMode === 'compact' ? 0.75 : viewMode === 'detailed' ? 1.2 : 1;
+  let computedWidth = baseSlot;
+  if (containerWidth) {
+    const { cardWidth } = calculateCardSize(containerWidth, visibleCount);
+    computedWidth = Math.max(80, Math.min(cardWidth, 220));
+  }
+  // Clamp further for dense spreads on small screens
+  if (visibleCount >= 7 && containerWidth && containerWidth < 520) {
+    computedWidth = Math.min(computedWidth, 95);
+  }
+  const defaultSlot = Math.round(computedWidth * sizeMultiplier);
 
   // Build render pairs including temporary drag positions
   const renderItems = React.useMemo(() => {
