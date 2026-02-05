@@ -32,32 +32,12 @@ export default function ChanneledReading({ isOpen, drawnCards, deck, spread, que
     }
   }, [isOpen]);
 
-  // Load ElevenLabs voices when panel opens
+  // Force voice: skip loading voices and lock selection
   useEffect(() => {
-    if (!isOpen) return;
-    const fetchVoices = async () => {
-      try {
-        const { data } = await base44.functions.invoke('listElevenVoices');
-        const list = Array.isArray(data?.voices) ? data.voices : (Array.isArray(data) ? data : []);
-        setElevenVoices(list);
-        const availableIds = new Set(list.map(v => v.id));
-        if (!availableIds.has(selectedVoiceId)) {
-          const rachel = list.find(v => v.id === "21m00Tcm4TlvDq8ikWAM");
-          setSelectedVoiceId((rachel?.id) || (list[0]?.id) || "21m00Tcm4TlvDq8ikWAM");
-        }
-      } catch (e) {
-        console.error('Failed to load ElevenLabs voices', e);
-        // Fallback to a minimal built-in list so the dropdown isn't empty
-        const fallback = [
-          { id: 'X8Na0RDzhqa1gJFsWu5a', name: 'Gypsy (Custom)' },
-          { id: '21m00Tcm4TlvDq8ikWAM', name: 'Rachel' },
-        ];
-        setElevenVoices(fallback);
-        if (!selectedVoiceId) setSelectedVoiceId(fallback[0].id);
-      }
-    };
-    fetchVoices();
-  }, [isOpen, selectedVoiceId]);
+    if (isOpen) {
+      setSelectedVoiceId("X8Na0RDzhqa1gJFsWu5a");
+    }
+  }, [isOpen]);
 
   const generateInterpretation = async (tier = "quick") => {
     if (!drawnCards || drawnCards.length === 0) {
@@ -153,9 +133,9 @@ if (user && typeof user.token_balance === "number") {
     setError("");
     try {
       const { data } = await base44.functions.invoke('generateSpeech', {
-        text: interpretation,
-        voiceId: selectedVoiceId,
-      });
+                    text: interpretation,
+                    voiceId: "X8Na0RDzhqa1gJFsWu5a",
+                  });
       const b64 = data?.audioContent;
       if (!b64) throw new Error('No audio returned from TTS');
       if (!audioRef.current) audioRef.current = new Audio();
@@ -344,24 +324,7 @@ if (user && typeof user.token_balance === "number") {
               Your {selectedTier.charAt(0).toUpperCase() + selectedTier.slice(1)} Reading
             </h3>
             <div className="flex items-center gap-2 flex-wrap justify-end">
-              <div className="w-[260px]">
-                <Select value={selectedVoiceId} onValueChange={setSelectedVoiceId} disabled={isSpeaking || elevenVoices.length === 0}>
-                  <SelectTrigger className="h-8 bg-black/40 border-purple-500/30 text-xs text-purple-200">
-                    <SelectValue placeholder={elevenVoices.length ? "Select voice" : "Loading voices..."} />
-                  </SelectTrigger>
-                  <SelectContent className="bg-slate-900 border-purple-500/30 text-purple-200 max-h-64">
-                    {elevenVoices.length === 0 ? (
-                      <div className="px-3 py-2 text-xs text-white/60">No voices found</div>
-                    ) : (
-                      elevenVoices.map(v => (
-                        <SelectItem key={`${v.id}-${v.name}`} value={v.id} className="text-xs focus:bg-purple-900/50 focus:text-white">
-                          {v.name}
-                        </SelectItem>
-                      ))
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
+              {/* Voice selection hidden – forced voice in use */}
 
               {!isSpeaking ? (
                 <Button
