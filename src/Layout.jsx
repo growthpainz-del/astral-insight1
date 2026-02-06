@@ -156,16 +156,16 @@ export default function Layout({ children, currentPageName }) {
 
   useEffect(() => {
     const stopCloseBubbling = (e) => {
-              // Limit interception strictly to our preview close elements, do not block generic dialog closes
-              const btn = e.target?.closest?.('[data-close-preview]');
-              if (btn) {
-                e.preventDefault?.();
-                e.stopPropagation?.();
-                if (e.nativeEvent && typeof e.nativeEvent.stopImmediatePropagation === 'function') {
-                  e.nativeEvent.stopImmediatePropagation();
-                }
-              }
-            };
+      // Limit interception strictly to our preview close elements, do not block generic dialog closes
+      const btn = e.target?.closest?.('[data-close-preview]');
+      if (btn) {
+        e.preventDefault?.();
+        e.stopPropagation?.();
+        if (e.nativeEvent && typeof e.nativeEvent.stopImmediatePropagation === 'function') {
+          e.nativeEvent.stopImmediatePropagation();
+        }
+      }
+    };
 
     document.addEventListener('mousedown', stopCloseBubbling, true);
     document.addEventListener('click', stopCloseBubbling, true);
@@ -174,6 +174,17 @@ export default function Layout({ children, currentPageName }) {
       document.removeEventListener('mousedown', stopCloseBubbling, true);
       document.removeEventListener('click', stopCloseBubbling, true);
     };
+  }, [currentPageName]);
+
+  // Safety: ensure global scroll is never left locked between pages (iOS touch)
+  useEffect(() => {
+    try {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+      document.body.style.touchAction = '';
+    } catch (e) {
+      // no-op
+    }
   }, [currentPageName]);
 
   const handleLogout = async () => {
