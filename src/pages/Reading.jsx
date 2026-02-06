@@ -962,8 +962,8 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
                 
                 <CardRelationshipVisualizer
                   deckId={deck.id}
-                  cards={drawnCards}
-                  selectedCards={drawnCards}
+                  cards={(placedCards.some(Boolean) ? placedCards : drawnCards).filter(Boolean)}
+                  selectedCards={(placedCards.some(Boolean) ? placedCards : drawnCards).filter(Boolean)}
                 />
               </div>
             )}
