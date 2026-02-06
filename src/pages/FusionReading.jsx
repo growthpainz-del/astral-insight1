@@ -270,7 +270,7 @@ Remember: Weave the wisdom of both decks together seamlessly for a unique, balan
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-950/20 via-blue-950/20 to-indigo-950/20 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-purple-950/20 via-blue-950/20 to-indigo-950/20 p-4 md:p-8 overflow-y-auto pb-28" style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
       <div className="max-w-4xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
