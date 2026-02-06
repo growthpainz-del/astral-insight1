@@ -580,7 +580,7 @@ export default function SpreadLayout(props) {
       console.error('Error in renderItems:', err);
       return [];
     }
-  }, [normalizedPositions, cardsOnly, draggedCardIndex, cardPositionsTemp]);
+  }, [normalizedPositions, cardsByIndex, draggedCardIndex, cardPositionsTemp]);
 
   // Animation sequence
   React.useEffect(() => {

@@ -396,6 +396,9 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
       name: drawnCard?.name
     });
     
+    // Choose active set for relations/viewer context
+    const activeCards = (placedCards.some(Boolean) ? placedCards : drawnCards).filter(Boolean);
+
     // The drawnCard already contains all card data since we spread {...card} when drawing
     // We should find it in the `cards` array to ensure we have the most complete original card data.
     // `drawnCard.id` contains the original ID of the card.
@@ -408,10 +411,7 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
         card: fullCard || drawnCard, // Use fullCard if found, otherwise use drawnCard itself (it's already enriched)
         position: drawnCard.position,
         isReversed: drawnCard.isReversed,
-        relatedCards: drawnCards.filter(dc => 
-          // Filter out the currently clicked card using its original ID
-          dc.id !== drawnCard.id
-        )
+        relatedCards: activeCards.filter(dc => dc.id !== drawnCard.id)
       });
       setShowEnhancedViewer(true);
       console.log('✅ Opening EnhancedCardViewer');
@@ -881,7 +881,16 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
                    // Place the dragged bottom-shelf card into the specific spread position
                    setPlacedCards((prev) => {
                      const next = [...prev];
-                     next[targetIndex] = bottomCards[cardIndex];
+                     const pos = readingPositions[targetIndex] || {};
+                     const base = bottomCards[cardIndex];
+                     next[targetIndex] = base ? {
+                       ...base,
+                       position: pos.name || base.position,
+                       position_meaning: typeof pos.meaning === 'string' ? pos.meaning : base.position_meaning,
+                       position_x: typeof pos.x === 'number' ? pos.x : base.position_x,
+                       position_y: typeof pos.y === 'number' ? pos.y : base.position_y,
+                       position_rotation: typeof pos.rotation === 'number' ? pos.rotation : (base.position_rotation || 0),
+                     } : base;
                      return next;
                    });
                    setDrawnCards((prev) => prev.filter((_, i) => i !== cardIndex));
@@ -947,9 +956,6 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
               question={question}
               onClose={() => setShowAI(false)}
             />
-
-            {/* Bottom shelf of available cards for drag-and-drop */}
-            <BottomCardShelf cards={bottomCards} onCardClick={handleCardClick} />
 
             {/* Card Relationships Section */}
             {(placedCards.filter(Boolean).length >= 2 || drawnCards.length >= 2) && (
@@ -1027,7 +1033,16 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
                onExternalDrop={({ targetIndex, cardIndex }) => {
                  setPlacedCards((prev) => {
                    const next = [...prev];
-                   next[targetIndex] = bottomCards[cardIndex];
+                   const pos = readingPositions[targetIndex] || {};
+                   const base = bottomCards[cardIndex];
+                   next[targetIndex] = base ? {
+                     ...base,
+                     position: pos.name || base.position,
+                     position_meaning: typeof pos.meaning === 'string' ? pos.meaning : base.position_meaning,
+                     position_x: typeof pos.x === 'number' ? pos.x : base.position_x,
+                     position_y: typeof pos.y === 'number' ? pos.y : base.position_y,
+                     position_rotation: typeof pos.rotation === 'number' ? pos.rotation : (base.position_rotation || 0),
+                   } : base;
                    return next;
                  });
                  setDrawnCards((prev) => prev.filter((_, i) => i !== cardIndex));
