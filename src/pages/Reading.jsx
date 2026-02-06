@@ -291,6 +291,7 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
   }, [deckIdFromUrl]);
 
   const selectedSpread = allSpreads.find(s => s.id === selectedSpreadId) || BUILT_IN_SPREADS[1];
+  const isThreeCardMode = (selectedSpread?.positions?.length === 3);
 
   // Keep local editable positions in sync with the selected spread
   useEffect(() => {
