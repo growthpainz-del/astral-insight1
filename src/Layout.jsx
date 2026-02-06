@@ -608,7 +608,7 @@ export default function Layout({ children, currentPageName }) {
           </aside>
 
           <div className="flex-1 flex flex-col">
-            <header className="md:hidden bg-slate-900/95 backdrop-blur-lg border-b border-purple-800/40 h-16 flex items-center px-4 justify-between flex-shrink-0 sticky top-0 z-40">
+            <header className="md:hidden bg-slate-900/95 backdrop-blur-lg border-b border-purple-800/40 h-16 pt-[env(safe-area-inset-top)] flex items-center px-4 justify-between flex-shrink-0 sticky top-0 z-40">
               <button 
                 onClick={() => setIsSidebarOpen(true)} 
                 className="text-purple-300 hover:text-purple-100 active:scale-95 transition-all p-2 -ml-2 touch-manipulation"
@@ -619,13 +619,19 @@ export default function Layout({ children, currentPageName }) {
               <Link to={createPageUrl('Home')} className="flex items-center gap-2">
                 <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d2a300021f94d0f312c039/4cde5ffdd_IMG_6738.jpg" alt="Logo" className="h-8 w-8" />
               </Link>
-              <button 
-                onClick={handleMobileBack} 
-                className="text-purple-300 hover:text-purple-100 active:scale-95 transition-all p-2 -mr-2 touch-manipulation"
-                style={{ WebkitTapHighlightColor: 'transparent' }}
-              >
-                <ChevronLeft className="w-6 h-6" />
-              </button>
+              {['Home','ReadingRoom','Studio','Journal'].includes(currentPageName) ? (
+                <Link to={createPageUrl('Home')} className="text-purple-300 hover:text-purple-100 active:scale-95 transition-all p-2 -mr-2 touch-manipulation" style={{ WebkitTapHighlightColor: 'transparent' }}>
+                  <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d2a300021f94d0f312c039/4cde5ffdd_IMG_6738.jpg" alt="Logo" className="h-6 w-6 rounded" />
+                </Link>
+              ) : (
+                <button 
+                  onClick={handleMobileBack} 
+                  className="text-purple-300 hover:text-purple-100 active:scale-95 transition-all p-2 -mr-2 touch-manipulation"
+                  style={{ WebkitTapHighlightColor: 'transparent' }}
+                >
+                  <ChevronLeft className="w-6 h-6" />
+                </button>
+              )}
             </header>
 
             <main className="flex-1 w-full" style={{ 
