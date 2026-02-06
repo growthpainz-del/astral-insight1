@@ -297,6 +297,8 @@ export default function SpreadLayout(props) {
     useScratchReveal = false,
     viewMode = "normal",
     sizeScale = 1,
+    enableExternalDrops = false,
+    onExternalDrop = () => {},
     } = props;
 
   // DEBUG: Log received props
@@ -505,21 +507,18 @@ export default function SpreadLayout(props) {
     }
   }, [spread, positions, cards]);
 
-  const cardsOnly = React.useMemo(() => {
-    const result = Array.isArray(cards) ? cards.filter(Boolean) : [];
-    
-    // DEBUG: Log cardsOnly derivation
-    console.log('🎴 SpreadLayout: cardsOnly derived', {
+  const cardsByIndex = React.useMemo(() => {
+    const result = Array.isArray(cards) ? cards : [];
+    console.log('🎴 SpreadLayout: cardsByIndex derived', {
       inputCardsLength: cards?.length,
-      cardsOnlyLength: result.length,
-      cardsOnly: result
+      cardsByIndexLength: result.length,
+      cardsByIndex: result
     });
-    
     return result;
   }, [cards]);
 
   const visibleCount = hideEmptySlots
-    ? normalizedPositions.filter((_, i) => cardsOnly[i]).length
+    ? normalizedPositions.filter((_, i) => cardsByIndex[i]).length
     : normalizedPositions.length;
 
   // Responsive card width for mobile/large spreads (after visibleCount)
@@ -542,12 +541,12 @@ export default function SpreadLayout(props) {
       // DEBUG: Log renderItems calculation
       console.log('🔧 SpreadLayout: Building renderItems', {
         normalizedPositionsCount: normalizedPositions.length,
-        cardsOnlyCount: cardsOnly.length,
+        cardsByIndexCount: cardsByIndex.length,
         draggedCardIndex
       });
       
       const items = normalizedPositions.map((pos, i) => {
-        const card = cardsOnly[i] || null;
+        const card = cardsByIndex[i] || null;
         
         // DEBUG: Log each position-card pair
         console.log(`🔧 SpreadLayout: Position ${i} (${pos.name})`, {
@@ -586,7 +585,7 @@ export default function SpreadLayout(props) {
   // Animation sequence
   React.useEffect(() => {
     try {
-      if (!animateSpread || cardsOnly.length === 0) {
+      if (!animateSpread || cardsByIndex.filter(Boolean).length === 0) {
         console.log('✅ SpreadLayout: Setting showPositions=true, showCards=true (no animation)');
         setShowPositions(true);
         setShowCards(true);
@@ -608,7 +607,7 @@ export default function SpreadLayout(props) {
       setShowPositions(true);
       setShowCards(true);
     }
-  }, [animateSpread, cardsOnly.length]);
+  }, [animateSpread, cardsByIndex.length]);
 
   // --- Card repositioning handlers ---
   const handleCardDragStart = (e, idx) => {
@@ -812,7 +811,7 @@ export default function SpreadLayout(props) {
             
             <div className="bg-black/30 rounded p-2 space-y-1">
               <div>• normalizedPositions: {normalizedPositions.length}</div>
-              <div>• cardsOnly: {cardsOnly.length}</div>
+              <div>• cardsByIndex: {cardsByIndex.length}</div>
               <div>• renderItems: {renderItems.length}</div>
               <div>• visibleCount: {visibleCount}</div>
             </div>
