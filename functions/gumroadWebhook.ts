@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.7.1';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
 /**
  * Gumroad Webhook Handler - MAPPED TO YOUR ACTUAL PRODUCTS
@@ -8,15 +8,15 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.7.1';
 // MAPPED TO YOUR GUMROAD PRODUCTS
 const PRODUCT_TOKEN_MAP = {
   // Subscriptions (monthly grants)
-  'ghsad': { tokens: 50, tier: 'mystic' },           // Mystic Tier - $4.99/month
-  'ibcai': { tokens: 150, tier: 'oracle_pro' },      // Oracle Pro - $12.99/month
-  'wxnje': { tokens: 400, tier: 'creator' },         // Creator Studio - $24.99/month
+  'mystic-tier': { tokens: 50, tier: 'mystic' },           // Mystic Tier - $4.99/month
+  'oracle-pro': { tokens: 150, tier: 'oracle_pro' },       // Oracle Pro - $12.99/month
+  'creator-studio': { tokens: 400, tier: 'creator' },      // Creator Studio - $24.99/month
   
   // One-time token packages
-  'jcxfui': { tokens: 20, tier: null },   // 20 Tokens - $1.99
-  'bhzra': { tokens: 50, tier: null },    // 50 Tokens - $3.99 ⭐ Most Popular
-  'harwmx': { tokens: 100, tier: null },  // 100 Tokens - $6.99
-  'ndqug': { tokens: 200, tier: null },   // 200 Tokens - $12.99 Best Value
+  'tokens-20': { tokens: 20, tier: null },    // 20 Tokens - $1.99
+  'tokens-50': { tokens: 50, tier: null },    // 50 Tokens - $3.99
+  'tokens-100': { tokens: 100, tier: null },  // 100 Tokens - $6.99
+  'tokens-200': { tokens: 200, tier: null },  // 200 Tokens - $12.99
 };
 
 function verifyGumroadSignature(body, signature, secret) {
