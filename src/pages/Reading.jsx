@@ -310,35 +310,52 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
 
     setIsDrawing(true);
     
-    const shuffled = [...cards].sort(() => Math.random() - 0.5);
+    const shuffled = [...cards].sort(() => Math.random() - 0.5); // Single shuffle per reading
     console.log('🔀 Shuffled', shuffled.length, 'cards');
-    
+
+    const positionsCount = selectedSpread.positions.length;
+
+    // For 3-card spreads: load the FULL shuffled deck into the bottom shelf;
+    // user will drag any 3 to the mat.
+    if (positionsCount === 3) {
+      const drawnAll = shuffled.map((card) => ({
+        ...card,
+        card_id: card.id,
+        isReversed: deck?.category === 'tarot' && Math.random() > 0.5,
+      }));
+
+      console.log('🎴 3-card mode: full deck available on shelf', {
+        available: drawnAll.length,
+        positions: positionsCount,
+      });
+
+      setTimeout(() => {
+        setDrawnCards(drawnAll);
+        setPlacedCards(new Array(positionsCount).fill(null));
+        setRevealedCards(new Set());
+        setIsDrawing(false);
+      }, 3000);
+      return;
+    }
+
+    // Default (other spreads): draw exactly as many as positions
     const drawn = selectedSpread.positions.map((position, idx) => {
       const card = shuffled[idx];
-      
       if (!card) {
         console.warn(`⚠️ No card available for position ${idx}`);
       }
-      
-      const positionData = typeof position === 'string' 
-        ? { 
-            name: position, 
-            meaning: '', 
-            x: null, 
-            y: null, 
-            rotation: 0 
-          }
-        : { 
+      const positionData = typeof position === 'string'
+        ? { name: position, meaning: '', x: null, y: null, rotation: 0 }
+        : {
             name: position.name || `Position ${idx + 1}`,
             meaning: position.meaning || '',
             x: typeof position.x === 'number' ? position.x : null,
             y: typeof position.y === 'number' ? position.y : null,
-            rotation: typeof position.rotation === 'number' ? position.rotation : 0
+            rotation: typeof position.rotation === 'number' ? position.rotation : 0,
           };
-      
       return {
         ...card,
-        card_id: card.id,
+        card_id: card?.id,
         position: positionData.name,
         position_meaning: positionData.meaning,
         position_x: positionData.x,
@@ -357,14 +374,14 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
         position: drawn[0].position,
         x: drawn[0].position_x,
         y: drawn[0].position_y,
-      } : null
+      } : null,
     });
 
     setTimeout(() => {
       console.log('✅ Setting drawn cards:', drawn.length);
       setDrawnCards(drawn);
       setPlacedCards(new Array(drawn.length).fill(null));
-      setRevealedCards(new Set()); // Reset revealed cards
+      setRevealedCards(new Set());
       setIsDrawing(false);
     }, 3000);
   };
