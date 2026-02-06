@@ -179,15 +179,27 @@ export default function Layout({ children, currentPageName }) {
   }, [currentPageName]);
 
   // Safety: ensure global scroll is never left locked between pages (iOS touch)
-  useEffect(() => {
-    try {
-      document.body.style.overflow = '';
-      document.documentElement.style.overflow = '';
-      document.body.style.touchAction = '';
-    } catch (e) {
-      // no-op
-    }
-  }, [currentPageName]);
+          useEffect(() => {
+            try {
+              document.body.style.overflow = '';
+              document.documentElement.style.overflow = '';
+              document.body.style.touchAction = '';
+            } catch (e) {
+              // no-op
+            }
+          }, [currentPageName]);
+
+          // Set favicon to the new logo
+          useEffect(() => {
+            const faviconUrl = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d2a300021f94d0f312c039/4cde5ffdd_IMG_6738.jpg";
+            let link = document.querySelector("link[rel='icon']");
+            if (!link) {
+              link = document.createElement("link");
+              link.setAttribute("rel", "icon");
+              document.head.appendChild(link);
+            }
+            link.setAttribute("href", faviconUrl);
+          }, []);
 
   const handleLogout = async () => {
     await User.logout();
@@ -494,7 +506,7 @@ export default function Layout({ children, currentPageName }) {
           >
             <div className="flex items-center justify-between h-16 px-4 border-b border-purple-800/40 flex-shrink-0">
               <Link to={createPageUrl('Home')} className="flex items-center gap-2">
-                <img src="https://growthpainz.com/wp-content/uploads/2024/05/LOGO_CIRCLE_ICON_ONLY_GrowthPaiNz-150x150.png" alt="Logo" className="h-8 w-8" />
+                <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d2a300021f94d0f312c039/4cde5ffdd_IMG_6738.jpg" alt="Logo" className="h-8 w-8" />
                 <span className="font-bold text-lg text-white">Astral Insight</span>
               </Link>
               <button onClick={() => setIsSidebarOpen(false)} className="md:hidden text-purple-300">
@@ -605,7 +617,7 @@ export default function Layout({ children, currentPageName }) {
                 <LayoutGrid className="w-6 h-6" />
               </button>
               <Link to={createPageUrl('Home')} className="flex items-center gap-2">
-                <img src="https://growthpainz.com/wp-content/uploads/2022/05/LOGO_CIRCLE_ICON_ONLY_GrowthPaiNz-150x150.png" alt="Logo" className="h-8 w-8" />
+                <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d2a300021f94d0f312c039/4cde5ffdd_IMG_6738.jpg" alt="Logo" className="h-8 w-8" />
               </Link>
               <button 
                 onClick={handleMobileBack} 
