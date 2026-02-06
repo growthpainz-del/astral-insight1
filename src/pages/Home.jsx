@@ -1,11 +1,22 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { motion } from 'framer-motion';
 import { BookOpen, Palette, Sparkles, Plus, History, Wand2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { base44 } from '@/api/base44Client';
 
 export default function HomePage() {
+  const [spotlight, setSpotlight] = useState(null);
+
+  useEffect(() => {
+    (async () => {
+      const decks = await base44.entities.Deck.filter({ is_public: true, publish_status: 'published' });
+      const match = decks.find(d => (d.name || '').toLowerCase().includes('rooted crescent')) ||
+                    decks.find(d => (d.name || '').toLowerCase().includes('crescent')) || null;
+      setSpotlight(match);
+    })();
+  }, []);
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-purple-950 via-slate-900 to-blue-950 text-white flex items-center justify-center p-4">
       <div className="max-w-5xl w-full">
@@ -35,6 +46,50 @@ export default function HomePage() {
             Your mystical journey awaits
           </p>
         </motion.div>
+
+        {spotlight && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.15 }}
+            className="mb-8"
+          >
+            <div className="relative overflow-hidden rounded-3xl border border-purple-500/30 bg-slate-900/60">
+              {spotlight.cover_image && (
+                <img
+                  src={spotlight.cover_image}
+                  alt={spotlight.name}
+                  className="absolute inset-0 w-full h-full object-cover opacity-25 pointer-events-none"
+                />
+              )}
+              <div className="relative p-6 md:p-8 flex items-center gap-6">
+                <div className="shrink-0">
+                  <img
+                    src={spotlight.cover_image || 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d2a300021f94d0f312c039/47c4e8b48_IMG_6739.png'}
+                    alt={`${spotlight.name} cover`}
+                    className="w-20 h-20 md:w-24 md:h-24 rounded-xl object-cover border border-purple-500/40"
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs uppercase tracking-wider text-purple-300/80 flex items-center gap-2">
+                    <Sparkles className="w-4 h-4" /> Featured Deck
+                  </div>
+                  <h3 className="text-2xl font-bold text-white mt-1 truncate">{spotlight.name}</h3>
+                  {spotlight.description && (
+                    <p className="text-white/70 mt-1 text-sm md:text-base">{spotlight.description}</p>
+                  )}
+                  <div className="mt-4">
+                    <Link to={createPageUrl(`Reading?deckId=${spotlight.id}`)}>
+                      <Button className="bg-purple-600 hover:bg-purple-700 text-white font-semibold">
+                        Read with this deck
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
 
         <div className="grid md:grid-cols-2 gap-6 md:gap-8">
           <motion.div
