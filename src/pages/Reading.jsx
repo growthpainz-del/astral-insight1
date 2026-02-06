@@ -57,16 +57,23 @@ const BUILT_IN_SPREADS = [
     id: "diamond",
     name: "Diamond Ring",
     positions: [
-      { name: "North", meaning: "Overarching theme", x: 50, y: 15, rotation: 0 },
-      { name: "North-East", meaning: "What supports you", x: 68, y: 28, rotation: 18 },
-      { name: "East", meaning: "External influences", x: 85, y: 50, rotation: 90 },
-      { name: "South-East", meaning: "What to release", x: 68, y: 72, rotation: -18 },
-      { name: "South", meaning: "Hidden factor", x: 50, y: 85, rotation: 0 },
-      { name: "South-West", meaning: "Challenge", x: 32, y: 72, rotation: 18 },
-      { name: "West", meaning: "Internal influences", x: 15, y: 50, rotation: 90 }
+      // Top
+      { name: "North", meaning: "Overarching theme", x: 50, y: 14, rotation: 0 },
+      // Upper-right
+      { name: "North-East", meaning: "What supports you", x: 74, y: 30, rotation: 35 },
+      // Right
+      { name: "East", meaning: "External influences", x: 88, y: 50, rotation: 90 },
+      // Lower-right
+      { name: "South-East", meaning: "What to release", x: 74, y: 70, rotation: -35 },
+      // Bottom
+      { name: "South", meaning: "Hidden factor", x: 50, y: 86, rotation: 0 },
+      // Lower-left
+      { name: "South-West", meaning: "Challenge", x: 26, y: 70, rotation: 35 },
+      // Left
+      { name: "West", meaning: "Internal influences", x: 12, y: 50, rotation: 90 }
     ],
     isBuiltIn: true,
-  },
+  }
   {
     id: "celtic_cross",
     name: "Celtic Cross",
