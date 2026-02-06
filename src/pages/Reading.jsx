@@ -975,7 +975,7 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
             {/* AI Reading Section */}
             <AIReading
               isOpen={showAI}
-              drawnCards={(placedCards.some(Boolean) ? placedCards : drawnCards).filter(Boolean)}
+              drawnCards={(isThreeCardMode ? placedCards : (placedCards.some(Boolean) ? placedCards : drawnCards)).filter(Boolean)}
               deck={deck}
               spread={selectedSpread}
               question={question}
