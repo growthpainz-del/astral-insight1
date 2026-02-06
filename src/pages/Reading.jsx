@@ -781,7 +781,7 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
         {drawnCards.length > 0 && (
           <div className="space-y-6">
             {/* Enhanced Spread Visualization */}
-             <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+              <div className="bg-white/5 border border-white/10 rounded-xl p-6">
                <div className="flex items-center justify-between mb-6">
                  <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400">
                    Your Reading
