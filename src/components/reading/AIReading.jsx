@@ -25,6 +25,8 @@ export default function ChanneledReading({ isOpen, drawnCards, deck, spread, que
   const [selectedVoiceId, setSelectedVoiceId] = useState("X8Na0RDzhqa1gJFsWu5a");
   const [isSpeaking, setIsSpeaking] = useState(false);
   const audioRef = useRef(null);
+  const webSpeechUtteranceRef = useRef(null);
+  const usingWebSpeechRef = useRef(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -127,15 +129,40 @@ if (user && typeof user.token_balance === "number") {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const speakWithWebAPI = async (text) => {
+    try {
+      if (!('speechSynthesis' in window)) {
+        throw new Error('Web Speech API not supported');
+      }
+      usingWebSpeechRef.current = true;
+      const utter = new SpeechSynthesisUtterance(text);
+      webSpeechUtteranceRef.current = utter;
+      // Try to pick a pleasant default voice if available
+      const voices = window.speechSynthesis.getVoices();
+      const preferred = voices.find(v => /female|en\-|us|UK|English/i.test(`${v.name} ${v.lang}`)) || voices[0];
+      if (preferred) utter.voice = preferred;
+      utter.rate = 1.0;
+      utter.pitch = 1.0;
+      return new Promise((resolve, reject) => {
+        utter.onend = () => { setIsSpeaking(false); usingWebSpeechRef.current = false; resolve(); };
+        utter.onerror = (e) => { usingWebSpeechRef.current = false; reject(e.error || 'speech error'); };
+        window.speechSynthesis.cancel(); // clear any existing
+        window.speechSynthesis.speak(utter);
+      });
+    } catch (e) {
+      throw e;
+    }
+  };
+
   const handleSpeak = async () => {
     if (!interpretation) return;
     setIsSpeaking(true);
     setError("");
     try {
       const { data } = await base44.functions.invoke('generateSpeech', {
-                    text: interpretation,
-                    voiceId: "X8Na0RDzhqa1gJFsWu5a",
-                  });
+        text: interpretation,
+        voiceId: "X8Na0RDzhqa1gJFsWu5a",
+      });
       const b64 = data?.audioContent;
       if (!b64) throw new Error('No audio returned from TTS');
       if (!audioRef.current) audioRef.current = new Audio();
@@ -163,22 +190,44 @@ if (user && typeof user.token_balance === "number") {
           setError("");
           return;
         } catch (err2) {
-          console.error('TTS fallback error:', err2);
-          setError('Text-to-speech failed (401/403). Please verify ElevenLabs key/voice access or pick another voice.');
+          console.error('TTS fallback (Rachel) error:', err2);
+          // Final fallback to device voice
+          try {
+            await speakWithWebAPI(interpretation);
+            setError('Using device voice (local).');
+            return;
+          } catch (err3) {
+            console.error('Web Speech fallback error:', err3);
+            setError('Text-to-speech failed (401/403). Please verify ElevenLabs key/voice access.');
+          }
         }
       } else {
-        setError(`Text-to-speech failed: ${err.message || 'Unknown error'}`);
+        // Non-auth errors: also try device voice fallback
+        try {
+          await speakWithWebAPI(interpretation);
+          setError('Using device voice (local).');
+          return;
+        } catch (err4) {
+          setError(`Text-to-speech failed: ${err.message || 'Unknown error'}`);
+        }
       }
       setIsSpeaking(false);
     }
   };
 
   const handleStop = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
+    try {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+      if (usingWebSpeechRef.current && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        usingWebSpeechRef.current = false;
+      }
+    } finally {
+      setIsSpeaking(false);
     }
-    setIsSpeaking(false);
   };
 
   // Stop TTS on unmount or when regenerating
