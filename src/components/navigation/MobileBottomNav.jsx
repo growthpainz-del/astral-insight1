@@ -18,7 +18,7 @@ export default function MobileBottomNav() {
         {items.map(({ to, label, icon: Icon }) => {
           const active = location.pathname === new URL(to, window.location.origin).pathname;
           return (
-            <Link key={to} to={to} className="flex flex-col items-center gap-1 px-3 py-1 text-xs">
+            <Link key={to} to={to} className="flex flex-col items-center gap-1 px-3 py-1 text-xs" preventScrollReset={true}>
               <Icon className={`w-5 h-5 ${active ? 'text-purple-400' : 'text-white/70'}`} />
               <span className={`${active ? 'text-purple-300' : 'text-white/60'}`}>{label}</span>
             </Link>

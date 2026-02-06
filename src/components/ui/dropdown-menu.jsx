@@ -44,19 +44,34 @@ const DropdownMenuSubContent = React.forwardRef(({ className, ...props }, ref) =
 DropdownMenuSubContent.displayName =
   DropdownMenuPrimitive.SubContent.displayName
 
-const DropdownMenuContent = React.forwardRef(({ className, sideOffset = 4, ...props }, ref) => (
-  <DropdownMenuPrimitive.Portal>
-    <DropdownMenuPrimitive.Content
-      ref={ref}
-      sideOffset={sideOffset}
-      className={cn(
-        "z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
-        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
-        className
-      )}
-      {...props} />
-  </DropdownMenuPrimitive.Portal>
-))
+const DropdownMenuContent = React.forwardRef(({ className, sideOffset = 4, ...props }, ref) => {
+  const [isMobile, setIsMobile] = React.useState(false);
+  React.useEffect(() => {
+    const mql = window.matchMedia('(max-width: 767px)');
+    const set = () => setIsMobile(mql.matches);
+    set();
+    mql.addEventListener('change', set);
+    return () => mql.removeEventListener('change', set);
+  }, []);
+
+  const sheetClasses = "fixed inset-x-0 bottom-0 z-50 max-h-[70vh] w-full overflow-hidden rounded-t-2xl border bg-slate-900 p-2 text-white shadow-2xl";
+  const popoverClasses = cn(
+    "z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
+    "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2"
+  );
+
+  return (
+    <DropdownMenuPrimitive.Portal>
+      {isMobile && <div className="fixed inset-0 z-40 bg-black/50" />}
+      <DropdownMenuPrimitive.Content
+        ref={ref}
+        sideOffset={isMobile ? 0 : sideOffset}
+        className={cn(isMobile ? sheetClasses : popoverClasses, className)}
+        {...props}
+      />
+    </DropdownMenuPrimitive.Portal>
+  );
+})
 DropdownMenuContent.displayName = DropdownMenuPrimitive.Content.displayName
 
 const DropdownMenuItem = React.forwardRef(({ className, inset, ...props }, ref) => (

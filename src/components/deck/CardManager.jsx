@@ -87,36 +87,34 @@ export default function CardManager({ deckId, cards: initialCards, onUpdate }) {
     const imageUrl = e.dataTransfer.getData("application/x-image-url") || e.dataTransfer.getData("text/plain");
     
     if (imageUrl && (imageUrl.startsWith('http://') || imageUrl.startsWith('https://'))) {
-      // Internal drag - image URL from library
-      console.log(`🎯 Assigning library image to card "${card.name}"`);
-      setUploadingCardIds(prev => new Set(prev).add(card.id));
-      
-      try {
-        await queueApiCall(
-          () => CardEntity.update(card.id, { image_url: imageUrl }),
-          5,
-          2000
-        );
+    // Internal drag - image URL from library (optimistic)
+    console.log(`🎯 Assigning library image to card "${card.name}"`);
+    setUploadingCardIds(prev => new Set(prev).add(card.id));
+    const prevCards = cards;
+    const optimistic = cards.map(c => c.id === card.id ? { ...c, image_url: imageUrl } : c);
+    setCards(optimistic);
+    if (onUpdate) onUpdate(optimistic);
 
-        const updatedCards = cards.map(c => 
-          c.id === card.id ? { ...c, image_url: imageUrl } : c
-        );
-        setCards(updatedCards);
-        
-        if (onUpdate) onUpdate(updatedCards);
-        
-        console.log(`✅ Library image assigned to card "${card.name}"`);
-      } catch (error) {
-        console.error("Failed to assign image:", error);
-        alert(`Failed to assign image: ${error.message || 'Unknown error'}`);
-      } finally {
-        setUploadingCardIds(prev => {
-          const next = new Set(prev);
-          next.delete(card.id);
-          return next;
-        });
-      }
-      return;
+    try {
+      await queueApiCall(
+        () => CardEntity.update(card.id, { image_url: imageUrl }),
+        5,
+        2000
+      );
+      console.log(`✅ Library image assigned to card "${card.name}"`);
+    } catch (error) {
+      console.error("Failed to assign image:", error);
+      alert(`Failed to assign image: ${error.message || 'Unknown error'}`);
+      setCards(prevCards);
+      if (onUpdate) onUpdate(prevCards);
+    } finally {
+      setUploadingCardIds(prev => {
+        const next = new Set(prev);
+        next.delete(card.id);
+        return next;
+      });
+    }
+    return;
     }
 
     // External drag - file from desktop
@@ -133,23 +131,23 @@ export default function CardManager({ deckId, cards: initialCards, onUpdate }) {
     try {
       const fileUrl = await safeUploadFile(imageFile);
       
+      const prevCards = cards;
+      const optimistic = cards.map(c => c.id === card.id ? { ...c, image_url: fileUrl } : c);
+      setCards(optimistic);
+      if (onUpdate) onUpdate(optimistic);
+
       await queueApiCall(
         () => CardEntity.update(card.id, { image_url: fileUrl }),
         5,
         2000
       );
-
-      const updatedCards = cards.map(c => 
-        c.id === card.id ? { ...c, image_url: fileUrl } : c
-      );
-      setCards(updatedCards);
-      
-      if (onUpdate) onUpdate(updatedCards);
-      
       console.log(`✅ Dropped image on card "${card.name}"`);
     } catch (error) {
       console.error("Failed to upload and assign image:", error);
       alert(`Failed to upload image: ${error.message || 'Unknown error'}`);
+      // Revert optimistic change
+      setCards(prev => prev.map(c => c.id === card.id ? { ...c, image_url: card.image_url } : c));
+      if (onUpdate) onUpdate(cards);
     } finally {
       setUploadingCardIds(prev => {
         const next = new Set(prev);

@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import FloatingSave from "@/components/common/FloatingSave";
 import MobileBottomNav from "@/components/navigation/MobileBottomNav";
+import { motion, AnimatePresence } from "framer-motion";
 import { isUserAdmin } from "@/components/utils/adminGuard";
 import NetworkBanner from "@/components/common/NetworkBanner";
 import TokenBalanceDisplay from "@/components/pricing/TokenBalanceDisplay";
@@ -456,6 +457,11 @@ export default function Layout({ children, currentPageName }) {
             /* Global mobile UX tweaks */
             body { overscroll-behavior-y: none; }
             button, [role="button"], .lucide, .shadcn-button, .ui-button, a { user-select: none; -webkit-user-select: none; -ms-user-select: none; }
+            /* Hide scrollbars on mobile but keep scroll */
+            @media (max-width: 767px) {
+              *::-webkit-scrollbar { display: none; width: 0; height: 0; }
+              * { scrollbar-width: none; }
+            }
 
             :root {
               --background: #000000;
@@ -616,18 +622,32 @@ export default function Layout({ children, currentPageName }) {
               minHeight: '100dvh',
               paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 96px)'
             }}>
-              {adminPages.has(currentPageName) && !isAdmin ? (
-                <div className="max-w-3xl mx-auto p-6 mt-8 bg-slate-900/70 border border-purple-800/40 rounded-xl text-white">
-                  <h2 className="text-2xl font-bold mb-2">Access denied</h2>
-                  <p className="text-white/80">
-                    You don't have permission to view this area.
-                  </p>
-                </div>
-              ) : (
-                <div className="w-full">
-                  {children}
-                </div>
-              )}
+              <AnimatePresence mode="wait" initial={false}>
+                {adminPages.has(currentPageName) && !isAdmin ? (
+                  <motion.div
+                    key="denied"
+                    initial={{ x: 30, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    exit={{ x: -30, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="max-w-3xl mx-auto p-6 mt-8 bg-slate-900/70 border border-purple-800/40 rounded-xl text-white"
+                  >
+                    <h2 className="text-2xl font-bold mb-2">Access denied</h2>
+                    <p className="text-white/80">You don't have permission to view this area.</p>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key={currentPageName}
+                    initial={{ x: 30, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    exit={{ x: -30, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="w-full"
+                  >
+                    {children}
+                  </motion.div>
+                )}
+              </AnimatePresence>
               
               {!hideFloatingSaveOn.has(currentPageName) ? <FloatingSave /> : null}
             </main>
