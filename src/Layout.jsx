@@ -325,6 +325,7 @@ export default function Layout({ children, currentPageName }) {
             html, body, #root {
               background-color: var(--neon-bg) !important;
               color: var(--neon-text) !important;
+              min-height: 100dvh;
             }
 
             .text-white { color: var(--neon-text) !important; }
@@ -605,8 +606,8 @@ export default function Layout({ children, currentPageName }) {
             <main className="flex-1 w-full" style={{ 
               overflowY: 'auto', 
               WebkitOverflowScrolling: 'touch',
-              minHeight: '100vh',
-              paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 80px)'
+              minHeight: '100dvh',
+              paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 96px)'
             }}>
               {adminPages.has(currentPageName) && !isAdmin ? (
                 <div className="max-w-3xl mx-auto p-6 mt-8 bg-slate-900/70 border border-purple-800/40 rounded-xl text-white">
