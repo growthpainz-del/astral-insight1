@@ -154,7 +154,7 @@ export default function DeckSettings({ deckId, isOpen, onClose, onSaved, initial
         manual_url: deck.manual_url || "",
         is_public: !!basicPublic,
         is_premium: !!deck.is_premium,
-        is_nsfw: !!deck.is_nsfw,
+
         auto_remove_bg: !!deck.auto_remove_bg,
         ai_reading_coach: deck.ai_reading_coach || "",
       };
