@@ -907,7 +907,8 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
                    }) : c));
                  }}
                />
-            </div>
+               <BottomCardShelf cards={bottomCards} onCardClick={handleCardClick} />
+               </div>
 
             {/* Session Notes - Quick Input */}
             <div className="bg-gradient-to-br from-purple-900/20 to-blue-900/20 border border-purple-500/30 rounded-xl p-6">
