@@ -362,6 +362,7 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
     setTimeout(() => {
       console.log('✅ Setting drawn cards:', drawn.length);
       setDrawnCards(drawn);
+      setPlacedCards(new Array(drawn.length).fill(null));
       setRevealedCards(new Set()); // Reset revealed cards
       setIsDrawing(false);
     }, 3000);
