@@ -30,27 +30,12 @@ export default function HomePage() {
             {/* Fallback image (if video unsupported) */}
             <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d2a300021f94d0f312c039/47c4e8b48_IMG_6739.png" alt="Astral Insight logo" className="mx-auto h-16 w-16 mb-4 object-contain" />
           </video>
-          <h1 className="relative inline-block text-5xl md:text-6xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-300 via-white to-amber-300 mb-3">
-            <span>Astral </span>
-            <span>
-              Ins
-              <span className="relative inline-block">
-                i
-                <span className="twinkle-dot absolute -top-3 left-1/2 w-2 h-2 rounded-full bg-amber-300"></span>
-              </span>
-              ght
-            </span>
+          <h1 className="text-5xl md:text-6xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-300 via-white to-amber-300 mb-3">
+            Astral Insight
           </h1>
           <p className="text-lg md:text-xl text-purple-200">
             Your mystical journey awaits
           </p>
-          <style>{`
-            @keyframes twinkleDot {
-              0%, 100% { transform: translateX(-50%) scale(0.75); opacity: 0.6; filter: drop-shadow(0 0 2px rgba(255, 210, 120, 0.6)); }
-              50% { transform: translateX(-50%) scale(1.25); opacity: 1; filter: drop-shadow(0 0 6px rgba(255, 210, 120, 1)) drop-shadow(0 0 12px rgba(255, 210, 120, 0.8)); }
-            }
-            .twinkle-dot { animation: twinkleDot 1.8s ease-in-out infinite; }
-          `}</style>
         </motion.div>
 
         <div className="grid md:grid-cols-2 gap-6 md:gap-8">
