@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import ManualGuide from "../components/help/ManualGuide";
 import ImportJsonGuide from "../components/help/ImportJsonGuide";
+import SampleJsonDownload from "../components/help/SampleJsonDownload";
 import DeckBuildingGuide from "@/components/help/DeckBuildingGuide";
 
 export default function Help() {
@@ -117,6 +118,7 @@ export default function Help() {
           </TabsContent>
 
           <TabsContent value="import-json" className="mt-8">
+            <SampleJsonDownload />
             <ImportJsonGuide />
           </TabsContent>
         </Tabs>

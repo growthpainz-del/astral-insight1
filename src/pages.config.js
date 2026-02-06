@@ -48,6 +48,7 @@
  * The mainPage value must match a key in the PAGES object exactly.
  */
 import AIWorkspace from './pages/AIWorkspace';
+import Account from './pages/Account';
 import AdminDeckReview from './pages/AdminDeckReview';
 import AdminTokenGrant from './pages/AdminTokenGrant';
 import AdminUsers from './pages/AdminUsers';
@@ -90,12 +91,12 @@ import UserProfile from './pages/UserProfile';
 import WebhookTester from './pages/WebhookTester';
 import WiccanSeeder from './pages/WiccanSeeder';
 import ZodiacReading from './pages/ZodiacReading';
-import Account from './pages/Account';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "AIWorkspace": AIWorkspace,
+    "Account": Account,
     "AdminDeckReview": AdminDeckReview,
     "AdminTokenGrant": AdminTokenGrant,
     "AdminUsers": AdminUsers,
@@ -138,7 +139,6 @@ export const PAGES = {
     "WebhookTester": WebhookTester,
     "WiccanSeeder": WiccanSeeder,
     "ZodiacReading": ZodiacReading,
-    "Account": Account,
 }
 
 export const pagesConfig = {
