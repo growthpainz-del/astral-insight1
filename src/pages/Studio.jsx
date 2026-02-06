@@ -346,5 +346,6 @@ export default function Studio() {
         </div>
       </div>
     </div>
+    </PullToRefresh>
   );
 }
