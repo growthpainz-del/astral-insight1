@@ -197,7 +197,7 @@ export default function Studio() {
 
   return (
     <PullToRefresh onRefresh={loadData}>
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-black text-white">
+      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-black text-white">
       {/* Hero Section */}
       <div className="relative bg-gradient-to-br from-purple-900/40 to-pink-900/40 border-b border-purple-800/40 p-8 md:p-12 mb-8">
         <div className="max-w-7xl mx-auto">
