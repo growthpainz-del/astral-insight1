@@ -609,8 +609,9 @@ export default function ReadingRoom() {
         .scrollbar-hide {
           -ms-overflow-style: none;
           scrollbar-width: none;
-        }
-      `}</style>
-    </div>
-  );
-}
+          }
+          `}</style>
+          </div>
+          </PullToRefresh>
+          );
+          }

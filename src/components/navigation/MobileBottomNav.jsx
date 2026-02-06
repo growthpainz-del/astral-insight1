@@ -65,13 +65,19 @@ export default function MobileBottomNav() {
   return (
     <nav className="md:hidden fixed inset-x-0 bottom-0 z-50">
       <div className="backdrop-blur-lg bg-black/70 border-t border-white/10 flex items-stretch justify-around pb-[calc(env(safe-area-inset-bottom,0px)+8px)] pt-2">
-        {items.map(({ to, label, icon: Icon }) => {
-          const active = location.pathname === new URL(to, window.location.origin).pathname;
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          const active = activeTab === tab.key;
           return (
-            <Link key={to} to={to} className="flex flex-col items-center gap-1 px-3 py-1 text-xs" preventScrollReset={true}>
+            <button
+              key={tab.key}
+              onClick={() => handleTabClick(tab)}
+              className="flex flex-col items-center gap-1 px-3 py-1 text-xs"
+              aria-label={tab.label}
+            >
               <Icon className={`w-5 h-5 ${active ? 'text-purple-400' : 'text-white/70'}`} />
-              <span className={`${active ? 'text-purple-300' : 'text-white/60'}`}>{label}</span>
-            </Link>
+              <span className={`${active ? 'text-purple-300' : 'text-white/60'}`}>{tab.label}</span>
+            </button>
           );
         })}
       </div>
