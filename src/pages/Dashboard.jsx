@@ -37,9 +37,6 @@ function DeckCard({ deck, isOwned = false }) {
           {deck.is_premium && (
             <div className="bg-amber-500 text-xs font-bold px-2 py-1 rounded">PREMIUM</div>
           )}
-          {deck.is_nsfw && (
-            <div className="bg-red-500 text-xs font-bold px-2 py-1 rounded mt-1">NSFW</div>
-          )}
         </div>
 
         <div className="absolute top-2 right-2 flex flex-col gap-2 opacity-0 group-hover:opacity-100 md:opacity-100 transition-opacity">
@@ -124,14 +121,13 @@ export default function Dashboard() {
   const [publicDecks, setPublicDecks] = useState([]);
   const [myDecks, setMyDecks] = useState([]);
   const [draftDecks, setDraftDecks] = useState([]);
-  const [nsfwDecks, setNsfwDecks] = useState([]);
+  
   const [recentReadings, setRecentReadings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState(undefined); // Start as undefined to distinguish from null (no user)
   const [error, setError] = useState("");
   const [isRetrying, setIsRetrying] = useState(false);
-  const [showNsfwContent, setShowNsfwContent] = useState(false);
-  const [ageVerified, setAgeVerified] = useState(false);
+
 
   // Load user on mount
   useEffect(() => {
@@ -202,8 +198,7 @@ export default function Dashboard() {
         
         const publicDecksList = safeDecks.filter(d => 
           d?.is_public && 
-          d?.publish_status === "published" && 
-          !d?.is_nsfw
+          d?.publish_status === "published"
         );
         
         // FIXED: Show ALL user's decks that aren't drafts
@@ -211,7 +206,6 @@ export default function Dashboard() {
           ? safeDecks.filter(d => 
               d?.created_by && 
               d.created_by.toLowerCase() === currentUser.email?.toLowerCase() &&
-              !d.is_nsfw &&
               // Exclude only actual draft statuses
               d.publish_status !== "draft" && 
               d.publish_status !== "pending_review"
@@ -227,21 +221,14 @@ export default function Dashboard() {
             )
           : [];
 
-        const nsfwDecksList = currentUser
-          ? safeDecks.filter(d => 
-              d?.is_nsfw && (
-                (d.is_public && d.publish_status === "published") ||
-                (d.created_by && d.created_by.toLowerCase() === currentUser.email?.toLowerCase())
-              )
-            )
-          : safeDecks.filter(d => d?.is_nsfw && d?.is_public && d?.publish_status === "published");
+
 
         if (cancelled) return; // Check again before setting state
 
         setPublicDecks(publicDecksList);
         setMyDecks(myDecksList);
         setDraftDecks(draftDecksList);
-        setNsfwDecks(nsfwDecksList);
+
         setRecentReadings(Array.isArray(readings) ? readings : []);
         
         console.log('✅ Dashboard loaded successfully');
@@ -303,12 +290,7 @@ export default function Dashboard() {
     return deck.created_by.toLowerCase() === currentUser.email?.toLowerCase();
   };
 
-  const handleAgeVerification = () => {
-    if (confirm("⚠️ This section contains adult content (18+). Are you 18 years or older?")) {
-      setAgeVerified(true);
-      setShowNsfwContent(true);
-    }
-  };
+
 
   if (loading && !error) {
     return (
@@ -592,7 +574,7 @@ export default function Dashboard() {
               <ReadingCard
                 key={reading.id}
                 reading={reading}
-                deck={publicDecks.find(d => d.id === reading.deck_id) || myDecks.find(d => d.id === reading.deck_id) || nsfwDecks.find(d => d.id === reading.deck_id)}
+                deck={publicDecks.find(d => d.id === reading.deck_id) || myDecks.find(d => d.id === reading.deck_id)}
               />
             ))}
           </div>

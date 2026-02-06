@@ -218,8 +218,7 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
   
   // NEW: Card reveal states
   const [revealedCards, setRevealedCards] = useState(new Set());
-  const [ageVerified, setAgeVerified] = useState(false);
-  const [showAgeGate, setShowAgeGate] = useState(false);
+
 
   // Deck picker state when no deck is selected
   const [pickerDecks, setPickerDecks] = useState({ publicDecks: [], myDecks: [] });
@@ -271,15 +270,7 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
         setCards(deckCards || []);
         setError("");
         
-        // Check if age verification needed
-        if (loadedDeck?.is_nsfw) {
-          const verified = sessionStorage.getItem(`age_verified_${loadedDeck.id}`);
-          if (!verified) {
-            setShowAgeGate(true);
-          } else {
-            setAgeVerified(true);
-          }
-        }
+
         
       } catch (err) {
         if (cancelled) return;
@@ -465,37 +456,7 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
     );
   }
 
-  // Age gate modal
-  if (showAgeGate && deck?.is_nsfw) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-950 to-purple-950 flex items-center justify-center p-6">
-        <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-8 max-w-md text-center">
-          <div className="text-6xl mb-6">🔞</div>
-          <h2 className="text-2xl font-bold text-white mb-4">Age Verification Required</h2>
-          <p className="text-purple-200 mb-6">
-            This deck contains mature content. You must be 19 years or older to proceed.
-          </p>
-          <div className="space-y-3">
-            <Button
-              onClick={() => {
-                sessionStorage.setItem(`age_verified_${deck.id}`, 'true');
-                setAgeVerified(true);
-                setShowAgeGate(false);
-              }}
-              className="w-full bg-purple-600 hover:bg-purple-700 py-3"
-            >
-              I am 19 or older
-            </Button>
-            <Link to={createPageUrl("Dashboard")}>
-              <Button variant="outline" className="w-full border-white/20 text-white hover:bg-white/10">
-                Go Back
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
+
 
   // If no deck chosen, show an in-page deck picker
   if (!deckIdFromUrl) {
