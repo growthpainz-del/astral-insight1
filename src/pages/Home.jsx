@@ -15,7 +15,21 @@ export default function HomePage() {
           transition={{ duration: 0.7 }}
           className="text-center mb-12"
         >
-          <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d2a300021f94d0f312c039/47c4e8b48_IMG_6739.png" alt="Astral Insight logo" className="mx-auto h-16 w-16 mb-4 object-contain drop-shadow-[0_0_12px_rgba(255,255,255,0.35)]" />
+          <video
+            className="mx-auto h-16 w-16 mb-4 object-contain drop-shadow-[0_0_12px_rgba(255,255,255,0.35)]"
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="auto"
+            poster="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d2a300021f94d0f312c039/47c4e8b48_IMG_6739.png"
+            aria-label="Astral Insight animated logo"
+          >
+            <source src="https://dl.dropboxusercontent.com/scl/fi/h3t6mdcza7yn2y23n6y6a/logo-animation.MP4?rlkey=okjbnwqvrpzr0xc1msdwst1dn&st=soyvo4ws" type="video/mp4" />
+            <source src="https://www.dropbox.com/scl/fi/h3t6mdcza7yn2y23n6y6a/logo-animation.MP4?rlkey=okjbnwqvrpzr0xc1msdwst1dn&st=soyvo4ws&dl=1" type="video/mp4" />
+            {/* Fallback image (if video unsupported) */}
+            <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d2a300021f94d0f312c039/47c4e8b48_IMG_6739.png" alt="Astral Insight logo" className="mx-auto h-16 w-16 mb-4 object-contain" />
+          </video>
           <h1 className="relative inline-block text-5xl md:text-6xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-300 via-white to-amber-300 mb-3">
             <span>Astral </span>
             <span>
