@@ -237,7 +237,7 @@ Remember: Weave the wisdom of both decks together seamlessly for a unique, balan
 
   if (availableDecks.length < 2) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-950/20 via-blue-950/20 to-indigo-950/20 p-4 md:p-8">
+      <div className="min-h-screen bg-gradient-to-br from-purple-950/20 via-blue-950/20 to-indigo-950/20 p-4 md:p-8 overflow-y-auto pb-28" style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
         <div className="max-w-2xl mx-auto">
           <div className="flex items-center gap-4 mb-8">
             <Button
