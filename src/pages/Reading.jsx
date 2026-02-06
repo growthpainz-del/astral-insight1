@@ -806,6 +806,12 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
                    Your Reading
                  </h2>
                  <div className="flex gap-2 flex-wrap justify-end">
+                    {/* Show count of placed vs required in 3-card mode */}
+                    {isThreeCardMode && (
+                      <div className="text-sm text-purple-200/80 self-center mr-2">
+                        {placedCards.filter(Boolean).length}/{readingPositions.length} placed
+                      </div>
+                    )}
                    <ToggleGroup type="single" value={viewMode} onValueChange={(v) => v && setViewMode(v)} className="rounded-md border border-white/10">
                      <ToggleGroupItem value="compact" className={`${viewMode==='compact' ? 'bg-cyan-500/20 text-cyan-200' : 'text-white/80'} px-3 py-1`}>Compact</ToggleGroupItem>
                      <ToggleGroupItem value="detailed" className={`${viewMode==='detailed' ? 'bg-purple-500/20 text-purple-200' : 'text-white/80'} px-3 py-1`}>Detailed</ToggleGroupItem>
