@@ -8,15 +8,36 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 // MAPPED TO YOUR GUMROAD PRODUCTS
 const PRODUCT_TOKEN_MAP = {
   // Subscriptions (monthly grants)
-  'mystic-tier': { tokens: 50, tier: 'mystic' },           // Mystic Tier - $4.99/month
-  'oracle-pro': { tokens: 150, tier: 'oracle_pro' },       // Oracle Pro - $12.99/month
-  'creator-studio': { tokens: 400, tier: 'creator' },      // Creator Studio - $24.99/month
-  
+  'mystic-tier': { tokens: 75, tier: 'mystic' },          // Mystic Tier - $4.99/month
+  'oracle-pro': { tokens: 200, tier: 'oracle_pro' },      // Oracle Pro - $12.99/month
+  'creator-studio': { tokens: 400, tier: 'creator' },     // Creator Studio - $24.99/month
+
+  // Also accept Gumroad product IDs for monthly
+  'ghsad': { tokens: 75, tier: 'mystic' },                // Mystic Tier
+  'ibcai': { tokens: 200, tier: 'oracle_pro' },           // Oracle Pro
+  'wxnje': { tokens: 400, tier: 'creator' },              // Creator Studio
+
+  // Annual subscriptions (yearly grants)
+  'mystic-annual': { tokens: 900, tier: 'mystic' },       // Mystic Annual - $49.99/year
+  'oracle-pro-annual': { tokens: 2400, tier: 'oracle_pro' }, // Oracle Pro Annual - $129.99/year
+  'creator-studio-annual': { tokens: 4800, tier: 'creator' }, // Creator Studio Annual - $249.99/year
+
+  // Also accept Gumroad product IDs for annual
+  'oqhwdb': { tokens: 900, tier: 'mystic' },
+  'mduxei': { tokens: 2400, tier: 'oracle_pro' },
+  'rvlgnl': { tokens: 4800, tier: 'creator' },
+
   // One-time token packages
-  'tokens-20': { tokens: 20, tier: null },    // 20 Tokens - $1.99
-  'tokens-50': { tokens: 50, tier: null },    // 50 Tokens - $3.99
-  'tokens-100': { tokens: 100, tier: null },  // 100 Tokens - $6.99
-  'tokens-200': { tokens: 200, tier: null },  // 200 Tokens - $12.99
+  'tokens-20': { tokens: 20, tier: null },     // 20 Tokens - $1.99
+  'tokens-50': { tokens: 50, tier: null },     // 50 Tokens - $3.99
+  'tokens-100': { tokens: 100, tier: null },   // 100 Tokens - $6.99
+  'tokens-200': { tokens: 200, tier: null },   // 200 Tokens - $12.99
+
+  // Also accept Gumroad product IDs for packs
+  'jcxfui': { tokens: 20, tier: null },        // 20 Tokens
+  'bhzra': { tokens: 50, tier: null },         // 50 Tokens
+  'harwmx': { tokens: 100, tier: null },       // 100 Tokens
+  'ndqug': { tokens: 200, tier: null },        // 200 Tokens
 };
 
 function verifyGumroadSignature(body, signature, secret) {
