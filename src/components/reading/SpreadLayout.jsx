@@ -927,15 +927,29 @@ export default function SpreadLayout(props) {
               >
                 {/* Position marker */}
                 {showPositionLabels && showPositions && !card && (
-                  <div className="absolute inset-0 rounded-lg border-2 border-dashed border-purple-500/40 bg-purple-900/10 flex items-center justify-center backdrop-blur-sm">
-                    <div className="text-center p-2">
-                      <div className="text-purple-300 font-semibold text-sm mb-1">{pos.name}</div>
-                      {pos.meaning && (
-                        <div className="text-purple-400 text-xs opacity-70">{pos.meaning}</div>
-                      )}
+                    <div
+                      className="absolute inset-0 rounded-lg border-2 border-dashed border-purple-500/40 bg-purple-900/10 flex items-center justify-center backdrop-blur-sm"
+                      onDragOver={(e) => { if (enableExternalDrops) { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; } }}
+                      onDrop={(e) => {
+                        if (!enableExternalDrops) return;
+                        e.preventDefault();
+                        try {
+                          const data = e.dataTransfer.getData('application/json');
+                          const payload = JSON.parse(data);
+                          if (payload && payload.source === 'bottom-shelf' && typeof payload.cardIndex === 'number') {
+                            onExternalDrop({ targetIndex: idx, source: 'bottom-shelf', cardIndex: payload.cardIndex });
+                          }
+                        } catch (err) { console.error('Drop parse error:', err); }
+                      }}
+                    >
+                      <div className="text-center p-2">
+                        <div className="text-purple-300 font-semibold text-sm mb-1">{pos.name}</div>
+                        {pos.meaning && (
+                          <div className="text-purple-400 text-xs opacity-70">{pos.meaning}</div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
                 {/* Card */}
                 <AnimatePresence>
