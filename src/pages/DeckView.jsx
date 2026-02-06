@@ -188,7 +188,7 @@ export default function DeckView() {
           back_image_url: deck.back_image_url,
           is_public: deck.is_public,
           is_premium: deck.is_premium,
-          is_nsfw: deck.is_nsfw,
+
           ai_reading_coach: deck.ai_reading_coach,
           manual_url: deck.manual_url,
           manual_content: deck.manual_content,

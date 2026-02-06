@@ -233,7 +233,7 @@ export default function Dashboard() {
         
         console.log('✅ Dashboard loaded successfully');
         console.log(`Total decks loaded: ${safeDecks.length}`);
-        console.log(`Displayed: ${publicDecksList.length} public, ${myDecksList.length} my decks, ${draftDecksList.length} drafts, ${nsfwDecksList.length} nsfw`);
+        console.log(`Displayed: ${publicDecksList.length} public, ${myDecksList.length} my decks, ${draftDecksList.length} drafts`);
         
       } catch (error) {
         if (cancelled) return; // Don't update state if component unmounted or load was cancelled
@@ -258,7 +258,7 @@ export default function Dashboard() {
         setPublicDecks([]);
         setMyDecks([]);
         setDraftDecks([]);
-        setNsfwDecks([]);
+
         setRecentReadings([]);
       } finally {
         if (!cancelled) {
@@ -501,61 +501,6 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* NSFW Decks Section */}
-      {nsfwDecks.length > 0 && (
-        <div className="px-8 mb-12">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold flex items-center gap-2">
-              🔞 Adult Content (18+)
-            </h2>
-            {!showNsfwContent && (
-              <Button 
-                onClick={handleAgeVerification}
-                className="bg-red-600 hover:bg-red-700 text-white"
-              >
-                View ({nsfwDecks.length})
-              </Button>
-            )}
-          </div>
-          
-          {!showNsfwContent ? (
-            <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-8 text-center">
-              <div className="text-6xl mb-4">🔞</div>
-              <h3 className="text-xl font-bold mb-2">Age Restricted Content</h3>
-              <p className="text-white/70 mb-4">
-                This section contains {nsfwDecks.length} adult-oriented deck{nsfwDecks.length !== 1 ? 's' : ''}. 
-                You must be 18 years or older to view this content.
-              </p>
-              <Button 
-                onClick={handleAgeVerification}
-                className="bg-red-600 hover:bg-red-700 text-white"
-              >
-                I am 18 or older - Show Content
-              </Button>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <div className="bg-amber-900/20 border border-amber-500/30 rounded-lg p-3 text-sm text-amber-200 flex items-center gap-2">
-                <span>⚠️</span>
-                <span>This section contains adult content. Viewer discretion is advised.</span>
-                <Button
-                  onClick={() => setShowNsfwContent(false)}
-                  variant="ghost"
-                  size="sm"
-                  className="ml-auto text-amber-300 hover:text-amber-200"
-                >
-                  Hide
-                </Button>
-              </div>
-              <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide pan-2d">
-                {nsfwDecks.map(deck => (
-                  <DeckCard key={deck.id} deck={deck} isOwned={isOwnedByUser(deck)} />
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
 
       {/* Recent Readings */}
       {recentReadings.length > 0 && (
