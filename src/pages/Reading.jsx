@@ -948,6 +948,9 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
               onClose={() => setShowAI(false)}
             />
 
+            {/* Bottom shelf of available cards for drag-and-drop */}
+            <BottomCardShelf cards={bottomCards} onCardClick={handleCardClick} />
+
             {/* Card Relationships Section */}
             {(placedCards.filter(Boolean).length >= 2 || drawnCards.length >= 2) && (
               <div className="bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 p-4 md:p-6">
