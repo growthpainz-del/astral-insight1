@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { queueApiCall } from "@/components/utils/apiQueue";
 import { motion, AnimatePresence } from "framer-motion";
+import PullToRefresh from "@/components/common/PullToRefresh";
 import { Label } from "@/components/ui/label";
 
 function DeckCard({ deck, isOwned = false }) {
@@ -442,6 +443,7 @@ export default function ReadingRoom() {
   const showAllOfficial = searchParams.get('all') === '1';
 
   return (
+    <PullToRefresh onRefresh={loadData}>
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-black text-white">
       {/* Crystal Ball Reading Modal */}
       {showCrystalBall && (

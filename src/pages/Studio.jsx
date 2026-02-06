@@ -19,6 +19,7 @@ import { User } from "@/entities/User";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { queueApiCall } from "@/components/utils/apiQueue";
+import PullToRefresh from "@/components/common/PullToRefresh";
 
 function DeckCard({ deck }) {
   const getStatusColor = () => {
@@ -195,6 +196,7 @@ export default function Studio() {
   const totalDecks = publishedDecks.length + draftDecks.length;
 
   return (
+    <PullToRefresh onRefresh={loadData}>
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-black text-white">
       {/* Hero Section */}
       <div className="relative bg-gradient-to-br from-purple-900/40 to-pink-900/40 border-b border-purple-800/40 p-8 md:p-12 mb-8">

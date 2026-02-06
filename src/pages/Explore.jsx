@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -16,6 +15,7 @@ import {
   TrendingUp
 } from "lucide-react";
 import { motion } from "framer-motion";
+import PullToRefresh from "@/components/common/PullToRefresh";
 
 export default function ExplorePage() {
   const [creators, setCreators] = useState([]);
@@ -106,6 +106,7 @@ export default function ExplorePage() {
   }
 
   return (
+    <PullToRefresh onRefresh={loadCreators}>
     <div className="min-h-screen p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
@@ -278,5 +279,6 @@ export default function ExplorePage() {
         )}
       </div>
     </div>
+    </PullToRefresh>
   );
 }
