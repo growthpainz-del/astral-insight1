@@ -444,7 +444,7 @@ export default function ReadingRoom() {
 
   return (
     <PullToRefresh onRefresh={loadData}>
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-black text-white">
+      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-black text-white">
       {/* Crystal Ball Reading Modal */}
       {showCrystalBall && (
         <CrystalBallReading 
