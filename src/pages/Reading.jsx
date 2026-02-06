@@ -32,7 +32,7 @@ import CardRelationshipVisualizer from "@/components/deck/CardRelationshipVisual
 import { Badge } from "@/components/ui/badge";
 import ReadingSessionManager from "@/components/reading/ReadingSessionManager";
 import EnhancedCardViewer from "@/components/reading/EnhancedCardViewer";
-import BottomCardShelf from "@/components/reading/BottomCardShelf";
+
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 // Built-in spreads with proper position structure for SpreadLayout
@@ -105,7 +105,7 @@ export default function ReadingPage() {
   // Cards assigned to spread positions (index-aligned with readingPositions)
   const [placedCards, setPlacedCards] = useState([]);
   // Derived: cards still available to place
-  const bottomCards = drawnCards;
+  // (shelf disabled)
   const [selectedCard, setSelectedCard] = useState(null);
   const [showAI, setShowAI] = useState(false);
   
@@ -291,7 +291,6 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
   }, [deckIdFromUrl]);
 
   const selectedSpread = allSpreads.find(s => s.id === selectedSpreadId) || BUILT_IN_SPREADS[1];
-  const isThreeCardMode = (selectedSpread?.positions?.length === 3);
 
   // Keep local editable positions in sync with the selected spread
   useEffect(() => {
@@ -316,28 +315,7 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
 
     const positionsCount = selectedSpread.positions.length;
 
-    // For 3-card spreads: load the FULL shuffled deck into the bottom shelf;
-    // user will drag any 3 to the mat.
-    if (positionsCount === 3) {
-      const drawnAll = shuffled.map((card) => ({
-        ...card,
-        card_id: card.id,
-        isReversed: deck?.category === 'tarot' && Math.random() > 0.5,
-      }));
 
-      console.log('🎴 3-card mode: full deck available on shelf', {
-        available: drawnAll.length,
-        positions: positionsCount,
-      });
-
-      setTimeout(() => {
-        setDrawnCards(drawnAll);
-        setPlacedCards(new Array(positionsCount).fill(null));
-        setRevealedCards(new Set());
-        setIsDrawing(false);
-      }, 3000);
-      return;
-    }
 
     // Default (other spreads): draw exactly as many as positions
     const drawn = selectedSpread.positions.map((position, idx) => {
@@ -381,7 +359,7 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
     setTimeout(() => {
       console.log('✅ Setting drawn cards:', drawn.length);
       setDrawnCards(drawn);
-      setPlacedCards(new Array(drawn.length).fill(null));
+      setPlacedCards(drawn);
       setRevealedCards(new Set());
       setIsDrawing(false);
     }, 3000);
@@ -801,20 +779,11 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
           <div className="space-y-6">
             {/* Enhanced Spread Visualization */}
              <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-               {isThreeCardMode && (
-                 <div className="mb-3 text-purple-200/80 text-sm">Drag any 3 cards from the shelf onto the mat positions.</div>
-               )}
                <div className="flex items-center justify-between mb-6">
                  <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400">
                    Your Reading
                  </h2>
                  <div className="flex gap-2 flex-wrap justify-end">
-                    {/* Show count of placed vs required in 3-card mode */}
-                    {isThreeCardMode && (
-                      <div className="text-sm text-purple-200/80 self-center mr-2">
-                        {placedCards.filter(Boolean).length}/{readingPositions.length} placed
-                      </div>
-                    )}
                    <ToggleGroup type="single" value={viewMode} onValueChange={(v) => v && setViewMode(v)} className="rounded-md border border-white/10">
                      <ToggleGroupItem value="compact" className={`${viewMode==='compact' ? 'bg-cyan-500/20 text-cyan-200' : 'text-white/80'} px-3 py-1`}>Compact</ToggleGroupItem>
                      <ToggleGroupItem value="detailed" className={`${viewMode==='detailed' ? 'bg-purple-500/20 text-purple-200' : 'text-white/80'} px-3 py-1`}>Detailed</ToggleGroupItem>
@@ -903,25 +872,7 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
                  viewMode={viewMode}
                  sizeScale={0.8}
                  allowReposition={false}
-                 enableExternalDrops
-                 onExternalDrop={({ targetIndex, cardIndex }) => {
-                   // Place the dragged bottom-shelf card into the specific spread position
-                   setPlacedCards((prev) => {
-                     const next = [...prev];
-                     const pos = readingPositions[targetIndex] || {};
-                     const base = bottomCards[cardIndex];
-                     next[targetIndex] = base ? {
-                       ...base,
-                       position: pos.name || base.position,
-                       position_meaning: typeof pos.meaning === 'string' ? pos.meaning : base.position_meaning,
-                       position_x: typeof pos.x === 'number' ? pos.x : base.position_x,
-                       position_y: typeof pos.y === 'number' ? pos.y : base.position_y,
-                       position_rotation: typeof pos.rotation === 'number' ? pos.rotation : (base.position_rotation || 0),
-                     } : base;
-                     return next;
-                   });
-                   setDrawnCards((prev) => prev.filter((_, i) => i !== cardIndex));
-                 }}
+
                  onPositionUpdate={(updated) => {
                    setReadingPositions(updated);
                    setPlacedCards(prev => prev.map((c, idx) => c ? ({
@@ -934,7 +885,7 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
                    }) : c));
                  }}
                />
-               <BottomCardShelf cards={bottomCards} onCardClick={handleCardClick} />
+
                </div>
 
             {/* Session Notes - Quick Input */}
@@ -978,7 +929,7 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
             {/* AI Reading Section */}
             <AIReading
               isOpen={showAI}
-              drawnCards={(isThreeCardMode ? placedCards : (placedCards.some(Boolean) ? placedCards : drawnCards)).filter(Boolean)}
+              drawnCards={(placedCards.some(Boolean) ? placedCards : drawnCards).filter(Boolean)}
               deck={deck}
               spread={selectedSpread}
               question={question}
@@ -1000,8 +951,8 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
                 
                 <CardRelationshipVisualizer
                   deckId={deck.id}
-                  cards={(isThreeCardMode ? placedCards : (placedCards.some(Boolean) ? placedCards : drawnCards)).filter(Boolean)}
-                  selectedCards={(isThreeCardMode ? placedCards : (placedCards.some(Boolean) ? placedCards : drawnCards)).filter(Boolean)}
+                  cards={(placedCards.some(Boolean) ? placedCards : drawnCards).filter(Boolean)}
+                  selectedCards={(placedCards.some(Boolean) ? placedCards : drawnCards).filter(Boolean)}
                 />
               </div>
             )}
@@ -1055,26 +1006,8 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
                useScratchReveal={(deck?.censor_mode === 'scratch') || deck?.name?.toLowerCase().includes('wiccan')}
                animateSpread={true}
                allowReposition={true}
-               enableExternalDrops
                defaultCardWidth={90}
                containerMinH="70vh"
-               onExternalDrop={({ targetIndex, cardIndex }) => {
-                 setPlacedCards((prev) => {
-                   const next = [...prev];
-                   const pos = readingPositions[targetIndex] || {};
-                   const base = bottomCards[cardIndex];
-                   next[targetIndex] = base ? {
-                     ...base,
-                     position: pos.name || base.position,
-                     position_meaning: typeof pos.meaning === 'string' ? pos.meaning : base.position_meaning,
-                     position_x: typeof pos.x === 'number' ? pos.x : base.position_x,
-                     position_y: typeof pos.y === 'number' ? pos.y : base.position_y,
-                     position_rotation: typeof pos.rotation === 'number' ? pos.rotation : (base.position_rotation || 0),
-                   } : base;
-                   return next;
-                 });
-                 setDrawnCards((prev) => prev.filter((_, i) => i !== cardIndex));
-               }}
                onPositionUpdate={(updated) => {
                  setReadingPositions(updated);
                  setPlacedCards(prev => prev.map((c, idx) => c ? ({
