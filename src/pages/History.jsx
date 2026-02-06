@@ -24,6 +24,15 @@ import { format } from "date-fns";
 import EnhancedCardViewer from "@/components/reading/EnhancedCardViewer";
 
 export default function HistoryPage() {
+  // Pull-to-refresh (mobile)
+  const containerRef = React.useRef(null);
+  const [pull, setPull] = React.useState(0);
+  const [refreshing, setRefreshing] = React.useState(false);
+  const startYRef = React.useRef(0);
+  const atTop = () => (window.scrollY === 0) || ((containerRef.current && containerRef.current.scrollTop === 0));
+  const onTouchStart = (e) => { if (!atTop()) return; startYRef.current = e.touches[0].clientY; setPull(0); };
+  const onTouchMove = (e) => { if (!atTop()) return; const dy = e.touches[0].clientY - startYRef.current; if (dy>0) { e.preventDefault(); setPull(Math.min(120, dy)); } };
+  const onTouchEnd = () => { if (pull>80 && !refreshing) { setRefreshing(true); window.location.reload(); } setPull(0); }
   const [readings, setReadings] = useState([]);
   const [filteredReadings, setFilteredReadings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -211,8 +220,12 @@ export default function HistoryPage() {
   }
 
   return (
-    <div className="min-h-screen p-6">
+    <div ref={containerRef} onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd} className="min-h-screen p-6">
       <div className="max-w-7xl mx-auto space-y-6">
+        {/* Pull-to-refresh indicator */}
+        <div style={{height: pull, transition: pull===0 ? 'height .2s ease' : 'none'}} className="flex items-center justify-center text-white/70">
+          {pull>0 && (refreshing ? 'Refreshing…' : 'Pull to refresh')}
+        </div>
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">

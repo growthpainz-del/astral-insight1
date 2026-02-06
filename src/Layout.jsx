@@ -32,6 +32,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import FloatingSave from "@/components/common/FloatingSave";
+import MobileBottomNav from "@/components/navigation/MobileBottomNav";
 import { isUserAdmin } from "@/components/utils/adminGuard";
 import NetworkBanner from "@/components/common/NetworkBanner";
 import TokenBalanceDisplay from "@/components/pricing/TokenBalanceDisplay";
@@ -224,6 +225,7 @@ export default function Layout({ children, currentPageName }) {
   const moreLinks = [
     { href: "Help", icon: HelpCircle, label: "Help & Guides" },
     { href: "SubscriptionManagement", icon: Coins, label: "Subscription" },
+    { href: "Account", icon: Users, label: "Account" },
     // AI Workspace is admin-only; we'll filter it from non-admin view below
     { href: "AIWorkspace", icon: Sparkles, label: "🤖 AI Workspace" },
   ];
@@ -451,6 +453,10 @@ export default function Layout({ children, currentPageName }) {
               border-color: var(--neon-edge-30) !important;
             }
 
+            /* Global mobile UX tweaks */
+            body { overscroll-behavior-y: none; }
+            button, [role="button"], .lucide, .shadcn-button, .ui-button, a { user-select: none; -webkit-user-select: none; -ms-user-select: none; }
+
             :root {
               --background: #000000;
               --foreground: var(--neon-text);
@@ -474,6 +480,7 @@ export default function Layout({ children, currentPageName }) {
         </style>
 
         <div className="flex flex-1 bg-transparent">
+          {/* Sidebar hidden on mobile; bottom nav used instead */}
           <aside
             className={`bg-slate-900/80 backdrop-blur-lg border-r border-purple-800/40 w-64 flex flex-col overflow-hidden fixed inset-y-0 left-0 z-50 transform ${
               isSidebarOpen ? "translate-x-0" : "-translate-x-full"
@@ -626,6 +633,9 @@ export default function Layout({ children, currentPageName }) {
             </main>
           </div>
         </div>
+        
+        {/* Mobile Bottom Navigation */}
+        <MobileBottomNav />
         
         {isSidebarOpen && (
           <div 
