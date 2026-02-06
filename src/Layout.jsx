@@ -156,15 +156,16 @@ export default function Layout({ children, currentPageName }) {
 
   useEffect(() => {
     const stopCloseBubbling = (e) => {
-      const btn = e.target?.closest?.('button[aria-label="Close"], [data-close-preview], .close');
-      if (btn) {
-        e.preventDefault?.();
-        e.stopPropagation?.();
-        if (e.nativeEvent && typeof e.nativeEvent.stopImmediatePropagation === 'function') {
-          e.nativeEvent.stopImmediatePropagation();
-        }
-      }
-    };
+              // Limit interception strictly to our preview close elements, do not block generic dialog closes
+              const btn = e.target?.closest?.('[data-close-preview]');
+              if (btn) {
+                e.preventDefault?.();
+                e.stopPropagation?.();
+                if (e.nativeEvent && typeof e.nativeEvent.stopImmediatePropagation === 'function') {
+                  e.nativeEvent.stopImmediatePropagation();
+                }
+              }
+            };
 
     document.addEventListener('mousedown', stopCloseBubbling, true);
     document.addEventListener('click', stopCloseBubbling, true);
