@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -540,7 +539,7 @@ Your response:`;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-black text-white p-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-black text-white p-4 overflow-y-auto pb-28" style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6 flex items-center justify-between">
