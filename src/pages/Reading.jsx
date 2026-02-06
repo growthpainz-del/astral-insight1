@@ -1007,30 +1007,39 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
               </button>
             </div>
             <SpreadLayout
-              spread={selectedSpread}
-              positions={readingPositions}
-              cards={drawnCards}
-              deck={deck}
-              onCardClick={handleCardClick}
-              revealedCards={revealedCards}
-              onCardReveal={handleCardReveal}
-              useScratchReveal={(deck?.censor_mode === 'scratch') || deck?.name?.toLowerCase().includes('wiccan')}
-              animateSpread={true}
-              allowReposition={true}
-              defaultCardWidth={90}
-              containerMinH="70vh"
-              onPositionUpdate={(updated) => {
-                setReadingPositions(updated);
-                setDrawnCards(prev => prev.map((c, idx) => ({
-                  ...c,
-                  position_x: typeof updated[idx]?.x === 'number' ? updated[idx].x : c.position_x,
-                  position_y: typeof updated[idx]?.y === 'number' ? updated[idx].y : c.position_y,
-                  position_rotation: typeof updated[idx]?.rotation === 'number' ? updated[idx].rotation : (c.position_rotation || 0),
-                  position: updated[idx]?.name || c.position,
-                  position_meaning: typeof updated[idx]?.meaning === 'string' ? updated[idx].meaning : c.position_meaning,
-                })));
-              }}
-            />
+               spread={selectedSpread}
+               positions={readingPositions}
+               cards={placedCards}
+               deck={deck}
+               onCardClick={handleCardClick}
+               revealedCards={revealedCards}
+               onCardReveal={handleCardReveal}
+               useScratchReveal={(deck?.censor_mode === 'scratch') || deck?.name?.toLowerCase().includes('wiccan')}
+               animateSpread={true}
+               allowReposition={true}
+               enableExternalDrops
+               defaultCardWidth={90}
+               containerMinH="70vh"
+               onExternalDrop={({ targetIndex, cardIndex }) => {
+                 setPlacedCards((prev) => {
+                   const next = [...prev];
+                   next[targetIndex] = bottomCards[cardIndex];
+                   return next;
+                 });
+                 setDrawnCards((prev) => prev.filter((_, i) => i !== cardIndex));
+               }}
+               onPositionUpdate={(updated) => {
+                 setReadingPositions(updated);
+                 setPlacedCards(prev => prev.map((c, idx) => c ? ({
+                   ...c,
+                   position_x: typeof updated[idx]?.x === 'number' ? updated[idx].x : c.position_x,
+                   position_y: typeof updated[idx]?.y === 'number' ? updated[idx].y : c.position_y,
+                   position_rotation: typeof updated[idx]?.rotation === 'number' ? updated[idx].rotation : (c.position_rotation || 0),
+                   position: updated[idx]?.name || c.position,
+                   position_meaning: typeof updated[idx]?.meaning === 'string' ? updated[idx].meaning : c.position_meaning,
+                 }) : c));
+               }}
+             />
           </div>
         </div>
       )}
