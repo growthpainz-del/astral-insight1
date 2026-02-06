@@ -199,6 +199,31 @@ function normalizeSpreadPositions(spread, positions, cards) {
     }];
   }
 
+  // Diamond Ring (7) fallback: ensure a symmetric ring if no explicit coords
+  if (count === 7 && (spread?.name?.toLowerCase()?.includes('diamond') || spread?.id === 'diamond')) {
+    const ring = [
+      { x: 50, y: 14, rotation: 0 },   // North
+      { x: 74, y: 30, rotation: 35 },  // NE
+      { x: 88, y: 50, rotation: 90 },  // East
+      { x: 74, y: 70, rotation: -35 }, // SE
+      { x: 50, y: 86, rotation: 0 },   // South
+      { x: 26, y: 70, rotation: 35 },  // SW
+      { x: 12, y: 50, rotation: 90 },  // West
+    ];
+    return positions.map((pos, idx) => {
+      let posName = typeof pos === 'string' ? pos : (pos.name || `Position ${idx + 1}`);
+      if (!posName.match(/\d/)) posName = `${idx + 1}. ${posName}`;
+      return {
+        name: posName,
+        meaning: typeof pos === 'string' ? '' : (pos.meaning || ''),
+        x: ring[idx]?.x ?? 50,
+        y: ring[idx]?.y ?? 50,
+        rotation: ring[idx]?.rotation ?? 0,
+        position_number: idx + 1,
+      };
+    });
+  }
+
   // Three cards - horizontal line
   if (count === 3) {
     return positions.map((pos, idx) => {
