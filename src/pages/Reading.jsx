@@ -775,112 +775,122 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
         {drawnCards.length > 0 && (
           <div className="space-y-6">
             {/* Enhanced Spread Visualization */}
-            <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400">
-                  Your Reading
-                </h2>
-                <div className="flex gap-2 flex-wrap justify-end">
-                  <ToggleGroup type="single" value={viewMode} onValueChange={(v) => v && setViewMode(v)} className="rounded-md border border-white/10">
-                    <ToggleGroupItem value="compact" className={`${viewMode==='compact' ? 'bg-cyan-500/20 text-cyan-200' : 'text-white/80'} px-3 py-1`}>Compact</ToggleGroupItem>
-                    <ToggleGroupItem value="detailed" className={`${viewMode==='detailed' ? 'bg-purple-500/20 text-purple-200' : 'text-white/80'} px-3 py-1`}>Detailed</ToggleGroupItem>
-                  </ToggleGroup>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => {
-                      console.log('🔄 Clearing drawn cards');
-                      setDrawnCards([]);
-                    }}
-                    className="border-white/20 text-white hover:bg-white/10"
-                  >
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    New Reading
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={handleSaveReading}
-                    className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700"
-                  >
-                    <Save className="w-4 h-4 mr-2" />
-                    Save Session
-                  </Button>
-                  <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setShowRelationshipsOverlay(true)}
-                      className="border-purple-500/40 text-purple-300 hover:bg-purple-500/10"
-                    >
-                      <Sparkles className="w-4 h-4 mr-2" />
-                      Relationships
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setShowCompactSpreadOverlay(true)}
-                      className="border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10"
-                    >
-                      <Eye className="w-4 h-4 mr-2" />
-                      Compact Spread
-                    </Button>
-                    {selectedSpread?.isCustom && selectedSpread?.id ? (
-                      <Link to={createPageUrl(`SpreadDesigner?id=${selectedSpread.id}`)}>
-                        <Button size="sm" variant="outline" className="border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10">
-                          Edit Spread
-                        </Button>
-                      </Link>
-                    ) : (
-                      <Link to={createPageUrl('SpreadManager')}>
-                        <Button size="sm" variant="outline" className="border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10">
-                          Edit Spread
-                        </Button>
-                      </Link>
-                    )}
-                </div>
-              </div>
+             <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+               <div className="flex items-center justify-between mb-6">
+                 <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400">
+                   Your Reading
+                 </h2>
+                 <div className="flex gap-2 flex-wrap justify-end">
+                   <ToggleGroup type="single" value={viewMode} onValueChange={(v) => v && setViewMode(v)} className="rounded-md border border-white/10">
+                     <ToggleGroupItem value="compact" className={`${viewMode==='compact' ? 'bg-cyan-500/20 text-cyan-200' : 'text-white/80'} px-3 py-1`}>Compact</ToggleGroupItem>
+                     <ToggleGroupItem value="detailed" className={`${viewMode==='detailed' ? 'bg-purple-500/20 text-purple-200' : 'text-white/80'} px-3 py-1`}>Detailed</ToggleGroupItem>
+                   </ToggleGroup>
+                   <Button
+                     size="sm"
+                     variant="outline"
+                     onClick={() => {
+                       console.log('🔄 Clearing drawn cards');
+                       setDrawnCards([]);
+                     }}
+                     className="border-white/20 text-white hover:bg-white/10"
+                   >
+                     <RefreshCw className="w-4 h-4 mr-2" />
+                     New Reading
+                   </Button>
+                   <Button
+                     size="sm"
+                     onClick={handleSaveReading}
+                     className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700"
+                   >
+                     <Save className="w-4 h-4 mr-2" />
+                     Save Session
+                   </Button>
+                   <Button
+                       size="sm"
+                       variant="outline"
+                       onClick={() => setShowRelationshipsOverlay(true)}
+                       className="border-purple-500/40 text-purple-300 hover:bg-purple-500/10"
+                     >
+                       <Sparkles className="w-4 h-4 mr-2" />
+                       Relationships
+                     </Button>
+                     <Button
+                       size="sm"
+                       variant="outline"
+                       onClick={() => setShowCompactSpreadOverlay(true)}
+                       className="border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10"
+                     >
+                       <Eye className="w-4 h-4 mr-2" />
+                       Compact Spread
+                     </Button>
+                     {selectedSpread?.isCustom && selectedSpread?.id ? (
+                       <Link to={createPageUrl(`SpreadDesigner?id=${selectedSpread.id}`)}>
+                         <Button size="sm" variant="outline" className="border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10">
+                           Edit Spread
+                         </Button>
+                       </Link>
+                     ) : (
+                       <Link to={createPageUrl('SpreadManager')}>
+                         <Button size="sm" variant="outline" className="border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10">
+                           Edit Spread
+                         </Button>
+                       </Link>
+                     )}
+                 </div>
+               </div>
 
-              {selectedSpread?.isCustom && (
-                <div className="mb-4 bg-cyan-900/20 border border-cyan-500/30 rounded-lg p-3 text-xs text-cyan-200">
-                  <div className="font-semibold mb-1">Custom Spread: {selectedSpread.name}</div>
-                  <div className="text-cyan-300/80">
-                    {selectedSpread.positions.length} positions • 
-                    {selectedSpread.positions.filter(p => typeof p.x === 'number').length} with coordinates
-                  </div>
-                </div>
-              )}
+               {selectedSpread?.isCustom && (
+                 <div className="mb-4 bg-cyan-900/20 border border-cyan-500/30 rounded-lg p-3 text-xs text-cyan-200">
+                   <div className="font-semibold mb-1">Custom Spread: {selectedSpread.name}</div>
+                   <div className="text-cyan-300/80">
+                     {selectedSpread.positions.length} positions • 
+                     {selectedSpread.positions.filter(p => typeof p.x === 'number').length} with coordinates
+                   </div>
+                 </div>
+               )}
 
-              {console.log('📊 Rendering SpreadLayout with:', {
-                spread: selectedSpread?.name,
-                drawnCards: drawnCards.length,
-                cards: cards.length,
-                positions: selectedSpread?.positions?.length
-              })}
+               {console.log('📊 Rendering SpreadLayout with:', {
+                 spread: selectedSpread?.name,
+                 drawnCards: drawnCards.length,
+                 cards: cards.length,
+                 positions: selectedSpread?.positions?.length
+               })}
 
-              <SpreadLayout
-                spread={selectedSpread}
-                positions={readingPositions}
-                cards={drawnCards}
-                deck={deck}
-                onCardClick={handleCardClick}
-                revealedCards={revealedCards}
-                onCardReveal={handleCardReveal}
-                useScratchReveal={(deck?.censor_mode === 'scratch') || deck?.name?.toLowerCase().includes('wiccan')}
-                animateSpread={true}
-                viewMode={viewMode}
-                sizeScale={0.8}
-                allowReposition={false}
-                onPositionUpdate={(updated) => {
-                  setReadingPositions(updated);
-                  setDrawnCards(prev => prev.map((c, idx) => ({
-                    ...c,
-                    position_x: typeof updated[idx]?.x === 'number' ? updated[idx].x : c.position_x,
-                    position_y: typeof updated[idx]?.y === 'number' ? updated[idx].y : c.position_y,
-                    position_rotation: typeof updated[idx]?.rotation === 'number' ? updated[idx].rotation : (c.position_rotation || 0),
-                    position: updated[idx]?.name || c.position,
-                    position_meaning: typeof updated[idx]?.meaning === 'string' ? updated[idx].meaning : c.position_meaning,
-                  })));
-                }}
-              />
+               <SpreadLayout
+                 spread={selectedSpread}
+                 positions={readingPositions}
+                 cards={placedCards}
+                 deck={deck}
+                 onCardClick={handleCardClick}
+                 revealedCards={revealedCards}
+                 onCardReveal={handleCardReveal}
+                 useScratchReveal={(deck?.censor_mode === 'scratch') || deck?.name?.toLowerCase().includes('wiccan')}
+                 animateSpread={true}
+                 viewMode={viewMode}
+                 sizeScale={0.8}
+                 allowReposition={false}
+                 enableExternalDrops
+                 onExternalDrop={({ targetIndex, cardIndex }) => {
+                   // Place the dragged bottom-shelf card into the specific spread position
+                   setPlacedCards((prev) => {
+                     const next = [...prev];
+                     next[targetIndex] = bottomCards[cardIndex];
+                     return next;
+                   });
+                   setDrawnCards((prev) => prev.filter((_, i) => i !== cardIndex));
+                 }}
+                 onPositionUpdate={(updated) => {
+                   setReadingPositions(updated);
+                   setPlacedCards(prev => prev.map((c, idx) => c ? ({
+                     ...c,
+                     position_x: typeof updated[idx]?.x === 'number' ? updated[idx].x : c.position_x,
+                     position_y: typeof updated[idx]?.y === 'number' ? updated[idx].y : c.position_y,
+                     position_rotation: typeof updated[idx]?.rotation === 'number' ? updated[idx].rotation : (c.position_rotation || 0),
+                     position: updated[idx]?.name || c.position,
+                     position_meaning: typeof updated[idx]?.meaning === 'string' ? updated[idx].meaning : c.position_meaning,
+                   }) : c));
+                 }}
+               />
             </div>
 
             {/* Session Notes - Quick Input */}
