@@ -392,15 +392,6 @@ export default function DeckSettings({ deckId, isOpen, onClose, onSaved, initial
             </div>
           </div>
 
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Switch
-                checked={!!deck?.is_nsfw}
-                onCheckedChange={(v) => patch({ is_nsfw: v })}
-              />
-              <Label className="text-white/80">NSFW (18+)</Label>
-            </div>
-          </div>
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">

@@ -39,9 +39,6 @@ function DeckCard({ deck, isOwned = false }) {
           {deck.is_premium && (
             <div className="bg-amber-500 text-xs font-bold px-2 py-1 rounded">PREMIUM</div>
           )}
-          {deck.is_nsfw && (
-            <div className="bg-red-500 text-xs font-bold px-2 py-1 rounded mt-1">NSFW</div>
-          )}
         </div>
 
         <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 md:opacity-100 transition-opacity">
@@ -375,13 +372,10 @@ function CrystalBallReading({ decks, onClose }) {
 export default function ReadingRoom() {
   const [publicDecks, setPublicDecks] = useState([]);
   const [myDecks, setMyDecks] = useState([]);
-  const [nsfwDecks, setNsfwDecks] = useState([]);
   const [recentReadings, setRecentReadings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState(null);
   const [error, setError] = useState("");
-  const [showNsfwContent, setShowNsfwContent] = useState(false);
-  const [ageVerified, setAgeVerified] = useState(false);
   const [showCrystalBall, setShowCrystalBall] = useState(false);
 
   const loadData = async () => {
@@ -405,27 +399,17 @@ export default function ReadingRoom() {
       
       const readings = await queueApiCall(() => ReadingEntity.list("-created_date", 10));
 
-      const publicDecksList = (allDecks || []).filter(d => d.is_public && d.publish_status === "published" && !d.is_nsfw);
+      const publicDecksList = (allDecks || []).filter(d => d.is_public && d.publish_status === "published");
       const myDecksList = user 
         ? (allDecks || []).filter(d => 
             d.created_by && 
             d.created_by.toLowerCase() === user.email?.toLowerCase() &&
-            (d.publish_status === "published" || !d.publish_status) &&
-            !d.is_nsfw
+            (d.publish_status === "published" || !d.publish_status)
           )
         : [];
-      const nsfwDecksList = user
-        ? (allDecks || []).filter(d => 
-            d.is_nsfw && (
-              (d.is_public && d.publish_status === "published") ||
-              (d.created_by && d.created_by.toLowerCase() === user.email?.toLowerCase())
-            )
-          )
-        : (allDecks || []).filter(d => d.is_nsfw && d.is_public && d.publish_status === "published");
 
       setPublicDecks(publicDecksList);
       setMyDecks(myDecksList);
-      setNsfwDecks(nsfwDecksList);
       setRecentReadings(readings || []);
       
     } catch (error) {
@@ -440,12 +424,7 @@ export default function ReadingRoom() {
     loadData();
   }, []);
 
-  const handleAgeVerification = () => {
-    if (confirm("⚠️ This section contains adult content (18+). Are you 18 years or older?")) {
-      setAgeVerified(true);
-      setShowNsfwContent(true);
-    }
-  };
+
 
   if (loading) {
     return (
@@ -596,61 +575,6 @@ export default function ReadingRoom() {
         </div>
       )}
 
-      {/* NSFW Decks */}
-      {nsfwDecks.length > 0 && (
-        <div className="px-8 mb-12">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold flex items-center gap-2">
-              🔞 Adult Content (18+)
-            </h2>
-            {!showNsfwContent && (
-              <Button 
-                onClick={handleAgeVerification}
-                className="bg-red-600 hover:bg-red-700 text-white"
-              >
-                View ({nsfwDecks.length})
-              </Button>
-            )}
-          </div>
-          
-          {!showNsfwContent ? (
-            <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-8 text-center">
-              <div className="text-6xl mb-4">🔞</div>
-              <h3 className="text-xl font-bold mb-2">Age Restricted Content</h3>
-              <p className="text-white/70 mb-4">
-                This section contains {nsfwDecks.length} adult-oriented deck{nsfwDecks.length !== 1 ? 's' : ''}. 
-                You must be 18 years or older to view this content.
-              </p>
-              <Button 
-                onClick={handleAgeVerification}
-                className="bg-red-600 hover:bg-red-700 text-white"
-              >
-                I am 18 or older - Show Content
-              </Button>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <div className="bg-amber-900/20 border border-amber-500/30 rounded-lg p-3 text-sm text-amber-200 flex items-center gap-2">
-                <span>⚠️</span>
-                <span>This section contains adult content. Viewer discretion is advised.</span>
-                <Button
-                  onClick={() => setShowNsfwContent(false)}
-                  variant="ghost"
-                  size="sm"
-                  className="ml-auto text-amber-300 hover:text-amber-200"
-                >
-                  Hide
-                </Button>
-              </div>
-              <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-                {nsfwDecks.map(deck => (
-                  <DeckCard key={deck.id} deck={deck} isOwned={false} />
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
 
       {/* Recent Readings */}
       {recentReadings.length > 0 && (
@@ -669,7 +593,7 @@ export default function ReadingRoom() {
               <ReadingCard
                 key={reading.id}
                 reading={reading}
-                deck={publicDecks.find(d => d.id === reading.deck_id) || myDecks.find(d => d.id === reading.deck_id) || nsfwDecks.find(d => d.id === reading.deck_id)}
+                deck={publicDecks.find(d => d.id === reading.deck_id) || myDecks.find(d => d.id === reading.deck_id)}
               />
             ))}
           </div>
