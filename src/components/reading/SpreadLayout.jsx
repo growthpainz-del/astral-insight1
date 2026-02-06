@@ -54,7 +54,8 @@ function normalizeSpreadPositions(spread, positions, cards) {
               return { fx, fy };
             };
 
-            return positions.map((pos, idx) => {
+            // Map raw coords first
+            const mapped = positions.map((pos, idx) => {
               const { fx, fy } = getFallbackXY(idx);
               const x = typeof pos?.x === 'number' ? Math.min(100, Math.max(0, pos.x)) : fx;
               const y = typeof pos?.y === 'number' ? Math.min(100, Math.max(0, pos.y)) : fy;
@@ -74,6 +75,26 @@ function normalizeSpreadPositions(spread, positions, cards) {
                 position_number: idx + 1,
               };
             });
+
+            // Tighten Path Forward horizontally if it's too wide on large screens
+            const title = (spread?.name || '').toLowerCase();
+            const isPathForward = title.includes('path') && title.includes('forward');
+            if (isPathForward && mapped.length === 7) {
+              const xs = mapped.map(p => p.x);
+              const minX = Math.min(...xs);
+              const maxX = Math.max(...xs);
+              const range = maxX - minX;
+              const targetRange = 42; // compress to ~42% of container width
+              if (range > targetRange) {
+                const center = (minX + maxX) / 2;
+                const scale = targetRange / range;
+                for (const p of mapped) {
+                  p.x = Math.round(center + (p.x - center) * scale);
+                }
+              }
+            }
+
+            return mapped;
           }
         }
 
