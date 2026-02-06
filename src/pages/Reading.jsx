@@ -32,6 +32,7 @@ import CardRelationshipVisualizer from "@/components/deck/CardRelationshipVisual
 import { Badge } from "@/components/ui/badge";
 import ReadingSessionManager from "@/components/reading/ReadingSessionManager";
 import EnhancedCardViewer from "@/components/reading/EnhancedCardViewer";
+import BottomCardShelf from "@/components/reading/BottomCardShelf";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 // Built-in spreads with proper position structure for SpreadLayout
