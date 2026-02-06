@@ -99,7 +99,12 @@ export default function ReadingPage() {
   
   const [selectedSpreadId, setSelectedSpreadId] = useState("three_card");
   const [question, setQuestion] = useState("");
+  // Cards in the "bottom shelf" waiting area
   const [drawnCards, setDrawnCards] = useState([]);
+  // Cards assigned to spread positions (index-aligned with readingPositions)
+  const [placedCards, setPlacedCards] = useState([]);
+  // Derived: cards still available to place
+  const bottomCards = drawnCards;
   const [selectedCard, setSelectedCard] = useState(null);
   const [showAI, setShowAI] = useState(false);
   
