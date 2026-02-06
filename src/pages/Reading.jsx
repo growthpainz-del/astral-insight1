@@ -74,7 +74,7 @@ const BUILT_IN_SPREADS = [
     ],
     isBuiltIn: true,
   }
-  {
+  ,{
     id: "celtic_cross",
     name: "Celtic Cross",
     positions: [
