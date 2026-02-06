@@ -40,28 +40,30 @@ const BUILT_IN_SPREADS = [
   {
     id: "single",
     name: "Single Card",
-    positions: [{ name: "Guidance", meaning: "Your guidance for today" }],
+    positions: [{ name: "Guidance", meaning: "Your guidance for today", x: 50, y: 50, rotation: 0 }],
     isBuiltIn: true,
   },
   {
     id: "three_card",
     name: "Past, Present, Future",
     positions: [
-      { name: "Past", meaning: "What has brought you here" },
-      { name: "Present", meaning: "Where you are now" },
-      { name: "Future", meaning: "Where you are heading" }
+      { name: "Past", meaning: "What has brought you here", x: 25, y: 50, rotation: 0 },
+      { name: "Present", meaning: "Where you are now", x: 50, y: 50, rotation: 0 },
+      { name: "Future", meaning: "Where you are heading", x: 75, y: 50, rotation: 0 }
     ],
     isBuiltIn: true,
   },
   {
-    id: "crescent",
-    name: "Crescent Moon",
+    id: "diamond",
+    name: "Diamond Ring",
     positions: [
-      { name: "New Beginnings", meaning: "What is emerging", x: 15, y: 15 },
-      { name: "Growing Energy", meaning: "What is gaining strength", x: 30, y: 35 },
-      { name: "Peak Illumination", meaning: "What is fully revealed", x: 50, y: 50 },
-      { name: "Waning Wisdom", meaning: "What is releasing", x: 70, y: 35 },
-      { name: "Completion", meaning: "What is coming to rest", x: 85, y: 15 }
+      { name: "North", meaning: "Overarching theme", x: 50, y: 15, rotation: 0 },
+      { name: "North-East", meaning: "What supports you", x: 68, y: 28, rotation: 18 },
+      { name: "East", meaning: "External influences", x: 85, y: 50, rotation: 90 },
+      { name: "South-East", meaning: "What to release", x: 68, y: 72, rotation: -18 },
+      { name: "South", meaning: "Hidden factor", x: 50, y: 85, rotation: 0 },
+      { name: "South-West", meaning: "Challenge", x: 32, y: 72, rotation: 18 },
+      { name: "West", meaning: "Internal influences", x: 15, y: 50, rotation: 90 }
     ],
     isBuiltIn: true,
   },
@@ -79,6 +81,87 @@ const BUILT_IN_SPREADS = [
       { name: "Environment", meaning: "External influences" },
       { name: "Hopes/Fears", meaning: "Your hopes and fears" },
       { name: "Outcome", meaning: "The final outcome" }
+    ],
+    isBuiltIn: true,
+  },
+  {
+    id: "horseshoe",
+    name: "Horseshoe",
+    positions: [
+      { name: "Past", meaning: "Background", x: 15, y: 70, rotation: -10 },
+      { name: "Present", meaning: "Current state", x: 30, y: 58, rotation: -5 },
+      { name: "Hidden", meaning: "Unseen factors", x: 45, y: 52, rotation: 0 },
+      { name: "Obstacle", meaning: "What blocks you", x: 60, y: 52, rotation: 0 },
+      { name: "Advice", meaning: "Guidance", x: 75, y: 58, rotation: 5 },
+      { name: "Near Future", meaning: "Next step", x: 90, y: 70, rotation: 10 },
+      { name: "Outcome", meaning: "Likely result", x: 52, y: 80, rotation: 0 }
+    ],
+    isBuiltIn: true,
+  },
+  {
+    id: "relationship",
+    name: "Relationship",
+    positions: [
+      { name: "You (Conscious)", meaning: "Your surface stance", x: 30, y: 30, rotation: 0 },
+      { name: "You (Subconscious)", meaning: "Deeper driver", x: 30, y: 50, rotation: 0 },
+      { name: "You (Lesson)", meaning: "What to learn", x: 30, y: 70, rotation: 0 },
+      { name: "Partner (Conscious)", meaning: "Their surface stance", x: 70, y: 30, rotation: 0 },
+      { name: "Partner (Subconscious)", meaning: "Their deeper driver", x: 70, y: 50, rotation: 0 },
+      { name: "Partner (Lesson)", meaning: "What they learn", x: 70, y: 70, rotation: 0 }
+    ],
+    isBuiltIn: true,
+  },
+  {
+    id: "decision",
+    name: "Decision",
+    positions: [
+      { name: "Choice A", meaning: "Path A", x: 30, y: 35, rotation: -6 },
+      { name: "Choice B", meaning: "Path B", x: 70, y: 35, rotation: 6 },
+      { name: "Pros", meaning: "What helps", x: 30, y: 65, rotation: -6 },
+      { name: "Cons", meaning: "What hinders", x: 70, y: 65, rotation: 6 },
+      { name: "Outcome", meaning: "Best alignment", x: 50, y: 50, rotation: 0 }
+    ],
+    isBuiltIn: true,
+  },
+  {
+    id: "weekly_forecast",
+    name: "Weekly Forecast",
+    positions: [
+      { name: "Mon", meaning: "Monday", x: 10, y: 50, rotation: 0 },
+      { name: "Tue", meaning: "Tuesday", x: 24, y: 50, rotation: 0 },
+      { name: "Wed", meaning: "Wednesday", x: 38, y: 50, rotation: 0 },
+      { name: "Thu", meaning: "Thursday", x: 52, y: 50, rotation: 0 },
+      { name: "Fri", meaning: "Friday", x: 66, y: 50, rotation: 0 },
+      { name: "Sat", meaning: "Saturday", x: 80, y: 50, rotation: 0 },
+      { name: "Sun", meaning: "Sunday", x: 94, y: 50, rotation: 0 }
+    ],
+    isBuiltIn: true,
+  },
+  {
+    id: "star",
+    name: "Star",
+    positions: [
+      { name: "Theme", meaning: "Central theme", x: 50, y: 50, rotation: 0 },
+      { name: "North", meaning: "Guidance", x: 50, y: 15, rotation: 0 },
+      { name: "NE", meaning: "Support", x: 72, y: 32, rotation: 18 },
+      { name: "SE", meaning: "Action", x: 68, y: 72, rotation: -18 },
+      { name: "South", meaning: "Shadow", x: 50, y: 85, rotation: 0 },
+      { name: "SW", meaning: "Challenge", x: 32, y: 72, rotation: 18 },
+      { name: "NW", meaning: "Insight", x: 28, y: 32, rotation: -18 }
+    ],
+    isBuiltIn: true,
+  },
+  {
+    id: "chakra",
+    name: "Chakra Alignment",
+    positions: [
+      { name: "Crown", meaning: "Spiritual connection", x: 50, y: 15, rotation: 0 },
+      { name: "Third Eye", meaning: "Intuition", x: 50, y: 27, rotation: 0 },
+      { name: "Throat", meaning: "Expression", x: 50, y: 39, rotation: 0 },
+      { name: "Heart", meaning: "Love & compassion", x: 50, y: 51, rotation: 0 },
+      { name: "Solar Plexus", meaning: "Willpower", x: 50, y: 63, rotation: 0 },
+      { name: "Sacral", meaning: "Creativity", x: 50, y: 75, rotation: 0 },
+      { name: "Root", meaning: "Grounding", x: 50, y: 87, rotation: 0 }
     ],
     isBuiltIn: true,
   },
@@ -135,63 +218,11 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
   const [pickerDecks, setPickerDecks] = useState({ publicDecks: [], myDecks: [] });
   const [pickerLoading, setPickerLoading] = useState(false);
 
-  // Load custom spreads - NON-BLOCKING
+  // Load curated spreads only (disable custom spreads for now)
   useEffect(() => {
-    let cancelled = false;
-
-    const loadCustomSpreads = async () => {
-      try {
-        setSpreadsLoading(true);
-        console.log('📐 Loading custom spreads...');
-        
-        const spreads = await queueApiCall(
-          () => base44.entities.Spread.filter({ is_public: true }), 
-          2,
-          800
-        );
-        
-        if (cancelled) return;
-        
-        console.log('✅ Loaded custom spreads:', spreads.length);
-        
-        const validSpreads = spreads
-          .filter(s => s && s.id && s.name && Array.isArray(s.positions))
-          .map(spread => ({
-            id: spread.id,
-            name: spread.name,
-            description: spread.description || '',
-            category: spread.category || 'General',
-            positions: spread.positions.map(pos => ({
-              name: pos.name || 'Position',
-              meaning: pos.meaning || '',
-              x: pos.x,
-              y: pos.y,
-              rotation: pos.rotation || 0
-            })),
-            isCustom: true,
-            created_by: spread.created_by
-          }));
-        
-        setCustomSpreads(validSpreads);
-        setAllSpreads([...BUILT_IN_SPREADS, ...validSpreads]);
-        console.log('✅ Total spreads:', BUILT_IN_SPREADS.length + validSpreads.length);
-        
-      } catch (err) {
-        if (cancelled) return;
-        console.error('⚠️ Failed to load custom spreads (non-critical):', err);
-        setAllSpreads(BUILT_IN_SPREADS);
-      } finally {
-        if (!cancelled) {
-          setSpreadsLoading(false);
-        }
-      }
-    };
-    
-    loadCustomSpreads();
-    
-    return () => {
-      cancelled = true;
-    };
+    setCustomSpreads([]);
+    setAllSpreads(BUILT_IN_SPREADS);
+    setSpreadsLoading(false);
   }, []);
 
   // Load deck and cards - MAIN LOAD
@@ -726,31 +757,11 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
                       </SelectItem>
                     ))}
                     
-                    {customSpreads.length > 0 && (
-                      <>
-                        <div className="px-2 py-1.5 text-xs font-semibold text-purple-400 border-t border-white/10 mt-1 pt-2">
-                          ✨ Custom Spreads
-                        </div>
-                        {customSpreads.map(spread => (
-                          <SelectItem key={spread.id} value={spread.id}>
-                            <div className="flex items-center gap-2">
-                              <span>{spread.name} - {spread.positions?.length || 0} cards</span>
-                              {spread.category && spread.category !== 'General' && (
-                                <span className="text-xs text-purple-400">({spread.category})</span>
-                              )}
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </>
-                    )}
+
                   </SelectContent>
                 </Select>
                 
-                {selectedSpread?.description && selectedSpread?.isCustom && (
-                  <p className="text-sm text-purple-300 mt-2 italic">
-                    {selectedSpread.description}
-                  </p>
-                )}
+ 
               </div>
 
               <Button
