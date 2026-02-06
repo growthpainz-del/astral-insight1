@@ -948,7 +948,7 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
             />
 
             {/* Card Relationships Section */}
-            {drawnCards.length >= 2 && (
+            {(placedCards.filter(Boolean).length >= 2 || drawnCards.length >= 2) && (
               <div className="bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 p-4 md:p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <Badge className="bg-purple-600/80 text-white">
