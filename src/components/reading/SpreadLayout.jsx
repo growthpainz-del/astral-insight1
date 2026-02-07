@@ -338,17 +338,22 @@ export default function SpreadLayout(props) {
 
   const containerRef = React.useRef(null);
   const [containerWidth, setContainerWidth] = React.useState(0);
+  const [containerHeight, setContainerHeight] = React.useState(0);
   React.useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
     const ro = new ResizeObserver((entries) => {
       for (const entry of entries) {
         const cw = entry.contentRect?.width || el.clientWidth || 0;
+        const ch = entry.contentRect?.height || el.clientHeight || 0;
         setContainerWidth(Math.round(cw));
+        setContainerHeight(Math.round(ch));
       }
     });
     ro.observe(el);
+    // Initial
     setContainerWidth(Math.round(el.clientWidth || 0));
+    setContainerHeight(Math.round(el.clientHeight || 0));
     return () => ro.disconnect();
   }, []);
 
