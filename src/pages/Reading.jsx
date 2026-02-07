@@ -1025,6 +1025,9 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
       )}
 
       {/* Session Manager Modal */}
+      <div className="mt-8 text-center text-xs text-white/70 bg-white/5 border border-white/10 rounded-lg p-3">
+        Disclaimer: The readings and guidance provided are for entertainment purposes only and do not constitute professional advice.
+      </div>
       <ReadingSessionManager
         isOpen={showSessionManager}
         onClose={() => setShowSessionManager(false)}
