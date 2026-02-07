@@ -891,6 +891,26 @@ export default function SpreadLayout(props) {
           touchAction: isDragging ? 'none' : (zoom > 1 ? 'none' : 'pan-x pan-y')
         }}
       >
+        {/* Reading Mat - centered circular, auto-fit with margin */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none"
+        >
+          <div
+            className="rounded-full shadow-[0_0_40px_rgba(124,58,237,0.25)]"
+            style={{
+              width: Math.max(120, Math.round((Math.min(containerWidth, 900)) * 0.9)),
+              height: Math.max(120, Math.round((Math.min(containerWidth, 900)) * 0.9)),
+              maxWidth: '95%',
+              maxHeight: '95%',
+              backgroundImage: 'url(https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d2a300021f94d0f312c039/350346a74_B09C98E1-065B-4808-BF9D-F3880F497C8B.png)',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              opacity: 0.65,
+              filter: 'saturate(1.05) drop-shadow(0 8px 30px rgba(124,58,237,0.25))',
+            }}
+          />
+        </div
         {/* Mystical grid background */}
         <div className="absolute inset-0 pointer-events-none opacity-20">
           <svg width="100%" height="100%" style={{ position: 'absolute', top: 0, left: 0 }}>
