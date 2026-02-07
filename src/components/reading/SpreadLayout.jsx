@@ -910,8 +910,8 @@ export default function SpreadLayout(props) {
               filter: 'saturate(1.05) drop-shadow(0 8px 30px rgba(124,58,237,0.25))',
             }}
           />
-        </div
-        {/* Mystical grid background (kept subtle above the mat) */}
+        </div>
+          {/* Mystical grid background (kept subtle above the mat) */}
         <div className="absolute inset-0 pointer-events-none opacity-15 z-0">
           <svg width="100%" height="100%" style={{ position: 'absolute', top: 0, left: 0 }}>
             <defs>
