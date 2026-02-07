@@ -22,7 +22,7 @@ export default function ChanneledReading({ isOpen, drawnCards, deck, spread, que
   
   // ElevenLabs TTS
   const [elevenVoices, setElevenVoices] = useState([]);
-  const [selectedVoiceId, setSelectedVoiceId] = useState("X8Na0RDzhqa1gJFsWu5a");
+  const [selectedVoiceId, setSelectedVoiceId] = useState("");
   const [isSpeaking, setIsSpeaking] = useState(false);
   const audioRef = useRef(null);
   const webSpeechUtteranceRef = useRef(null);
@@ -34,11 +34,26 @@ export default function ChanneledReading({ isOpen, drawnCards, deck, spread, que
     }
   }, [isOpen]);
 
-  // Force voice: skip loading voices and lock selection
+  // Load ElevenLabs voices and auto-select "babooshka" if available
   useEffect(() => {
-    if (isOpen) {
-      setSelectedVoiceId("X8Na0RDzhqa1gJFsWu5a");
-    }
+    if (!isOpen) return;
+    (async () => {
+      try {
+        const { data } = await base44.functions.invoke('listElevenVoices', {});
+        const voices = data?.voices || [];
+        setElevenVoices(voices);
+        const match = voices.find(v => (v.name || '').toLowerCase() === 'babooshka');
+        if (match?.id) {
+          setSelectedVoiceId(match.id);
+        } else {
+          // fallback to prior default if babooshka not found
+          setSelectedVoiceId('X8Na0RDzhqa1gJFsWu5a');
+        }
+      } catch (e) {
+        // if listing fails, keep safe default
+        setSelectedVoiceId('X8Na0RDzhqa1gJFsWu5a');
+      }
+    })();
   }, [isOpen]);
 
   const generateInterpretation = async (tier = "quick") => {
@@ -161,7 +176,7 @@ if (user && typeof user.token_balance === "number") {
     try {
       const { data } = await base44.functions.invoke('generateSpeech', {
         text: interpretation,
-        voiceId: "X8Na0RDzhqa1gJFsWu5a",
+        voiceId: selectedVoiceId || "X8Na0RDzhqa1gJFsWu5a",
       });
       const b64 = data?.audioContent;
       if (!b64) throw new Error('No audio returned from TTS');
