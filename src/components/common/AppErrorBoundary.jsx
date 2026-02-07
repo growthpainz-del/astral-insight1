@@ -82,7 +82,18 @@ class AppErrorBoundary extends React.Component {
                 </summary>
                 <div className="bg-black/30 rounded p-3 mt-2">
                   <pre className="text-xs text-red-200 whitespace-pre-wrap font-mono overflow-x-auto">
-                    {this.state.error?.stack || String(this.state.error)}
+                    {(() => {
+                      try {
+                        const e = this.state.error;
+                        if (e?.stack && typeof e.stack === 'string') return e.stack;
+                        if (e && typeof e === 'object') return JSON.stringify(e, Object.getOwnPropertyNames(e), 2);
+                        return String(e);
+                      } catch (_) {
+                        return 'Error details unavailable.';
+                      }
+                    })()}
+
+                    {this.state.errorInfo?.componentStack ? ('\n\nComponent stack:\n' + this.state.errorInfo.componentStack) : ''}
                   </pre>
                 </div>
               </details>
