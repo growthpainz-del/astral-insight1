@@ -27,6 +27,7 @@ import {
 import AIReading from "@/components/reading/AIReading";
 import IdeomotorCanvas from "@/components/reading/IdeomotorCanvas";
 import SpreadLayout from "@/components/reading/SpreadLayout";
+import CompactSpread from "@/components/reading/CompactSpread";
 import { queueApiCall } from "@/components/utils/apiQueue";
 import CardRelationshipVisualizer from "@/components/deck/CardRelationshipVisualizer";
 import { Badge } from "@/components/ui/badge";
@@ -759,7 +760,21 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
         {/* Display for Drawn Cards */}
         {drawnCards.length > 0 && (
           <div className="space-y-6">
-            {/* Enhanced Spread Visualization */}
+            {/* Quick, top-left compact spread preview to avoid initial scrolling */}
+             <div className="mb-4 flex justify-start">
+               <CompactSpread
+                 spread={selectedSpread}
+                 positions={readingPositions}
+                 cards={placedCards}
+                 deck={deck}
+                 viewMode={viewMode}
+                 revealedCards={revealedCards}
+                 onCardClick={handleCardClick}
+                 onCardReveal={handleCardReveal}
+               />
+             </div>
+
+             {/* Enhanced Spread Visualization */}
              <div className="bg-white/5 border border-white/10 rounded-xl p-6">
                <div className="flex items-center justify-between mb-6">
                  <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400">
