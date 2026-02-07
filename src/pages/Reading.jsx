@@ -567,8 +567,9 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
   }
 
   return (
-    <DisablePullToRefresh targetSelector="main" threshold={30} />
-    <div className="min-h-screen pb-32 md:pb-24 bg-gradient-to-br from-indigo-950 via-purple-950 to-slate-900">
+    <>
+      <DisablePullToRefresh targetSelector="main" threshold={30} />
+      <div className="min-h-screen pb-32 md:pb-24 bg-gradient-to-br from-indigo-950 via-purple-950 to-slate-900">
       {/* Always-visible Exit on mobile (and handy on overflow lock) */}
       <div className="fixed top-3 left-3 z-[2147483647] pointer-events-auto">
         <Link to={createPageUrl("Dashboard")}>
