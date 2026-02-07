@@ -103,7 +103,8 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
                     autoPlay
                     muted
                     playsInline
-                    onEnded={() => onClose(false)}
+                    loop={false}
+                    onEnded={() => setShowVideo(false)}
                     onError={() => setShowVideo(false)}
                     className="max-h-[60vh] md:max-h-[70vh] w-auto rounded-xl shadow-2xl border-2 border-white/20 object-contain"
                   />
