@@ -27,16 +27,32 @@ export default function EnhancedCardViewer({ card, isOpen, onClose, position, is
     setShowVideo(!!card?.video_url);
   }, [card?.id, isOpen]);
 
-  // Ensure scroll unlock on iOS/Safari when dialog closes
+  // Lock background scroll while viewer is open (iOS-safe)
   useEffect(() => {
+    if (!isOpen) return;
+    const prevHtml = document.documentElement.style.overflow;
+    const prevBody = document.body.style.overflow;
+    const prevTouch = document.body.style.touchAction;
+    try {
+      document.documentElement.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+      document.body.style.touchAction = 'none';
+    } catch (_) {}
+
+    const prevent = (e) => { try { e.preventDefault(); e.stopPropagation(); } catch (_) {} };
+    window.addEventListener('touchmove', prevent, { passive: false, capture: true });
+    window.addEventListener('wheel', prevent, { passive: false, capture: true });
+
     return () => {
       try {
-        document.documentElement.style.overflow = '';
-        document.body.style.overflow = '';
-        document.body.style.touchAction = '';
+        window.removeEventListener('touchmove', prevent, { capture: true });
+        window.removeEventListener('wheel', prevent, { capture: true });
+        document.documentElement.style.overflow = prevHtml || '';
+        document.body.style.overflow = prevBody || '';
+        document.body.style.touchAction = prevTouch || '';
       } catch (_) {}
     };
-  }, []);
+  }, [isOpen]);
 
   if (!card) return null;
 
