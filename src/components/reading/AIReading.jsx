@@ -42,7 +42,7 @@ export default function ChanneledReading({ isOpen, drawnCards, deck, spread, que
         const { data } = await base44.functions.invoke('listElevenVoices', {});
         const voices = data?.voices || [];
         setElevenVoices(voices);
-        const match = voices.find(v => (v.name || '').toLowerCase() === 'babooshka');
+        const match = voices.find(v => (v.name || '').toLowerCase().includes('babooshka'));
         if (match?.id) {
           setSelectedVoiceId(match.id);
         } else {
