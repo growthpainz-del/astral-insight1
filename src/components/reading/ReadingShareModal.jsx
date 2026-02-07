@@ -34,6 +34,7 @@ export default function ReadingShareModal({
     setGenerating(true);
     try {
       // Create a public reading record
+      // Create a separate public copy; do NOT modify the user's private original
       const publicReading = await base44.entities.Reading.create({
         title: reading?.title || "Shared Reading",
         spread_type: spreadName,
