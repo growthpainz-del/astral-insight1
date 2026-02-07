@@ -1036,6 +1036,7 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
         interpretation={sessionNotes}
         onSaved={handleSessionSaved}
       />
-    </div>
-  );
+      </div>
+      </>
+      );
 }
