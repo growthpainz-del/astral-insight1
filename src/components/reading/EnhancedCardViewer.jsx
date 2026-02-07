@@ -87,6 +87,7 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
             <button
               onClick={(e)=>{ e.stopPropagation?.(); onClose(false); }}
               className="absolute top-4 right-4 p-2 rounded-full bg-black/60 hover:bg-black/80 text-white/80 hover:text-white transition-all z-10"
+              aria-label="Close and return to reading"
             >
               <X className="w-5 h-5" />
             </button>
