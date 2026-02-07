@@ -2,52 +2,88 @@ import React, { useEffect } from "react";
 
 export default function DisablePullToRefresh({ targetSelector = "main", threshold = 10 }) {
   useEffect(() => {
-    const scrollEl = document.querySelector(targetSelector);
+    const target = document.querySelector(targetSelector);
+    const scrollingEl = document.scrollingElement || document.documentElement;
+    const scrollEl = target || scrollingEl;
+
     if (!scrollEl) return;
 
     let startY = 0;
     let active = false;
 
+    const atTop = () => {
+      try { return (scrollEl.scrollTop || 0) <= 0; } catch { return false; }
+    };
+
+    const nudgeDown = () => {
+      try { if ((scrollEl.scrollTop || 0) <= 0) scrollEl.scrollTop = 1; } catch {}
+    };
+
     const onTouchStart = (e) => {
       try {
-        if (scrollEl.scrollTop <= 0) {
-          startY = e.touches[0].clientY;
-          active = true;
-        } else {
-          active = false;
-        }
-      } catch (_) {
-        active = false;
-      }
+        startY = e.touches?.[0]?.clientY || 0;
+        active = atTop();
+        if (active) nudgeDown(); // pre-nudge to avoid bounce
+      } catch { active = false; }
     };
 
     const onTouchMove = (e) => {
       if (!active) return;
-      const dy = e.touches[0].clientY - startY;
-      if (dy > threshold && scrollEl.scrollTop <= 0) {
-        // Prevent native pull-to-refresh
+      const dy = (e.touches?.[0]?.clientY || 0) - startY;
+      if (dy > threshold && atTop()) {
+        // Block native pull-to-refresh and preview's parent handlers
         e.preventDefault();
-        // Nudge scroll to avoid bounce
-        try { scrollEl.scrollTop = 1; } catch (_) {}
+        e.stopPropagation();
+        nudgeDown();
       }
     };
 
     const onTouchEnd = () => { active = false; };
+    const onTouchCancel = () => { active = false; };
 
-    // Must be non-passive to allow preventDefault
-    scrollEl.addEventListener("touchstart", onTouchStart, { passive: true });
-    scrollEl.addEventListener("touchmove", onTouchMove, { passive: false });
-    scrollEl.addEventListener("touchend", onTouchEnd, { passive: true });
+    // Also prevent wheel overscroll bounce on desktop Safari
+    const onWheel = (e) => {
+      if ((e.deltaY < 0) && atTop()) {
+        e.preventDefault();
+        e.stopPropagation();
+        nudgeDown();
+      }
+    };
 
-    // Extra safety: CSS overscroll containment on target
-    const prevStyle = scrollEl.style.overscrollBehaviorY;
-    scrollEl.style.overscrollBehaviorY = scrollEl.style.overscrollBehaviorY || "contain";
+    // Listeners on both target and window to catch bubbling to preview frame
+    const optsPassiveFalse = { passive: false };
+    const optsPassiveTrue = { passive: true };
+
+    (target || window).addEventListener("touchstart", onTouchStart, optsPassiveTrue);
+    (target || window).addEventListener("touchmove", onTouchMove, optsPassiveFalse);
+    (target || window).addEventListener("touchend", onTouchEnd, optsPassiveTrue);
+    (target || window).addEventListener("touchcancel", onTouchCancel, optsPassiveTrue);
+    (target || window).addEventListener("wheel", onWheel, optsPassiveFalse);
+
+    // Hardened CSS overscroll guards
+    const html = document.documentElement;
+    const body = document.body;
+    const prevHtml = html.style.overscrollBehaviorY;
+    const prevBody = body.style.overscrollBehaviorY;
+    const prevTarget = scrollEl.style.overscrollBehaviorY;
+
+    try {
+      if (!html.style.overscrollBehaviorY) html.style.overscrollBehaviorY = "none";
+      if (!body.style.overscrollBehaviorY) body.style.overscrollBehaviorY = "none";
+      if (!scrollEl.style.overscrollBehaviorY) scrollEl.style.overscrollBehaviorY = "contain";
+    } catch {}
 
     return () => {
-      scrollEl.removeEventListener("touchstart", onTouchStart, { passive: true });
-      scrollEl.removeEventListener("touchmove", onTouchMove, { passive: false });
-      scrollEl.removeEventListener("touchend", onTouchEnd, { passive: true });
-      try { scrollEl.style.overscrollBehaviorY = prevStyle || ""; } catch (_) {}
+      (target || window).removeEventListener("touchstart", onTouchStart, optsPassiveTrue);
+      (target || window).removeEventListener("touchmove", onTouchMove, optsPassiveFalse);
+      (target || window).removeEventListener("touchend", onTouchEnd, optsPassiveTrue);
+      (target || window).removeEventListener("touchcancel", onTouchCancel, optsPassiveTrue);
+      (target || window).removeEventListener("wheel", onWheel, optsPassiveFalse);
+      try {
+        html.style.overscrollBehaviorY = prevHtml || "";
+        body.style.overscrollBehaviorY = prevBody || "";
+        scrollEl.style.overscrollBehaviorY = prevTarget || "";
+      } catch {}
     };
   }, [targetSelector, threshold]);
 
