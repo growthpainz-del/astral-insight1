@@ -92,7 +92,8 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
                     autoPlay
                     muted
                     playsInline
-                    onEnded={() => setShowVideo(false)}
+                    onEnded={() => onClose(false)}
+                    onError={() => setShowVideo(false)}
                     className="max-h-[60vh] md:max-h-[70vh] w-auto rounded-xl shadow-2xl border-2 border-white/20 object-contain"
                   />
                 ) : card.image_url ? (
