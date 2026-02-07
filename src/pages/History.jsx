@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Reading } from "@/entities/Reading";
 import { Card as CardEntity } from "@/entities/Card";
 import { Deck } from "@/entities/Deck";
+import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -54,7 +55,10 @@ export default function HistoryPage() {
   const loadReadings = async () => {
     setLoading(true);
     try {
-      const allReadings = await Reading.list("-created_date", 100);
+      const user = await base44.auth.me();
+      const allReadings = user?.email
+        ? await base44.entities.Reading.filter({ created_by: user.email }, "-created_date", 100)
+        : [];
       setReadings(allReadings || []);
 
       // Load decks and cards for all readings

@@ -32,6 +32,7 @@ export default function SharedReadingPage() {
   const loadReading = async (readingId) => {
     try {
       const loadedReading = await base44.entities.Reading.get(readingId);
+      if (!loadedReading?.is_public) { throw new Error("Reading is private or not shared."); }
       setReading(loadedReading);
 
       if (loadedReading.deck_id) {
