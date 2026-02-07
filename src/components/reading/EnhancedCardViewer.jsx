@@ -28,6 +28,17 @@ export default function EnhancedCardViewer({ card, isOpen, onClose, position, is
     setShowVideo(!!card?.video_url);
   }, [card?.id, isOpen]);
 
+  // Ensure scroll unlock on iOS/Safari when dialog closes
+  useEffect(() => {
+    return () => {
+      try {
+        document.documentElement.style.overflow = '';
+        document.body.style.overflow = '';
+        document.body.style.touchAction = '';
+      } catch (_) {}
+    };
+  }, []);
+
   if (!card) return null;
 
   const copyCardInfo = async () => {
@@ -69,7 +80,7 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open)=>{ if(!open) onClose(false); }}>
+    <Dialog modal={false} open={isOpen} onOpenChange={(open)=>{ if(!open) onClose(false); }}>
       <DialogContent className="max-w-5xl h-[92dvh] md:h-[95vh] bg-slate-900 text-white border border-purple-500/30 p-0 pointer-events-auto z-[10050]">
         <div className="grid h-full overflow-hidden md:grid-cols-[400px,1fr] grid-rows-[auto,1fr] md:grid-rows-1">
           {/* Left: Card Image */}

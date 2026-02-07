@@ -1023,7 +1023,7 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
 
        {/* Enhanced Card Viewer Modal - MOVED TO TOP LEVEL WITH HIGHER Z-INDEX */}
       {viewerCard && showEnhancedViewer && (
-        <div className="fixed inset-0 z-[9999] pointer-events-none">
+        <div className="fixed inset-0 z-[9999]">
           <EnhancedCardViewer
             card={viewerCard.card}
             position={viewerCard.position}
