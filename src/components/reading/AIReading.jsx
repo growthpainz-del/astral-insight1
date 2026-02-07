@@ -165,10 +165,12 @@ if (user && typeof user.token_balance === "number") {
       });
       const b64 = data?.audioContent;
       if (!b64) throw new Error('No audio returned from TTS');
-      if (!audioRef.current) audioRef.current = new Audio();
+      if (!audioRef.current) return;
       audioRef.current.src = `data:audio/mpeg;base64,${b64}`;
+      audioRef.current.muted = false;
+      audioRef.current.volume = 1.0;
       audioRef.current.onended = () => setIsSpeaking(false);
-      await audioRef.current.play();
+      try { await audioRef.current.play(); } catch (e) { setError('Playback blocked by browser. Press the Play button.'); }
     } catch (err) {
       console.error('TTS error:', err);
       const msg = String(err?.message || '');
@@ -182,10 +184,12 @@ if (user && typeof user.token_balance === "number") {
           });
           const b64 = data2?.audioContent;
           if (!b64) throw new Error('No audio returned from TTS (fallback)');
-          if (!audioRef.current) audioRef.current = new Audio();
+          if (!audioRef.current) return;
           audioRef.current.src = `data:audio/mpeg;base64,${b64}`;
+          audioRef.current.muted = false;
+          audioRef.current.volume = 1.0;
           audioRef.current.onended = () => setIsSpeaking(false);
-          await audioRef.current.play();
+          try { await audioRef.current.play(); } catch (e) { setError('Playback blocked by browser. Press the Play button.'); }
           setSelectedVoiceId(FALLBACK_ID);
           setError("");
           return;
