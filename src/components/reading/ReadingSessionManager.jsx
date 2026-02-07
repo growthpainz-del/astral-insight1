@@ -49,7 +49,8 @@ export default function ReadingSessionManager({
         deck_id: deckId,
         cards_drawn: cardsData,
         interpretation: notes || "",
-        date: new Date().toISOString().split('T')[0]
+        date: new Date().toISOString().split('T')[0],
+        is_public: false
       });
 
       setSavedReading(reading);
