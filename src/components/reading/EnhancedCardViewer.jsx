@@ -159,15 +159,25 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
                     </p>
                   )}
                 </div>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={copyCardInfo}
-                  className="border-white/20 text-white hover:bg-white/10"
-                >
-                  {copied ? <Check className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
-                  Copy
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => onClose(false)}
+                    className="bg-purple-600/30 hover:bg-purple-600/40 border-white/10 text-white"
+                  >
+                    Return to Reading
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={copyCardInfo}
+                    className="border-white/20 text-white hover:bg-white/10"
+                  >
+                    {copied ? <Check className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
+                    Copy
+                  </Button>
+                </div>
               </div>
 
               {/* Quick Info Badges */}
