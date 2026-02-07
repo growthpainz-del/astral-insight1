@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +22,11 @@ import {
 export default function EnhancedCardViewer({ card, isOpen, onClose, position, isReversed, relatedCards = [] }) {
   const [activeTab, setActiveTab] = useState("overview");
   const [copied, setCopied] = useState(false);
+  const [showVideo, setShowVideo] = useState(!!card?.video_url);
+
+  useEffect(() => {
+    setShowVideo(!!card?.video_url);
+  }, [card?.id, isOpen]);
 
   if (!card) return null;
 
@@ -68,7 +73,7 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
       <DialogContent className="max-w-5xl h-[92dvh] md:h-[95vh] bg-slate-900 text-white border border-purple-500/30 p-0 pointer-events-auto">
         <div className="grid h-full overflow-hidden md:grid-cols-[400px,1fr] grid-rows-[auto,1fr] md:grid-rows-1">
           {/* Left: Card Image */}
-          <div className="relative bg-black/40 flex items-center justify-center p-6 border-b md:border-b-0 md:border-r border-white/10 max-h-[48dvh] md:max-h-none overflow-auto md:overflow-y-auto">
+          <div className="relative bg-black/40 flex items-center justify-center p-6 border-b md:border-b-0 md:border-r border-white/10 max-h-[70dvh] md:max-h-none overflow-auto md:overflow-y-auto">
             <button
               onClick={(e)=>{ e.stopPropagation?.(); onClose(false); }}
               className="absolute top-4 right-4 p-2 rounded-full bg-black/60 hover:bg-black/80 text-white/80 hover:text-white transition-all z-10"
@@ -76,19 +81,28 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
               <X className="w-5 h-5" />
             </button>
 
-            <div className="relative max-w-sm">
+            <div className="relative max-w-sm mx-auto">
               {/* Glow effect */}
               <div className={`absolute -inset-4 ${isReversed ? 'bg-purple-600' : 'bg-cyan-600'} opacity-20 blur-3xl rounded-full`}></div>
               
               <div className={`relative transform transition-transform ${isReversed ? 'rotate-180' : ''}`}>
-                {card.image_url ? (
+                {showVideo && card.video_url ? (
+                  <video
+                    src={card.video_url}
+                    autoPlay
+                    muted
+                    playsInline
+                    onEnded={() => setShowVideo(false)}
+                    className="max-h-[60vh] md:max-h-[70vh] w-auto rounded-xl shadow-2xl border-2 border-white/20 object-contain"
+                  />
+                ) : card.image_url ? (
                   <img
                     src={card.image_url}
                     alt={card.name}
-                    className="w-full h-auto rounded-xl shadow-2xl border-2 border-white/20"
+                    className="max-h-[60vh] md:max-h-[70vh] w-auto rounded-xl shadow-2xl border-2 border-white/20 object-contain"
                   />
                 ) : (
-                  <div className="aspect-[2/3] bg-gradient-to-br from-purple-900 to-blue-900 rounded-xl flex items-center justify-center">
+                  <div className="aspect-[2/3] max-h-[60vh] md:max-h-[70vh] w-auto bg-gradient-to-br from-purple-900 to-blue-900 rounded-xl flex items-center justify-center">
                     <Sparkles className="w-16 h-16 text-white/40" />
                   </div>
                 )}
