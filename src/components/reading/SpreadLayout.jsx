@@ -911,16 +911,16 @@ export default function SpreadLayout(props) {
             }}
           />
         </div
-        {/* Mystical grid background */}
-        <div className="absolute inset-0 pointer-events-none opacity-20">
+        {/* Mystical grid background (kept subtle above the mat) */}
+        <div className="absolute inset-0 pointer-events-none opacity-15 z-0">
           <svg width="100%" height="100%" style={{ position: 'absolute', top: 0, left: 0 }}>
             <defs>
               <pattern id="smallGrid" width="20" height="20" patternUnits="userSpaceOnUse">
-                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(168,85,247,0.3)" strokeWidth="0.5"/>
+                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(168,85,247,0.25)" strokeWidth="0.5"/>
               </pattern>
               <pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse">
                 <rect width="100" height="100" fill="url(#smallGrid)"/>
-                <path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(168,85,247,0.5)" strokeWidth="1"/>
+                <path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(168,85,247,0.35)" strokeWidth="1"/>
               </pattern>
             </defs>
             <rect width="100%" height="100%" fill="url(#grid)" />
