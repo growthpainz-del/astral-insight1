@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -80,8 +79,8 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open)=>{ if(!open) onClose(false); }}>
-      <DialogContent className="max-w-5xl h-[92dvh] md:h-[95vh] bg-slate-900 text-white border border-purple-500/30 p-0 pointer-events-auto z-[1000]">
+    <div className="fixed inset-0 z-[2000] bg-black/70 backdrop-blur-sm" onClick={() => onClose(false)}>
+      <div className="max-w-5xl h-[92dvh] md:h-[95vh] bg-slate-900 text-white border border-purple-500/30 p-0 pointer-events-auto z-[2001] mx-auto mt-4 rounded-lg" onClick={(e) => e.stopPropagation()}>
         <div className="grid h-full overflow-hidden md:grid-cols-[400px,1fr] grid-rows-[auto,1fr] md:grid-rows-1">
           {/* Left: Card Image */}
           <div className="relative bg-black/40 flex items-center justify-center p-6 border-b md:border-b-0 md:border-r border-white/10 max-h-[70dvh] md:max-h-none overflow-auto md:overflow-y-auto">
@@ -358,7 +357,7 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
               </Tabs>
               </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   );
 }
