@@ -32,6 +32,7 @@ import CardRelationshipVisualizer from "@/components/deck/CardRelationshipVisual
 import { Badge } from "@/components/ui/badge";
 import ReadingSessionManager from "@/components/reading/ReadingSessionManager";
 import EnhancedCardViewer from "@/components/reading/EnhancedCardViewer";
+import DisablePullToRefresh from "@/components/common/DisablePullToRefresh";
 
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
@@ -566,6 +567,7 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
   }
 
   return (
+    <DisablePullToRefresh targetSelector="main" threshold={30} />
     <div className="min-h-screen pb-32 md:pb-24 bg-gradient-to-br from-indigo-950 via-purple-950 to-slate-900">
       {/* Always-visible Exit on mobile (and handy on overflow lock) */}
       <div className="fixed top-3 left-3 z-[2147483647] pointer-events-auto">
