@@ -117,10 +117,17 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
 
               {/* Reversed Badge */}
               {isReversed && (
-                <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-purple-600 text-white px-4 py-1 rounded-full text-sm font-semibold shadow-lg flex items-center gap-2">
-                  <RotateCcw className="w-4 h-4" />
-                  Reversed
-                </div>
+               <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-purple-600 text-white px-4 py-1 rounded-full text-sm font-semibold shadow-lg flex items-center gap-2">
+                 <RotateCcw className="w-4 h-4" />
+                 Reversed
+               </div>
+              )}
+
+              {/* Hint: tap to return to summary when video ends */}
+              {card.video_url && !showVideo && (
+               <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 text-xs text-white/60">
+                 Video ended – showing image. Close to return.
+               </div>
               )}
             </div>
           </div>
