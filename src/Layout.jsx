@@ -4,33 +4,37 @@ import { createPageUrl } from "@/utils";
 import { User } from "@/entities/User";
 import { Button } from "@/components/ui/button";
 import {
-        Home,
-        BookOpen,
-        History,
-        HelpCircle,
-        Users,
-        LogOut,
-        ChevronDown,
-        ChevronLeft,
-        LayoutGrid,
-        Star,
-        Sprout,
-        Heart,
-        Combine,
-        X,
-        Image as ImageIcon,
-        Coins,
-        CheckCircle2,
-        Palette,
-        Layers,
-        Sparkles // Added Sparkles import
-      } from "lucide-react";
+              Home,
+              BookOpen,
+              History,
+              HelpCircle,
+              Users,
+              LogOut,
+              ChevronDown,
+              ChevronLeft,
+              LayoutGrid,
+              Star,
+              Sprout,
+              Heart,
+              Combine,
+              X,
+              Image as ImageIcon,
+              Coins,
+              CheckCircle2,
+              Palette,
+              Layers,
+              Sparkles,
+              Sun,
+              Moon,
+              Laptop
+            } from "lucide-react";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+        DropdownMenu,
+        DropdownMenuContent,
+        DropdownMenuItem,
+        DropdownMenuTrigger,
+      } from "@/components/ui/dropdown-menu";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import FloatingSave from "@/components/common/FloatingSave";
 import MobileBottomNav from "@/components/navigation/MobileBottomNav";
 import { motion, AnimatePresence } from "framer-motion";
@@ -66,6 +70,8 @@ export default function Layout({ children, currentPageName }) {
   const [isLoading, setIsLoading] = useState(true);
   const [initError, setInitError] = useState(null);
   const [retryCount, setRetryCount] = useState(0);
+  const [themePref, setThemePref] = useState('auto');
+  const [theme, setTheme] = useState('dark');
 
   // FIXED: Only initialize once on mount, NOT on every page change
   useEffect(() => {
@@ -200,6 +206,41 @@ export default function Layout({ children, currentPageName }) {
             }
             link.setAttribute("href", faviconUrl);
           }, []);
+
+          // Theme: auto/dark/light with in-app override
+          const applyTheme = (t) => {
+            try {
+              document.documentElement.setAttribute('data-theme', t);
+            } catch (_) {}
+          };
+
+          useEffect(() => {
+            const saved = localStorage.getItem('themePref') || 'auto';
+            setThemePref(saved);
+            const mql = window.matchMedia('(prefers-color-scheme: dark)');
+            const compute = (pref) => pref === 'light' ? 'light' : pref === 'dark' ? 'dark' : (mql.matches ? 'dark' : 'light');
+            const t = compute(saved);
+            setTheme(t);
+            applyTheme(t);
+            const onChange = (e) => {
+              if ((localStorage.getItem('themePref') || 'auto') === 'auto') {
+                const nt = e.matches ? 'dark' : 'light';
+                setTheme(nt);
+                applyTheme(nt);
+              }
+            };
+            mql.addEventListener('change', onChange);
+            return () => mql.removeEventListener('change', onChange);
+          }, []);
+
+          const changeThemePref = (pref) => {
+            setThemePref(pref);
+            try { localStorage.setItem('themePref', pref); } catch (_) {}
+            const mql = window.matchMedia('(prefers-color-scheme: dark)');
+            const newT = pref === 'light' ? 'light' : pref === 'dark' ? 'dark' : (mql.matches ? 'dark' : 'light');
+            setTheme(newT);
+            applyTheme(newT);
+          };
 
   const handleLogout = async () => {
     await User.logout();
@@ -496,6 +537,63 @@ export default function Layout({ children, currentPageName }) {
             }
           `}
         </style>
+        <style>
+          {`
+            /* Light theme overrides (brand-tinted) */
+            [data-theme='light'] {
+              --neon-bg: #f7f5ff;
+              --neon-panel: #ffffff;
+              --neon-text: #111827;
+              --neon-text-90: rgba(17,24,39,0.90);
+              --neon-text-80: rgba(17,24,39,0.80);
+              --neon-text-70: rgba(17,24,39,0.70);
+              --neon-text-60: rgba(17,24,39,0.60);
+              --neon-text-50: rgba(17,24,39,0.50);
+              --neon-text-40: rgba(17,24,39,0.40);
+              --neon-text-30: rgba(17,24,39,0.30);
+              --neon-text-20: rgba(17,24,39,0.20);
+              --neon-text-10: rgba(17,24,39,0.10);
+              --neon-accent: #7c3aed;
+              --neon-accent-2: #7c3aed;
+              --neon-accent-3: #a78bfa;
+              --neon-edge-10: rgba(124,58,237,0.10);
+              --neon-edge-20: rgba(124,58,237,0.20);
+              --neon-edge-30: rgba(124,58,237,0.30);
+              --neon-edge-40: rgba(124,58,237,0.40);
+              --neon-panel-5: rgba(255,255,255,0.5);
+              --neon-panel-8: rgba(255,255,255,0.8);
+            }
+            [data-theme='light'] html, [data-theme='light'] body, [data-theme='light'] #root {
+              background-color: var(--neon-bg) !important;
+              color: var(--neon-text) !important;
+            }
+            [data-theme='light'] .bg-white,
+            [data-theme='light'] .bg-slate-800, 
+            [data-theme='light'] .bg-slate-900,
+            [data-theme='light'] .bg-slate-800\\/30, 
+            [data-theme='light'] .bg-slate-800\\/50,
+            [data-theme='light'] .bg-slate-900\\/50, 
+            [data-theme='light'] .bg-slate-900\\/80 {
+              background-color: var(--neon-panel) !important;
+            }
+            [data-theme='light'] .border-slate-700, 
+            [data-theme='light'] .border-slate-600, 
+            [data-theme='light'] .border-purple-800\\/40, 
+            [data-theme='light'] .border-purple-700 {
+              border-color: var(--neon-edge-20) !important;
+            }
+            [data-theme='light'] .text-white, 
+            [data-theme='light'] .text-white\\/90, 
+            [data-theme='light'] .text-white\\/80, 
+            [data-theme='light'] .text-white\\/70, 
+            [data-theme='light'] .text-white\\/60, 
+            [data-theme='light'] .text-white\\/50, 
+            [data-theme='light'] .text-white\\/40, 
+            [data-theme='light'] .text-white\\/30 {
+              color: var(--neon-text) !important;
+            }
+          `}
+        </style>
 
         <div className="flex flex-1 bg-transparent">
           {/* Sidebar hidden on mobile; bottom nav used instead */}
@@ -575,6 +673,26 @@ export default function Layout({ children, currentPageName }) {
             </nav>
             
             <div className="px-4 py-4 mt-auto border-t border-purple-800/40 space-y-3">
+              {/* Theme selector */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs text-purple-300">
+                  <span>Theme</span>
+                  <span className="inline-flex items-center gap-1">
+                    {theme === 'light' ? <Sun className="w-4 h-4" /> : theme === 'dark' ? <Moon className="w-4 h-4" /> : <Laptop className="w-4 h-4" />}
+                    <span className="capitalize">{themePref === 'auto' ? 'auto' : theme}</span>
+                  </span>
+                </div>
+                <Select value={themePref} onValueChange={changeThemePref}>
+                  <SelectTrigger className="w-full bg-slate-800/50 border-purple-700 text-white">
+                    <SelectValue placeholder="Theme" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-800 border-purple-700 text-white">
+                    <SelectItem value="auto">Auto (System)</SelectItem>
+                    <SelectItem value="light">Light</SelectItem>
+                    <SelectItem value="dark">Dark</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               {user && (
                 <div className="flex justify-center">
                   <TokenBalanceDisplay balance={user.token_balance} />
