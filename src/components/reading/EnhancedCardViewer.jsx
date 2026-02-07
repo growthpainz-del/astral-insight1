@@ -80,8 +80,8 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
   };
 
   return (
-    <Dialog modal={false} open={isOpen} onOpenChange={(open)=>{ if(!open) onClose(false); }}>
-      <DialogContent className="max-w-5xl h-[92dvh] md:h-[95vh] bg-slate-900 text-white border border-purple-500/30 p-0 pointer-events-auto z-[10050]">
+    <Dialog open={isOpen} onOpenChange={(open)=>{ if(!open) onClose(false); }}>
+      <DialogContent className="max-w-5xl h-[92dvh] md:h-[95vh] bg-slate-900 text-white border border-purple-500/30 p-0 pointer-events-auto z-[1000]">
         <div className="grid h-full overflow-hidden md:grid-cols-[400px,1fr] grid-rows-[auto,1fr] md:grid-rows-1">
           {/* Left: Card Image */}
           <div className="relative bg-black/40 flex items-center justify-center p-6 border-b md:border-b-0 md:border-r border-white/10 max-h-[70dvh] md:max-h-none overflow-auto md:overflow-y-auto">
