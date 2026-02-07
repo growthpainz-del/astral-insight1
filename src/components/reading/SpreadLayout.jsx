@@ -899,8 +899,8 @@ export default function SpreadLayout(props) {
           <div
             className="rounded-full shadow-[0_0_40px_rgba(124,58,237,0.25)]"
             style={{
-              width: Math.max(120, Math.round((Math.min(containerWidth, 900)) * 0.9)),
-              height: Math.max(120, Math.round((Math.min(containerWidth, 900)) * 0.9)),
+              width: Math.max(120, Math.round((Math.min(containerWidth || 600, 900)) * 0.9)),
+              height: Math.max(120, Math.round((Math.min(containerWidth || 600, 900)) * 0.9)),
               maxWidth: '95%',
               maxHeight: '95%',
               backgroundImage: 'url(https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d2a300021f94d0f312c039/350346a74_B09C98E1-065B-4808-BF9D-F3880F497C8B.png)',
