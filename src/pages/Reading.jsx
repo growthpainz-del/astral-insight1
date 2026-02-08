@@ -787,10 +787,7 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
                    Your Reading
                  </h2>
                  <div className="flex gap-2 flex-wrap justify-end">
-                   <ToggleGroup type="single" value={viewMode} onValueChange={(v) => v && setViewMode(v)} className="rounded-md border border-white/10">
-                     <ToggleGroupItem value="compact" className={`${viewMode==='compact' ? 'bg-cyan-500/20 text-cyan-200' : 'text-white/80'} px-3 py-1`}>Compact</ToggleGroupItem>
-                     <ToggleGroupItem value="detailed" className={`${viewMode==='detailed' ? 'bg-purple-500/20 text-purple-200' : 'text-white/80'} px-3 py-1`}>Detailed</ToggleGroupItem>
-                   </ToggleGroup>
+                   {/* Compact-only: removed view toggle */}
                    <Button
                      size="sm"
                      variant="outline"
@@ -820,15 +817,7 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
                        <Sparkles className="w-4 h-4 mr-2" />
                        Relationships
                      </Button>
-                     <Button
-                       size="sm"
-                       variant="outline"
-                       onClick={() => setShowCompactSpreadOverlay(true)}
-                       className="border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10"
-                     >
-                       <Eye className="w-4 h-4 mr-2" />
-                       Compact Spread
-                     </Button>
+                     {/* Compact-only: removed extra overlay button */}
                      {selectedSpread?.isCustom && selectedSpread?.id ? (
                        <Link to={createPageUrl(`SpreadDesigner?id=${selectedSpread.id}`)}>
                          <Button size="sm" variant="outline" className="border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10">
@@ -855,39 +844,7 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
                  </div>
                )}
 
-               {console.log('📊 Rendering SpreadLayout with:', {
-                 spread: selectedSpread?.name,
-                 drawnCards: drawnCards.length,
-                 cards: cards.length,
-                 positions: selectedSpread?.positions?.length
-               })}
-
-               <SpreadLayout
-                 spread={selectedSpread}
-                 positions={readingPositions}
-                 cards={placedCards}
-                 deck={deck}
-                 onCardClick={handleCardClick}
-                 revealedCards={revealedCards}
-                 onCardReveal={handleCardReveal}
-                 useScratchReveal={(deck?.censor_mode === 'scratch') || deck?.name?.toLowerCase().includes('wiccan')}
-                 animateSpread={true}
-                 viewMode={viewMode}
-                 sizeScale={0.8}
-                 allowReposition={false}
-
-                 onPositionUpdate={(updated) => {
-                   setReadingPositions(updated);
-                   setPlacedCards(prev => prev.map((c, idx) => c ? ({
-                     ...c,
-                     position_x: typeof updated[idx]?.x === 'number' ? updated[idx].x : c.position_x,
-                     position_y: typeof updated[idx]?.y === 'number' ? updated[idx].y : c.position_y,
-                     position_rotation: typeof updated[idx]?.rotation === 'number' ? updated[idx].rotation : (c.position_rotation || 0),
-                     position: updated[idx]?.name || c.position,
-                     position_meaning: typeof updated[idx]?.meaning === 'string' ? updated[idx].meaning : c.position_meaning,
-                   }) : c));
-                 }}
-               />
+               {/* Compact view only: detailed spread removed */}
 
                </div>
 
@@ -988,44 +945,7 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
         </div>
       )}
 
-      {/* Compact Spread Overlay */}
-      {showCompactSpreadOverlay && (
-        <div className="fixed inset-0 z-[9998] bg-black/80 backdrop-blur-sm p-4 md:p-8">
-          <div className="relative max-w-6xl mx-auto bg-slate-900 rounded-xl border border-cyan-500/30 p-4 md:p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-white font-semibold">Compact Spread</h3>
-              <button onClick={() => setShowCompactSpreadOverlay(false)} className="text-white/70 hover:text-white">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <SpreadLayout
-               spread={selectedSpread}
-               positions={readingPositions}
-               cards={placedCards}
-               deck={deck}
-               onCardClick={handleCardClick}
-               revealedCards={revealedCards}
-               onCardReveal={handleCardReveal}
-               useScratchReveal={(deck?.censor_mode === 'scratch') || deck?.name?.toLowerCase().includes('wiccan')}
-               animateSpread={true}
-               allowReposition={true}
-               defaultCardWidth={90}
-               containerMinH="70vh"
-               onPositionUpdate={(updated) => {
-                 setReadingPositions(updated);
-                 setPlacedCards(prev => prev.map((c, idx) => c ? ({
-                   ...c,
-                   position_x: typeof updated[idx]?.x === 'number' ? updated[idx].x : c.position_x,
-                   position_y: typeof updated[idx]?.y === 'number' ? updated[idx].y : c.position_y,
-                   position_rotation: typeof updated[idx]?.rotation === 'number' ? updated[idx].rotation : (c.position_rotation || 0),
-                   position: updated[idx]?.name || c.position,
-                   position_meaning: typeof updated[idx]?.meaning === 'string' ? updated[idx].meaning : c.position_meaning,
-                 }) : c));
-               }}
-             />
-          </div>
-        </div>
-      )}
+{/* Compact view only: removed overlay */}
 
        {/* Enhanced Card Viewer Modal - MOVED TO TOP LEVEL WITH HIGHER Z-INDEX */}
       {viewerCard && showEnhancedViewer && (
