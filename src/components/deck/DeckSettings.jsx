@@ -540,7 +540,7 @@ export default function DeckSettings({ deckId, isOpen, onClose, onSaved, initial
               value={insightsText}
               onChange={(e) => setInsightsText(e.target.value)}
               className="bg-slate-800 border-slate-700 text-white min-h-[140px] font-mono text-xs"
-              placeholder={`{\n  "common_themes": ["growth", "rebellion"],\n  "visual_style": { "color_palette": ["violet", "black"] }\n}`
+              placeholder={`{\n  "common_themes": ["growth", "rebellion"],\n  "visual_style": { "color_palette": ["violet", "black"] }\n}`}
             />
             {insightsError && (
               <div className="mt-2 text-xs text-red-300">{insightsError}</div>
