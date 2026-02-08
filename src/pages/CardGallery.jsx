@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Card as CardEntity, Deck } from "@/entities/all";
 import { motion } from "framer-motion";
@@ -56,6 +55,7 @@ export default function CardGallery() {
   const [editingCard, setEditingCard] = useState(null); // For CardEditor in edit mode
   const [deletingId, setDeletingId] = useState(null); // For delete confirmation/loading state
   const [isImageUploaderOpen, setIsImageUploaderOpen] = useState(false); // New state for BulkImageUploader
+  const [previewCard, setPreviewCard] = useState(null); // Preview modal for quick view
 
   // New states introduced by the outline's proposed changes
   const [error, setError] = useState(null); // For displaying API call errors
@@ -277,7 +277,7 @@ export default function CardGallery() {
                 exit={{ opacity: 0, scale: 0.8 }}
                 transition={{ duration: 0.3 }}
                 className="cursor-pointer group"
-                onClick={() => setEditingCard(card)}
+                onClick={() => setPreviewCard(card)}
               >
                 <Card className="bg-white/5 border-white/10 rounded-lg overflow-hidden transition-all duration-300 hover:border-purple-400/50 hover:shadow-2xl hover:shadow-purple-500/20">
                   <CardContent className="p-0 aspect-[9/16] relative">
@@ -292,7 +292,13 @@ export default function CardGallery() {
                       <h3 className="font-bold text-white truncate">{card.name}</h3>
                       {card.number && <span className="text-xs text-gray-300">No. {card.number}</span>}
                     </div>
-                    <Pencil className="absolute top-2 right-2 w-5 h-5 text-white/50 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <button
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); setEditingCard(card); }}
+                      className="absolute top-2 right-2 p-1 rounded bg-black/40 hover:bg-black/60 text-white/80 opacity-0 group-hover:opacity-100 transition-opacity"
+                      aria-label="Edit card"
+                    >
+                      <Pencil className="w-5 h-5" />
+                    </button>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -343,6 +349,35 @@ export default function CardGallery() {
           onClose={() => setIsImageUploaderOpen(false)}
         />
       )}
+
+      {/* Quick Preview Modal for card details */}
+      <Dialog open={!!previewCard} onOpenChange={() => setPreviewCard(null)}>
+        <DialogContent className="max-w-2xl bg-slate-900 text-white border-purple-800/40">
+          <DialogHeader>
+            <DialogTitle className="text-2xl">{previewCard?.name || "Card Details"}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            {previewCard?.overall_meaning && (
+              <div>
+                <h3 className="text-sm font-semibold text-purple-300 mb-1">Overall Meaning</h3>
+                <p className="text-white/80">{previewCard.overall_meaning}</p>
+              </div>
+            )}
+            {previewCard?.upright_meaning && (
+              <div>
+                <h3 className="text-sm font-semibold text-purple-300 mb-1">Upright</h3>
+                <p className="text-white/80">{previewCard.upright_meaning}</p>
+              </div>
+            )}
+            {previewCard?.reversed_meaning && (
+              <div>
+                <h3 className="text-sm font-semibold text-purple-300 mb-1">Reversed</h3>
+                <p className="text-white/80">{previewCard.reversed_meaning}</p>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={!!editingCard || creatingCard} onOpenChange={() => { setEditingCard(null); setCreatingCard(false); }}>
         <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col bg-gray-900 border-purple-800 text-white">
