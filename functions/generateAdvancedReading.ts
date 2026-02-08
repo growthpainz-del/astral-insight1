@@ -168,8 +168,9 @@ CONCISENESS RULES:
 DECK: ${deck?.name || "Oracle Deck"}
 ${deckDescription ? `Deck Theme: ${deckDescription}` : ""}
 ${coachInstruction}
+${insightsSection}
 
-SPREAD STRUCTURE:
+ SPREAD STRUCTURE:
 ${spreadStructure}
 ${questionEmphasis}
 ${moonContext}
