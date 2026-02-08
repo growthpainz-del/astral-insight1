@@ -27,7 +27,7 @@ export default function CompactSpread({
           sizeScale={0.6}
           defaultCardWidth={80}
           allowReposition={false}
-          containerMinH="240px"
+          containerMinH="480px"
         />
       </div>
     </div>
