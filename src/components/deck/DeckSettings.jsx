@@ -41,6 +41,8 @@ export default function DeckSettings({ deckId, isOpen, onClose, onSaved, initial
   const [confirmName, setConfirmName] = React.useState("");
   const [deck, setDeck] = React.useState(initialDeck || null);
   const [error, setError] = React.useState("");
+  const [insightsText, setInsightsText] = React.useState("");
+  const [insightsError, setInsightsError] = React.useState("");
 
   const [basicName, setBasicName] = React.useState(initialDeck?.name || "");
   const [basicPublic, setBasicPublic] = React.useState(!!initialDeck?.is_public);
@@ -55,6 +57,13 @@ export default function DeckSettings({ deckId, isOpen, onClose, onSaved, initial
         setDeck(d);
         setBasicName(d.name || "");
         setBasicPublic(!!d.is_public);
+        try {
+          const txt = d.ai_deck_insights ? JSON.stringify(d.ai_deck_insights, null, 2) : "";
+          setInsightsText(txt);
+          setInsightsError("");
+        } catch (_) {
+          setInsightsText("");
+        }
       } finally {
         setLoading(false);
       }
@@ -179,6 +188,17 @@ export default function DeckSettings({ deckId, isOpen, onClose, onSaved, initial
     setSaving(true);
     setError("");
     try {
+      // Validate AI Deck Insights JSON if provided
+      let insightsObj = undefined;
+      if (insightsText && insightsText.trim()) {
+        try {
+          insightsObj = JSON.parse(insightsText);
+          setInsightsError("");
+        } catch (e) {
+          setInsightsError("Invalid JSON in AI Deck Insights");
+          throw new Error("AI Deck Insights JSON is invalid");
+        }
+      }
       const payload = {
         name: deck.name || "",
         description: deck.description || "",
@@ -193,7 +213,8 @@ export default function DeckSettings({ deckId, isOpen, onClose, onSaved, initial
         auto_remove_bg: !!deck.auto_remove_bg,
         ai_reading_coach: deck.ai_reading_coach || "",
         shuffle_animation_url: deck.shuffle_animation_url || "",
-      };
+        ai_deck_insights: insightsObj !== undefined ? insightsObj : (deck.ai_deck_insights || undefined),
+        };
       
       await Deck.update(deckId, payload);
 
