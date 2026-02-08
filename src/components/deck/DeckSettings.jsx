@@ -86,6 +86,41 @@ export default function DeckSettings({ deckId, isOpen, onClose, onSaved, initial
     }
   };
 
+  // New: validate and upload shuffle animation (<=10s)
+  const validateVideoDuration = (file) => new Promise((resolve) => {
+    try {
+      if (!file || !file.type?.startsWith('video')) return resolve(true); // only validate videos
+      const url = URL.createObjectURL(file);
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+      video.onloadedmetadata = () => {
+        URL.revokeObjectURL(url);
+        const dur = Number(video.duration || 0);
+        resolve(!Number.isFinite(dur) || dur <= 10.2); // tiny buffer
+      };
+      video.onerror = () => resolve(true); // if unknown, allow
+      video.src = url;
+    } catch (_) {
+      resolve(true);
+    }
+  });
+
+  const uploadShuffleAnimation = async (file) => {
+    if (!isValidFile(file)) return;
+    const ok = await validateVideoDuration(file);
+    if (!ok) {
+      setError('Please select a video that is 10 seconds or less.');
+      return;
+    }
+    setSaving(true);
+    try {
+      const file_url = await safeUploadFile(file);
+      patch({ shuffle_animation_url: file_url });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const [savingBasic, setSavingBasic] = React.useState(false);
   const handleSaveBasic = async () => {
     if (!deckId) return;
@@ -157,6 +192,7 @@ export default function DeckSettings({ deckId, isOpen, onClose, onSaved, initial
 
         auto_remove_bg: !!deck.auto_remove_bg,
         ai_reading_coach: deck.ai_reading_coach || "",
+        shuffle_animation_url: deck.shuffle_animation_url || "",
       };
       
       await Deck.update(deckId, payload);
@@ -369,6 +405,46 @@ export default function DeckSettings({ deckId, isOpen, onClose, onSaved, initial
             </div>
             {deck?.back_image_url && (
               <img src={deck.back_image_url} alt="Back" className="mt-2 w-32 h-auto rounded border border-white/20" />
+            )}
+          </div>
+
+          <div>
+            <Label className="text-white/80">Shuffle Animation (≤10s, MP4/WebM/GIF)</Label>
+            <div className="flex gap-2">
+              <Input
+                value={deck?.shuffle_animation_url || ""}
+                onChange={(e) => patch({ shuffle_animation_url: e.target.value })}
+                className="bg-slate-800 border-slate-700 text-white"
+                placeholder="https://..."
+              />
+              <Button
+                variant="outline"
+                className="border-white/20 text-white hover:bg-white/10"
+                onClick={() => document.getElementById("shuffle-upload").click()}
+              >
+                <Upload className="w-4 h-4" />
+              </Button>
+              <input
+                id="shuffle-upload"
+                type="file"
+                accept="video/mp4,video/webm,image/gif"
+                className="hidden"
+                onChange={(e) => uploadShuffleAnimation(e.target.files[0])}
+              />
+            </div>
+            {deck?.shuffle_animation_url && (
+              deck.shuffle_animation_url.toLowerCase().endsWith('.gif') ? (
+                <img src={deck.shuffle_animation_url} alt="Shuffle animation" className="mt-2 w-full max-w-md rounded border border-white/20" />
+              ) : (
+                <video
+                  src={deck.shuffle_animation_url}
+                  className="mt-2 w-full max-w-md rounded border border-white/20"
+                  controls
+                  loop
+                  muted
+                  playsInline
+                />
+              )
             )}
           </div>
 

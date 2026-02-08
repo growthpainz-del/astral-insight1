@@ -34,6 +34,7 @@ import { Badge } from "@/components/ui/badge";
 import ReadingSessionManager from "@/components/reading/ReadingSessionManager";
 import EnhancedCardViewer from "@/components/reading/EnhancedCardViewer";
 import DisablePullToRefresh from "@/components/common/DisablePullToRefresh";
+import ShuffleAnimation from "@/components/reading/ShuffleAnimation";
 
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
@@ -387,13 +388,14 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
       } : null,
     });
 
+    const shuffleDurationMs = deck?.shuffle_animation_url ? 8000 : 3000;
     setTimeout(() => {
       console.log('✅ Setting drawn cards:', drawn.length);
       setDrawnCards(drawn);
       setPlacedCards(drawn);
       setRevealedCards(new Set());
       setIsDrawing(false);
-    }, 3000);
+    }, shuffleDurationMs);
   };
 
   const handleCardReveal = (cardIndex) => {
@@ -689,6 +691,11 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
               <h3 className="text-center text-purple-200 mb-4 font-semibold">
                 ✨ Channeling cosmic energy while shuffling...
               </h3>
+              {deck?.shuffle_animation_url && (
+                <div className="mb-4">
+                  <ShuffleAnimation url={deck.shuffle_animation_url} />
+                </div>
+              )}
               <IdeomotorCanvas
                 question={question || "What guidance do you seek?"}
                 onComplete={() => {}}
