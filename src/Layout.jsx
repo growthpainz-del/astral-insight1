@@ -248,11 +248,22 @@ export default function Layout({ children, currentPageName }) {
   };
 
   const handleMobileBack = () => {
+    const readingRelatedPages = new Set([
+      'ReadingRoom', 'ReadingSimple', 'SharedReading', 'History', 'CardInfo', 'CardGallery', 'DeckView'
+    ]);
+
     try {
       const params = new URLSearchParams(window.location.search);
       const deckId = params.get('deck_id') || params.get('deckId') || params.get('deck');
-      if (deckId && currentPageName !== 'Reading') {
-        window.location.href = createPageUrl(`Reading?deck_id=${encodeURIComponent(deckId)}`);
+      const spread = params.get('spread') || params.get('spread_id') || params.get('spreadId');
+      const question = params.get('question') || params.get('q');
+
+      if (readingRelatedPages.has(currentPageName) && currentPageName !== 'Reading' && deckId) {
+        const query = new URLSearchParams();
+        query.set('deck_id', deckId);
+        if (spread) query.set('spread', spread);
+        if (question) query.set('question', question);
+        window.location.href = createPageUrl(`Reading?${query.toString()}`);
         return;
       }
     } catch (_) {}
