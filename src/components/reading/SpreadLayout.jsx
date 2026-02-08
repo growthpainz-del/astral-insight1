@@ -1033,12 +1033,13 @@ export default function SpreadLayout(props) {
                     >
                       {useScratchReveal && !revealedCards.has(idx) ? (
                         <div
-                                                            onMouseDown={(e) => allowReposition && handleCardDragStart(e, idx)}
-                                                            onTouchStart={(e) => allowReposition && handleCardDragStart(e, idx)}
-                                                            onClick={() => !allowReposition && onCardClick(card, idx)}
-                                                            className="w-full h-full"
-                                                          >
-                          <ScratchRevealCard
+                                                                                     onMouseDown={(e) => allowReposition && handleCardDragStart(e, idx)}
+                                                                                     onTouchStart={(e) => allowReposition && handleCardDragStart(e, idx)}
+                                                                                     onClick={() => !allowReposition && onCardClick(card, idx)}
+                                                                                     className="relative w-full h-full rounded-lg group"
+                                                                                   >
+                                                  <div className="pointer-events-none absolute inset-0 rounded-lg ring-2 ring-amber-400/20 shadow-[0_0_22px_rgba(251,191,36,0.35)] group-hover:ring-amber-400/40 group-hover:shadow-[0_0_32px_rgba(251,191,36,0.55)] transition-all" />
+                                                  <ScratchRevealCard
                             frontImage={card.image_url}
                             backImage={deck?.back_image_url}
                             cardName={card.name}
@@ -1064,7 +1065,7 @@ export default function SpreadLayout(props) {
                                                          onCardReveal(idx);
                                                          setTimeout(() => onCardClick(card, idx), 300);
                                                        }}
-                                                       className="relative w-full h-full rounded-lg overflow-hidden shadow-2xl hover:shadow-purple-500/50 hover:scale-105 transition-all"
+                                                       className="relative w-full h-full rounded-lg overflow-hidden ring-2 ring-amber-400/20 shadow-[0_0_22px_rgba(251,191,36,0.35)] hover:ring-amber-400/40 hover:shadow-[0_0_32px_rgba(251,191,36,0.55)] hover:scale-105 transition-all group"
                                                        style={{ touchAction: 'manipulation' }}
                                                      >
                           {deck?.back_image_url ? (
@@ -1086,7 +1087,7 @@ export default function SpreadLayout(props) {
                           onClick={() => onCardClick(card, idx)}
                           onMouseDown={(e) => allowReposition && handleCardDragStart(e, idx)}
                           onTouchStart={(e) => allowReposition && handleCardDragStart(e, idx)}
-                          className={`relative w-full h-full rounded-lg overflow-hidden shadow-2xl transition-all duration-300 group ${isCurrentDragged ? 'shadow-purple-500/80 scale-105' : 'hover:shadow-purple-500/50 hover:scale-105'}`}
+                          className={`relative w-full h-full rounded-lg overflow-hidden ring-2 ring-amber-400/20 shadow-[0_0_22px_rgba(251,191,36,0.35)] transition-all duration-300 group ${isCurrentDragged ? 'shadow-purple-500/80 scale-105' : 'hover:ring-amber-400/40 hover:shadow-[0_0_32px_rgba(251,191,36,0.55)] hover:scale-105'}`}
                           
                           style={{
                             transform: `rotate(${pos.rotation || 0}deg)`,
@@ -1240,10 +1241,11 @@ export default function SpreadLayout(props) {
                       >
                         {useScratchReveal && !revealedCards.has(idx) ? (
                           <div
-                            onClick={() => !allowReposition && onCardClick(card, idx)}
-                            className="w-full h-full"
-                          >
-                            <ScratchRevealCard
+                                                        onClick={() => !allowReposition && onCardClick(card, idx)}
+                                                        className="relative w-full h-full rounded-lg group"
+                                                      >
+                                                        <div className="pointer-events-none absolute inset-0 rounded-lg ring-2 ring-amber-400/20 shadow-[0_0_20px_rgba(251,191,36,0.35)] group-hover:ring-amber-400/40 group-hover:shadow-[0_0_30px_rgba(251,191,36,0.55)] transition-all" />
+                                                        <ScratchRevealCard
                               frontImage={card.image_url}
                               backImage={deck?.back_image_url}
                               cardName={card.name}
@@ -1269,7 +1271,7 @@ export default function SpreadLayout(props) {
                                                             onCardReveal(idx);
                                                             setTimeout(() => onCardClick(card, idx), 300);
                                                           }}
-                                                          className="relative w-full h-full rounded-lg overflow-hidden shadow-xl hover:shadow-purple-500/50 hover:scale-110 transition-all"
+                                                          className="relative w-full h-full rounded-lg overflow-hidden ring-2 ring-amber-400/20 shadow-[0_0_20px_rgba(251,191,36,0.35)] hover:ring-amber-400/40 hover:shadow-[0_0_30px_rgba(251,191,36,0.55)] hover:scale-110 transition-all group"
                                                           style={{ touchAction: 'manipulation' }}
                                                         >
                             {deck?.back_image_url ? (
@@ -1291,7 +1293,7 @@ export default function SpreadLayout(props) {
                             onClick={() => onCardClick(card, idx)}
                                                           onMouseDown={(e) => allowReposition && handleCardDragStart(e, idx)}
                                                           onTouchStart={(e) => allowReposition && handleCardDragStart(e, idx)}
-                                                          className={`relative w-full h-full rounded-lg overflow-hidden shadow-xl transition-all duration-300 group ${isCurrentDragged ? 'shadow-purple-500/80 scale-110' : 'hover:shadow-purple-500/50 hover:scale-110'}`}
+                                                          className={`relative w-full h-full rounded-lg overflow-hidden ring-2 ring-amber-400/20 shadow-[0_0_20px_rgba(251,191,36,0.35)] transition-all duration-300 group ${isCurrentDragged ? 'shadow-purple-500/80 scale-110' : 'hover:ring-amber-400/40 hover:shadow-[0_0_30px_rgba(251,191,36,0.55)] hover:scale-110'}`}
                             style={{
                               transform: `rotate(${pos.rotation}deg)`,
                               transformOrigin: 'center',
