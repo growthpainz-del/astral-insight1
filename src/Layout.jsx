@@ -248,6 +248,15 @@ export default function Layout({ children, currentPageName }) {
   };
 
   const handleMobileBack = () => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const deckId = params.get('deck_id') || params.get('deckId') || params.get('deck');
+      if (deckId && currentPageName !== 'Reading') {
+        window.location.href = createPageUrl(`Reading?deck_id=${encodeURIComponent(deckId)}`);
+        return;
+      }
+    } catch (_) {}
+
     if (window.history.length > 1) {
       window.history.back();
     } else {
