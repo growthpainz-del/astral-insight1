@@ -185,7 +185,16 @@ if (user && typeof user.token_balance === "number") {
       audioRef.current.muted = false;
       audioRef.current.volume = 1.0;
       audioRef.current.onended = () => setIsSpeaking(false);
-      try { await audioRef.current.play(); } catch (e) { setError('Playback blocked by browser. Press the Play button.'); }
+      try { await audioRef.current.play(); } catch (e) {
+        // Autoplay blocked: fallback to device voice
+        try {
+          await speakWithWebAPI(interpretation);
+          setError('Using device voice (local).');
+          return;
+        } catch (_) {
+          setError('Playback blocked by browser. Press the Play button.');
+        }
+      }
     } catch (err) {
       console.error('TTS error:', err);
       const msg = String(err?.message || '');
@@ -204,7 +213,16 @@ if (user && typeof user.token_balance === "number") {
           audioRef.current.muted = false;
           audioRef.current.volume = 1.0;
           audioRef.current.onended = () => setIsSpeaking(false);
-          try { await audioRef.current.play(); } catch (e) { setError('Playback blocked by browser. Press the Play button.'); }
+          try { await audioRef.current.play(); } catch (e) {
+        // Autoplay blocked: fallback to device voice
+        try {
+          await speakWithWebAPI(interpretation);
+          setError('Using device voice (local).');
+          return;
+        } catch (_) {
+          setError('Playback blocked by browser. Press the Play button.');
+        }
+      }
           setSelectedVoiceId(FALLBACK_ID);
           setError("");
           return;
