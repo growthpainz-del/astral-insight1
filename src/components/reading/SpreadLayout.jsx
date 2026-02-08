@@ -310,7 +310,7 @@ export default function SpreadLayout(props) {
     showPositionLabels = true,
     hideEmptySlots = false,
     revealMode = "instant",
-    animateSpread = false,
+    animateSpread = true,
     onCardClick = () => {},
     deck,
     containerMinH = null,
@@ -1009,9 +1009,9 @@ export default function SpreadLayout(props) {
                       initial={animateSpread ? {
                         scale: 0.1,
                         opacity: 0,
-                        y: -400,
-                        x: Math.random() * 200 - 100,
-                        rotateZ: (pos.rotation || 0) + (Math.random() * 120 - 60),
+                        x: 0,
+                        y: 0,
+                        rotateZ: pos.rotation || 0,
                         rotateY: 180
                       } : false}
                       animate={{
