@@ -183,6 +183,7 @@ ${deckDescription ? `Deck Theme: ${deckDescription}` : ""}
 ${coachInstruction}
 ${insightsSection}
 ${languageInstruction}
+${adviceDepthInstruction}
 
  SPREAD STRUCTURE:
 ${spreadStructure}
