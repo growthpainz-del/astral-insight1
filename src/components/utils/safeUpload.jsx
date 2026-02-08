@@ -118,12 +118,11 @@ async function compressImageToTarget(file, {
 export async function safeUploadFile(file) {
   console.log(`📤 Uploading file: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB, type: ${file.type})`);
   
-  // Validate file type - EXPLICITLY ALLOW WEBP
-  const isImage = /^image\/(jpeg|jpg|png|webp|gif|bmp|tiff|svg\+xml)$/i.test(file.type);
-  if (!isImage && file.type && file.type.startsWith('image/')) {
-    console.warn(`⚠️ Unusual image type: ${file.type}, attempting upload anyway`);
-  } else if (!isImage && file.type) {
-    throw new Error(`Unsupported file type: ${file.type}. Please upload an image file (JPG, PNG, WebP, GIF).`);
+  // Validate file type: allow images and short videos (mp4/webm) for animations
+  const isImage = /^image\//i.test(file.type);
+  const isVideo = /^video\/(mp4|webm)$/i.test(file.type);
+  if (!isImage && !isVideo && file.type) {
+    throw new Error(`Unsupported file type: ${file.type}. Please upload an image (JPG, PNG, WebP, GIF) or a short video (MP4/WebM).`);
   }
 
   // If it's an image and too large, compress first
@@ -150,7 +149,7 @@ export async function safeUploadFile(file) {
   // Final guard: if still too big, throw a friendly error
   if (candidate.size > MAX_BYTES) {
     const mb = (candidate.size / (1024 * 1024)).toFixed(1);
-    throw new Error(`This image is still too large to upload (${mb}MB). Please resize and try again, or paste a direct image URL.`);
+    throw new Error(`This file is too large to upload (${mb}MB). Please reduce size and try again, or provide a direct URL.`);
   }
 
   console.log(`✅ Uploading ${candidate.type}: ${candidate.name} (${(candidate.size / 1024 / 1024).toFixed(2)}MB)`);
