@@ -438,7 +438,7 @@ if (user && typeof user.token_balance === "number") {
 
 
 
-          <audio ref={audioRef} controls playsInline className="w-full mt-2 rounded-lg bg-black/30" />
+          <audio ref={audioRef} controls playsInline preload="auto" className="w-full mt-2 rounded-lg bg-black/30" />
 
           <div className="prose prose-invert prose-purple max-w-none">
             <div className="text-white/90 whitespace-pre-wrap leading-relaxed text-sm md:text-base">
