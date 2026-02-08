@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -22,10 +22,18 @@ export default function EnhancedCardViewer({ card, isOpen, onClose, position, is
   const [activeTab, setActiveTab] = useState("overview");
   const [copied, setCopied] = useState(false);
   const [showVideo, setShowVideo] = useState(!!card?.video_url);
+  const rightPaneRef = useRef(null);
 
   useEffect(() => {
     setShowVideo(!!card?.video_url);
   }, [card?.id, isOpen]);
+
+  const handleImageClick = () => {
+    setActiveTab('overview');
+    try {
+      rightPaneRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } catch (_) {}
+  };
 
   // Lock background scroll while viewer is open (iOS-safe)
   useEffect(() => {
@@ -108,7 +116,7 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
               <X className="w-5 h-5" />
             </button>
 
-            <div className="relative max-w-sm mx-auto">
+            <div onClick={handleImageClick} className="relative max-w-sm mx-auto cursor-pointer select-none">
               {/* Glow effect */}
               <div className={`absolute -inset-4 ${isReversed ? 'bg-purple-600' : 'bg-cyan-600'} opacity-20 blur-3xl rounded-full`}></div>
               
@@ -158,11 +166,16 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
                  Video ended – showing image. Close to return.
                </div>
               )}
+              {activeTab !== 'overview' && (
+                <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[11px] text-white/80 bg-black/60 px-2 py-0.5 rounded-full border border-white/20">
+                  Tap image to view Overview
+                </div>
+              )}
             </div>
           </div>
 
           {/* Right: Card Information */}
-          <div className="flex flex-col h-full overflow-hidden">
+          <div ref={rightPaneRef} className="flex flex-col h-full overflow-hidden">
             {/* Header */}
             <div className="p-6 border-b border-white/10 flex-shrink-0">
               <div className="flex items-start justify-between mb-3">
