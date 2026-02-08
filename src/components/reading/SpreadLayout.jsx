@@ -903,7 +903,7 @@ export default function SpreadLayout(props) {
               height: Math.max(120, Math.round((Math.min(containerWidth || 600, 900)) * 0.9)),
               maxWidth: '95%',
               maxHeight: '95%',
-              backgroundImage: 'url(https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d2a300021f94d0f312c039/350346a74_B09C98E1-065B-4808-BF9D-F3880F497C8B.png)',
+              backgroundImage: 'url(https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d2a300021f94d0f312c039/1ae9dba83_E9BB4507-45F8-4ECD-991B-74E57C0ECC6D.png)',
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               opacity: 0.72,
