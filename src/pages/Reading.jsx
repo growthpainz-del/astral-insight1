@@ -766,19 +766,7 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
         {/* Display for Drawn Cards */}
         {drawnCards.length > 0 && (
           <div className="space-y-6">
-            {/* Quick, top-left compact spread preview to avoid initial scrolling */}
-             <div className="mb-4 flex justify-start">
-               <CompactSpread
-                 spread={selectedSpread}
-                 positions={readingPositions}
-                 cards={placedCards}
-                 deck={deck}
-                 viewMode={viewMode}
-                 revealedCards={revealedCards}
-                 onCardClick={handleCardClick}
-                 onCardReveal={handleCardReveal}
-               />
-             </div>
+            {/* Compact preview removed — using a single main compact view */}
 
              {/* Enhanced Spread Visualization */}
              <div className="bg-white/5 border border-white/10 rounded-xl p-6">
@@ -844,7 +832,18 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
                  </div>
                )}
 
-               {/* Compact view only: detailed spread removed */}
+               <div className="mt-2">
+                  <CompactSpread
+                    spread={selectedSpread}
+                    positions={readingPositions}
+                    cards={placedCards}
+                    deck={deck}
+                    viewMode={viewMode}
+                    revealedCards={revealedCards}
+                    onCardClick={handleCardClick}
+                    onCardReveal={handleCardReveal}
+                  />
+                </div>
 
                </div>
 
