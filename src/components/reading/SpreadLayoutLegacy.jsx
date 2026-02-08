@@ -156,134 +156,12 @@ function normalizeSpreadPositions(spread, positions, cards) {
         // No coordinates anywhere: continue with named-only handling below
         const hasCoordinates = false;
 
-  if (hasCoordinates) {
-    console.log('📍 Using coordinate positions from spread definition');
-    return positions.map((pos, idx) => {
-      const x = typeof pos?.x === 'number' ? Math.min(100, Math.max(0, pos.x)) : 50;
-      const y = typeof pos?.y === 'number' ? Math.min(100, Math.max(0, pos.y)) : 50;
-      const rotation = typeof pos?.rotation === 'number' ? pos.rotation : 0;
-
-      let posName = typeof pos === 'string' ? pos : (pos.name || `Position ${idx + 1}`);
-      if (!posName.match(/\d/)) {
-        posName = `${idx + 1}. ${posName}`;
-      }
-
-      return {
-        name: posName,
-        meaning: typeof pos === 'string' ? '' : (pos.meaning || ''),
-        x,
-        y,
-        rotation,
-        position_number: idx + 1,
-      };
-    });
-  }
-
-  // PRIORITY 3: Fallback layouts for built-in spreads
-  console.log('📍 Using fallback layout for:', positions.length, 'positions');
-  const count = positions.length;
-
-  // Single card - center
-  if (count === 1) {
-    let posName = typeof positions[0] === 'string' ? positions[0] : positions[0]?.name || 'Card';
-    if (!posName.match(/\d/)) {
-      posName = `1. ${posName}`;
-    }
-    return [{
-      name: posName,
-      meaning: typeof positions[0] === 'string' ? '' : (positions[0]?.meaning || ''),
-      x: 50,
-      y: 50,
-      rotation: 0,
-      position_number: 1,
-    }];
-  }
-
-  // Diamond Ring (7) fallback: ensure a symmetric ring if no explicit coords
-  if (count === 7 && (spread?.name?.toLowerCase()?.includes('diamond') || spread?.id === 'diamond')) {
-    const ring = [
-      { x: 50, y: 14, rotation: 0 },   // North
-      { x: 74, y: 30, rotation: 35 },  // NE
-      { x: 88, y: 50, rotation: 90 },  // East
-      { x: 74, y: 70, rotation: -35 }, // SE
-      { x: 50, y: 86, rotation: 0 },   // South
-      { x: 26, y: 70, rotation: 35 },  // SW
-      { x: 12, y: 50, rotation: 90 },  // West
-    ];
-    return positions.map((pos, idx) => {
-      let posName = typeof pos === 'string' ? pos : (pos.name || `Position ${idx + 1}`);
-      if (!posName.match(/\d/)) posName = `${idx + 1}. ${posName}`;
-      return {
-        name: posName,
-        meaning: typeof pos === 'string' ? '' : (pos.meaning || ''),
-        x: ring[idx]?.x ?? 50,
-        y: ring[idx]?.y ?? 50,
-        rotation: ring[idx]?.rotation ?? 0,
-        position_number: idx + 1,
-      };
-    });
-  }
-
-  // Three cards - horizontal line
-  if (count === 3) {
-    return positions.map((pos, idx) => {
-      let posName = typeof pos === 'string' ? pos : (pos.name || `Position ${idx + 1}`);
-      if (!posName.match(/\d/)) {
-        posName = `${idx + 1}. ${posName}`;
-      }
-
-      return {
-        name: posName,
-        meaning: typeof pos === 'string' ? '' : (pos.meaning || ''),
-        x: 20 + (idx * 30),
-        y: 50,
-        rotation: 0,
-        position_number: idx + 1,
-      };
-    });
-  }
-
-  // Celtic Cross layout (10 cards)
-  if (count === 10 && spread?.name?.toLowerCase().includes('celtic cross')) {
-    const celticPositions = [
-      { x: 50, y: 50, rotation: 0 },
-      { x: 50, y: 50, rotation: 90 },
-      { x: 50, y: 25, rotation: 0 },
-      { x: 50, y: 75, rotation: 0 },
-      { x: 25, y: 50, rotation: 0 },
-      { x: 75, y: 50, rotation: 0 },
-      { x: 85, y: 80, rotation: 0 },
-      { x: 85, y: 60, rotation: 0 },
-      { x: 85, y: 40, rotation: 0 },
-      { x: 85, y: 20, rotation: 0 },
-    ];
-
-    return positions.map((pos, idx) => {
-      let posName = typeof pos === 'string' ? pos : (pos.name || `Position ${idx + 1}`);
-      if (!posName.match(/\d/)) {
-        posName = `${idx + 1}. ${posName}`;
-      }
-
-      return {
-        name: posName,
-        meaning: typeof pos === 'string' ? '' : (pos.meaning || ''),
-        x: celticPositions[idx]?.x ?? 50,
-        y: celticPositions[idx]?.y ?? 50,
-        rotation: celticPositions[idx]?.rotation ?? 0,
-        position_number: idx + 1,
-      };
-    });
-  }
-
-
-
-  // Default: distribute evenly in a grid
-  const cols = Math.min(5, Math.ceil(Math.sqrt(count)));
-  const rows = Math.ceil(count / cols);
-
+if (hasCoordinates) {
+  console.log('📍 Using coordinate positions from spread definition');
   return positions.map((pos, idx) => {
-    const col = idx % cols;
-    const row = Math.floor(idx / cols);
+    const x = typeof pos?.x === 'number' ? Math.min(100, Math.max(0, pos.x)) : 50;
+    const y = typeof pos?.y === 'number' ? Math.min(100, Math.max(0, pos.y)) : 50;
+    const rotation = typeof pos?.rotation === 'number' ? pos.rotation : 0;
 
     let posName = typeof pos === 'string' ? pos : (pos.name || `Position ${idx + 1}`);
     if (!posName.match(/\d/)) {
@@ -293,15 +171,137 @@ function normalizeSpreadPositions(spread, positions, cards) {
     return {
       name: posName,
       meaning: typeof pos === 'string' ? '' : (pos.meaning || ''),
-      x: 15 + (col * (70 / (cols - 1 || 1))),
-      y: 20 + (row * (60 / (rows - 1 || 1))),
+      x,
+      y,
+      rotation,
+      position_number: idx + 1,
+    };
+  });
+}
+
+// PRIORITY 3: Fallback layouts for built-in spreads
+console.log('📍 Using fallback layout for:', positions.length, 'positions');
+const count = positions.length;
+
+// Single card - center
+if (count === 1) {
+  let posName = typeof positions[0] === 'string' ? positions[0] : positions[0]?.name || 'Card';
+  if (!posName.match(/\d/)) {
+    posName = `1. ${posName}`;
+  }
+  return [{
+    name: posName,
+    meaning: typeof positions[0] === 'string' ? '' : (positions[0]?.meaning || ''),
+    x: 50,
+    y: 50,
+    rotation: 0,
+    position_number: 1,
+  }];
+}
+
+// Diamond Ring (7) fallback: ensure a symmetric ring if no explicit coords
+if (count === 7 && (spread?.name?.toLowerCase()?.includes('diamond') || spread?.id === 'diamond')) {
+  const ring = [
+    { x: 50, y: 14, rotation: 0 },   // North
+    { x: 74, y: 30, rotation: 35 },  // NE
+    { x: 88, y: 50, rotation: 90 },  // East
+    { x: 74, y: 70, rotation: -35 }, // SE
+    { x: 50, y: 86, rotation: 0 },   // South
+    { x: 26, y: 70, rotation: 35 },  // SW
+    { x: 12, y: 50, rotation: 90 },  // West
+  ];
+  return positions.map((pos, idx) => {
+    let posName = typeof pos === 'string' ? pos : (pos.name || `Position ${idx + 1}`);
+    if (!posName.match(/\d/)) posName = `${idx + 1}. ${posName}`;
+    return {
+      name: posName,
+      meaning: typeof pos === 'string' ? '' : (pos.meaning || ''),
+      x: ring[idx]?.x ?? 50,
+      y: ring[idx]?.y ?? 50,
+      rotation: ring[idx]?.rotation ?? 0,
+      position_number: idx + 1,
+    };
+  });
+}
+
+// Three cards - horizontal line
+if (count === 3) {
+  return positions.map((pos, idx) => {
+    let posName = typeof pos === 'string' ? pos : (pos.name || `Position ${idx + 1}`);
+    if (!posName.match(/\d/)) {
+      posName = `${idx + 1}. ${posName}`;
+    }
+
+    return {
+      name: posName,
+      meaning: typeof pos === 'string' ? '' : (pos.meaning || ''),
+      x: 20 + (idx * 30),
+      y: 50,
       rotation: 0,
       position_number: idx + 1,
     };
   });
 }
 
-export default function SpreadLayout(props) {
+// Celtic Cross layout (10 cards)
+if (count === 10 && spread?.name?.toLowerCase().includes('celtic cross')) {
+  const celticPositions = [
+    { x: 50, y: 50, rotation: 0 },
+    { x: 50, y: 50, rotation: 90 },
+    { x: 50, y: 25, rotation: 0 },
+    { x: 50, y: 75, rotation: 0 },
+    { x: 25, y: 50, rotation: 0 },
+    { x: 75, y: 50, rotation: 0 },
+    { x: 85, y: 80, rotation: 0 },
+    { x: 85, y: 60, rotation: 0 },
+    { x: 85, y: 40, rotation: 0 },
+    { x: 85, y: 20, rotation: 0 },
+  ];
+
+  return positions.map((pos, idx) => {
+    let posName = typeof pos === 'string' ? pos : (pos.name || `Position ${idx + 1}`);
+    if (!posName.match(/\d/)) {
+      posName = `${idx + 1}. ${posName}`;
+    }
+
+    return {
+      name: posName,
+      meaning: typeof pos === 'string' ? '' : (pos.meaning || ''),
+      x: celticPositions[idx]?.x ?? 50,
+      y: celticPositions[idx]?.y ?? 50,
+      rotation: celticPositions[idx]?.rotation ?? 0,
+      position_number: idx + 1,
+    };
+  });
+}
+
+
+
+// Default: distribute evenly in a grid
+const cols = Math.min(5, Math.ceil(Math.sqrt(count)));
+const rows = Math.ceil(count / cols);
+
+return positions.map((pos, idx) => {
+  const col = idx % cols;
+  const row = Math.floor(idx / cols);
+
+  let posName = typeof pos === 'string' ? pos : (pos.name || `Position ${idx + 1}`);
+  if (!posName.match(/\d/)) {
+    posName = `${idx + 1}. ${posName}`;
+  }
+
+  return {
+    name: posName,
+    meaning: typeof pos === 'string' ? '' : (pos.meaning || ''),
+    x: 15 + (col * (70 / (cols - 1 || 1))),
+    y: 20 + (row * (60 / (rows - 1 || 1))),
+    rotation: 0,
+    position_number: idx + 1,
+  };
+});
+}
+
+export default function SpreadLayoutLegacy(props) {
   const {
     spread,
     positions = [],
@@ -961,11 +961,11 @@ export default function SpreadLayout(props) {
                   zIndex: isCurrentDragged ? 100 : 10,
                 }}
                 initial={animateSpread ? { scale: 0, opacity: 0 } : false}
-                animate={
-                  showPositions
+                animate=
+                  {showPositions
                     ? { scale: 1, opacity: 1 }
                     : { scale: 0, opacity: 0 }
-                }
+                  }
                 transition={{
                   delay: animateSpread ? idx * 0.1 : 0,
                   duration: 0.4,
@@ -1033,105 +1033,105 @@ export default function SpreadLayout(props) {
                     >
                       {useScratchReveal && !revealedCards.has(idx) ? (
                         <div
-                                                                                     onMouseDown={(e) => allowReposition && handleCardDragStart(e, idx)}
-                                                                                     onTouchStart={(e) => allowReposition && handleCardDragStart(e, idx)}
-                                                                                     onClick={() => !allowReposition && onCardClick(card, idx)}
-                                                                                     className="relative w-full h-full rounded-lg group"
-                                                                                   >
-                                                  <div className="pointer-events-none absolute inset-0 rounded-lg ring-2 ring-amber-400/20 shadow-[0_0_22px_rgba(251,191,36,0.35)] group-hover:ring-amber-400/40 group-hover:shadow-[0_0_32px_rgba(251,191,36,0.55)] transition-all" />
-                                                  <ScratchRevealCard
-                            frontImage={card.image_url}
-                            backImage={deck?.back_image_url}
-                            cardName={card.name}
-                            isReversed={(card.isReversed || card.is_reversed)}
-                            onReveal={() => onCardReveal(idx)}
-                            width="100%"
-                            height="100%"
+                                                                                       onMouseDown={(e) => allowReposition && handleCardDragStart(e, idx)}
+                                                                                       onTouchStart={(e) => allowReposition && handleCardDragStart(e, idx)}
+                                                                                       onClick={() => !allowReposition && onCardClick(card, idx)}
+                                                                                       className="relative w-full h-full rounded-lg group"
+                                                                                     >
+                                                <div className="pointer-events-none absolute inset-0 rounded-lg ring-2 ring-amber-400/20 shadow-[0_0_22px_rgba(251,191,36,0.35)] group-hover:ring-amber-400/40 group-hover:shadow-[0_0_32px_rgba(251,191,36,0.55)] transition-all" />
+                                                <ScratchRevealCard
+                        frontImage={card.image_url}
+                        backImage={deck?.back_image_url}
+                        cardName={card.name}
+                        isReversed={(card.isReversed || card.is_reversed)}
+                        onReveal={() => onCardReveal(idx)}
+                        width="100%"
+                        height="100%"
+                      />
+                    </div>
+                  ) : !revealedCards.has(idx) ? (
+                                              <button
+                                                 type="button"
+                                                 onMouseDown={(e) => allowReposition && handleCardDragStart(e, idx)}
+                                                 onTouchStart={(e) => allowReposition && handleCardDragStart(e, idx)}
+                                                 onTouchEnd={(e) => {
+                                                   if (allowReposition) return;
+                                                   e.preventDefault();
+                                                   onCardReveal(idx);
+                                                   setTimeout(() => onCardClick(card, idx), 300);
+                                                 }}
+                                                 onClick={() => {
+                                                   if (allowReposition && isDragging) return;
+                                                   onCardReveal(idx);
+                                                   setTimeout(() => onCardClick(card, idx), 300);
+                                                 }}
+                                                 className="relative w-full h-full rounded-lg overflow-hidden ring-2 ring-amber-400/20 shadow-[0_0_22px_rgba(251,191,36,0.35)] hover:ring-amber-400/40 hover:shadow-[0_0_32px_rgba(251,191,36,0.55)] hover:scale-105 transition-all group"
+                                                 style={{ touchAction: 'manipulation' }}
+                                               >
+                        {deck?.back_image_url ? (
+                          <img
+                            src={deck.back_image_url}
+                            alt="Card back"
+                            className="w-full h-full object-cover"
+                            draggable={false}
                           />
-                        </div>
-                      ) : !revealedCards.has(idx) ? (
-                                                    <button
-                                                       type="button"
-                                                       onMouseDown={(e) => allowReposition && handleCardDragStart(e, idx)}
-                                                       onTouchStart={(e) => allowReposition && handleCardDragStart(e, idx)}
-                                                       onTouchEnd={(e) => {
-                                                         if (allowReposition) return;
-                                                         e.preventDefault();
-                                                         onCardReveal(idx);
-                                                         setTimeout(() => onCardClick(card, idx), 300);
-                                                       }}
-                                                       onClick={() => {
-                                                         if (allowReposition && isDragging) return;
-                                                         onCardReveal(idx);
-                                                         setTimeout(() => onCardClick(card, idx), 300);
-                                                       }}
-                                                       className="relative w-full h-full rounded-lg overflow-hidden ring-2 ring-amber-400/20 shadow-[0_0_22px_rgba(251,191,36,0.35)] hover:ring-amber-400/40 hover:shadow-[0_0_32px_rgba(251,191,36,0.55)] hover:scale-105 transition-all group"
-                                                       style={{ touchAction: 'manipulation' }}
-                                                     >
-                          {deck?.back_image_url ? (
-                            <img
-                              src={deck.back_image_url}
-                              alt="Card back"
-                              className="w-full h-full object-cover"
-                              draggable={false}
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-gradient-to-br from-purple-800 to-indigo-800 flex items-center justify-center">
-                              <span className="text-white/70 text-xs">Tap to reveal</span>
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-purple-800 to-indigo-800 flex items-center justify-center">
+                            <span className="text-white/70 text-xs">Tap to reveal</span>
+                          </div>
+                        )}
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => onCardClick(card, idx)}
+                        onMouseDown={(e) => allowReposition && handleCardDragStart(e, idx)}
+                        onTouchStart={(e) => allowReposition && handleCardDragStart(e, idx)}
+                        className={`relative w-full h-full rounded-lg overflow-hidden ring-2 ring-amber-400/20 shadow-[0_0_22px_rgba(251,191,36,0.35)] transition-all duration-300 group ${isCurrentDragged ? 'shadow-purple-500/80 scale-105' : 'hover:ring-amber-400/40 hover:shadow-[0_0_32px_rgba(251,191,36,0.55)] hover:scale-105'}`}
+                        
+                        style={{
+                          transform: `rotate(${pos.rotation || 0}deg)`,
+                          transformOrigin: 'center',
+                          cursor: allowReposition ? (isCurrentDragged ? 'grabbing' : 'grab') : 'pointer'
+                        }}
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 to-blue-600/20 group-hover:from-purple-500/30 group-hover:to-blue-500/30 transition-all" />
+
+                        {card.image_url ? (
+                          <img
+                            src={card.image_url}
+                            alt={card.name}
+                            className={`w-full h-full object-cover ${(card.isReversed || card.is_reversed) ? 'rotate-180' : ''}`}
+                            loading="lazy"
+                            draggable={false}
+                          />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-purple-900 to-indigo-900">
+                            <span className="text-white/90 text-center px-2 font-semibold text-sm">{card.name}</span>
+                          </div>
+                        )}
+                        {allowReposition && (
+                          <div className="absolute top-2 right-2 bg-purple-500/80 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                            <Move className="w-3 h-3" />
+                          </div>
+                        )}
+                      </button>
+                    )}
+
+                    {showPositionLabels && (
+                            <div className="mt-2 text-center">
+                              <Badge className={`bg-purple-600/80 text-white ${viewMode === 'compact' ? 'text-[10px] px-1.5 py-0.5' : viewMode === 'detailed' ? 'text-sm px-3 py-1.5' : 'text-xs px-2 py-1'}`}>
+                                {pos.name}
+                              </Badge>
                             </div>
                           )}
-                        </button>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => onCardClick(card, idx)}
-                          onMouseDown={(e) => allowReposition && handleCardDragStart(e, idx)}
-                          onTouchStart={(e) => allowReposition && handleCardDragStart(e, idx)}
-                          className={`relative w-full h-full rounded-lg overflow-hidden ring-2 ring-amber-400/20 shadow-[0_0_22px_rgba(251,191,36,0.35)] transition-all duration-300 group ${isCurrentDragged ? 'shadow-purple-500/80 scale-105' : 'hover:ring-amber-400/40 hover:shadow-[0_0_32px_rgba(251,191,36,0.55)] hover:scale-105'}`}
-                          
-                          style={{
-                            transform: `rotate(${pos.rotation || 0}deg)`,
-                            transformOrigin: 'center',
-                            cursor: allowReposition ? (isCurrentDragged ? 'grabbing' : 'grab') : 'pointer'
-                          }}
-                        >
-                          <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 to-blue-600/20 group-hover:from-purple-500/30 group-hover:to-blue-500/30 transition-all" />
 
-                          {card.image_url ? (
-                            <img
-                              src={card.image_url}
-                              alt={card.name}
-                              className={`w-full h-full object-cover ${(card.isReversed || card.is_reversed) ? 'rotate-180' : ''}`}
-                              loading="lazy"
-                              draggable={false}
-                            />
-                          ) : (
-                            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-purple-900 to-indigo-900">
-                              <span className="text-white/90 text-center px-2 font-semibold text-sm">{card.name}</span>
+                          {viewMode === 'detailed' && (
+                            <div className="mt-2 text-center space-y-1">
+                              {card?.name && <div className="text-sm font-semibold text-white">{card.name}</div>}
+                              {pos?.meaning && <div className="text-xs text-purple-200/80">{pos.meaning}</div>}
                             </div>
                           )}
-                          {allowReposition && (
-                            <div className="absolute top-2 right-2 bg-purple-500/80 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                              <Move className="w-3 h-3" />
-                            </div>
-                          )}
-                        </button>
-                      )}
-
-                      {showPositionLabels && (
-                              <div className="mt-2 text-center">
-                                <Badge className={`bg-purple-600/80 text-white ${viewMode === 'compact' ? 'text-[10px] px-1.5 py-0.5' : viewMode === 'detailed' ? 'text-sm px-3 py-1.5' : 'text-xs px-2 py-1'}`}>
-                                  {pos.name}
-                                </Badge>
-                              </div>
-                            )}
-
-                            {viewMode === 'detailed' && (
-                              <div className="mt-2 text-center space-y-1">
-                                {card?.name && <div className="text-sm font-semibold text-white">{card.name}</div>}
-                                {pos?.meaning && <div className="text-xs text-purple-200/80">{pos.meaning}</div>}
-                              </div>
-                            )}
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -1156,13 +1156,6 @@ export default function SpreadLayout(props) {
 
               const safeX = Math.max(5, Math.min(95, pos.x));
               const safeY = Math.max(5, Math.min(95, pos.y));
-              // Center-emergence offsets in px (from container center to final spot)
-              const contW = containerWidth || (containerRef.current?.clientWidth || 0);
-              const contH = containerHeight || (containerRef.current?.clientHeight || 0);
-              const finalXpx = (safeX / 100) * contW;
-              const finalYpx = (safeY / 100) * contH;
-              const dx = (contW / 2) - finalXpx;
-              const dy = (contH / 2) - finalYpx;
               const isCurrentDragged = draggedCardIndex === idx;
 
               return (
@@ -1222,13 +1215,13 @@ export default function SpreadLayout(props) {
 
                       <motion.div
                         initial={animateSpread ? {
-                            scale: 0.1,
-                            opacity: 0,
-                            x: dx,
-                            y: dy,
-                            rotateZ: pos.rotation || 0,
-                            rotateY: 180
-                          } : false}
+                          scale: 0.1,
+                          opacity: 0,
+                          y: -400,
+                          x: Math.random() * 300 - 150,
+                          rotateZ: (pos.rotation || 0) + (Math.random() * 120 - 60),
+                          rotateY: 180
+                        } : false}
                         animate={{
                           scale: 1,
                           opacity: 1,
@@ -1253,101 +1246,101 @@ export default function SpreadLayout(props) {
                                                       >
                                                         <div className="pointer-events-none absolute inset-0 rounded-lg ring-2 ring-amber-400/20 shadow-[0_0_20px_rgba(251,191,36,0.35)] group-hover:ring-amber-400/40 group-hover:shadow-[0_0_30px_rgba(251,191,36,0.55)] transition-all" />
                                                         <ScratchRevealCard
-                              frontImage={card.image_url}
-                              backImage={deck?.back_image_url}
-                              cardName={card.name}
-                              isReversed={(card.isReversed || card.is_reversed)}
-                              onReveal={() => onCardReveal(idx)}
-                              width="100%"
-                              height="100%"
+                          frontImage={card.image_url}
+                          backImage={deck?.back_image_url}
+                          cardName={card.name}
+                          isReversed={(card.isReversed || card.is_reversed)}
+                          onReveal={() => onCardReveal(idx)}
+                          width="100%"
+                          height="100%"
+                        />
+                      </div>
+                    ) : !revealedCards.has(idx) ? (
+                                                    <button
+                                                      type="button"
+                                                      onMouseDown={(e) => allowReposition && handleCardDragStart(e, idx)}
+                                                      onTouchStart={(e) => allowReposition && handleCardDragStart(e, idx)}
+                                                      onTouchEnd={(e) => {
+                                                        if (allowReposition) return;
+                                                        e.preventDefault();
+                                                        onCardReveal(idx);
+                                                        setTimeout(() => onCardClick(card, idx), 300);
+                                                      }}
+                                                      onClick={() => {
+                                                        if (allowReposition && isDragging) return;
+                                                        onCardReveal(idx);
+                                                        setTimeout(() => onCardClick(card, idx), 300);
+                                                      }}
+                                                      className="relative w-full h-full rounded-lg overflow-hidden ring-2 ring-amber-400/20 shadow-[0_0_20px_rgba(251,191,36,0.35)] hover:ring-amber-400/40 hover:shadow-[0_0_30px_rgba(251,191,36,0.55)] hover:scale-110 transition-all group"
+                                                      style={{ touchAction: 'manipulation' }}
+                                                    >
+                          {deck?.back_image_url ? (
+                            <img
+                              src={deck.back_image_url}
+                              alt="Card back"
+                              className="w-full h-full object-cover"
+                              draggable={false}
                             />
-                          </div>
-                        ) : !revealedCards.has(idx) ? (
-                                                        <button
-                                                          type="button"
-                                                          onMouseDown={(e) => allowReposition && handleCardDragStart(e, idx)}
-                                                          onTouchStart={(e) => allowReposition && handleCardDragStart(e, idx)}
-                                                          onTouchEnd={(e) => {
-                                                            if (allowReposition) return;
-                                                            e.preventDefault();
-                                                            onCardReveal(idx);
-                                                            setTimeout(() => onCardClick(card, idx), 300);
-                                                          }}
-                                                          onClick={() => {
-                                                            if (allowReposition && isDragging) return;
-                                                            onCardReveal(idx);
-                                                            setTimeout(() => onCardClick(card, idx), 300);
-                                                          }}
-                                                          className="relative w-full h-full rounded-lg overflow-hidden ring-2 ring-amber-400/20 shadow-[0_0_20px_rgba(251,191,36,0.35)] hover:ring-amber-400/40 hover:shadow-[0_0_30px_rgba(251,191,36,0.55)] hover:scale-110 transition-all group"
-                                                          style={{ touchAction: 'manipulation' }}
-                                                        >
-                            {deck?.back_image_url ? (
-                              <img
-                                src={deck.back_image_url}
-                                alt="Card back"
-                                className="w-full h-full object-cover"
-                                draggable={false}
-                              />
-                            ) : (
-                              <div className="w-full h-full bg-gradient-to-br from-purple-800 to-indigo-800 flex items-center justify-center">
-                                <span className="text-white/70 text-[10px]">Tap to reveal</span>
-                              </div>
-                            )}
-                          </button>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => onCardClick(card, idx)}
-                                                          onMouseDown={(e) => allowReposition && handleCardDragStart(e, idx)}
-                                                          onTouchStart={(e) => allowReposition && handleCardDragStart(e, idx)}
-                                                          className={`relative w-full h-full rounded-lg overflow-hidden ring-2 ring-amber-400/20 shadow-[0_0_20px_rgba(251,191,36,0.35)] transition-all duration-300 group ${isCurrentDragged ? 'shadow-purple-500/80 scale-110' : 'hover:ring-amber-400/40 hover:shadow-[0_0_30px_rgba(251,191,36,0.55)] hover:scale-110'}`}
-                            style={{
-                              transform: `rotate(${pos.rotation}deg)`,
-                              transformOrigin: 'center',
-                              cursor: allowReposition ? (isCurrentDragged ? 'grabbing' : 'grab') : 'pointer'
-                            }}
-                          >
-                            <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 to-blue-600/20 group-hover:from-purple-500/30 group-hover:to-blue-500/30 transition-all" />
+                          ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-purple-800 to-indigo-800 flex items-center justify-center">
+                              <span className="text-white/70 text-[10px]">Tap to reveal</span>
+                            </div>
+                          )}
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => onCardClick(card, idx)}
+                                                      onMouseDown={(e) => allowReposition && handleCardDragStart(e, idx)}
+                                                      onTouchStart={(e) => allowReposition && handleCardDragStart(e, idx)}
+                                                      className={`relative w-full h-full rounded-lg overflow-hidden ring-2 ring-amber-400/20 shadow-[0_0_20px_rgba(251,191,36,0.35)] transition-all duration-300 group ${isCurrentDragged ? 'shadow-purple-500/80 scale-110' : 'hover:ring-amber-400/40 hover:shadow-[0_0_30px_rgba(251,191,36,0.55)] hover:scale-110'}`}
+                          style={{
+                            transform: `rotate(${pos.rotation}deg)`,
+                            transformOrigin: 'center',
+                            cursor: allowReposition ? (isCurrentDragged ? 'grabbing' : 'grab') : 'pointer'
+                          }}
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 to-blue-600/20 group-hover:from-purple-500/30 group-hover:to-blue-500/30 transition-all" />
 
-                            {card.image_url ? (
-                              <img
-                                src={card.image_url}
-                                alt={card.name}
-                                className={`w-full h-full object-cover ${(card.isReversed || card.is_reversed) ? 'rotate-180' : ''}`}
-                                loading="lazy"
-                                draggable={false}
-                              />
-                            ) : (
-                              <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-purple-900 to-indigo-900">
-                                <span className="text-white/90 text-center px-1 font-semibold text-[10px]">{card.name}</span>
-                              </div>
-                            )}
-                            {allowReposition && (
-                              <div className="absolute top-2 right-2 bg-purple-500/80 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                                <Move className="w-3 h-3" />
-                              </div>
-                            )}
-                          </button>
-                        )}
+                          {card.image_url ? (
+                            <img
+                              src={card.image_url}
+                              alt={card.name}
+                              className={`w-full h-full object-cover ${(card.isReversed || card.is_reversed) ? 'rotate-180' : ''}`}
+                              loading="lazy"
+                              draggable={false}
+                            />
+                          ) : (
+                            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-purple-900 to-indigo-900">
+                              <span className="text-white/90 text-center px-1 font-semibold text-[10px]">{card.name}</span>
+                            </div>
+                          )}
+                          {allowReposition && (
+                            <div className="absolute top-2 right-2 bg-purple-500/80 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                              <Move className="w-3 h-3" />
+                            </div>
+                          )}
+                        </button>
+                      )}
 
-                        {showPositionLabels && (
-                          <div
-                            className="absolute left-1/2 transform -translate-x-1/2 pointer-events-none"
-                            style={{ top: '100%', marginTop: '4px' }}
-                          >
-                            <Badge className={`bg-purple-600/90 text-white whitespace-nowrap ${viewMode === 'compact' ? 'text-[10px] px-1.5 py-0.5' : viewMode === 'detailed' ? 'text-sm px-3 py-1.5' : 'text-xs px-2 py-1'}`}>
-                              {pos.name}
-                            </Badge>
-                            {viewMode === 'detailed' && (
-                              <div className="mt-1 text-center">
-                                {card?.name && <div className="text-xs font-semibold text-white">{card.name}</div>}
-                                {pos?.meaning && <div className="text-[10px] text-purple-200/80">{pos.meaning}</div>}
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </motion.div>
-                    )}
+                      {showPositionLabels && (
+                        <div
+                          className="absolute left-1/2 transform -translate-x-1/2 pointer-events-none"
+                          style={{ top: '100%', marginTop: '4px' }}
+                        >
+                          <Badge className={`bg-purple-600/90 text-white whitespace-nowrap ${viewMode === 'compact' ? 'text-[10px] px-1.5 py-0.5' : viewMode === 'detailed' ? 'text-sm px-3 py-1.5' : 'text-xs px-2 py-1'}`}>
+                            {pos.name}
+                          </Badge>
+                          {viewMode === 'detailed' && (
+                            <div className="mt-1 text-center">
+                              {card?.name && <div className="text-xs font-semibold text-white">{card.name}</div>}
+                              {pos?.meaning && <div className="text-[10px] text-purple-200/80">{pos.meaning}</div>}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </motion.div>
+                  )}
                   </AnimatePresence>
 
                   {/* Empty slot */}
