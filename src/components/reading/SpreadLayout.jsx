@@ -897,7 +897,7 @@ export default function SpreadLayout(props) {
           className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none"
         >
           <div
-            className="rounded-full shadow-[0_0_40px_rgba(124,58,237,0.25)]"
+            className="rounded-full shadow-[0_0_40px_rgba(251,191,36,0.25)]"
             style={{
               width: Math.max(120, Math.round((Math.min(containerWidth || 600, 900)) * 0.9)),
               height: Math.max(120, Math.round((Math.min(containerWidth || 600, 900)) * 0.9)),
@@ -906,8 +906,8 @@ export default function SpreadLayout(props) {
               backgroundImage: 'url(https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d2a300021f94d0f312c039/350346a74_B09C98E1-065B-4808-BF9D-F3880F497C8B.png)',
               backgroundSize: 'cover',
               backgroundPosition: 'center',
-              opacity: 0.65,
-              filter: 'saturate(1.05) drop-shadow(0 8px 30px rgba(124,58,237,0.25))',
+              opacity: 0.72,
+              filter: 'saturate(1.05) drop-shadow(0 8px 30px rgba(251,191,36,0.25))',
             }}
           />
         </div>
