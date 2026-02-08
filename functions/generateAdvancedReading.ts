@@ -90,6 +90,14 @@ Deno.serve(async (req) => {
         const spreadDescription = spread?.description || spread?.name || "General spread";
         const spreadStructure = `This is a ${numPositions}-card ${spreadDescription} spread with these positions:\n${spreadPositions.map((p, i) => `${i + 1}. ${p.name || p}${p.meaning ? ` - ${p.meaning}` : ''}`).join('\n')}`;
 
+        // Include structured AI insights if provided on the deck
+        const deckInsights = deck?.ai_deck_insights && typeof deck.ai_deck_insights === 'object'
+          ? JSON.stringify(deck.ai_deck_insights, null, 2)
+          : '';
+        const insightsSection = deckInsights
+          ? `\n\nDECK INSIGHTS (Use these themes/style cues when interpreting):\n${deckInsights}`
+          : '';
+
         const lengthInstructions = {
             quick: "Ultra concise: 2 short paragraphs max (≈120–180 words). Each card: 1–2 sentences. Include a 2–3 sentence synthesis at the end.",
             standard: "Concise: 3 short paragraphs max (≈200–300 words). Each card: 1–2 sentences. Include a 2–3 sentence synthesis at the end.",
