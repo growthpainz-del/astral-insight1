@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { Loader2, Sparkles, AlertTriangle, Copy, Check, Volume2, StopCircle, Mic, Moon } from "lucide-react";
 // removed: AudioPlayer import (switched to SpeechSynthesis)
 import { User } from "@/entities/User";
@@ -27,6 +28,12 @@ export default function ChanneledReading({ isOpen, drawnCards, deck, spread, que
   const audioRef = useRef(null);
   const webSpeechUtteranceRef = useRef(null);
   const usingWebSpeechRef = useRef(false);
+
+  // AI Coach customizations
+  const [coachPersona, setCoachPersona] = useState("");
+  const [coachTone, setCoachTone] = useState("warm"); // warm | direct | poetic | mystical | humorous | compassionate
+  const [coachAdviceDepth, setCoachAdviceDepth] = useState("balanced"); // concise | balanced | detailed
+  const [coachLanguage, setCoachLanguage] = useState("auto"); // auto | en | es | fr | de | pt | it | hi | ja | zh
 
   useEffect(() => {
     if (isOpen) {
@@ -90,8 +97,25 @@ export default function ChanneledReading({ isOpen, drawnCards, deck, spread, que
       
       // Card descriptions and spread structure generation moved to backend
       const userPersona = user?.reading_persona || {};
-      const personaName = user?.reading_persona_name || userPersona.name || "Mystical Guide";
-      const personaPreamble = user?.reading_persona_preamble || userPersona.tone || "Provide insightful and empowering guidance";
+      const defaultPersonaName = user?.reading_persona_name || userPersona.name || "Mystical Guide";
+      const defaultPreamble = user?.reading_persona_preamble || userPersona.tone || "Provide insightful and empowering guidance";
+
+      const toneMap = {
+        warm: "Warm, compassionate, supportive tone",
+        direct: "Direct, grounded, and practical tone",
+        poetic: "Poetic, metaphor-rich tone",
+        mystical: "Mystical, esoteric tone with gentle reverence",
+        humorous: "Light, encouraging tone with gentle humor",
+        compassionate: "Compassionate, validating, trauma-informed tone"
+      };
+      const adviceMap = {
+        concise: "Keep coaching succinct and action-oriented",
+        balanced: "Provide clear, practical coaching with moderate detail",
+        detailed: "Provide deeper, step-by-step coaching with nuanced guidance"
+      };
+
+      const personaNameEff = (coachPersona || defaultPersonaName).trim();
+      const personaPreambleEff = `${toneMap[coachTone] || defaultPreamble}. ${adviceMap[coachAdviceDepth] || ''}`.trim();
 
       setProgress({ current: 3, total: 5, message: includeMoonPhase ? "Consulting the Moon..." : "Channeling cosmic wisdom..." });
 
@@ -109,8 +133,10 @@ const { data } = await base44.functions.invoke('generateAdvancedReading', {
   question,
   tier,
   includeMoonPhase,
-  personaName,
-  personaPreamble
+  personaName: personaNameEff,
+  personaPreamble: personaPreambleEff,
+  adviceDepth: coachAdviceDepth,
+  language: coachLanguage
 });
 
 if (data.error) throw new Error(data.error);
@@ -318,9 +344,75 @@ if (user && typeof user.token_balance === "number") {
                    <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${includeMoonPhase ? 'left-7' : 'left-1'}`} />
                 </button>
              </div>
-          </div>
+              </div>
 
-          <div className="space-y-4">
+              <div className="bg-slate-900/50 rounded-xl p-4 border border-purple-500/30">
+                <h3 className="text-sm font-semibold text-purple-300 mb-3 uppercase tracking-wider flex items-center gap-2">
+                  <Sparkles className="w-4 h-4" /> AI Coach Settings
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <div className="text-xs text-white/60">Persona Name</div>
+                    <Input
+                      value={coachPersona}
+                      onChange={(e) => setCoachPersona(e.target.value)}
+                      placeholder="e.g., Mystic Sage"
+                      className="bg-slate-800 border-slate-700 text-white"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="text-xs text-white/60">Tone</div>
+                    <Select value={coachTone} onValueChange={setCoachTone}>
+                      <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                        <SelectValue placeholder="Select tone" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-slate-800 border-slate-700 text-white">
+                        <SelectItem value="warm">Warm & Compassionate</SelectItem>
+                        <SelectItem value="direct">Direct & Practical</SelectItem>
+                        <SelectItem value="poetic">Poetic & Metaphoric</SelectItem>
+                        <SelectItem value="mystical">Mystical & Esoteric</SelectItem>
+                        <SelectItem value="humorous">Light & Encouraging</SelectItem>
+                        <SelectItem value="compassionate">Trauma-Informed</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="text-xs text-white/60">Advice Depth</div>
+                    <Select value={coachAdviceDepth} onValueChange={setCoachAdviceDepth}>
+                      <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                        <SelectValue placeholder="Select depth" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-slate-800 border-slate-700 text-white">
+                        <SelectItem value="concise">Concise</SelectItem>
+                        <SelectItem value="balanced">Balanced</SelectItem>
+                        <SelectItem value="detailed">Detailed</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="text-xs text-white/60">Language</div>
+                    <Select value={coachLanguage} onValueChange={setCoachLanguage}>
+                      <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                        <SelectValue placeholder="Select language" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-slate-800 border-slate-700 text-white">
+                        <SelectItem value="auto">Auto-detect</SelectItem>
+                        <SelectItem value="en">English</SelectItem>
+                        <SelectItem value="es">Español</SelectItem>
+                        <SelectItem value="fr">Français</SelectItem>
+                        <SelectItem value="de">Deutsch</SelectItem>
+                        <SelectItem value="pt">Português</SelectItem>
+                        <SelectItem value="it">Italiano</SelectItem>
+                        <SelectItem value="hi">हिन्दी</SelectItem>
+                        <SelectItem value="ja">日本語</SelectItem>
+                        <SelectItem value="zh">简体中文</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
             <p className="text-white/80 text-center text-sm md:text-base">
               Choose your reading depth:
             </p>

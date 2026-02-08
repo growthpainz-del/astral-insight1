@@ -43,7 +43,9 @@ Deno.serve(async (req) => {
             tier = "standard", 
             includeMoonPhase = false,
             personaName,
-            personaPreamble 
+            personaPreamble,
+            adviceDepth = "balanced",
+            language = "auto"
         } = await req.json();
 
         // 1. Calculate Costs
@@ -103,6 +105,17 @@ Deno.serve(async (req) => {
             standard: "Concise: 3 short paragraphs max (≈200–300 words). Each card: 1–2 sentences. Include a 2–3 sentence synthesis at the end.",
             deep: "Focused depth: 4–5 paragraphs max (≈320–500 words). Each card: 2 sentences max; avoid repeating points. Include a 2–3 sentence synthesis and actionable guidance."
         };
+
+        const adviceDepthInstruction = adviceDepth === "concise"
+          ? "COACHING DEPTH: Keep coaching succinct and action-oriented. One concrete action per card; minimal elaboration."
+          : adviceDepth === "detailed"
+          ? "COACHING DEPTH: Provide deeper, step-by-step coaching with nuanced guidance and rationale. Ensure practicality."
+          : "COACHING DEPTH: Provide clear, practical coaching with moderate detail. One to two actionable suggestions per theme.";
+
+        const languageNames = { auto: "auto", en: "English", es: "Spanish", fr: "French", de: "German", pt: "Portuguese", it: "Italian", hi: "Hindi", ja: "Japanese", zh: "Chinese (Simplified)" };
+        const languageInstruction = language === "auto"
+          ? "\n\nLANGUAGE RULES:\n- Detect the user's question language if present and write the entire interpretation and coaching in that language.\n- If no question is provided, default to English."
+          : `\n\nLANGUAGE RULES:\n- Write the entire interpretation and coaching in ${languageNames[language] || language}.\n- If the question is in another language, translate implicitly and respond only in ${languageNames[language] || language}.`;
 
         const aiCoach = deck?.ai_reading_coach || "";
         const coachInstruction = aiCoach ? `\n\nIMPORTANT DECK-SPECIFIC GUIDANCE:\n${aiCoach}` : "";
@@ -169,6 +182,7 @@ DECK: ${deck?.name || "Oracle Deck"}
 ${deckDescription ? `Deck Theme: ${deckDescription}` : ""}
 ${coachInstruction}
 ${insightsSection}
+${languageInstruction}
 
  SPREAD STRUCTURE:
 ${spreadStructure}
