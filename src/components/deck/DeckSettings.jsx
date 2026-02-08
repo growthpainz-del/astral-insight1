@@ -531,6 +531,22 @@ export default function DeckSettings({ deckId, isOpen, onClose, onSaved, initial
             </div>
           </div>
 
+          <div>
+            <Label className="text-white/80 flex items-center gap-2">
+              <Sparkles className="w-4 h-4" />
+              AI Deck Insights (JSON)
+            </Label>
+            <Textarea
+              value={insightsText}
+              onChange={(e) => setInsightsText(e.target.value)}
+              className="bg-slate-800 border-slate-700 text-white min-h-[140px] font-mono text-xs"
+              placeholder="{\n  \"common_themes\": [\"growth\", \"rebellion\"],\n  \"visual_style\": { \"color_palette\": [\"violet\", \"black\"] }\n}"
+            />
+            {insightsError && (
+              <div className="mt-2 text-xs text-red-300">{insightsError}</div>
+            )}
+          </div>
+
           <div className="border-t border-red-500/30 pt-4 mt-6">
             <Label className="text-red-400 flex items-center gap-2 mb-2">
               <AlertTriangle className="w-5 h-5" />
