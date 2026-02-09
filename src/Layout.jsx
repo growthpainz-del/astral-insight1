@@ -286,8 +286,7 @@ export default function Layout({ children, currentPageName }) {
 
   const specialReadings = [
     { href: "FusionReading", icon: Combine, label: "Fusions" },
-    { href: "ZodiacReading", icon: Star, label: "Zodiac" },
-    { href: "Rebel8Ball", icon: Heart, label: "8-Ball" }
+    { href: "ZodiacReading", icon: Star, label: "Zodiac" }
   ];
 
   const studioLinks = [

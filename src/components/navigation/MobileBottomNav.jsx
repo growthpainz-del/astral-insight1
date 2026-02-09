@@ -15,7 +15,7 @@ export default function MobileBottomNav() {
   ];
 
   const getTabFromPath = (pathname) => {
-    if (pathname.startsWith("/ReadingRoom") || pathname.startsWith("/Reading") || pathname.startsWith("/History") || pathname.startsWith("/ZodiacReading") || pathname.startsWith("/FusionReading") || pathname.startsWith("/Rebel8Ball") || pathname.startsWith("/DeckGallery")) return "Read";
+    if (pathname.startsWith("/ReadingRoom") || pathname.startsWith("/Reading") || pathname.startsWith("/History") || pathname.startsWith("/ZodiacReading") || pathname.startsWith("/FusionReading") || pathname.startsWith("/DeckGallery")) return "Read";
     if (pathname.startsWith("/Studio") || pathname.startsWith("/CreateDeck") || pathname.startsWith("/DeckView") || pathname.startsWith("/PhotoUploader") || pathname.startsWith("/SpreadManager")) return "Studio";
     if (pathname.startsWith("/Journal")) return "Journal";
     return "Home";
