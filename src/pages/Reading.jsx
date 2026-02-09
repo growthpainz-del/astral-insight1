@@ -687,30 +687,30 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
             exit={{ opacity: 0, scale: 0.9 }}
             className="mb-6"
           >
-            <div className="relative rounded-xl border border-purple-400/40 overflow-hidden bg-black/30 min-h-[300px] md:min-h-[420px]">
+            <div className="rounded-xl border border-purple-400/40 overflow-hidden bg-black/30">
               {deck?.shuffle_animation_url && (
-                <ShuffleAnimation
-                  url={deck.shuffle_animation_url}
-                  className="absolute inset-0 z-0"
-                  style={{ aspectRatio: 'auto' }}
-                />
+                <div className="relative w-full h-[320px] md:h-[420px]">
+                  <ShuffleAnimation
+                    url={deck.shuffle_animation_url}
+                    className="absolute inset-0 w-full h-full"
+                    style={{ objectFit: 'cover' }}
+                  />
+                </div>
               )}
-              <div className="absolute inset-0 z-[1] bg-gradient-to-b from-black/20 via-black/10 to-black/30" />
 
-              {/* Title pill */}
-              <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[2] px-3 py-1.5 rounded-full bg-black/40 border border-white/10 text-purple-200 text-sm font-semibold">
-                ✨ Channeling cosmic energy while shuffling...
-              </div>
-
-              {/* Floating doodle panel over the video */}
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-[3] w-[300px] max-w-[90vw] bg-black/55 backdrop-blur-md border border-white/15 rounded-xl shadow-lg p-3">
-                <IdeomotorCanvas
-                  question={question || "What guidance do you seek?"}
-                  onComplete={() => {}}
-                  autoCompleteAfter={2500}
-                  showInstructions={true}
-                  instructionText="Draw or doodle while the cards are being shuffled"
-                />
+              <div className="px-4 md:px-6 py-4">
+                <h3 className="text-center text-purple-200 mb-4 font-semibold">
+                  ✨ Channeling cosmic energy while shuffling...
+                </h3>
+                <div className="mx-auto w-full max-w-sm">
+                  <IdeomotorCanvas
+                    question={question || "What guidance do you seek?"}
+                    onComplete={() => {}}
+                    autoCompleteAfter={2500}
+                    showInstructions={true}
+                    instructionText="Draw or doodle while the cards are being shuffled"
+                  />
+                </div>
               </div>
             </div>
           </motion.div>
