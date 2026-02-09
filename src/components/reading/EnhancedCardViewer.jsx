@@ -99,7 +99,7 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
       <div className="bg-slate-900 text-white border border-purple-500/30 p-0 pointer-events-auto z-[2001] absolute bottom-0 left-0 right-0 h-[85dvh] rounded-t-2xl md:relative md:max-w-5xl md:h-[95vh] md:mx-auto md:mt-4 md:rounded-lg" role="dialog" aria-modal="true" aria-label={`${card?.name || 'Card'} details`} onClick={(e) => e.stopPropagation()}>
         <div className="grid h-full overflow-y-auto md:overflow-hidden md:grid-cols-[400px,1fr] grid-rows-[auto,1fr] md:grid-rows-1 pb-[env(safe-area-inset-bottom)]" style={{ WebkitOverflowScrolling: 'touch' }}>
           {/* Left: Card Image */}
-          <div className="relative bg-black/40 flex items-center justify-center p-6 border-b md:border-b-0 md:border-r border-white/10 max-h-[45dvh] md:max-h-none overflow-auto md:overflow-y-auto" style={{ WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}>
+          <div className="relative bg-black/40 flex items-center justify-center p-2 md:p-6 border-b md:border-b-0 md:border-r border-white/10 max-h-[50dvh] md:max-h-none overflow-auto md:overflow-y-auto" style={{ WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}>
             <button
                                 onClick={(e)=>{ e.stopPropagation?.(); onClose(false); }}
                                 className="absolute top-4 right-4 p-2 rounded-full bg-black/60 hover:bg-black/80 text-white/80 hover:text-white transition-all z-10"
@@ -124,7 +124,7 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
                                 </div>
                               </div>
 
-            <div onClick={handleImageClick} onTouchEnd={(e)=>{ e.preventDefault(); handleImageClick(); }} className="relative max-w-sm mx-auto cursor-pointer select-none" role="button" tabIndex={0} onKeyDown={(e)=>{ if(e.key==='Enter'||e.key===' ') { e.preventDefault(); handleImageClick(); } }} style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}>
+            <div onClick={handleImageClick} onTouchEnd={(e)=>{ e.preventDefault(); handleImageClick(); }} className="relative w-full max-w-[min(92vw,420px)] mx-auto cursor-pointer select-none" role="button" tabIndex={0} onKeyDown={(e)=>{ if(e.key==='Enter'||e.key===' ') { e.preventDefault(); handleImageClick(); } }} style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}>
               {/* Glow effect */}
               <div className={`absolute -inset-4 ${isReversed ? 'bg-purple-600' : 'bg-cyan-600'} opacity-20 blur-3xl rounded-full pointer-events-none`}></div>
               
@@ -138,13 +138,13 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
                     loop={false}
                     onEnded={() => setShowVideo(false)}
                     onError={() => setShowVideo(false)}
-                    className="max-h-[38vh] md:max-h-[70vh] w-auto rounded-xl shadow-2xl border-2 border-white/20 object-contain"
+                    className="max-h-[52vh] md:max-h-[70vh] w-full rounded-lg shadow-2xl border-0 object-contain"
                   />
                 ) : card.image_url ? (
                   <img
                     src={card.image_url}
                     alt={card.name}
-                    className="max-h-[38vh] md:max-h-[70vh] w-auto rounded-xl shadow-2xl border-2 border-white/20 object-contain"
+                    className="max-h-[52vh] md:max-h-[70vh] w-full rounded-lg shadow-2xl border-0 object-contain"
                   />
                 ) : (
                   <div className="aspect-[2/3] max-h-[60vh] md:max-h-[70vh] w-auto bg-gradient-to-br from-purple-900 to-blue-900 rounded-xl flex items-center justify-center">
@@ -246,16 +246,16 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
             {/* Mobile content (no tabs) */}
                     <div className="md:hidden flex-1 overflow-y-auto p-4 space-y-4">
                       {card.overall_meaning && (
-                        <div className="bg-black/40 border border-white/10 rounded-lg p-4">
+                        <div className="bg-transparent border border-white/15 rounded-lg p-4">
                           <h3 className="font-bold text-white/90 mb-2">Overall Meaning</h3>
                           <p className="text-white/85 leading-relaxed">{card.overall_meaning}</p>
                         </div>
                       )}
-                      <div className="bg-black/40 border border-purple-500/30 rounded-lg p-4">
+                      <div className="bg-transparent border border-white/12 rounded-lg p-4">
                         <h3 className="font-bold text-purple-200 mb-2">Upright</h3>
                         <p className="text-white/85 leading-relaxed">{card.upright_meaning || card.overall_meaning || 'No meaning available'}</p>
                       </div>
-                      <div className="bg-black/40 border border-purple-500/30 rounded-lg p-4">
+                      <div className="bg-transparent border border-white/12 rounded-lg p-4">
                         <h3 className="font-bold text-purple-200 mb-2">Reversed</h3>
                         <p className="text-white/85 leading-relaxed">{card.reversed_meaning || card.upright_meaning || card.overall_meaning || 'No meaning available'}</p>
                       </div>
