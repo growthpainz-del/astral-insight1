@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { Card as CardEntity, Deck } from "@/entities/all";
+import { Card as CardEntity } from "@/entities/Card";
+import { Deck } from "@/entities/Deck";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

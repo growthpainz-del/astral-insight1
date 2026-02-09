@@ -1,5 +1,5 @@
 import React from "react";
-import { Deck as DeckEntity } from "@/entities/all";
+import { Deck as DeckEntity } from "@/entities/Deck";
 import CardGallery from "@/components/deck/CardGallery";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
