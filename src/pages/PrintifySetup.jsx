@@ -9,7 +9,6 @@ export default function PrintifySetup() {
   const [error, setError] = React.useState('');
   const [shops, setShops] = React.useState([]);
   const [selectedShopId, setSelectedShopId] = React.useState('');
-  const [checkingOut, setCheckingOut] = React.useState(false);
 
   const fetchShops = async () => {
     setLoading(true);
@@ -21,32 +20,6 @@ export default function PrintifySetup() {
       setError(e?.response?.data?.error || e.message || 'Failed to load shops');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleTestCheckout = async () => {
-    if (window.top !== window.self) {
-      alert('Checkout only works from the published app. Please open your published app in a new tab.');
-      return;
-    }
-    setCheckingOut(true);
-    setError('');
-    try {
-      const { data } = await base44.functions.invoke('createStripeCheckout', {
-        name: 'Tarot Deck Test',
-        amount_cents: 500,
-        quantity: 1,
-        shop_id: selectedShopId || undefined,
-      });
-      if (data?.url) {
-        window.location.href = data.url;
-      } else {
-        setError('Failed to create checkout session.');
-      }
-    } catch (e) {
-      setError(e?.response?.data?.error || e.message || 'Checkout failed');
-    } finally {
-      setCheckingOut(false);
     }
   };
 
@@ -92,17 +65,9 @@ export default function PrintifySetup() {
                     </label>
                   ))}
                 </div>
-                <div className="pt-4 flex gap-2 flex-wrap">
+                <div className="pt-4 flex gap-2">
                   <Button variant="outline" onClick={fetchShops}>
                     Refresh
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={handleTestCheckout}
-                    disabled={checkingOut}
-                    className="gap-2"
-                  >
-                    {checkingOut ? (<><Loader2 className="w-4 h-4 animate-spin" /> Redirecting…</>) : 'Test $5 checkout'}
                   </Button>
                   <Button disabled={!selectedShopId} className="bg-purple-600 hover:bg-purple-700">
                     Continue

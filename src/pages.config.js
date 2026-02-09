@@ -75,6 +75,7 @@ import ManualsLibrary from './pages/ManualsLibrary';
 import MyFusions from './pages/MyFusions';
 import Persona from './pages/Persona';
 import PhotoUploader from './pages/PhotoUploader';
+import PrintifySetup from './pages/PrintifySetup';
 import Reading from './pages/Reading';
 import ReadingRoom from './pages/ReadingRoom';
 import ReadingSimple from './pages/ReadingSimple';
@@ -91,7 +92,6 @@ import UserProfile from './pages/UserProfile';
 import WebhookTester from './pages/WebhookTester';
 import WiccanSeeder from './pages/WiccanSeeder';
 import ZodiacReading from './pages/ZodiacReading';
-import PrintifySetup from './pages/PrintifySetup';
 import __Layout from './Layout.jsx';
 
 
@@ -124,6 +124,7 @@ export const PAGES = {
     "MyFusions": MyFusions,
     "Persona": Persona,
     "PhotoUploader": PhotoUploader,
+    "PrintifySetup": PrintifySetup,
     "Reading": Reading,
     "ReadingRoom": ReadingRoom,
     "ReadingSimple": ReadingSimple,
@@ -140,7 +141,6 @@ export const PAGES = {
     "WebhookTester": WebhookTester,
     "WiccanSeeder": WiccanSeeder,
     "ZodiacReading": ZodiacReading,
-    "PrintifySetup": PrintifySetup,
 }
 
 export const pagesConfig = {
