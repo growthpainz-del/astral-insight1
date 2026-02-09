@@ -106,7 +106,7 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
               <X className="w-5 h-5" />
             </button>
 
-            <div onClick={handleImageClick} className="relative max-w-sm mx-auto cursor-pointer select-none">
+            <div onClick={handleImageClick} className="relative max-w-sm mx-auto cursor-pointer select-none" role="button" tabIndex={0} onKeyDown={(e)=>{ if(e.key==='Enter'||e.key===' ') { e.preventDefault(); handleImageClick(); } }} style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}>
               {/* Glow effect */}
               <div className={`absolute -inset-4 ${isReversed ? 'bg-purple-600' : 'bg-cyan-600'} opacity-20 blur-3xl rounded-full`}></div>
               
