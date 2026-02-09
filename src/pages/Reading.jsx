@@ -687,22 +687,29 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
             exit={{ opacity: 0, scale: 0.9 }}
             className="mb-6"
           >
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl border border-purple-400/40 p-4 md:p-6">
-              <h3 className="text-center text-purple-200 mb-4 font-semibold">
-                ✨ Channeling cosmic energy while shuffling...
-              </h3>
+            <div className="relative rounded-xl border border-purple-400/40 overflow-hidden bg-black/30 min-h-[260px] md:min-h-[360px]">
               {deck?.shuffle_animation_url && (
-                <div className="mb-4">
-                  <ShuffleAnimation url={deck.shuffle_animation_url} />
-                </div>
+                <ShuffleAnimation
+                  url={deck.shuffle_animation_url}
+                  className="absolute inset-0 z-0 pointer-events-none"
+                  style={{ aspectRatio: 'auto' }}
+                />
               )}
-              <IdeomotorCanvas
-                question={question || "What guidance do you seek?"}
-                onComplete={() => {}}
-                autoCompleteAfter={2500}
-                showInstructions={true}
-                instructionText="Draw or doodle while the cards are being shuffled"
-              />
+              <div className="absolute inset-0 z-[1] bg-gradient-to-b from-black/40 via-black/20 to-black/50" />
+              <div className="relative z-[2] p-4 md:p-6">
+                <h3 className="text-center text-purple-200 mb-4 font-semibold">
+                  ✨ Channeling cosmic energy while shuffling...
+                </h3>
+                <div className="mx-auto w-full max-w-xs sm:max-w-sm">
+                  <IdeomotorCanvas
+                    question={question || "What guidance do you seek?"}
+                    onComplete={() => {}}
+                    autoCompleteAfter={2500}
+                    showInstructions={true}
+                    instructionText="Draw or doodle while the cards are being shuffled"
+                  />
+                </div>
+              </div>
             </div>
           </motion.div>
         )}
