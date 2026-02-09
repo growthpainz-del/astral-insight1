@@ -201,7 +201,7 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
               </div>
 
               {/* Quick Info Badges */}
-              <div className="flex flex-wrap gap-2">
+              <div className="hidden md:flex flex-wrap gap-2">
                 {card.element && card.element !== 'none' && (
                   <Badge className="bg-blue-600/30 border-blue-500/40 text-blue-200">
                     {card.element}
