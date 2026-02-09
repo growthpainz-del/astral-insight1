@@ -24,6 +24,14 @@ export default function EnhancedCardViewer({ card, isOpen, onClose, position, is
   const [copied, setCopied] = useState(false);
   const [showVideo, setShowVideo] = useState(!!card?.video_url);
   const rightPaneRef = useRef(null);
+  const overviewRef = useRef(null);
+  const guidanceRef = useRef(null);
+  const relatedRef = useRef(null);
+  const [mobileOpen, setMobileOpen] = useState('overview');
+  const scrollToRef = (ref, value) => {
+    try { setMobileOpen(value); } catch(_) {}
+    setTimeout(() => { try { ref?.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch(_) {} }, 10);
+  };
 
   useEffect(() => {
     setShowVideo(!!card?.video_url);
