@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -179,6 +179,7 @@ const BUILT_IN_SPREADS = [
 
 export default function ReadingPage() {
   const location = useLocation();
+  const navigate = useNavigate();
   const deckIdFromUrl = React.useMemo(() => {
     const sp = new URLSearchParams(location.search);
     return sp.get("deckId");
@@ -579,7 +580,7 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
           <Button
             size="sm"
             variant="outline"
-            onClick={() => { window.location.href = createPageUrl('Dashboard'); }}
+            onClick={() => { navigate(createPageUrl('Dashboard')); }}
             className="bg-black/60 text-white border-white/30 hover:bg-black/80"
             disabled={showEnhancedViewer || showRelationshipsOverlay || showCompactSpreadOverlay || showSessionManager}
           >

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { User } from "@/entities/User";
 import { Button } from "@/components/ui/button";
@@ -64,6 +64,7 @@ const NavLink = ({ to, children }) => {
 };
 
 export default function Layout({ children, currentPageName }) {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -244,7 +245,7 @@ export default function Layout({ children, currentPageName }) {
 
   const handleLogout = async () => {
     await User.logout();
-    window.location.href = "/";
+              navigate(createPageUrl('Home'));
   };
 
   const handleMobileBack = () => {
@@ -263,7 +264,7 @@ export default function Layout({ children, currentPageName }) {
         query.set('deck_id', deckId);
         if (spread) query.set('spread', spread);
         if (question) query.set('question', question);
-        window.location.href = createPageUrl(`Reading?${query.toString()}`);
+        navigate(createPageUrl(`Reading?${query.toString()}`));
         return;
       }
     } catch (_) {}
@@ -316,7 +317,7 @@ export default function Layout({ children, currentPageName }) {
   // Redirect non-admins from AIWorkspace to Dashboard
   React.useEffect(() => {
     if (currentPageName === 'AIWorkspace' && !isAdmin) {
-      window.location.href = createPageUrl('Dashboard');
+                navigate(createPageUrl('Dashboard'));
     }
   }, [currentPageName, isAdmin]);
   const hideFloatingSaveOn = new Set(["DeckView", "Reading", "DeckGallery", "CreateDeck"]);

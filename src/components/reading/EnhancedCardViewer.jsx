@@ -96,10 +96,10 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
 
   return (
     <div className="fixed inset-0 z-[2000] md:z-[2000] bg-black/70 backdrop-blur-sm" onClick={() => onClose(false)}>
-      <div className="max-w-5xl h-[100dvh] md:h-[95vh] bg-slate-900 text-white border border-purple-500/30 p-0 pointer-events-auto z-[2001] mx-auto mt-0 rounded-none md:mt-4 md:rounded-lg" role="dialog" aria-modal="true" aria-label={`${card?.name || 'Card'} details`} onClick={(e) => e.stopPropagation()}>
-        <div className="grid h-full overflow-y-auto md:overflow-hidden md:grid-cols-[400px,1fr] grid-rows-[auto,1fr] md:grid-rows-1" style={{ WebkitOverflowScrolling: 'touch' }}>
+      <div className="bg-slate-900 text-white border border-purple-500/30 p-0 pointer-events-auto z-[2001] absolute bottom-0 left-0 right-0 h-[85dvh] rounded-t-2xl md:relative md:max-w-5xl md:h-[95vh] md:mx-auto md:mt-4 md:rounded-lg" role="dialog" aria-modal="true" aria-label={`${card?.name || 'Card'} details`} onClick={(e) => e.stopPropagation()}>
+        <div className="grid h-full overflow-y-auto md:overflow-hidden md:grid-cols-[400px,1fr] grid-rows-[auto,1fr] md:grid-rows-1 pb-[env(safe-area-inset-bottom)]" style={{ WebkitOverflowScrolling: 'touch' }}>
           {/* Left: Card Image */}
-          <div className="relative bg-black/40 flex items-center justify-center p-6 border-b md:border-b-0 md:border-r border-white/10 max-h-[70dvh] md:max-h-none overflow-auto md:overflow-y-auto" style={{ WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}>
+          <div className="relative bg-black/40 flex items-center justify-center p-6 border-b md:border-b-0 md:border-r border-white/10 max-h-[45dvh] md:max-h-none overflow-auto md:overflow-y-auto" style={{ WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}>
             <button
               onClick={(e)=>{ e.stopPropagation?.(); onClose(false); }}
               className="absolute top-4 right-4 p-2 rounded-full bg-black/60 hover:bg-black/80 text-white/80 hover:text-white transition-all z-10"
@@ -122,13 +122,13 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
                     loop={false}
                     onEnded={() => setShowVideo(false)}
                     onError={() => setShowVideo(false)}
-                    className="max-h-[60vh] md:max-h-[70vh] w-auto rounded-xl shadow-2xl border-2 border-white/20 object-contain"
+                    className="max-h-[38vh] md:max_h-[70vh] w-auto rounded-xl shadow-2xl border-2 border-white/20 object-contain"
                   />
                 ) : card.image_url ? (
                   <img
                     src={card.image_url}
                     alt={card.name}
-                    className="max-h-[60vh] md:max-h-[70vh] w-auto rounded-xl shadow-2xl border-2 border-white/20 object-contain"
+                    className="max-h-[38vh] md:max_h-[70vh] w-auto rounded-xl shadow-2xl border-2 border-white/20 object-contain"
                   />
                 ) : (
                   <div className="aspect-[2/3] max-h-[60vh] md:max-h-[70vh] w-auto bg-gradient-to-br from-purple-900 to-blue-900 rounded-xl flex items-center justify-center">
