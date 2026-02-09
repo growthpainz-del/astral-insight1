@@ -1301,13 +1301,17 @@ export default function SpreadLayout(props) {
                           <button
                             type="button"
                             onClick={() => onCardClick(card, idx)}
-                                                          onMouseDown={(e) => allowReposition && handleCardDragStart(e, idx)}
-                                                          onTouchStart={(e) => allowReposition && handleCardDragStart(e, idx)}
-                                                          className={`relative w-full h-full rounded-lg overflow-hidden ring-2 ring-amber-400/20 shadow-[0_0_20px_rgba(251,191,36,0.35)] transition-all duration-300 group ${isCurrentDragged ? 'shadow-purple-500/80 scale-110' : 'hover:ring-amber-400/40 hover:shadow-[0_0_30px_rgba(251,191,36,0.55)] hover:scale-110'}`}
+                                                      onMouseDown={(e) => allowReposition && handleCardDragStart(e, idx)}
+                                                      onTouchStart={(e) => allowReposition && handleCardDragStart(e, idx)}
+                                                      className={`relative w-full h-full rounded-lg overflow-hidden ring-2 ring-amber-400/20 shadow-[0_0_20px_rgba(251,191,36,0.35)] transition-all duration-300 group ${isCurrentDragged ? 'shadow-purple-500/80 scale-110' : 'hover:ring-amber-400/40 hover:shadow-[0_0_30px_rgba(251,191,36,0.55)] hover:scale-110'}`}
+                            role="button"
+                            aria-label={`${card?.name || 'Card'} details`}
                             style={{
                               transform: `rotate(${pos.rotation}deg)`,
                               transformOrigin: 'center',
-                              cursor: allowReposition ? (isCurrentDragged ? 'grabbing' : 'grab') : 'pointer'
+                              cursor: allowReposition ? (isCurrentDragged ? 'grabbing' : 'grab') : 'pointer',
+                              WebkitTapHighlightColor: 'transparent',
+                              touchAction: 'manipulation'
                             }}
                           >
                             <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 to-blue-600/20 group-hover:from-purple-500/30 group-hover:to-blue-500/30 transition-all" />
