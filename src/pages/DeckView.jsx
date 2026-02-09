@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Deck, Card } from "@/entities/all"; // Added Card import
+import { Deck } from "@/entities/Deck";
+import { Card } from "@/entities/Card";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Card as UICard, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

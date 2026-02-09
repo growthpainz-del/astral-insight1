@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Card } from "@/entities/all";
+import { Card } from "@/entities/Card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, Circle, AlertCircle, Send, Loader2, CheckCircle } from "lucide-react";
 import { base44 } from "@/api/base44Client";

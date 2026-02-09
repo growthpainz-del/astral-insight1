@@ -1,6 +1,6 @@
 import React from "react";
-import { Deck } from "@/entities/all";
-import { Card as CardEntity } from "@/entities/all";
+import { Deck } from "@/entities/Deck";
+import { Card as CardEntity } from "@/entities/Card";
 import { safeUploadFile } from "@/components/utils/safeUpload";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";

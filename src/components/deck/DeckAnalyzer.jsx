@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -10,7 +9,8 @@ import QuickMeaningEditor from "./QuickMeaningEditor";
 import AIManualBuilder from "./AIManualBuilder";
 import JsonCardImporter from "./JsonCardImporter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Deck, Card as CardEntity } from "@/entities/all";
+import { Deck } from "@/entities/Deck";
+import { Card as CardEntity } from "@/entities/Card";
 import {
   Select,
   SelectContent,
