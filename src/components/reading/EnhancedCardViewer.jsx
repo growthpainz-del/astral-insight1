@@ -122,13 +122,13 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
                     loop={false}
                     onEnded={() => setShowVideo(false)}
                     onError={() => setShowVideo(false)}
-                    className="max-h-[38vh] md:max_h-[70vh] w-auto rounded-xl shadow-2xl border-2 border-white/20 object-contain"
+                    className="max-h-[38vh] md:max-h-[70vh] w-auto rounded-xl shadow-2xl border-2 border-white/20 object-contain"
                   />
                 ) : card.image_url ? (
                   <img
                     src={card.image_url}
                     alt={card.name}
-                    className="max-h-[38vh] md:max_h-[70vh] w-auto rounded-xl shadow-2xl border-2 border-white/20 object-contain"
+                    className="max-h-[38vh] md:max-h-[70vh] w-auto rounded-xl shadow-2xl border-2 border-white/20 object-contain"
                   />
                 ) : (
                   <div className="aspect-[2/3] max-h-[60vh] md:max-h-[70vh] w-auto bg-gradient-to-br from-purple-900 to-blue-900 rounded-xl flex items-center justify-center">
