@@ -35,29 +35,19 @@ export default function EnhancedCardViewer({ card, isOpen, onClose, position, is
     } catch (_) {}
   };
 
-  // Lock background scroll while viewer is open (iOS-safe)
+  // Lock background scroll while viewer is open (keep internal scroll working)
   useEffect(() => {
     if (!isOpen) return;
     const prevHtml = document.documentElement.style.overflow;
     const prevBody = document.body.style.overflow;
-    const prevTouch = document.body.style.touchAction;
     try {
       document.documentElement.style.overflow = 'hidden';
       document.body.style.overflow = 'hidden';
-      document.body.style.touchAction = 'none';
     } catch (_) {}
-
-    const prevent = (e) => { try { e.preventDefault(); e.stopPropagation(); } catch (_) {} };
-    window.addEventListener('touchmove', prevent, { passive: false, capture: true });
-    window.addEventListener('wheel', prevent, { passive: false, capture: true });
-
     return () => {
       try {
-        window.removeEventListener('touchmove', prevent, { capture: true });
-        window.removeEventListener('wheel', prevent, { capture: true });
         document.documentElement.style.overflow = prevHtml || '';
         document.body.style.overflow = prevBody || '';
-        document.body.style.touchAction = prevTouch || '';
       } catch (_) {}
     };
   }, [isOpen]);
@@ -175,7 +165,7 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
           </div>
 
           {/* Right: Card Information */}
-          <div ref={rightPaneRef} className="flex flex-col h-full overflow-hidden">
+          <div ref={rightPaneRef} className="flex flex-col h-full min-h-0 overflow-hidden">
             {/* Header */}
             <div className="p-6 border-b border-white/10 flex-shrink-0">
               <div className="flex items-start justify-between mb-3">
@@ -255,7 +245,7 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
                 </TabsTrigger>
               </TabsList>
 
-              <div className="flex-1 overflow-y-auto p-6 overscroll-contain" style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
+              <div className="flex-1 overflow-y-auto p-6 pb-24 overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
                 <TabsContent value="overview" className="mt-0 space-y-4">
                   {/* Main Meaning */}
                   <div className={`rounded-lg p-4 ${isReversed ? 'bg-purple-900/20 border border-purple-500/30' : 'bg-cyan-900/20 border border-cyan-500/30'}`}>
