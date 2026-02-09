@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import {
   BookOpen,
   Sparkles,
@@ -243,23 +244,121 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
             </div>
 
             {/* Tabbed Content */}
-            {/* Mobile content (no tabs) */}
-                    <div className="md:hidden flex-1 overflow-y-auto p-4 space-y-4">
-                      {card.overall_meaning && (
-                        <div className="bg-transparent border border-white/15 rounded-lg p-4">
-                          <h3 className="font-bold text-white/90 mb-2">Overall Meaning</h3>
-                          <p className="text-white/85 leading-relaxed">{card.overall_meaning}</p>
-                        </div>
-                      )}
-                      <div className="bg-transparent border border-white/12 rounded-lg p-4">
-                        <h3 className="font-bold text-purple-200 mb-2">Upright</h3>
-                        <p className="text-white/85 leading-relaxed">{card.upright_meaning || card.overall_meaning || 'No meaning available'}</p>
+            {/* Mobile content: collapsible sections with sticky chips */}
+            <div className="md:hidden flex-1 overflow-y-auto p-4 space-y-3" style={{ WebkitOverflowScrolling: 'touch' }}>
+              <div className="sticky top-0 z-10 -mx-4 px-4 py-2 bg-slate-900/80 backdrop-blur border-b border-white/10">
+                <div className="flex gap-2 overflow-x-auto pb-1">
+                  <button onClick={() => scrollToRef(overviewRef, 'overview')} className={`px-3 py-1 rounded-full border text-xs ${mobileOpen==='overview' ? 'bg-white/10 border-white/25' : 'bg-transparent border-white/15'}`}>Overview</button>
+                  <button onClick={() => scrollToRef(guidanceRef, 'guidance')} className={`px-3 py-1 rounded-full border text-xs ${mobileOpen==='guidance' ? 'bg-white/10 border-white/25' : 'bg-transparent border-white/15'}`}>Guidance</button>
+                  <button onClick={() => scrollToRef(relatedRef, 'related')} className={`px-3 py-1 rounded-full border text-xs ${mobileOpen==='related' ? 'bg-white/10 border-white/25' : 'bg-transparent border-white/15'}`}>Related</button>
+                </div>
+              </div>
+
+              <Accordion type="single" collapsible value={mobileOpen} onValueChange={setMobileOpen} className="space-y-3">
+                <div ref={overviewRef} />
+                <AccordionItem value="overview" className="border border-white/15 rounded-lg bg-transparent">
+                  <AccordionTrigger className="px-4 py-2 text-left">Overview</AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4 space-y-4">
+                    <div className={`rounded-lg p-4 ${isReversed ? 'bg-purple-900/10 border border-purple-500/30' : 'bg-cyan-900/10 border border-cyan-500/30'}`}>
+                      <div className="flex items-center gap-2 mb-2">
+                        {isReversed ? (
+                          <TrendingDown className="w-5 h-5 text-purple-400" />
+                        ) : (
+                          <TrendingUp className="w-5 h-5 text-cyan-400" />
+                        )}
+                        <h3 className={`font-bold ${isReversed ? 'text-purple-300' : 'text-cyan-300'}`}>
+                          {isReversed ? 'Reversed Meaning' : 'Upright Meaning'}
+                        </h3>
                       </div>
-                      <div className="bg-transparent border border-white/12 rounded-lg p-4">
-                        <h3 className="font-bold text-purple-200 mb-2">Reversed</h3>
-                        <p className="text-white/85 leading-relaxed">{card.reversed_meaning || card.upright_meaning || card.overall_meaning || 'No meaning available'}</p>
-                      </div>
+                      <p className="text-white/90 leading-relaxed">{getMeaningText()}</p>
                     </div>
+                    {card.overall_meaning && (
+                      <div className="bg-transparent border border-blue-500/30 rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Heart className="w-5 h-5 text-blue-400" />
+                          <h3 className="font-bold text-blue-300">Core Essence</h3>
+                        </div>
+                        <p className="text-white/90 leading-relaxed">{card.overall_meaning}</p>
+                      </div>
+                    )}
+                    {card.keywords && card.keywords.length > 0 && (
+                      <div className="bg-transparent border border-white/10 rounded-lg p-4">
+                        <h3 className="font-bold text-white/90 mb-3 flex items-center gap-2">
+                          <Sparkles className="w-4 h-4" />
+                          Key Themes
+                        </h3>
+                        <div className="flex flex-wrap gap-2">
+                          {card.keywords.map((kw, i) => (
+                            <Badge key={i} className="bg-white/10 text-white/90 border-white/20">
+                              {kw}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </AccordionContent>
+                </AccordionItem>
+
+                <div ref={guidanceRef} />
+                <AccordionItem value="guidance" className="border border-white/15 rounded-lg bg-transparent">
+                  <AccordionTrigger className="px-4 py-2 text-left">Guidance</AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4 space-y-4">
+                    <div className="bg-transparent border border-emerald-500/30 rounded-lg p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Lightbulb className="w-5 h-5 text-emerald-400" />
+                        <h3 className="font-bold text-emerald-300">Insight</h3>
+                      </div>
+                      <p className="text-white/90 leading-relaxed">{getInsightText()}</p>
+                    </div>
+                    <div className="bg-transparent border border-amber-500/30 rounded-lg p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Zap className="w-5 h-5 text-amber-400" />
+                        <h3 className="font-bold text-amber-300">Suggested Action</h3>
+                      </div>
+                      <p className="text-white/90 leading-relaxed">{getActionText()}</p>
+                    </div>
+                    {position && (
+                      <div className="bg-transparent border border-purple-500/30 rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Info className="w-5 h-5 text-purple-400" />
+                          <h3 className="font-bold text-purple-300">In This Position</h3>
+                        </div>
+                        <p className="text-white/90 leading-relaxed">
+                          As the <strong>{position}</strong> in your reading, this card speaks to the energies and influences present in this specific area of your question.
+                        </p>
+                      </div>
+                    )}
+                  </AccordionContent>
+                </AccordionItem>
+
+                <div ref={relatedRef} />
+                <AccordionItem value="related" className="border border-white/15 rounded-lg bg-transparent">
+                  <AccordionTrigger className="px-4 py-2 text-left">Related</AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4">
+                    {relatedCards && relatedCards.length > 0 ? (
+                      <div className="space-y-3">
+                        {relatedCards.map((relCard, idx) => (
+                          <div key={idx} className="bg-transparent border border-white/12 rounded-lg p-4 hover:bg-white/5 transition-colors">
+                            <h4 className="font-semibold text-white mb-1">{relCard.name || relCard.card_name}</h4>
+                            <p className="text-sm text-white/70">{relCard.position}</p>
+                            {relCard.isReversed && (
+                              <Badge className="mt-2 bg-purple-600/30 border-purple-500/40 text-purple-200">
+                                Reversed
+                              </Badge>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8 text-white/60">
+                        <Link2 className="w-10 h-10 mx-auto mb-2 opacity-40" />
+                        <p>No related cards in this reading</p>
+                      </div>
+                    )}
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </div>
 
                     {/* Desktop content with tabs */}
                     <Tabs value={activeTab} onValueChange={setActiveTab} className="hidden md:flex flex-1 flex-col min-h-0">
