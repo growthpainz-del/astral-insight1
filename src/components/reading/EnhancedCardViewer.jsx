@@ -94,7 +94,7 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
 
   return (
     <div className="fixed inset-0 z-[2000] bg-black/70 backdrop-blur-sm" onClick={() => onClose(false)}>
-      <div className="max-w-5xl h-[92dvh] md:h-[95vh] bg-slate-900 text-white border border-purple-500/30 p-0 pointer-events-auto z-[2001] mx-auto mt-4 rounded-lg" role="dialog" aria-modal="true" aria-label={`${card?.name || 'Card'} details`} onClick={(e) => e.stopPropagation()}>
+      <div className="max-w-5xl h-[100dvh] md:h-[95vh] bg-slate-900 text-white border border-purple-500/30 p-0 pointer-events-auto z-[2001] mx-auto mt-0 rounded-none md:mt-4 md:rounded-lg" role="dialog" aria-modal="true" aria-label={`${card?.name || 'Card'} details`} onClick={(e) => e.stopPropagation()}>
         <div className="grid h-full overflow-hidden md:grid-cols-[400px,1fr] grid-rows-[auto,1fr] md:grid-rows-1">
           {/* Left: Card Image */}
           <div className="relative bg-black/40 flex items-center justify-center p-6 border-b md:border-b-0 md:border-r border-white/10 max-h-[70dvh] md:max-h-none overflow-auto md:overflow-y-auto">
@@ -184,7 +184,7 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
                     size="sm"
                     variant="secondary"
                     onClick={() => onClose(false)}
-                    className="bg-purple-600/30 hover:bg-purple-600/40 border-white/10 text-white"
+                    className="hidden md:inline-flex bg-purple-600/30 hover:bg-purple-600/40 border-white/10 text-white"
                   >
                     Return to Reading
                   </Button>
@@ -226,7 +226,7 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
 
             {/* Tabbed Content */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
-              <TabsList className="bg-slate-800/50 border-b border-white/10 rounded-none grid grid-cols-4 h-auto p-1 flex-shrink-0">
+              <TabsList className="sticky top-0 z-10 bg-slate-900/70 backdrop-blur border-b border-white/10 rounded-none grid grid-cols-4 h-auto p-1 flex-shrink-0">
                 <TabsTrigger value="overview" className="data-[state=active]:bg-purple-600/30 py-2">
                   <Info className="w-4 h-4 mr-2" />
                   Overview
@@ -245,7 +245,7 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
                 </TabsTrigger>
               </TabsList>
 
-              <div className="flex-1 overflow-y-auto p-6 pb-24 overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
+              <div className="flex-1 overflow-y-auto p-6 pb-40 md:pb-10 overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
                 <TabsContent value="overview" className="mt-0 space-y-4">
                   {/* Main Meaning */}
                   <div className={`rounded-lg p-4 ${isReversed ? 'bg-purple-900/20 border border-purple-500/30' : 'bg-cyan-900/20 border border-cyan-500/30'}`}>
