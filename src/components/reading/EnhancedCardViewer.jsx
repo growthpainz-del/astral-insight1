@@ -117,21 +117,7 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
                                 <X className="w-5 h-5" />
                               </button>
 
-                              {/* Mobile overlay header (matches the second screenshot style) */}
-                              <div className="md:hidden absolute inset-0 pointer-events-none">
-                                <div className="absolute top-14 left-4 right-12">
-                                  <h2 className="text-3xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-cyan-300 drop-shadow-lg">
-                                    {card.name}
-                                  </h2>
-                                  <div className="mt-2 flex flex-wrap gap-2">
-                                    {Array.isArray(card.keywords) && card.keywords.slice(0,4).map((kw, i) => (
-                                      <span key={i} className="px-2 py-1 text-[11px] rounded-full bg-black/50 border border-white/20 text-white/90 shadow">
-                                        {kw}
-                                      </span>
-                                    ))}
-                                  </div>
-                                </div>
-                              </div>
+
 
             <div onClick={handleImageClick} onTouchEnd={(e)=>{ e.preventDefault(); handleImageClick(); }} className="relative w-full max-w-[min(92vw,420px)] mx-auto cursor-pointer select-none" role="button" tabIndex={0} onKeyDown={(e)=>{ if(e.key==='Enter'||e.key===' ') { e.preventDefault(); handleImageClick(); } }} style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}>
               {/* Glow effect */}
@@ -183,11 +169,7 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
                  Video ended – showing image. Close to return.
                </div>
               )}
-              {activeTab !== 'overview' && (
-                <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[11px] text-white/80 bg-black/60 px-2 py-0.5 rounded-full border border-white/20">
-                  Tap image to view Overview
-                </div>
-              )}
+
             </div>
           </div>
 
