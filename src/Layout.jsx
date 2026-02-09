@@ -530,6 +530,16 @@ export default function Layout({ children, currentPageName }) {
             /* Global mobile UX tweaks */
             body { overscroll-behavior-y: none; }
             button, [role="button"], .lucide, .shadcn-button, .ui-button, a { user-select: none; -webkit-user-select: none; -ms-user-select: none; }
+
+            /* Touch gesture hardening */
+            a, button, [role="button"] { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+            /* Ensure text inputs remain selectable */
+            input, textarea, select { user-select: text; -webkit-user-select: text; }
+            /* Prevent icon layers from stealing taps */
+            .lucide { pointer-events: none; }
+            /* Contain scroll chaining in bottom sheets */
+            .reading-bottom-sheet { overscroll-behavior: contain; }
+
             /* Hide scrollbars on mobile but keep scroll */
             @media (max-width: 767px) {
               *::-webkit-scrollbar { display: none; width: 0; height: 0; }
