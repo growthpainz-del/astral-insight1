@@ -887,6 +887,7 @@ export default function SpreadLayout(props) {
           overflow: 'auto',
           position: 'relative',
           WebkitOverflowScrolling: 'touch',
+          overscrollBehavior: 'contain',
           overflowY: (isDragging || zoom > 1) ? 'hidden' : 'visible',
           touchAction: isDragging ? 'none' : (zoom > 1 ? 'none' : 'pan-x pan-y')
         }}

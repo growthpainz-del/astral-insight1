@@ -26,6 +26,8 @@ export default function EnhancedCardViewer({ card, isOpen, onClose, position, is
 
   useEffect(() => {
     setShowVideo(!!card?.video_url);
+    // Always default to Overview when opening or switching cards
+    if (isOpen) setActiveTab('overview');
   }, [card?.id, isOpen]);
 
   const handleImageClick = () => {
@@ -93,7 +95,7 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
   };
 
   return (
-    <div className="fixed inset-0 z-[2000] bg-black/70 backdrop-blur-sm" onClick={() => onClose(false)}>
+    <div className="fixed inset-0 z-[2000] md:z-[2000] bg-black/70 backdrop-blur-sm" onClick={() => onClose(false)}>
       <div className="max-w-5xl h-[100dvh] md:h-[95vh] bg-slate-900 text-white border border-purple-500/30 p-0 pointer-events-auto z-[2001] mx-auto mt-0 rounded-none md:mt-4 md:rounded-lg" role="dialog" aria-modal="true" aria-label={`${card?.name || 'Card'} details`} onClick={(e) => e.stopPropagation()}>
         <div className="grid h-full overflow-y-auto md:overflow-hidden md:grid-cols-[400px,1fr] grid-rows-[auto,1fr] md:grid-rows-1" style={{ WebkitOverflowScrolling: 'touch' }}>
           {/* Left: Card Image */}
@@ -106,9 +108,9 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
               <X className="w-5 h-5" />
             </button>
 
-            <div onClick={handleImageClick} className="relative max-w-sm mx-auto cursor-pointer select-none" role="button" tabIndex={0} onKeyDown={(e)=>{ if(e.key==='Enter'||e.key===' ') { e.preventDefault(); handleImageClick(); } }} style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}>
+            <div onClick={handleImageClick} onTouchEnd={(e)=>{ e.preventDefault(); handleImageClick(); }} className="relative max-w-sm mx-auto cursor-pointer select-none" role="button" tabIndex={0} onKeyDown={(e)=>{ if(e.key==='Enter'||e.key===' ') { e.preventDefault(); handleImageClick(); } }} style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}>
               {/* Glow effect */}
-              <div className={`absolute -inset-4 ${isReversed ? 'bg-purple-600' : 'bg-cyan-600'} opacity-20 blur-3xl rounded-full`}></div>
+              <div className={`absolute -inset-4 ${isReversed ? 'bg-purple-600' : 'bg-cyan-600'} opacity-20 blur-3xl rounded-full pointer-events-none`}></div>
               
               <div className={`relative transform transition-transform ${isReversed ? 'rotate-180' : ''}`}>
                 {showVideo && card.video_url ? (
