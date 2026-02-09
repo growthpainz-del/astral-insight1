@@ -101,12 +101,28 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
           {/* Left: Card Image */}
           <div className="relative bg-black/40 flex items-center justify-center p-6 border-b md:border-b-0 md:border-r border-white/10 max-h-[45dvh] md:max-h-none overflow-auto md:overflow-y-auto" style={{ WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}>
             <button
-              onClick={(e)=>{ e.stopPropagation?.(); onClose(false); }}
-              className="absolute top-4 right-4 p-2 rounded-full bg-black/60 hover:bg-black/80 text-white/80 hover:text-white transition-all z-10"
-              aria-label="Close and return to reading"
-            >
-              <X className="w-5 h-5" />
-            </button>
+                                onClick={(e)=>{ e.stopPropagation?.(); onClose(false); }}
+                                className="absolute top-4 right-4 p-2 rounded-full bg-black/60 hover:bg-black/80 text-white/80 hover:text-white transition-all z-10"
+                                aria-label="Close and return to reading"
+                              >
+                                <X className="w-5 h-5" />
+                              </button>
+
+                              {/* Mobile overlay header (matches the second screenshot style) */}
+                              <div className="md:hidden absolute inset-0 pointer-events-none">
+                                <div className="absolute top-14 left-4 right-12">
+                                  <h2 className="text-3xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-cyan-300 drop-shadow-lg">
+                                    {card.name}
+                                  </h2>
+                                  <div className="mt-2 flex flex-wrap gap-2">
+                                    {Array.isArray(card.keywords) && card.keywords.slice(0,4).map((kw, i) => (
+                                      <span key={i} className="px-2 py-1 text-[11px] rounded-full bg-black/50 border border-white/20 text-white/90 shadow">
+                                        {kw}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
 
             <div onClick={handleImageClick} onTouchEnd={(e)=>{ e.preventDefault(); handleImageClick(); }} className="relative max-w-sm mx-auto cursor-pointer select-none" role="button" tabIndex={0} onKeyDown={(e)=>{ if(e.key==='Enter'||e.key===' ') { e.preventDefault(); handleImageClick(); } }} style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}>
               {/* Glow effect */}
@@ -169,7 +185,7 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
           {/* Right: Card Information */}
           <div ref={rightPaneRef} className="flex flex-col h-full min-h-0 overflow-hidden">
             {/* Header */}
-            <div className="p-6 border-b border-white/10 flex-shrink-0">
+            <div className="hidden md:block p-6 border-b border-white/10 flex-shrink-0">
               <div className="flex items-start justify-between mb-3">
                 <div>
                   <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400 mb-2">
@@ -227,8 +243,27 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
             </div>
 
             {/* Tabbed Content */}
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
-              <TabsList className="sticky top-0 z-10 bg-slate-900/70 backdrop-blur border-b border-white/10 rounded-none grid grid-cols-4 h-auto p-1 flex-shrink-0">
+            {/* Mobile content (no tabs) */}
+                    <div className="md:hidden flex-1 overflow-y-auto p-4 space-y-4">
+                      {card.overall_meaning && (
+                        <div className="bg-black/40 border border-white/10 rounded-lg p-4">
+                          <h3 className="font-bold text-white/90 mb-2">Overall Meaning</h3>
+                          <p className="text-white/85 leading-relaxed">{card.overall_meaning}</p>
+                        </div>
+                      )}
+                      <div className="bg-black/40 border border-purple-500/30 rounded-lg p-4">
+                        <h3 className="font-bold text-purple-200 mb-2">Upright</h3>
+                        <p className="text-white/85 leading-relaxed">{card.upright_meaning || card.overall_meaning || 'No meaning available'}</p>
+                      </div>
+                      <div className="bg-black/40 border border-purple-500/30 rounded-lg p-4">
+                        <h3 className="font-bold text-purple-200 mb-2">Reversed</h3>
+                        <p className="text-white/85 leading-relaxed">{card.reversed_meaning || card.upright_meaning || card.overall_meaning || 'No meaning available'}</p>
+                      </div>
+                    </div>
+
+                    {/* Desktop content with tabs */}
+                    <Tabs value={activeTab} onValueChange={setActiveTab} className="hidden md:flex flex-1 flex-col min-h-0">
+              <TabsList className="hidden md:grid sticky top-0 z-10 bg-slate-900/70 backdrop-blur border-b border-white/10 rounded-none grid-cols-4 h-auto p-1 flex-shrink-0">
                 <TabsTrigger value="overview" className="data-[state=active]:bg-purple-600/30 py-2">
                   <Info className="w-4 h-4 mr-2" />
                   Overview

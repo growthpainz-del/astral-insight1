@@ -270,10 +270,10 @@ export default function Layout({ children, currentPageName }) {
     } catch (_) {}
 
     if (window.history.length > 1) {
-      window.history.back();
-    } else {
-      window.location.href = createPageUrl('Dashboard');
-    }
+                window.history.back();
+              } else {
+                navigate(createPageUrl('Dashboard'));
+              }
   };
 
   const readingLinks = [
