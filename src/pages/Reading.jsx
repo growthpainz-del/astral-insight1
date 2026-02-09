@@ -687,28 +687,30 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
             exit={{ opacity: 0, scale: 0.9 }}
             className="mb-6"
           >
-            <div className="relative rounded-xl border border-purple-400/40 overflow-hidden bg-black/30 min-h-[260px] md:min-h-[360px]">
+            <div className="relative rounded-xl border border-purple-400/40 overflow-hidden bg-black/30 min-h-[300px] md:min-h-[420px]">
               {deck?.shuffle_animation_url && (
                 <ShuffleAnimation
                   url={deck.shuffle_animation_url}
-                  className="absolute inset-0 z-0 pointer-events-none"
+                  className="absolute inset-0 z-0"
                   style={{ aspectRatio: 'auto' }}
                 />
               )}
-              <div className="absolute inset-0 z-[1] bg-gradient-to-b from-black/40 via-black/20 to-black/50" />
-              <div className="relative z-[2] p-4 md:p-6">
-                <h3 className="text-center text-purple-200 mb-4 font-semibold">
-                  ✨ Channeling cosmic energy while shuffling...
-                </h3>
-                <div className="mx-auto w-full max-w-xs sm:max-w-sm">
-                  <IdeomotorCanvas
-                    question={question || "What guidance do you seek?"}
-                    onComplete={() => {}}
-                    autoCompleteAfter={2500}
-                    showInstructions={true}
-                    instructionText="Draw or doodle while the cards are being shuffled"
-                  />
-                </div>
+              <div className="absolute inset-0 z-[1] bg-gradient-to-b from-black/20 via-black/10 to-black/30" />
+
+              {/* Title pill */}
+              <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[2] px-3 py-1.5 rounded-full bg-black/40 border border-white/10 text-purple-200 text-sm font-semibold">
+                ✨ Channeling cosmic energy while shuffling...
+              </div>
+
+              {/* Floating doodle panel over the video */}
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-[3] w-[300px] max-w-[90vw] bg-black/55 backdrop-blur-md border border-white/15 rounded-xl shadow-lg p-3">
+                <IdeomotorCanvas
+                  question={question || "What guidance do you seek?"}
+                  onComplete={() => {}}
+                  autoCompleteAfter={2500}
+                  showInstructions={true}
+                  instructionText="Draw or doodle while the cards are being shuffled"
+                />
               </div>
             </div>
           </motion.div>
