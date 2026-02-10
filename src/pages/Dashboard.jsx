@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { base44 } from "@/api/base44Client";
 import { Deck, Reading as ReadingEntity } from "@/entities/all";
 import { Play, Plus, Clock, TrendingUp, Sparkles, ChevronRight, Eye, Settings, RefreshCw, AlertTriangle } from "lucide-react";
 import { base44 } from "@/api/base44Client";
