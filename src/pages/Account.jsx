@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
-import { User as UserEntity } from "@/entities/User";
+import { base44 } from "@/api/base44Client";
 import { Trash2, ChevronLeft, Loader2 } from "lucide-react";
 import { deleteAccount } from "@/functions/deleteAccount";
 
@@ -14,7 +14,7 @@ export default function Account() {
 
   useEffect(() => {
     (async () => {
-      try { setMe(await UserEntity.me()); } catch { setMe(null); }
+      try { setMe(await base44.auth.me()); } catch { setMe(null); }
     })();
   }, []);
 

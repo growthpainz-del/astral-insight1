@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Deck } from "@/entities/Deck";
+import { base44 } from "@/api/base44Client";
 import { 
   Plus, 
   Settings, 
@@ -15,7 +15,7 @@ import {
   Wand2,
   Send
 } from "lucide-react";
-import { User } from "@/entities/User";
+
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { queueApiCall } from "@/components/utils/apiQueue";
@@ -129,7 +129,7 @@ export default function Studio() {
 
       let user = null;
       try {
-        user = await queueApiCall(() => User.me());
+        user = await queueApiCall(() => base44.auth.me());
         setCurrentUser(user);
       } catch (e) {
         console.log("No current user logged in");
@@ -139,7 +139,7 @@ export default function Studio() {
 
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      const allDecks = await queueApiCall(() => Deck.list("-created_date", 200));
+      const allDecks = await queueApiCall(() => base44.entities.Deck.list("-created_date", 200));
       
       const myPublished = (allDecks || []).filter(d => 
         d.created_by && 
@@ -185,7 +185,7 @@ export default function Studio() {
           <Palette className="w-16 h-16 text-purple-400 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-white mb-2">Login Required</h2>
           <p className="text-white/70 mb-6">Please log in to access Creator Studio</p>
-          <Button onClick={() => User.login()} className="bg-purple-600 hover:bg-purple-700">
+          <Button onClick={() => base44.auth.redirectToLogin()} className="bg-purple-600 hover:bg-purple-700">
             Log In
           </Button>
         </div>

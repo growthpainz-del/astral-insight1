@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
-import { Deck, Reading as ReadingEntity } from "@/entities/all";
+
 import { Play, Plus, Clock, TrendingUp, Sparkles, ChevronRight, Eye, Settings, RefreshCw, AlertTriangle } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -171,7 +171,7 @@ export default function Dashboard() {
 
         // ENHANCED: Load decks with MORE retries and LONGER delays
         const allDecks = await queueApiCall(
-          () => Deck.list("-created_date", 200), 
+          () => base44.entities.Deck.list("-created_date", 200), 
           8,     // INCREASED: 8 retries (was 5)
           4000,  // INCREASED: 4s base delay (was 2s)
           30000  // INCREASED: 30s timeout (was 15s default)
@@ -185,7 +185,7 @@ export default function Dashboard() {
         
         // ENHANCED: Load readings with MORE retries and LONGER delays
         const readings = await queueApiCall(
-          () => ReadingEntity.list("-created_date", 10), 
+          () => base44.entities.Reading.list("-created_date", 10), 
           8,     // INCREASED: 8 retries (was 5)
           4000,  // INCREASED: 4s base delay (was 2s)
           30000  // INCREASED: 30s timeout (was 15s default)

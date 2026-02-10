@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Deck, Card as CardEntity } from "@/entities/all";
+import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -46,7 +45,7 @@ export default function UserProfilePage() {
     setError("");
     try {
       // Load all decks (filter client-side for complex conditions)
-      const allUserDecks = await Deck.list("-created_date", 200);
+      const allUserDecks = await base44.entities.Deck.list("-created_date", 200);
       
       // Filter for this user's public AND published decks
       const userDecks = allUserDecks.filter(deck => 
@@ -64,7 +63,7 @@ export default function UserProfilePage() {
         // Count cards in each deck
         const cardCounts = await Promise.all(
           userDecks.map(deck => 
-            CardEntity.filter({ deck_id: deck.id })
+            base44.entities.Card.filter({ deck_id: deck.id })
               .then(cards => cards?.length || 0)
               .catch(() => 0)
           )
