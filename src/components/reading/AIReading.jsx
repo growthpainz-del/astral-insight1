@@ -41,26 +41,10 @@ export default function ChanneledReading({ isOpen, drawnCards, deck, spread, que
     }
   }, [isOpen]);
 
-  // Load ElevenLabs voices and auto-select "babooshka" if available
+  // Force default reading voice to the user's preferred voice ID
   useEffect(() => {
     if (!isOpen) return;
-    (async () => {
-      try {
-        const { data } = await base44.functions.invoke('listElevenVoices', {});
-        const voices = data?.voices || [];
-        setElevenVoices(voices);
-        const match = voices.find(v => (v.name || '').toLowerCase().includes('babooshka'));
-        if (match?.id) {
-          setSelectedVoiceId(match.id);
-        } else {
-          // fallback to prior default if babooshka not found
-          setSelectedVoiceId('X8Na0RDzhqa1gJFsWu5a');
-        }
-      } catch (e) {
-        // if listing fails, keep safe default
-        setSelectedVoiceId('X8Na0RDzhqa1gJFsWu5a');
-      }
-    })();
+    setSelectedVoiceId('X8Na0RDzhqa1gJFsWu5a');
   }, [isOpen]);
 
   const generateInterpretation = async (tier = "quick") => {
@@ -548,7 +532,7 @@ if (user && typeof user.token_balance === "number") {
 
 
 
-          <audio ref={audioRef} controls playsInline preload="auto" className="w-full mt-2 rounded-lg bg-black/30" />
+          <audio ref={audioRef} playsInline preload="auto" className="hidden" aria-hidden="true" />
 
           <div className="prose prose-invert prose-purple max-w-none">
             <div className="text-white/90 whitespace-pre-wrap leading-relaxed text-sm md:text-base">
