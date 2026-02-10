@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Loader2, Sparkles, AlertTriangle, Copy, Check, Volume2, StopCircle, Mic, Moon, Heart, Download, FileText } from "lucide-react";
 // removed: AudioPlayer import (switched to SpeechSynthesis)
-import { User } from "@/entities/User";
+
 import FreeLimitReached from "@/components/pricing/FreeLimitReached";
 import TokenCostPreview from "@/components/pricing/TokenCostPreview";
 import { Progress } from "@/components/ui/progress";
@@ -47,7 +47,7 @@ export default function ChanneledReading({ isOpen, drawnCards, deck, spread, que
 
   useEffect(() => {
     if (isOpen) {
-      User.me().then(setUser).catch(() => setUser(null));
+      base44.auth.me().then(setUser).catch(() => setUser(null));
     }
   }, [isOpen]);
 
@@ -435,7 +435,7 @@ if (user && typeof user.token_balance === "number") {
 
   if (!isOpen) return null;
 
-  const hasInsufficientTokens = user && typeof user.token_balance === "number" && user.token_balance < 1;
+  const hasInsufficientTokens = !!user && typeof user.token_balance === "number" && user.token_balance < 1;
 
   return (
     <div className="space-y-6">

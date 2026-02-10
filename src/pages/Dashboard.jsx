@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Deck, Reading as ReadingEntity } from "@/entities/all";
 import { Play, Plus, Clock, TrendingUp, Sparkles, ChevronRight, Eye, Settings, RefreshCw, AlertTriangle } from "lucide-react";
-import { User } from "@/entities/User";
+import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { isNetworkError } from "@/components/utils/isNetworkError";
 import { queueApiCall } from "@/components/utils/apiQueue";
@@ -134,7 +134,7 @@ export default function Dashboard() {
     const loadUser = async () => {
       try {
         // INCREASED: More retries and longer delay for user load
-        const user = await queueApiCall(() => User.me(), 8, 3000, 20000); // 8 retries, 3s delay, 20s timeout
+        const user = await queueApiCall(() => base44.auth.me(), 8, 3000, 20000); // 8 retries, 3s delay, 20s timeout
         setCurrentUser(user);
         console.log('✅ User loaded:', user?.email);
       } catch (e) {
