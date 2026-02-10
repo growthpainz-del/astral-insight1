@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { User } from "@/entities/User";
+import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import {
               Home,
@@ -98,7 +98,7 @@ export default function Layout({ children, currentPageName }) {
         
         // FIXED: Use queueApiCall with extended timeout for user loading
         const currentUser = await queueApiCall(
-          () => User.me(),
+          () => base44.auth.me(),
           3, // 3 retries
           3000, // 3 second base delay
           30000 // 30 second timeout per attempt
@@ -244,8 +244,7 @@ export default function Layout({ children, currentPageName }) {
           };
 
   const handleLogout = async () => {
-    await User.logout();
-              navigate(createPageUrl('Home'));
+    await base44.auth.logout(createPageUrl('Home'));
   };
 
   const handleMobileBack = () => {
@@ -750,7 +749,7 @@ export default function Layout({ children, currentPageName }) {
                     </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
-                <Button onClick={() => User.login()} className="w-full bg-purple-600 hover:bg-purple-700">Login</Button>
+                <Button onClick={() => base44.auth.redirectToLogin()} className="w-full bg-purple-600 hover:bg-purple-700">Login</Button>
               )}
             </div>
           </aside>
