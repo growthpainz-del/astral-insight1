@@ -4,7 +4,6 @@ import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 
 import { Play, Plus, Clock, TrendingUp, Sparkles, ChevronRight, Eye, Settings, RefreshCw, AlertTriangle } from "lucide-react";
-import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { isNetworkError } from "@/components/utils/isNetworkError";
 import { queueApiCall } from "@/components/utils/apiQueue";
