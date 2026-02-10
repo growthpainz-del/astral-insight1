@@ -28,6 +28,12 @@ export default function ChanneledReading({ isOpen, drawnCards, deck, spread, que
   const audioRef = useRef(null);
   const webSpeechUtteranceRef = useRef(null);
   const usingWebSpeechRef = useRef(false);
+  // TTS chunking
+  const [ttsSegments, setTtsSegments] = useState([]);
+  const ttsAudioMapRef = useRef({});
+  const [ttsIndex, setTtsIndex] = useState(0);
+  const ttsAbortRef = useRef(false);
+  const [isTtsPreparing, setIsTtsPreparing] = useState(false);
 
   // AI Coach customizations
   const [coachPersona, setCoachPersona] = useState("");
@@ -179,30 +185,107 @@ if (user && typeof user.token_balance === "number") {
     }
   };
 
+  // Split text into natural chunks (~900 chars) at sentence boundaries
+  const chunkText = (text, maxLen = 900) => {
+    const parts = [];
+    const paras = text.split(/\n{2,}/).map(p => p.trim()).filter(Boolean);
+    for (const para of paras) {
+      const sentences = para.split(/(?<=[.!?])\s+/);
+      let buf = '';
+      for (const s of sentences) {
+        if ((buf + ' ' + s).trim().length <= maxLen) {
+          buf = (buf ? buf + ' ' : '') + s;
+        } else {
+          if (buf) parts.push(buf);
+          if (s.length > maxLen) {
+            let i = 0;
+            while (i < s.length) {
+              parts.push(s.slice(i, i + maxLen));
+              i += maxLen;
+            }
+            buf = '';
+          } else {
+            buf = s;
+          }
+        }
+      }
+      if (buf) { parts.push(buf); buf = ''; }
+    }
+    return parts.length ? parts : [text];
+  };
+
+  const fetchTtsForIndex = async (idx, voiceId) => {
+    if (ttsAbortRef.current) return;
+    if (ttsAudioMapRef.current[idx]) return;
+    const seg = ttsSegments[idx];
+    if (!seg) return;
+    const { data } = await base44.functions.invoke('generateSpeech', {
+      text: seg,
+      voiceId: voiceId || selectedVoiceId || "X8Na0RDzhqa1gJFsWu5a",
+    });
+    const b64 = data?.audioContent;
+    if (!b64) throw new Error('No audio returned from TTS');
+    ttsAudioMapRef.current[idx] = `data:audio/mpeg;base64,${b64}`;
+  };
+
   const handleSpeak = async () => {
     if (!interpretation) return;
-    setIsSpeaking(true);
     setError("");
+    setIsSpeaking(true);
+    setIsTtsPreparing(true);
+    ttsAbortRef.current = false;
+    ttsAudioMapRef.current = {};
     try {
-      const { data } = await base44.functions.invoke('generateSpeech', {
-        text: interpretation,
-        voiceId: selectedVoiceId || "X8Na0RDzhqa1gJFsWu5a",
-      });
-      const b64 = data?.audioContent;
-      if (!b64) throw new Error('No audio returned from TTS');
+      const segs = chunkText(interpretation);
+      setTtsSegments(segs);
+      setTtsIndex(0);
+      await fetchTtsForIndex(0, selectedVoiceId || "X8Na0RDzhqa1gJFsWu5a");
       if (!audioRef.current) return;
-      audioRef.current.src = `data:audio/mpeg;base64,${b64}`;
+      audioRef.current.src = ttsAudioMapRef.current[0];
       audioRef.current.muted = false;
       audioRef.current.volume = 1.0;
-      audioRef.current.onended = () => setIsSpeaking(false);
-      try { await audioRef.current.play(); } catch (e) {
-        // Autoplay blocked: fallback to device voice
+      audioRef.current.onended = async () => {
+        if (ttsAbortRef.current) { setIsSpeaking(false); return; }
+        const next = ttsIndex + 1;
+        if (next >= segs.length) { setIsSpeaking(false); return; }
+        setTtsIndex(next);
+        try {
+          if (!ttsAudioMapRef.current[next]) {
+            await fetchTtsForIndex(next, selectedVoiceId || "X8Na0RDzhqa1gJFsWu5a");
+          }
+          if (audioRef.current) {
+            audioRef.current.src = ttsAudioMapRef.current[next];
+            await audioRef.current.play();
+          }
+          const ahead = next + 1;
+          if (ahead < segs.length) {
+            fetchTtsForIndex(ahead, selectedVoiceId || "X8Na0RDzhqa1gJFsWu5a").catch(()=>{});
+          }
+        } catch (e) {
+          try {
+            const remaining = segs.slice(next).join(' ');
+            await speakWithWebAPI(remaining);
+            setError('Using device voice (local) for remaining.');
+          } catch {
+            setError('Playback issue. Try again.');
+          } finally {
+            setIsSpeaking(false);
+          }
+        }
+      };
+      try {
+        await audioRef.current.play();
+        if (segs.length > 1) {
+          fetchTtsForIndex(1, selectedVoiceId || "X8Na0RDzhqa1gJFsWu5a").catch(()=>{});
+        }
+      } catch (e) {
         try {
           await speakWithWebAPI(interpretation);
           setError('Using device voice (local).');
-          return;
-        } catch (_) {
+        } catch {
           setError('Playback blocked by browser. Press the Play button.');
+        } finally {
+          setIsSpeaking(false);
         }
       }
     } catch (err) {
@@ -211,62 +294,46 @@ if (user && typeof user.token_balance === "number") {
       const code = err?.response?.status || (/(\b401\b|\b403\b|\b404\b)/.test(msg) ? 401 : 0);
       if (code === 401 || code === 403) {
         try {
-          const FALLBACK_ID = "21m00Tcm4TlvDq8ikWAM"; // Rachel (public)
-          const { data: data2 } = await base44.functions.invoke('generateSpeech', {
-            text: interpretation,
-            voiceId: FALLBACK_ID,
-          });
-          const b64 = data2?.audioContent;
-          if (!b64) throw new Error('No audio returned from TTS (fallback)');
-          if (!audioRef.current) return;
-          audioRef.current.src = `data:audio/mpeg;base64,${b64}`;
-          audioRef.current.muted = false;
-          audioRef.current.volume = 1.0;
-          audioRef.current.onended = () => setIsSpeaking(false);
-          try { await audioRef.current.play(); } catch (e) {
-        // Autoplay blocked: fallback to device voice
-        try {
-          await speakWithWebAPI(interpretation);
-          setError('Using device voice (local).');
-          return;
-        } catch (_) {
-          setError('Playback blocked by browser. Press the Play button.');
-        }
-      }
-          setSelectedVoiceId(FALLBACK_ID);
-          setError("");
-          return;
+          await fetchTtsForIndex(0, "21m00Tcm4TlvDq8ikWAM");
+          if (audioRef.current) {
+            audioRef.current.src = ttsAudioMapRef.current[0];
+            await audioRef.current.play();
+          }
         } catch (err2) {
-          console.error('TTS fallback (Rachel) error:', err2);
-          // Final fallback to device voice
           try {
             await speakWithWebAPI(interpretation);
             setError('Using device voice (local).');
-            return;
-          } catch (err3) {
-            console.error('Web Speech fallback error:', err3);
-            setError('Text-to-speech failed (401/403). Please verify ElevenLabs key/voice access.');
+          } catch {
+            setError('Text-to-speech failed (auth).');
+          } finally {
+            setIsSpeaking(false);
           }
         }
       } else {
-        // Non-auth errors: also try device voice fallback
         try {
           await speakWithWebAPI(interpretation);
           setError('Using device voice (local).');
-          return;
-        } catch (err4) {
+        } catch {
           setError(`Text-to-speech failed: ${err.message || 'Unknown error'}`);
+        } finally {
+          setIsSpeaking(false);
         }
       }
-      setIsSpeaking(false);
+    } finally {
+      setIsTtsPreparing(false);
     }
   };
 
   const handleStop = () => {
     try {
+      ttsAbortRef.current = true;
+      ttsAudioMapRef.current = {};
+      setTtsSegments([]);
+      setTtsIndex(0);
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current.currentTime = 0;
+        audioRef.current.src = '';
       }
       if (usingWebSpeechRef.current && 'speechSynthesis' in window) {
         window.speechSynthesis.cancel();
