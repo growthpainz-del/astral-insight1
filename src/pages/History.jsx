@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Reading } from "@/entities/Reading";
-import { Card as CardEntity } from "@/entities/Card";
-import { Deck } from "@/entities/Deck";
+import { base44 } from "@/api/base44Client";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -64,7 +62,7 @@ export default function HistoryPage() {
       // Load decks and cards for all readings
       const deckIds = new Set(allReadings.map(r => r.deck_id).filter(Boolean));
       const deckPromises = Array.from(deckIds).map(id => 
-        Deck.get(id).catch(() => null)
+        base44.entities.Deck.get(id).catch(() => null)
       );
       const loadedDecks = await Promise.all(deckPromises);
       const decksMap = {};
@@ -87,7 +85,7 @@ export default function HistoryPage() {
       const cardsMap = {};
       for (const cardId of cardIds) {
         try {
-          const card = await CardEntity.get(cardId);
+          const card = await base44.entities.Card.get(cardId);
           if (card) cardsMap[cardId] = card;
         } catch (e) {
           console.warn("⚠️ Failed to load card (may be deleted or corrupted ID):", cardId);
@@ -122,7 +120,7 @@ export default function HistoryPage() {
     if (!confirm("Delete this reading? This cannot be undone.")) return;
 
     try {
-      await Reading.delete(readingId);
+      await base44.entities.Reading.delete(readingId);
       setReadings(prev => prev.filter(r => r.id !== readingId));
       if (selectedReading?.id === readingId) {
         setSelectedReading(null);
