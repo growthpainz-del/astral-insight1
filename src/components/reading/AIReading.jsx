@@ -4,12 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Loader2, Sparkles, AlertTriangle, Copy, Check, Volume2, StopCircle, Mic, Moon } from "lucide-react";
+import { Loader2, Sparkles, AlertTriangle, Copy, Check, Volume2, StopCircle, Mic, Moon, Heart, Download, FileText } from "lucide-react";
 // removed: AudioPlayer import (switched to SpeechSynthesis)
 import { User } from "@/entities/User";
 import FreeLimitReached from "@/components/pricing/FreeLimitReached";
 import TokenCostPreview from "@/components/pricing/TokenCostPreview";
 import { Progress } from "@/components/ui/progress";
+import { jsPDF } from "jspdf";
 
 export default function ChanneledReading({ isOpen, drawnCards, deck, spread, question, onClose }) {
   const [interpretation, setInterpretation] = useState("");
@@ -25,6 +26,9 @@ export default function ChanneledReading({ isOpen, drawnCards, deck, spread, que
   const [elevenVoices, setElevenVoices] = useState([]);
   const [selectedVoiceId, setSelectedVoiceId] = useState("");
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [savedReadingId, setSavedReadingId] = useState(null);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [savingFavorite, setSavingFavorite] = useState(false);
   const audioRef = useRef(null);
   const webSpeechUtteranceRef = useRef(null);
   const usingWebSpeechRef = useRef(false);
@@ -132,6 +136,8 @@ const { data } = await base44.functions.invoke('generateAdvancedReading', {
 if (data.error) throw new Error(data.error);
 
 setInterpretation((data.interpretation || "").replace(/\*/g, ""));
+setSavedReadingId(null);
+setIsFavorite(false);
 
 setProgress({ current: 5, total: 5, message: "Reading complete!" });
 
@@ -342,6 +348,81 @@ if (user && typeof user.token_balance === "number") {
     } finally {
       setIsSpeaking(false);
     }
+  };
+
+  // Favorite save and export handlers
+  const handleToggleFavorite = async () => {
+    if (!interpretation) return;
+    const deckId = deck?.id || deck?.deck_id;
+    if (!deckId) { setError('Deck missing; cannot save.'); return; }
+    try {
+      setSavingFavorite(true);
+      if (!savedReadingId) {
+        const title = (question?.trim()) || `${deck?.name || 'Reading'} — ${new Date().toLocaleString()}`;
+        const payload = {
+          title,
+          spread_type: 'custom',
+          deck_id: deckId,
+          interpretation,
+          date: new Date().toISOString().slice(0,10),
+          is_public: false,
+          is_favorite: true
+        };
+        const res = await base44.entities.Reading.create(payload);
+        setSavedReadingId(res.id);
+        setIsFavorite(true);
+      } else {
+        await base44.entities.Reading.update(savedReadingId, { is_favorite: !isFavorite });
+        setIsFavorite(prev => !prev);
+      }
+    } catch (e) {
+      const status = e?.response?.status;
+      if (status === 401) {
+        setError('Please log in to save favorites.');
+      } else {
+        setError(e?.message || 'Failed to save favorite');
+      }
+    } finally {
+      setSavingFavorite(false);
+    }
+  };
+
+  const exportAsPdf = () => {
+    if (!interpretation) return;
+    const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+    const margin = 48;
+    const width = doc.internal.pageSize.getWidth() - margin * 2;
+    const title = (question?.trim()) || `${deck?.name || 'Reading'}`;
+    const header = `${title}`;
+    const meta = `Deck: ${deck?.name || '-'} | Spread: ${spread?.name || 'Custom'} | Date: ${new Date().toLocaleString()}`;
+    doc.setFont('helvetica','bold'); doc.setFontSize(16); doc.text(header, margin, 64);
+    doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.text(meta, margin, 84);
+    doc.setFontSize(12);
+    const lines = doc.splitTextToSize(interpretation, width);
+    let y = 110;
+    const lineHeight = 16;
+    lines.forEach(line => {
+      if (y > doc.internal.pageSize.getHeight() - margin) {
+        doc.addPage(); y = margin;
+      }
+      doc.text(line, margin, y); y += lineHeight;
+    });
+    const fname = `reading-${new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')}.pdf`;
+    doc.save(fname);
+  };
+
+  const exportAsText = () => {
+    if (!interpretation) return;
+    const title = (question?.trim()) || `${deck?.name || 'Reading'}`;
+    const meta = `Deck: ${deck?.name || '-'} | Spread: ${spread?.name || 'Custom'} | Date: ${new Date().toLocaleString()}`;
+    const content = `${title}\n${meta}\n\n${interpretation}`;
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `reading-${new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')}.txt`;
+    document.body.appendChild(a);
+    a.click(); a.remove(); URL.revokeObjectURL(url);
   };
 
   // Stop TTS on unmount or when regenerating
@@ -576,6 +657,34 @@ if (user && typeof user.token_balance === "number") {
                   Stop
                 </Button>
               )}
+              <Button
+                onClick={handleToggleFavorite}
+                variant="ghost"
+                size="sm"
+                disabled={savingFavorite || !(deck && (deck.id || deck.deck_id))}
+                className={`${isFavorite ? 'text-rose-400' : 'text-purple-300'} hover:text-white`}
+              >
+                <Heart className="w-4 h-4 mr-2" />
+                {isFavorite ? 'Unfavorite' : 'Save Favorite'}
+              </Button>
+              <Button
+                onClick={exportAsPdf}
+                variant="ghost"
+                size="sm"
+                className="text-purple-300 hover:text-white"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Export PDF
+              </Button>
+              <Button
+                onClick={exportAsText}
+                variant="ghost"
+                size="sm"
+                className="text-purple-300 hover:text-white"
+              >
+                <FileText className="w-4 h-4 mr-2" />
+                Export TXT
+              </Button>
               <Button
                 onClick={copyToClipboard}
                 variant="ghost"
