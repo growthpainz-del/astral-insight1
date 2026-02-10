@@ -27,10 +27,11 @@ Deno.serve(async (req) => {
 
         const buildRequest = (vid) => {
             const isGypsy = vid === GYPSY_ID;
-            const modelId = isGypsy ? "eleven_multilingual_v2" : "eleven_monolingual_v1";
+            // Use a supported model for all voices (older v1 models are no longer available on free tier)
+            const modelId = "eleven_multilingual_v2"; // universal default
             const voiceSettings = isGypsy
                 ? { stability: 0.25, similarity_boost: 0.95, style: 0.85, use_speaker_boost: true }
-                : { stability: 0.5, similarity_boost: 0.75 };
+                : { stability: 0.5, similarity_boost: 0.8, use_speaker_boost: true };
             return {
                 url: `https://api.elevenlabs.io/v1/text-to-speech/${vid}`,
                 body: JSON.stringify({ text, model_id: modelId, voice_settings: voiceSettings })
