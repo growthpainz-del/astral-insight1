@@ -24,6 +24,7 @@ Deno.serve(async (req) => {
         // 3. Call ElevenLabs API
         const RACHEL_ID = "21m00Tcm4TlvDq8ikWAM";
         const GYPSY_ID = "X8Na0RDzhqa1gJFsWu5a";
+        const ADAM_ID = "pNInz6obpgDQGcFmaJgB";
 
         const buildRequest = (vid) => {
             const isGypsy = vid === GYPSY_ID;
@@ -49,9 +50,9 @@ Deno.serve(async (req) => {
             body: buildRequest(usedVoiceId).body
         });
 
-        if (!response.ok && (response.status === 401 || response.status === 403 || response.status === 404) && usedVoiceId !== RACHEL_ID) {
-            // Fallback to public Rachel voice if unauthorized (401)
-            const fallbackVid = RACHEL_ID;
+        if (!response.ok && (response.status === 401 || response.status === 403 || response.status === 404) && usedVoiceId !== ADAM_ID) {
+            // Fallback to a widely available default (Adam) if unauthorized
+            const fallbackVid = ADAM_ID;
             const req2 = buildRequest(fallbackVid);
             response = await fetch(req2.url, {
                 method: 'POST',
