@@ -235,13 +235,22 @@ export default function Layout({ children, currentPageName }) {
           }, []);
 
           const changeThemePref = (pref) => {
-            setThemePref(pref);
-            try { localStorage.setItem('themePref', pref); } catch (_) {}
-            const mql = window.matchMedia('(prefers-color-scheme: dark)');
-            const newT = pref === 'light' ? 'light' : pref === 'dark' ? 'dark' : (mql.matches ? 'dark' : 'light');
-            setTheme(newT);
-            applyTheme(newT);
-          };
+                            setThemePref(pref);
+                            try { localStorage.setItem('themePref', pref); } catch (_) {}
+                            const mql = window.matchMedia('(prefers-color-scheme: dark)');
+                            const newT = pref === 'light' ? 'light' : pref === 'dark' ? 'dark' : (mql.matches ? 'dark' : 'light');
+                            setTheme(newT);
+                            applyTheme(newT);
+                          };
+
+                          // Ensure root ("/") redirects to Home as the first page
+                          useEffect(() => {
+                            try {
+                              if (window.location.pathname === '/' || window.location.pathname === '') {
+                                navigate(createPageUrl('Home'), { replace: true });
+                              }
+                            } catch (_) {}
+                          }, []);
 
   const handleLogout = async () => {
     await base44.auth.logout(createPageUrl('Home'));
