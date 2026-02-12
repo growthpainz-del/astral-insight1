@@ -409,6 +409,12 @@ export default function Dashboard() {
             to={createPageUrl("ReadingRoom")}
             gradient="bg-gradient-to-br from-cyan-600 to-blue-600"
           />
+          <QuickAction
+            label="Interpreter Training"
+            icon={Settings}
+            to={createPageUrl("Persona")}
+            gradient="bg-gradient-to-br from-emerald-600 to-teal-600"
+          />
         </div>
       </div>
 
