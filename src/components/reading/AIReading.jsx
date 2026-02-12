@@ -39,6 +39,7 @@ export default function ChanneledReading({ isOpen, drawnCards, deck, spread, que
   const ttsAudioMapRef = useRef({});
   const [ttsIndex, setTtsIndex] = useState(0);
   const ttsIndexRef = useRef(0);
+  const ttsSegmentsRef = useRef([]);
   const ttsAbortRef = useRef(false);
   const [isTtsPreparing, setIsTtsPreparing] = useState(false);
 
@@ -290,7 +291,7 @@ if (user && typeof user.token_balance === "number") {
   const fetchTtsForIndex = async (idx, voiceId) => {
     if (ttsAbortRef.current) return;
     if (ttsAudioMapRef.current[idx]) return;
-    const seg = ttsSegments[idx];
+    const seg = (ttsSegmentsRef.current && ttsSegmentsRef.current[idx]) || ttsSegments[idx];
     if (!seg) return;
     const { data } = await base44.functions.invoke('generateSpeech', {
       text: seg,
@@ -310,6 +311,7 @@ if (user && typeof user.token_balance === "number") {
     ttsAudioMapRef.current = {};
     try {
       const segs = chunkText(interpretation);
+      ttsSegmentsRef.current = segs;
       setTtsSegments(segs);
       setTtsIndex(0);
       ttsIndexRef.current = 0;
