@@ -614,7 +614,7 @@ export default function DeckView() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <PersonaFromInsights deckId={deck.id} deck={deck} onSaved={() => Deck.get(deck.id).then(setDeck)} />
+                    <PersonaFromInsights deckId={deck.id} deck={deck} onSaved={(prompt) => setDeck(prev => ({ ...prev, ai_reading_coach: prompt }))} />
                   </CardContent>
                 </UICard>
               )}

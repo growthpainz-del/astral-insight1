@@ -126,7 +126,7 @@ export default function PersonaFromInsights({ deckId, deck, onSaved }) {
     try {
       await base44.entities.Deck.update(deckId, { ai_reading_coach: compiledPrompt });
       setSavedMsg('Saved to deck.');
-      onSaved && onSaved();
+      onSaved && onSaved(compiledPrompt);
     } catch (e) {
       setError(e?.message || 'Failed to save to deck');
     } finally {
