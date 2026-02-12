@@ -307,6 +307,7 @@ export default function Layout({ children, currentPageName }) {
     { href: "CreateDeck", icon: Sprout, label: "Create Deck" },
     { href: "SpreadManager", icon: Layers, label: "Spreads" },
     { href: "PhotoUploader", icon: ImageIcon, label: "Photo Library" },
+    { href: "Persona", icon: Sparkles, label: "Persona" },
   ];
 
   const moreLinks = [
