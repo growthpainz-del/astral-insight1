@@ -148,6 +148,17 @@ export default function IdeomotorCanvas({ question, onComplete = () => {}, onCan
     return seed;
   };
 
+  // Auto-complete timer (optional)
+  useEffect(() => {
+    if (!autoCompleteAfter) return;
+    const id = setTimeout(() => {
+      if (path.length === 0) {
+        onComplete(Date.now());
+      }
+    }, autoCompleteAfter);
+    return () => clearTimeout(id);
+  }, [autoCompleteAfter, path.length, onComplete]);
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
@@ -198,11 +209,11 @@ export default function IdeomotorCanvas({ question, onComplete = () => {}, onCan
           />
           
           {/* Instruction overlay (shows when no path drawn) */}
-          {path.length === 0 && (
+          {(showInstructions ?? true) && path.length === 0 && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="text-center text-purple-300/40 text-lg font-semibold">
                 <div className="mb-2">✨</div>
-                <div>Draw here to begin...</div>
+                <div>{instructionText || 'Draw here to begin...'}</div>
               </div>
             </div>
           )}
