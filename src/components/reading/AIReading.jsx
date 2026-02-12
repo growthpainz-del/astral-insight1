@@ -11,6 +11,8 @@ import FreeLimitReached from "@/components/pricing/FreeLimitReached";
 import TokenCostPreview from "@/components/pricing/TokenCostPreview";
 import { Progress } from "@/components/ui/progress";
 import { jsPDF } from "jspdf";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Switch } from "@/components/ui/switch";
 
 export default function ChanneledReading({ isOpen, drawnCards, deck, spread, question, onClose }) {
   const [interpretation, setInterpretation] = useState("");
@@ -39,6 +41,13 @@ export default function ChanneledReading({ isOpen, drawnCards, deck, spread, que
   const ttsIndexRef = useRef(0);
   const ttsAbortRef = useRef(false);
   const [isTtsPreparing, setIsTtsPreparing] = useState(false);
+
+  // Concise mode + Summary
+  const [conciseMode, setConciseMode] = useState(false);
+  const [activeTab, setActiveTab] = useState("full");
+  const [summary, setSummary] = useState("");
+  const [isSummarizing, setIsSummarizing] = useState(false);
+  const [summaryError, setSummaryError] = useState("");
 
   // AI Coach customizations
   const [coachPersona, setCoachPersona] = useState("");
@@ -131,7 +140,8 @@ const { data } = await base44.functions.invoke('generateAdvancedReading', {
   personaName: personaNameEff,
   personaPreamble: personaPreambleEff,
   adviceDepth: coachAdviceDepth,
-  language: coachLanguage
+  language: coachLanguage,
+  conciseMode: conciseMode
 });
 
 if (data.error) throw new Error(data.error);
@@ -596,6 +606,30 @@ if (user && typeof user.token_balance === "number") {
     a.click(); a.remove(); URL.revokeObjectURL(url);
   };
 
+  const summarizeInterpretation = async () => {
+    if (!interpretation) return;
+    setIsSummarizing(true);
+    setSummaryError('');
+    try {
+      const prompt = `Summarize the following tarot/oracle reading into one short paragraph (3–5 sentences, ~80–120 words). Be direct, empowering, and practical. No markdown, no lists, no asterisks.\n\nREADING:\n${interpretation}`;
+      const res = await base44.integrations.Core.InvokeLLM({
+        prompt,
+        add_context_from_internet: false
+      });
+      if (typeof res === 'string') {
+        setSummary(res.trim());
+      } else if (res && res.summary) {
+        setSummary(String(res.summary).trim());
+      } else {
+        setSummaryError('Failed to generate summary.');
+      }
+    } catch (e) {
+      setSummaryError(e?.message || 'Failed to generate summary.');
+    } finally {
+      setIsSummarizing(false);
+    }
+  };
+
   // Stop TTS on unmount or when regenerating
   useEffect(() => {
     if (isGenerating) {
@@ -713,9 +747,21 @@ if (user && typeof user.token_balance === "number") {
                     </Select>
                   </div>
                 </div>
-              </div>
+                </div>
 
-              <div className="space-y-4">
+                <div className="bg-slate-900/50 rounded-xl p-4 border border-emerald-500/30">
+                <h3 className="text-sm font-semibold text-emerald-300 mb-3 uppercase tracking-wider">
+                  Concise Mode
+                </h3>
+                <div className="flex items-center justify-between">
+                  <div className="text-sm text-white/80">
+                    Shorten the reading while keeping the core insight.
+                  </div>
+                  <Switch checked={conciseMode} onCheckedChange={setConciseMode} />
+                </div>
+                </div>
+
+                <div className="space-y-4">
             <p className="text-white/80 text-center text-sm md:text-base">
               Choose your reading depth:
             </p>
@@ -887,17 +933,44 @@ if (user && typeof user.token_balance === "number") {
             className="w-full max-w-md mx-auto mt-2 opacity-60 hover:opacity-100"
           />
 
-          <div className="prose prose-invert prose-purple max-w-none">
-            <div className="text-white/90 whitespace-pre-wrap leading-relaxed text-sm md:text-base">
-              {interpretation}
-            </div>
-          </div>
+          <Tabs value={activeTab} onValueChange={(v) => {
+            setActiveTab(v);
+            if (v === 'summary' && !summary && !isSummarizing) {
+              summarizeInterpretation();
+            }
+          }} className="w-full">
+            <TabsList className="mb-4">
+              <TabsTrigger value="full">Full</TabsTrigger>
+              <TabsTrigger value="summary">Summary</TabsTrigger>
+            </TabsList>
+            <TabsContent value="full">
+              <div className="prose prose-invert prose-purple max-w-none">
+                <div className="text-white/90 whitespace-pre-wrap leading-relaxed text-sm md:text-base">
+                  {interpretation}
+                </div>
+              </div>
+            </TabsContent>
+            <TabsContent value="summary">
+              {isSummarizing ? (
+                <div className="flex items-center gap-2 text-purple-300"><Loader2 className="w-4 h-4 animate-spin" /> Summarizing…</div>
+              ) : summary ? (
+                <div className="text-white/90 whitespace-pre-wrap leading-relaxed text-sm md:text-base">{summary}</div>
+              ) : (
+                <div className="flex flex-col gap-3">
+                  {summaryError && <div className="text-red-300 text-sm">{summaryError}</div>}
+                  <Button onClick={summarizeInterpretation} variant="outline" className="w-fit border-white/20 text-white hover:bg-white/10">Generate Summary</Button>
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
 
           <div className="pt-4 border-t border-white/10">
             <Button
               onClick={() => {
                 setInterpretation("");
                 setError("");
+                setSummary("");
+                setActiveTab("full");
               }}
               variant="outline"
               className="w-full border-purple-500/30 text-purple-300 hover:bg-purple-900/30"

@@ -45,7 +45,8 @@ Deno.serve(async (req) => {
             personaName,
             personaPreamble,
             adviceDepth = "balanced",
-            language = "auto"
+            language = "auto",
+            conciseMode = false
         } = await req.json();
 
         // 1. Calculate Costs
@@ -105,6 +106,13 @@ Deno.serve(async (req) => {
             standard: "Concise: 3 short paragraphs max (≈200–300 words). Each card: 1–2 sentences. Include a 2–3 sentence synthesis at the end.",
             deep: "Focused depth: 4–5 paragraphs max (≈320–500 words). Each card: 2 sentences max; avoid repeating points. Include a 2–3 sentence synthesis and actionable guidance."
         };
+
+        const conciseLengthInstructions = {
+            quick: "One compact paragraph (80–120 words). Each card at most one sentence. Finish with a one-sentence synthesis.",
+            standard: "One concise paragraph (120–160 words). Mention each card once; avoid repetition.",
+            deep: "2–3 short paragraphs (200–300 words). Tight, non-repetitive, with a brief synthesis."
+        };
+        const chosenLengthInstruction = (conciseMode ? conciseLengthInstructions : lengthInstructions)[tier];
 
         const adviceDepthInstruction = adviceDepth === "concise"
           ? "COACHING DEPTH: Keep coaching succinct and action-oriented. One concrete action per card; minimal elaboration."
@@ -202,7 +210,8 @@ FORMAT AND MARKUP RULES:
 - Avoid Markdown: no bold/italics, no bullet lists, no code blocks.
 - Write in clean paragraphs and full sentences only.
 
-${lengthInstructions[tier]}
+${chosenLengthInstruction}
+${conciseMode ? "\nCONCISE MODE: Eliminate filler and transitions. Use short, direct sentences and avoid repeating ideas." : ""}
 
 CONCISENESS RULES:
 - For each card, write at most 2 sentences specific to its position and the question.
