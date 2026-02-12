@@ -294,7 +294,7 @@ Write in a ${personaPreamble ? personaPreamble.toLowerCase() : "warm"} tone that
         }
 
         return Response.json({ 
-            interpretation: response.trim(),
+            interpretation: text,
             moonContext: includeMoonPhase ? moonContext : null
         });
 
