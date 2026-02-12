@@ -258,13 +258,27 @@ REMEMBER: ${question && question.trim() ? `Every sentence should help answer: "$
 
 Write in a ${personaPreamble ? personaPreamble.toLowerCase() : "warm"} tone that is UPLIFTING and CONSTRUCTIVE. Begin your interpretation:`;
 
-        const response = await base44.integrations.Core.InvokeLLM({
+        let response = await base44.integrations.Core.InvokeLLM({
             prompt: finalPrompt,
             add_context_from_internet: false
         });
 
         if (!response || typeof response !== "string") {
             throw new Error("Invalid response from interpretation service");
+        }
+
+        // Ensure the reading isn't unnaturally short (occasionally models under-shoot)
+        let text = response.trim();
+        const wordCount = text.split(/\s+/).filter(Boolean).length;
+        if (wordCount < 50) {
+            const expandPrompt = `Expand the following tarot/oracle reading to 180–250 words in clean paragraphs (no markdown, no asterisks). Keep the same message, add helpful, concrete guidance, and preserve uplifting tone.\n\nREADING:\n${text}\n\nExpanded version:`;
+            const expanded = await base44.integrations.Core.InvokeLLM({
+                prompt: expandPrompt,
+                add_context_from_internet: false
+            });
+            if (typeof expanded === 'string' && expanded.trim().length > text.length) {
+                text = expanded.trim();
+            }
         }
 
         // 4. Deduct Tokens

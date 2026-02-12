@@ -129,9 +129,7 @@ setProgress({ current: 4, total: 5, message: "Weaving your interpretation..." })
 
 // Call backend function
 const { data } = await base44.functions.invoke('generateAdvancedReading', {
-  drawnCards: relevantCards, // Use the prepared cards from frontend logic or rely on backend to slice
-  // Actually, let's pass the raw cards and let backend handle slicing to match existing logic
-  drawnCards, 
+  drawnCards: relevantCards,
   deck,
   spread,
   question,
