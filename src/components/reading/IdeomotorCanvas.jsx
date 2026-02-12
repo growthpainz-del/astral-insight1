@@ -19,9 +19,10 @@ export default function IdeomotorCanvas({ question, onComplete = () => {}, onCan
 
     // Set canvas size
     const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * window.devicePixelRatio;
-    canvas.height = rect.height * window.devicePixelRatio;
-    context.scale(window.devicePixelRatio, window.devicePixelRatio);
+    const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    context.scale(dpr, dpr);
 
     // Style the drawing
     context.strokeStyle = 'rgba(168, 85, 247, 0.8)'; // Purple glow
