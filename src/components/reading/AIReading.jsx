@@ -139,6 +139,35 @@ setInterpretation((data.interpretation || "").replace(/\*/g, ""));
 setSavedReadingId(null);
 setIsFavorite(false);
 
+// Auto-save reading to history
+try {
+  const deckId = deck?.id || deck?.deck_id;
+  if (deckId) {
+    const spreadPositions = spread?.positions || [];
+    const numPositions = spreadPositions.length || (drawnCards?.length || 0);
+    const relevantCards = (drawnCards || []).slice(0, numPositions);
+    const payload = {
+      title: (question?.trim()) || `${deck?.name || 'Reading'} — ${new Date().toLocaleString()}`,
+      spread_type: spread?.name || spread?.type || (spreadPositions.length ? `custom_${spreadPositions.length}` : 'custom'),
+      deck_id: deckId,
+      cards_drawn: relevantCards.map((c, idx) => ({
+        card_id: c.id || c.card_id || null,
+        position: (spreadPositions[idx]?.name) || c.position || `Position ${idx + 1}`,
+        is_reversed: !!(c.is_reversed || c.isReversed),
+        card_name: c.name,
+        image_url: c.image_url
+      })),
+      interpretation: (data.interpretation || ""),
+      date: new Date().toISOString().slice(0,10),
+      tags: []
+    };
+    const res = await base44.entities.Reading.create(payload);
+    if (res?.id) setSavedReadingId(res.id);
+  }
+} catch (e) {
+  console.warn('Auto-save reading failed:', e?.message || e);
+}
+
 setProgress({ current: 5, total: 5, message: "Reading complete!" });
 
 // Update local user state for UI responsiveness (backend handles actual DB update)

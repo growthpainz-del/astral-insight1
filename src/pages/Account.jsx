@@ -48,6 +48,11 @@ export default function Account() {
             <>
               <div className="text-white/80">Signed in as</div>
               <div className="font-semibold">{me.full_name || me.email}</div>
+              <div className="mt-4">
+                <Link to={createPageUrl('History')}>
+                  <Button variant="outline" className="border-white/20 text-white hover:bg-white/10">View Reading History</Button>
+                </Link>
+              </div>
             </>
           ) : (
             <div className="text-white/60 text-sm">Not signed in</div>
