@@ -247,9 +247,15 @@ if (user && typeof user.token_balance === "number") {
       setTtsIndex(0);
       await fetchTtsForIndex(0, selectedVoiceId || "X8Na0RDzhqa1gJFsWu5a");
       if (!audioRef.current) return;
+      // Reset and set source, then explicitly load metadata (iOS Safari needs this)
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
       audioRef.current.src = ttsAudioMapRef.current[0];
       audioRef.current.muted = false;
       audioRef.current.volume = 1.0;
+      audioRef.current.onloadedmetadata = async () => {
+        try { await audioRef.current?.play(); } catch (_) {}
+      };
       audioRef.current.onended = async () => {
         if (ttsAbortRef.current) { setIsSpeaking(false); return; }
         const next = ttsIndex + 1;
@@ -260,7 +266,10 @@ if (user && typeof user.token_balance === "number") {
             await fetchTtsForIndex(next, selectedVoiceId || "X8Na0RDzhqa1gJFsWu5a");
           }
           if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current.currentTime = 0;
             audioRef.current.src = ttsAudioMapRef.current[next];
+            audioRef.current.load();
             await audioRef.current.play();
           }
           const ahead = next + 1;
@@ -279,6 +288,7 @@ if (user && typeof user.token_balance === "number") {
           }
         }
       };
+      audioRef.current.load();
       try {
         await audioRef.current.play();
         if (segs.length > 1) {
@@ -708,7 +718,13 @@ if (user && typeof user.token_balance === "number") {
 
 
 
-          <audio ref={audioRef} playsInline preload="auto" className="hidden" aria-hidden="true" />
+          <audio
+            ref={audioRef}
+            playsInline
+            preload="auto"
+            controls
+            className="w-full max-w-md mx-auto mt-2 opacity-60 hover:opacity-100"
+          />
 
           <div className="prose prose-invert prose-purple max-w-none">
             <div className="text-white/90 whitespace-pre-wrap leading-relaxed text-sm md:text-base">
