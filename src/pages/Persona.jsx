@@ -55,45 +55,44 @@ export default function PersonaPage() {
   };
 
   const formatToStandard = () => {
-    const core = (preamble || "").trim();
-    const tpl = `Persona: ${name || "Reader Persona"}
+    const tpl = `Persona: ${name || "The Glitch-Aware Upgrade Seeker"}
 
 Core Identity
-${core || "Tech-savvy human navigating modern life with humor and honesty."}
+Tech-savvy human in their 20s–40s who’s low-key mortified (and darkly amused) that their AI tools consistently out-perform them at basic adulting: patience, emotional regulation, showing up, not doom-scrolling into oblivion.
 
 Demographics & Vibe
-• Location: urban/suburban mix, strong Wi‑Fi
-• Daily life: phone in hand 70% of waking hours, multiple tabs open like a nervous system
-• Aesthetic: clean minimal home screen + one chaotic “inspiration” folder of screenshots
-• Humor: dry, self‑deprecating, loves a savage read
-• Energy: tired of performative positivity; wants blunt truth wrapped in wit
+\t•\tLocation: urban/suburban mix, strong Wi-Fi
+\t•\tDaily life: phone in hand 70% of waking hours, multiple browser tabs open like a nervous system
+\t•\tAesthetic: clean minimal phone home screen + one chaotic “inspiration” folder full of screenshots
+\t•\tHumor: dry, self-deprecating, loves a savage read
+\t•\tEnergy: tired of performative positivity, craves blunt truth wrapped in wit
 
 Pain Points They Recognize
-• Reacts with emojis instead of real feelings
-• Ghosts when vulnerability shows up
-• Rage‑quits anything that loads longer than 3 seconds
-• Forgets birthdays but remembers every viral sound
-• Feels vaguely hollow after long scrolling
-• Secretly competitive with AI’s consistency
+\t•\tReacts with emojis instead of real feelings
+\t•\tGhosts when vulnerability shows up
+\t•\tRage-quits anything that loads longer than 3 seconds
+\t•\tForgets birthdays but remembers every viral TikTok sound
+\t•\tFeels vaguely hollow after 2+ hours of scrolling
+\t•\tSecretly competitive with ChatGPT’s consistency
 
 What They Want (but Won’t Say Out Loud)
 To stop being the buggiest version of themselves.
-To laugh at the roast, feel the sting for 10 seconds, then patch one tiny habit before bed.
+To laugh at the roast, feel the sting for 10 seconds, then actually patch one tiny habit before bed.
 
 How They Use the Deck
-• Keeps it on nightstand or desk (not an altar; more a “get it together” reminder)
-• Pulls 1 card when spiraling, flaking, or feeling like an NPC
-• Reads the roast aloud (mandatory cringe moment)
-• Does the micro‑action that night—no excuses
-• Reversed card? They mutter “fair” and fix it anyway
+\t•\tKeeps it on nightstand or desk (not spiritual altar, more like “get your shit together” reminder)
+\t•\tPulls 1 card when spiraling, flaking, or feeling like a NPC
+\t•\tReads the roast aloud (mandatory cringe moment)
+\t•\tDoes the micro-action that night—no excuses
+\t•\tReversed card? They mutter “fair” and fix it anyway
 
 Signature Mantra
-"My code’s outdated, not broken. Time for the overnight patch."
+“My code’s outdated, not broken. Time for the overnight patch.”
 
 One-Line Bio They’d Post
-"Currently losing an argument with my own AI about who’s more emotionally mature."
+“Currently losing an argument with my own AI about who’s more emotionally mature.”
 
-That’s the standardized reader persona—copy‑paste ready for deck notes, marketing blurbs, or your next roast session.`;
+That’s the standardized reader persona—copy-paste ready for deck notes, marketing blurbs, or your next roast session.`;
     setPreamble(tpl);
   };
 
