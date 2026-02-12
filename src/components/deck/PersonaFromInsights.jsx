@@ -54,15 +54,38 @@ export default function PersonaFromInsights({ deckId, deck, onSaved }) {
   }, [name, tone, rules, examples, insights]);
 
   const handleGenerate = async () => {
-    if (!insights) {
-      setError("No AI Insights found. Please run AI Insights first.");
-      return;
-    }
     setError("");
     setLoading(true);
     setSavedMsg("");
     try {
-      const prompt = `Create a tarot/oracle reading persona based on these deck insights. Output JSON ONLY matching the provided schema.\n\nDECK INSIGHTS (JSON):\n${JSON.stringify(insights, null, 2)}\n\nInstructions:\n- Propose a memorable persona name\n- Choose a tone from: warm, direct, poetic, mystical, humorous, compassionate\n- Create 6-10 crisp rules that steer interpretation style (voice, values, dos/don'ts)\n- Provide 2-4 short example phrasings that show the style\n- Keep content concise, specific to this deck's themes and mood\n`;
+      let contextBlock = "";
+      if (insights) {
+        contextBlock = `DECK INSIGHTS (JSON):\n${JSON.stringify(insights, null, 2)}`;
+      } else {
+        const deckMeta = {
+          name: deck?.name,
+          description: deck?.description,
+          category: deck?.category,
+          visual_style: deck?.ai_deck_insights?.visual_style || null,
+          semantic_style: deck?.ai_deck_insights?.semantic_style || null,
+          deck_personality: deck?.ai_deck_insights?.deck_personality || null,
+        };
+        let cardsSample = [];
+        if (deckId) {
+          try {
+            const list = await base44.entities.Card.filter({ deck_id: deckId }, undefined, 25);
+            cardsSample = (list || []).map(c => ({
+              name: c.name,
+              element: c.element || null,
+              keywords: c.keywords || [],
+              overall_meaning: c.overall_meaning || c.upright_meaning || null,
+            }));
+          } catch (_) {}
+        }
+        contextBlock = `DECK METADATA:\n${JSON.stringify(deckMeta, null, 2)}\n\nSAMPLE CARDS (JSON):\n${JSON.stringify(cardsSample.slice(0, 25), null, 2)}`;
+      }
+
+      const prompt = `Create a tarot/oracle reading persona based on the provided context. Output JSON ONLY matching the provided schema.\n\n${contextBlock}\n\nInstructions:\n- Propose a memorable persona name\n- Choose a tone from: warm, direct, poetic, mystical, humorous, compassionate\n- Create 6-10 crisp rules that steer interpretation style (voice, values, dos/don'ts)\n- Provide 2-4 short example phrasings that show the style\n- Keep content concise, specific to this deck's themes and mood\n`;
 
       const schema = {
         type: "object",
@@ -128,12 +151,12 @@ export default function PersonaFromInsights({ deckId, deck, onSaved }) {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
-        <Button onClick={handleGenerate} disabled={loading || !insights} className="bg-gradient-to-r from-purple-600 to-pink-600">
+        <Button onClick={handleGenerate} disabled={loading} className="bg-gradient-to-r from-purple-600 to-pink-600">
           {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
           Generate from AI Insights
         </Button>
         {!insights && (
-          <div className="text-amber-300 text-sm">No AI Insights on this deck yet. Open the AI Insights tab to generate them.</div>
+          <div className="text-amber-300 text-sm">No AI Insights found — we'll use deck details and cards metadata instead.</div>
         )}
       </div>
 
