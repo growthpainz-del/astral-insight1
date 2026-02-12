@@ -148,13 +148,18 @@ That’s the standardized reader persona—copy‑paste ready for deck notes, ma
                 This description steers the AI’s voice in your readings. Keep it brief but specific.
               </p>
             </div>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={handleSaveToDeck} disabled={saving || !preamble.trim()} className="border-white/20 text-white hover:bg-white/10">
-                {saving ? "Saving..." : (selectedDeck ? `Save to "${selectedDeck.name}"` : "Save to Deck")}
+            <div className="flex justify-between gap-2 flex-wrap">
+              <Button variant="ghost" onClick={formatToStandard} className="text-white/80 hover:bg-white/10">
+                Format to Standard
               </Button>
-              <Button onClick={handleSave} disabled={saving} className="bg-purple-600 hover:bg-purple-700">
-                {saving ? "Saving..." : "Save Persona"}
-              </Button>
+              <div className="flex gap-2 ml-auto">
+                <Button variant="outline" onClick={handleSaveToDeck} disabled={saving || !preamble.trim()} className="border-white/20 text-white hover:bg-white/10">
+                  {saving ? "Saving..." : (selectedDeck ? `Save to "${selectedDeck.name}"` : "Save to Deck")}
+                </Button>
+                <Button onClick={handleSave} disabled={saving} className="bg-purple-600 hover:bg-purple-700">
+                  {saving ? "Saving..." : "Save Persona"}
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
