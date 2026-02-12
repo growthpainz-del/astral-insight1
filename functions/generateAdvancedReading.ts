@@ -200,6 +200,7 @@ ${coachInstruction}
 ${insightsSection}
 ${languageInstruction}
 ${adviceDepthInstruction}
+${pastContext}
 
  SPREAD STRUCTURE:
 ${spreadStructure}

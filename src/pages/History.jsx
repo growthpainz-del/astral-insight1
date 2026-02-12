@@ -40,6 +40,7 @@ export default function HistoryPage() {
   const [decks, setDecks] = useState({});
   const [cards, setCards] = useState({});
   const [copied, setCopied] = useState(false);
+const [tagInput, setTagInput] = useState("");
 
   useEffect(() => {
     loadReadings();
@@ -210,6 +211,31 @@ export default function HistoryPage() {
         relatedCards
       });
     }
+  };
+
+  // Tag helpers
+  const saveTags = async (readingId, tags) => {
+    await base44.entities.Reading.update(readingId, { tags });
+    setReadings(prev => prev.map(r => r.id === readingId ? { ...r, tags } : r));
+    setSelectedReading(prev => prev ? { ...prev, tags } : prev);
+  };
+  const addTag = async () => {
+    if (!selectedReading) return;
+    const t = tagInput.trim();
+    if (!t) return;
+    const current = selectedReading.tags || [];
+    if (current.includes(t)) { setTagInput(""); return; }
+    const next = [...current, t];
+    await saveTags(selectedReading.id, next);
+    setTagInput("");
+  };
+  const removeTag = async (t) => {
+    if (!selectedReading) return;
+    const next = (selectedReading.tags || []).filter(x => x !== t);
+    await saveTags(selectedReading.id, next);
+  };
+  const onTagKeyDown = (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); addTag(); }
   };
 
   if (loading) {
@@ -437,6 +463,34 @@ export default function HistoryPage() {
                     </div>
                   </div>
                 )}
+
+                {/* Tags */}
+                <div>
+                  <h3 className="text-lg font-bold text-purple-300 mb-3">Tags</h3>
+                  <div className="bg-purple-900/20 border border-purple-500/30 rounded-lg p-4">
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {(selectedReading.tags || []).length === 0 && (
+                        <span className="text-white/60 text-sm">No tags yet</span>
+                      )}
+                      {(selectedReading.tags || []).map(tag => (
+                        <span key={tag} className="inline-flex items-center gap-2 bg-purple-700/30 border border-purple-500/40 text-purple-100 text-xs px-2 py-1 rounded">
+                          {tag}
+                          <button onClick={() => removeTag(tag)} className="hover:text-white/90">×</button>
+                        </span>
+                      ))}
+                    </div>
+                    <div className="flex gap-2">
+                      <Input
+                        value={tagInput}
+                        onChange={(e) => setTagInput(e.target.value)}
+                        onKeyDown={onTagKeyDown}
+                        placeholder="Add a tag and press Enter"
+                        className="bg-slate-800/50 border-white/10 text-white"
+                      />
+                      <Button variant="outline" onClick={addTag} className="border-white/20 text-white hover:bg-white/10">Add</Button>
+                    </div>
+                  </div>
+                </div>
 
                 {/* Interpretation */}
                 {selectedReading.interpretation && (
