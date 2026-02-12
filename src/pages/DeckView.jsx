@@ -69,6 +69,7 @@ import StyleExtractor from "@/components/deck/StyleExtractor";
 import ImageUrlDiagnostics from "@/components/deck/ImageUrlDiagnostics";
 import CardRelationshipVisualizer from "@/components/deck/CardRelationshipVisualizer";
 import DeckInsightsAnalyzer from "@/components/deck/DeckInsightsAnalyzer";
+import PersonaFromInsights from "@/components/deck/PersonaFromInsights";
 
 
 function ToolButton({ label, icon: Icon, onClick, className = "", asLink = false, to = "#" }) {
@@ -517,6 +518,7 @@ export default function DeckView() {
                         className="bg-gradient-to-r from-fuchsia-700 to-purple-700 border-2 border-purple-400" 
                       />
                       <ToolButton label="AI Reading Coach" icon={Sparkles} onClick={() => setSelectedTool("aiCoach")} className="bg-gradient-to-r from-purple-600 to-pink-600" />
+                      <ToolButton label="Persona from Insights" icon={Sparkles} onClick={() => setSelectedTool("personaFromInsights")} className="bg-gradient-to-r from-indigo-600 to-purple-600" />
                       <ToolButton label="Style Extractor" icon={Palette} onClick={() => setSelectedTool("styleExtractor")} className="bg-gradient-to-r from-pink-600 to-orange-600" />
                     </AccordionContent>
                   </AccordionItem>
@@ -548,6 +550,7 @@ export default function DeckView() {
                   className="bg-gradient-to-r from-fuchsia-700 to-purple-700 col-span-2 sm:col-span-1 border-2 border-purple-400 shadow-lg shadow-purple-500/50" 
                 />
                 <ToolButton label="AI Reading Coach" icon={Sparkles} onClick={() => setSelectedTool("aiCoach")} className="bg-gradient-to-r from-purple-600 to-pink-600" />
+                <ToolButton label="Persona from Insights" icon={Sparkles} onClick={() => setSelectedTool("personaFromInsights")} className="bg-gradient-to-r from-indigo-600 to-purple-600" />
                 <ToolButton label="Style Extractor" icon={Palette} onClick={() => setSelectedTool("styleExtractor")} className="bg-gradient-to-r from-pink-600 to-orange-600" />
                 <ToolButton label="Bulk Image URLs" icon={LinkIcon} onClick={() => setSelectedTool("bulkImageUrls")} className="bg-cyan-700" />
                 <ToolButton label="Bulk Local Images" icon={Images} onClick={() => setSelectedTool("bulkLocalImages")} className="bg-rose-700" />
@@ -601,6 +604,21 @@ export default function DeckView() {
                   </CardContent>
                 </UICard>
               )}
+
+              {selectedTool === "personaFromInsights" && (
+                <UICard className="bg-white/5 border-white/10">
+                  <CardHeader>
+                    <CardTitle className="text-white flex items-center gap-2">
+                      <Sparkles className="w-5 h-5 text-purple-300" />
+                      Persona from Insights
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <PersonaFromInsights deckId={deck.id} deck={deck} onSaved={() => Deck.get(deck.id).then(setDeck)} />
+                  </CardContent>
+                </UICard>
+              )}
+
               {selectedTool === "bulkImageUrls" && (
                 <UICard className="bg-white/5 border-white/10">
                   <CardHeader><CardTitle className="text-white">Bulk Image URLs</CardTitle></CardHeader>
