@@ -890,8 +890,6 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
                 💡 These notes will be saved with your reading session
               </p>
             </div>
-
-            </div>
             )}
 
             {/* AI Insight Button */}
