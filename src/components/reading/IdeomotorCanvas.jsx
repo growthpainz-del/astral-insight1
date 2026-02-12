@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Sparkles, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-export default function IdeomotorCanvas({ onComplete = () => {}, onCancel = () => {} }) {
+export default function IdeomotorCanvas({ question, onComplete = () => {}, onCancel = () => {}, autoCompleteAfter = null, showInstructions = false, instructionText = "" }) {
   const canvasRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [path, setPath] = useState([]);
