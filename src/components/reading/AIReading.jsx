@@ -497,20 +497,35 @@ if (user && typeof user.token_balance === "number") {
 
     let y = 110;
 
-    // Helper: fetch image URL as data URL
-    const toDataUrl = async (url) => {
-      try {
-        const res = await fetch(url, { mode: 'cors' });
-        const blob = await res.blob();
-        return await new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result);
-          reader.onerror = reject;
-          reader.readAsDataURL(blob);
-        });
-      } catch (_) {
-        return null;
-      }
+    // Helper: load image to canvas -> data URL (more reliable across CORS)
+    const imageToDataUrl = (url, targetW, targetH) => {
+      return new Promise((resolve) => {
+        try {
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          img.onload = () => {
+            try {
+              const iw = img.naturalWidth || img.width;
+              const ih = img.naturalHeight || img.height;
+              const ratio = Math.min(targetW / iw, targetH / ih);
+              const w = Math.max(1, Math.floor(iw * ratio));
+              const h = Math.max(1, Math.floor(ih * ratio));
+              const canvas = document.createElement('canvas');
+              canvas.width = w;
+              canvas.height = h;
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, w, h);
+              resolve(canvas.toDataURL('image/jpeg', 0.92));
+            } catch {
+              resolve(null);
+            }
+          };
+          img.onerror = () => resolve(null);
+          img.src = url;
+        } catch {
+          resolve(null);
+        }
+      });
     };
 
     // Cards section with images
@@ -545,10 +560,10 @@ if (user && typeof user.token_balance === "number") {
 
         const url = dc?.image_url;
         if (url) {
-          const dataUrl = await toDataUrl(url);
+          const dataUrl = await imageToDataUrl(url, imgW, imgH);
           if (dataUrl) {
             try {
-              doc.addImage(dataUrl, dataUrl.includes('image/png') ? 'PNG' : 'JPEG', x, rowY, imgW, imgH);
+              doc.addImage(dataUrl, 'JPEG', x, rowY, imgW, imgH);
             } catch (_) {
               // If addImage fails, skip image and still print caption
             }
