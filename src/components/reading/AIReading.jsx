@@ -36,6 +36,7 @@ export default function ChanneledReading({ isOpen, drawnCards, deck, spread, que
   const [ttsSegments, setTtsSegments] = useState([]);
   const ttsAudioMapRef = useRef({});
   const [ttsIndex, setTtsIndex] = useState(0);
+  const ttsIndexRef = useRef(0);
   const ttsAbortRef = useRef(false);
   const [isTtsPreparing, setIsTtsPreparing] = useState(false);
 
@@ -303,7 +304,16 @@ if (user && typeof user.token_balance === "number") {
       const segs = chunkText(interpretation);
       setTtsSegments(segs);
       setTtsIndex(0);
-      await fetchTtsForIndex(0, selectedVoiceId || "X8Na0RDzhqa1gJFsWu5a");
+      ttsIndexRef.current = 0;
+      // Generate first segment immediately using local 'segs' to avoid state race
+      const firstSeg = segs[0];
+      const { data: ttsData0 } = await base44.functions.invoke('generateSpeech', {
+        text: firstSeg,
+        voiceId: selectedVoiceId || "X8Na0RDzhqa1gJFsWu5a",
+      });
+      const b64_0 = ttsData0?.audioContent;
+      if (!b64_0) throw new Error('No audio returned from TTS');
+      ttsAudioMapRef.current[0] = `data:audio/mpeg;base64,${b64_0}`;
       if (!audioRef.current) return;
       // Reset and set source, then explicitly load metadata (iOS Safari needs this)
       audioRef.current.pause();
@@ -316,9 +326,10 @@ if (user && typeof user.token_balance === "number") {
       };
       audioRef.current.onended = async () => {
         if (ttsAbortRef.current) { setIsSpeaking(false); return; }
-        const next = ttsIndex + 1;
+        const next = ttsIndexRef.current + 1;
         if (next >= segs.length) { setIsSpeaking(false); return; }
         setTtsIndex(next);
+        ttsIndexRef.current = next;
         try {
           if (!ttsAudioMapRef.current[next]) {
             await fetchTtsForIndex(next, selectedVoiceId || "X8Na0RDzhqa1gJFsWu5a");
