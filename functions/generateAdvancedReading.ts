@@ -136,7 +136,23 @@ Deno.serve(async (req) => {
             // ignore personalization if history fetch fails
         }
 
-        const questionEmphasis = question && question.trim() 
+        // --- PAST READINGS PERSONALIZATION ---
+let pastContext = "";
+try {
+  const recent = await base44.entities.Reading.filter({ created_by: user.email }, "-created_date", 5);
+  if (Array.isArray(recent) && recent.length > 0) {
+    const snippets = recent.map((r, i) => {
+      const tagStr = (r.tags && r.tags.length) ? `Tags: ${r.tags.slice(0,5).join(', ')}` : "";
+      const interp = (r.interpretation || "").replace(/\s+/g, " ").slice(0, 220);
+      return `${i + 1}. ${r.title || r.spread_type || 'Reading'} — ${tagStr}${tagStr ? " | " : ""}${interp}`;
+    }).join("\n");
+    pastContext = `\n\nPAST READINGS CONTEXT (last ${recent.length}):\n${snippets}\n\nUse these recurring themes to personalize tone and focus. Do not repeat the same sentences; build upon them.`;
+  }
+} catch (_) {
+  // ignore personalization if history fetch fails
+}
+
+const questionEmphasis = question && question.trim() 
             ? `\n\n🎯 THE QUERENT'S QUESTION (MUST BE DIRECTLY ADDRESSED):\n"${question}"\n\nThis question is the CORE of your reading. Every card interpretation should relate back to answering this specific question.`
             : "";
 
