@@ -710,15 +710,13 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
                   ✨ Channeling cosmic energy while shuffling...
                 </h3>
                 <div className="mx-auto w-full max-w-sm">
-                  {!disableHeavyAnimations && (
-                    <IdeomotorCanvas
-                      question={question || "What guidance do you seek?"}
-                      onComplete={() => {}}
-                      autoCompleteAfter={2500}
-                      showInstructions={true}
-                      instructionText="Draw or doodle while the cards are being shuffled"
-                    />
-                  )}
+                  <IdeomotorCanvas
+                    question={question || "What guidance do you seek?"}
+                    onComplete={() => {}}
+                    autoCompleteAfter={2500}
+                    showInstructions={true}
+                    instructionText="Draw or doodle while the cards are being shuffled"
+                  />
                 </div>
               </div>
             </div>
