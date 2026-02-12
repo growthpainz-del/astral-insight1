@@ -74,6 +74,11 @@ export default function Layout({ children, currentPageName }) {
   const [themePref, setThemePref] = useState('auto');
   const [theme, setTheme] = useState('dark');
 
+        // Mobile-safe: detect iOS and reduced motion to disable heavy background particles
+        const isIOS = typeof navigator !== 'undefined' && (/iP(ad|hone|od)/i.test(navigator.userAgent) || (navigator.userAgent.includes('Mac') && typeof document !== 'undefined' && 'ontouchend' in document));
+        const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const disableBgParticles = isIOS || prefersReducedMotion;
+
   // FIXED: Only initialize once on mount, NOT on every page change
   useEffect(() => {
     let mounted = true;
@@ -354,7 +359,7 @@ export default function Layout({ children, currentPageName }) {
         <NetworkBanner />
         <div className="fixed inset-0 -z-10 overflow-hidden bg-slate-900">
           <div className="absolute inset-0 bg-gradient-to-br from-purple-950/40 via-slate-900 to-blue-950/60"></div>
-          <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute inset-0 pointer-events-none" style={{ display: disableBgParticles ? 'none' : 'block' }}>
             <div className="particle" style={{'--d': '25s', '--x': '10vw', '--y': '15vh', '--s': '2px'}}></div>
             <div className="particle" style={{'--d': '45s', '--x': '90vw', '--y': '80vh', '--s': '3px'}}></div>
             <div className="particle" style={{'--d': '35s', '--x': '50vw', '--y': '30vh', '--s': '1px'}}></div>

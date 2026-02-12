@@ -213,8 +213,14 @@ export default function ReadingPage() {
   const [viewerCard, setViewerCard] = useState(null);
   const [showRelationshipsOverlay, setShowRelationshipsOverlay] = useState(false);
 const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
-  // Drag-to-position state (live, per reading)
-  const [readingPositions, setReadingPositions] = useState([]);
+
+        // Mobile-safe: detect iOS and reduced motion to reduce heavy animations
+        const isIOS = typeof navigator !== 'undefined' && (/iP(ad|hone|od)/i.test(navigator.userAgent) || (navigator.userAgent.includes('Mac') && typeof document !== 'undefined' && 'ontouchend' in document));
+        const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const disableHeavyAnimations = isIOS || prefersReducedMotion;
+
+        // Drag-to-position state (live, per reading)
+        const [readingPositions, setReadingPositions] = useState([]);
 
   // NEW: Debug panel state
   const [showDebugPanel, setShowDebugPanel] = useState(false);
@@ -389,7 +395,7 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
       } : null,
     });
 
-    const shuffleDurationMs = deck?.shuffle_animation_url ? 8000 : 3000;
+    const shuffleDurationMs = disableHeavyAnimations ? 2500 : (deck?.shuffle_animation_url ? 8000 : 3000);
     setTimeout(() => {
       console.log('✅ Setting drawn cards:', drawn.length);
       setDrawnCards(drawn);
@@ -689,7 +695,7 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
             className="mb-6"
           >
             <div className="rounded-xl border border-purple-400/40 overflow-hidden bg-black/30">
-              {deck?.shuffle_animation_url && (
+              {!disableHeavyAnimations && deck?.shuffle_animation_url && (
                 <div className="relative w-full h-[320px] md:h-[420px]">
                   <ShuffleAnimation
                     url={deck.shuffle_animation_url}
@@ -704,13 +710,15 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
                   ✨ Channeling cosmic energy while shuffling...
                 </h3>
                 <div className="mx-auto w-full max-w-sm">
-                  <IdeomotorCanvas
-                    question={question || "What guidance do you seek?"}
-                    onComplete={() => {}}
-                    autoCompleteAfter={2500}
-                    showInstructions={true}
-                    instructionText="Draw or doodle while the cards are being shuffled"
-                  />
+                  {!disableHeavyAnimations && (
+                    <IdeomotorCanvas
+                      question={question || "What guidance do you seek?"}
+                      onComplete={() => {}}
+                      autoCompleteAfter={2500}
+                      showInstructions={true}
+                      instructionText="Draw or doodle while the cards are being shuffled"
+                    />
+                  )}
                 </div>
               </div>
             </div>
@@ -865,7 +873,9 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
                </div>
 
             {/* Session Notes - Quick Input */}
-            <div className="bg-gradient-to-br from-purple-900/20 to-blue-900/20 border border-purple-500/30 rounded-xl p-6">
+            {!disableHeavyAnimations && (
+              <div className="bg-gradient-to-br from-purple-900/20 to-blue-900/20 border border-purple-500/30 rounded-xl p-6">
+
               <div className="flex items-center gap-2 mb-4">
                 <FileText className="w-5 h-5 text-purple-300" />
                 <h3 className="text-xl font-bold text-purple-300">Session Notes</h3>
@@ -880,6 +890,9 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
                 💡 These notes will be saved with your reading session
               </p>
             </div>
+
+            </div>
+            )}
 
             {/* AI Insight Button */}
             {!showAI && (
