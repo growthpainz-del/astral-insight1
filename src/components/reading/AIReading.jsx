@@ -397,29 +397,121 @@ if (user && typeof user.token_balance === "number") {
     }
   };
 
-  const exportAsPdf = () => {
+  const exportAsPdf = async () => {
     if (!interpretation) return;
     const doc = new jsPDF({ unit: 'pt', format: 'a4' });
     const margin = 48;
-    const width = doc.internal.pageSize.getWidth() - margin * 2;
+    const pageW = doc.internal.pageSize.getWidth();
+    const pageH = doc.internal.pageSize.getHeight();
+    const usableW = pageW - margin * 2;
+
     const title = (question?.trim()) || `${deck?.name || 'Reading'}`;
     const header = `${title}`;
     const meta = `Deck: ${deck?.name || '-'} | Spread: ${spread?.name || 'Custom'} | Date: ${new Date().toLocaleString()}`;
-    doc.setFont('helvetica','bold'); doc.setFontSize(16); doc.text(header, margin, 64);
-    doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.text(meta, margin, 84);
-    doc.setFontSize(12);
-    const lines = doc.splitTextToSize(interpretation, width);
+
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(16);
+    doc.text(header, margin, 64);
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(10);
+    doc.text(meta, margin, 84);
+
     let y = 110;
+
+    // Helper: fetch image URL as data URL
+    const toDataUrl = async (url) => {
+      try {
+        const res = await fetch(url, { mode: 'cors' });
+        const blob = await res.blob();
+        return await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+      } catch (_) {
+        return null;
+      }
+    };
+
+    // Cards section with images
+    if (drawnCards && drawnCards.length > 0) {
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(13);
+      doc.text('Cards Drawn', margin, y);
+      y += 14;
+
+      const cols = 3;
+      const gap = 12;
+      const imgW = (usableW - gap * (cols - 1)) / cols;
+      const imgH = imgW * 1.5; // approx 2:3 card ratio
+
+      let rowY = y;
+      for (let i = 0; i < drawnCards.length; i++) {
+        const dc = drawnCards[i];
+        const col = i % cols;
+        if (col === 0 && i > 0) {
+          rowY += imgH + 36; // image + caption space
+          if (rowY + imgH + margin > pageH) {
+            doc.addPage();
+            rowY = margin;
+          }
+        }
+        const x = margin + col * (imgW + gap);
+
+        const name = dc?.name || dc?.card_name || 'Card';
+        const pos = dc?.position ? ` — ${dc.position}` : '';
+        const rev = dc?.isReversed || dc?.is_reversed ? ' (Reversed)' : '';
+        const caption = `${name}${rev}${pos}`;
+
+        const url = dc?.image_url;
+        if (url) {
+          const dataUrl = await toDataUrl(url);
+          if (dataUrl) {
+            try {
+              doc.addImage(dataUrl, dataUrl.includes('image/png') ? 'PNG' : 'JPEG', x, rowY, imgW, imgH);
+            } catch (_) {
+              // If addImage fails, skip image and still print caption
+            }
+          }
+        }
+        // Caption
+        doc.setFont('helvetica','normal');
+        doc.setFontSize(10);
+        const capLines = doc.splitTextToSize(caption, imgW);
+        doc.text(capLines, x, rowY + imgH + 12);
+      }
+
+      y = rowY + imgH + 48;
+      if (y > pageH - margin) {
+        doc.addPage();
+        y = margin;
+      }
+    }
+
+    // Interpretation section
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(13);
+    doc.text('Interpretation', margin, y);
+    y += 14;
+
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(12);
+    const lines = doc.splitTextToSize(interpretation, usableW);
     const lineHeight = 16;
     lines.forEach(line => {
-      if (y > doc.internal.pageSize.getHeight() - margin) {
-        doc.addPage(); y = margin;
+      if (y > pageH - margin) {
+        doc.addPage();
+        y = margin;
       }
-      doc.text(line, margin, y); y += lineHeight;
+      doc.text(line, margin, y);
+      y += lineHeight;
     });
+
     const fname = `reading-${new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')}.pdf`;
     doc.save(fname);
   };
+
 
   const exportAsText = () => {
     if (!interpretation) return;
