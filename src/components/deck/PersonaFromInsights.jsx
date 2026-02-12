@@ -1,13 +1,16 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, Sparkles, Wand2 } from "lucide-react";
+import DeckPickerModal from "./DeckPickerModal";
 
 export default function PersonaFromInsights({ deckId, deck, onSaved }) {
-  const insights = deck?.ai_deck_insights;
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [selectedDeck, setSelectedDeck] = useState(null);
+  const insights = (deck || selectedDeck)?.ai_deck_insights;
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -17,6 +20,13 @@ export default function PersonaFromInsights({ deckId, deck, onSaved }) {
   const [rulesText, setRulesText] = useState(""); // multiline, one per line
   const [examplesText, setExamplesText] = useState(""); // multiline, one per line
   const [savedMsg, setSavedMsg] = useState("");
+
+  useEffect(() => {
+    if (!deckId && !selectedDeck) setPickerOpen(true);
+  }, [deckId, selectedDeck]);
+
+  const effectiveDeck = deck || selectedDeck;
+  const effectiveDeckId = deckId || selectedDeck?.id;
 
   const rules = useMemo(() => rulesText.split(/\n+/).map(s => s.trim()).filter(Boolean), [rulesText]);
   const examples = useMemo(() => examplesText.split(/\n+/).map(s => s.trim()).filter(Boolean), [examplesText]);
@@ -63,17 +73,17 @@ export default function PersonaFromInsights({ deckId, deck, onSaved }) {
         contextBlock = `DECK INSIGHTS (JSON):\n${JSON.stringify(insights, null, 2)}`;
       } else {
         const deckMeta = {
-          name: deck?.name,
-          description: deck?.description,
-          category: deck?.category,
-          visual_style: deck?.ai_deck_insights?.visual_style || null,
-          semantic_style: deck?.ai_deck_insights?.semantic_style || null,
-          deck_personality: deck?.ai_deck_insights?.deck_personality || null,
+          name: effectiveDeck?.name,
+          description: effectiveDeck?.description,
+          category: effectiveDeck?.category,
+          visual_style: effectiveDeck?.ai_deck_insights?.visual_style || null,
+          semantic_style: effectiveDeck?.ai_deck_insights?.semantic_style || null,
+          deck_personality: effectiveDeck?.ai_deck_insights?.deck_personality || null,
         };
         let cardsSample = [];
-        if (deckId) {
+        if (effectiveDeckId) {
           try {
-            const list = await base44.entities.Card.filter({ deck_id: deckId }, undefined, 25);
+            const list = await base44.entities.Card.filter({ deck_id: effectiveDeckId }, undefined, 25);
             cardsSample = (list || []).map(c => ({
               name: c.name,
               element: c.element || null,
@@ -119,12 +129,12 @@ export default function PersonaFromInsights({ deckId, deck, onSaved }) {
   };
 
   const saveToDeck = async () => {
-    if (!deckId) return;
+    if (!effectiveDeckId) { setPickerOpen(true); return; }
     setLoading(true);
     setError("");
     setSavedMsg("");
     try {
-      await base44.entities.Deck.update(deckId, { ai_reading_coach: compiledPrompt });
+      await base44.entities.Deck.update(effectiveDeckId, { ai_reading_coach: compiledPrompt });
       setSavedMsg('Saved to deck.');
       onSaved && onSaved(compiledPrompt);
     } catch (e) {
@@ -150,6 +160,18 @@ export default function PersonaFromInsights({ deckId, deck, onSaved }) {
 
   return (
     <div className="space-y-4">
+      {/* Deck selector bar */}
+      <div className="flex items-center justify-between bg-white/5 border border-white/10 rounded-lg p-3">
+        <div className="text-sm text-white/80">
+          Deck: {effectiveDeck ? <span className="font-semibold">{effectiveDeck.name}</span> : <span className="italic text-white/60">None (training user-level)</span>}
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" className="border-white/20 text-white hover:bg-white/10" onClick={() => setPickerOpen(true)}>
+            {effectiveDeck ? 'Change Deck' : 'Select Deck'}
+          </Button>
+        </div>
+      </div>
+
       <div className="flex flex-wrap items-center gap-2">
         <Button onClick={handleGenerate} disabled={loading} className="bg-gradient-to-r from-purple-600 to-pink-600">
           {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
