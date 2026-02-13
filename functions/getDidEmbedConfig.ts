@@ -13,15 +13,18 @@ Deno.serve(async (req) => {
       ? body.allowed_domains
       : (origin ? [origin] : []);
 
-    const apiKey = Deno.env.get('DID_API_KEY');
-    const apiSecret = Deno.env.get('DID_API_SECRET');
     const agentId = Deno.env.get('DID_AGENT_ID');
-
-    if (!apiKey || !apiSecret) {
-      return Response.json({ error: 'D-ID API credentials not set' }, { status: 500 });
-    }
     if (!agentId) {
       return Response.json({ error: 'D-ID Agent ID not set' }, { status: 500 });
+    }
+    const clientKeyFromEnv = Deno.env.get('DID_CLIENT_KEY');
+    if (clientKeyFromEnv) {
+      return Response.json({ client_key: clientKeyFromEnv, agent_id: agentId });
+    }
+    const apiKey = Deno.env.get('DID_API_KEY');
+    const apiSecret = Deno.env.get('DID_API_SECRET');
+    if (!apiKey || !apiSecret) {
+      return Response.json({ error: 'D-ID API credentials not set' }, { status: 500 });
     }
 
     if (!allowedDomains.length) {
