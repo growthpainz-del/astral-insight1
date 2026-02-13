@@ -327,6 +327,8 @@ export default function Layout({ children, currentPageName }) {
           ];
 
   const adminPages = new Set(adminLinks.map(l => l.href));
+      const isProTier = ['oracle_pro','creator'].includes(String(user?.subscription_tier || '').toLowerCase());
+      const canAccessCurrentPage = isAdmin || (currentPageName === 'AvatarJobs' && isProTier);
 
   // Redirect non-admins from AIWorkspace to Dashboard
   React.useEffect(() => {
@@ -804,7 +806,7 @@ export default function Layout({ children, currentPageName }) {
               paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 96px)'
             }}>
               <AnimatePresence mode="wait" initial={false}>
-                {adminPages.has(currentPageName) && !isAdmin ? (
+                {adminPages.has(currentPageName) && !canAccessCurrentPage ? (
                   <motion.div
                     key="denied"
                     initial={{ x: 30, opacity: 0 }}
