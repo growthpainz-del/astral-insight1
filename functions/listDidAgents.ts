@@ -16,8 +16,24 @@ Deno.serve(async (req) => {
 
     const basicAuth = `Basic ${btoa(`${apiKey}:${apiSecret}`)}`;
 
-    // Fetch agents list
-    const res = await fetch('https://api.d-id.com/agents', {
+    // Throttled fetch with retry/backoff to handle 429/5xx gracefully
+    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+    async function fetchWithRetry(url, options = {}, cfg = {}) {
+      const attempts = cfg.attempts ?? 5;
+      const baseDelay = cfg.baseDelay ?? 400; // ms
+      for (let i = 1; i <= attempts; i++) {
+        const res = await fetch(url, options);
+        if (res.ok) return res;
+        const retryable = res.status === 429 || res.status >= 500;
+        if (!retryable || i === attempts) return res;
+        const ra = parseInt(res.headers.get('retry-after') || '0', 10);
+        const jitter = Math.floor(Math.random() * 150);
+        const delay = ra ? ra * 1000 : (baseDelay * Math.pow(2, i - 1)) + jitter;
+        await sleep(delay);
+      }
+    }
+
+    const res = await fetchWithRetry('https://api.d-id.com/agents', {
       headers: {
         'Authorization': basicAuth,
         'accept': 'application/json'
@@ -27,10 +43,12 @@ Deno.serve(async (req) => {
     const data = await res.json().catch(() => null);
 
     if (!res.ok) {
-      // Surface clear error to the UI
+      // Surface clear error to the UI with rate limit hints
       return Response.json({
         error: data?.message || data?.error || 'Failed to list agents',
-        status: res.status
+        status: res.status,
+        rate_limited: res.status === 429,
+        retry_after: res.headers.get('retry-after') || null
       }, { status: res.status });
     }
 
