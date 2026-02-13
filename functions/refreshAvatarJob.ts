@@ -20,13 +20,22 @@ Deno.serve(async (req) => {
     if (!apiKey || !apiSecret) return Response.json({ error: 'Missing D-ID secrets' }, { status: 500 });
     const basicAuth = `Basic ${btoa(`${apiKey}:${apiSecret}`)}`;
 
-    const res = await fetch(`https://api.d-id.com/agents/talks/${encodeURIComponent(job.did_talk_id)}`, {
+    // Try agents path first, then fallback to legacy talks
+    let res = await fetch(`https://api.d-id.com/agents/talks/${encodeURIComponent(job.did_talk_id)}`, {
       headers: { 'Authorization': basicAuth, 'accept': 'application/json' }
     });
-    const data = await res.json().catch(() => null);
+    let data = await res.json().catch(() => null);
+
     if (!res.ok) {
-      await base44.entities.AvatarJob.update(job.id, { error: `D-ID status error (${res.status}): ${data?.message || data?.error || 'Unknown'}` });
-      return Response.json({ error: 'Failed to fetch status', details: data }, { status: res.status });
+      const resLegacy = await fetch(`https://api.d-id.com/talks/${encodeURIComponent(job.did_talk_id)}`, {
+        headers: { 'Authorization': basicAuth, 'accept': 'application/json' }
+      });
+      data = await resLegacy.json().catch(() => null);
+      if (!resLegacy.ok) {
+        await base44.entities.AvatarJob.update(job.id, { error: `D-ID status error (${resLegacy.status}): ${data?.message || data?.error || 'Unknown'}` });
+        return Response.json({ error: 'Failed to fetch status', details: data }, { status: resLegacy.status });
+      }
+      res = resLegacy;
     }
 
     const status = data?.status || job.status;
