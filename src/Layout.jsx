@@ -73,6 +73,7 @@ export default function Layout({ children, currentPageName }) {
   const [retryCount, setRetryCount] = useState(0);
   const [themePref, setThemePref] = useState('auto');
   const [theme, setTheme] = useState('dark');
+  const [redirectingToLogin, setRedirectingToLogin] = useState(false);
 
         // Mobile-safe: detect iOS and reduced motion to disable heavy background particles
         const isIOS = typeof navigator !== 'undefined' && (/iP(ad|hone|od)/i.test(navigator.userAgent) || (navigator.userAgent.includes('Mac') && typeof document !== 'undefined' && 'ontouchend' in document));
@@ -167,6 +168,19 @@ export default function Layout({ children, currentPageName }) {
       if (timeoutId) clearTimeout(timeoutId);
     };
   }, [retryCount]); // REMOVED currentPageName - only run on mount or retry
+
+  // Enforce authentication globally: if unauthenticated, auto-redirect to login
+  useEffect(() => {
+    if (!isLoading && !user && !redirectingToLogin) {
+      setRedirectingToLogin(true);
+      try {
+        const next = window.location.href;
+        base44.auth.redirectToLogin(next);
+      } catch (_) {
+        base44.auth.redirectToLogin();
+      }
+    }
+  }, [isLoading, user, redirectingToLogin]);
 
   useEffect(() => {
     const stopCloseBubbling = (e) => {
@@ -346,6 +360,10 @@ export default function Layout({ children, currentPageName }) {
         onRetry={() => setRetryCount(prev => prev + 1)}
       />
     );
+  }
+
+  if (redirectingToLogin) {
+    return <div className="min-h-screen flex items-center justify-center text-white/80">Redirecting to login…</div>;
   }
 
   if (currentPageName === 'Home') {
