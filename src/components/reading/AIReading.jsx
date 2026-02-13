@@ -341,20 +341,6 @@ if (user && typeof user.token_balance === "number") {
     ttsAbortRef.current = false;
     ttsAudioMapRef.current = {};
 
-    const isiOS = typeof navigator !== 'undefined' && ((/iP(ad|hone|od)/i.test(navigator.userAgent)) || (navigator.userAgent.includes('Mac') && typeof document !== 'undefined' && 'ontouchend' in document));
-    if (isiOS) {
-      try {
-        await speakWithWebAPI(interpretation);
-        setError('Using device voice (iOS).');
-      } catch {
-        setError('Playback blocked on iOS. Check Silent switch and volume.');
-      } finally {
-        setIsSpeaking(false);
-        setIsTtsPreparing(false);
-      }
-      return;
-    }
-
     try {
       await unlockAudio();
       const segs = chunkText(interpretation);
