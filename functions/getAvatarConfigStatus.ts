@@ -29,7 +29,7 @@ Deno.serve(async (req) => {
       didAgentIdSuffix: didAgentId ? didAgentId.slice(-6) : null,
     };
 
-    return Response.json(payload);
+    return Response.json({ ...payload, _ts: Date.now() });
   } catch (error) {
     return Response.json({ error: error.message || 'Server error' }, { status: 500 });
   }

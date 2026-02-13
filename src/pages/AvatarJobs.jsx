@@ -5,16 +5,19 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { RefreshCw, Play, Plus, Link as LinkIcon } from 'lucide-react';
+import { RefreshCw, Play, Plus, Link as LinkIcon, Key } from 'lucide-react';
 import { format } from 'date-fns';
 // Platform V2: import functions directly
 import { createAvatarJob } from '@/functions/createAvatarJob';
 import { refreshAvatarJob } from '@/functions/refreshAvatarJob';
 import { getAvatarConfigStatus } from '@/functions/getAvatarConfigStatus';
+import { getDidClientKey } from '@/functions/getDidClientKey';
 
 export default function AvatarJobs() {
   const qc = useQueryClient();
   const [readingId, setReadingId] = React.useState('');
+        const [clientKey, setClientKey] = React.useState(null);
+        const [ckError, setCkError] = React.useState(null);
   const EXPECTED_AGENT_ID = '7B996DF1_7B27_4A8A_804F_C9221236E77D';
   const configQuery = useQuery({
     queryKey: ['avatar-config'],
@@ -58,7 +61,20 @@ export default function AvatarJobs() {
       return;
     }
     createMut.mutate({ readingId: latest.id });
-  };
+    };
+
+    const handleCreateClientKey = async () => {
+    try {
+      setCkError(null);
+      setClientKey(null);
+      const res = await getDidClientKey({ allowed_domains: [window.location.origin] });
+      const data = res.data;
+      if (data?.client_key) setClientKey(data.client_key);
+      else setCkError(data?.error || 'Failed to create client key');
+    } catch (e) {
+      setCkError(e?.response?.data?.error || e.message || 'Failed to create client key');
+    }
+    };
 
   return (
     <div className="max-w-5xl mx-auto p-6 text-white">
@@ -75,6 +91,20 @@ export default function AvatarJobs() {
               <span>ElevenLabs API: <b>{configQuery.data?.elevenApiReady ? 'OK' : 'Missing'}</b></span>
               <span>Voice ID: <b>{configQuery.data?.elevenVoiceIdExists ? 'Yes' : 'No'}</b></span>
             </div>
+          </div>
+          <div className="flex items-center justify-between gap-3">
+            <div className="text-sm text-white/80">
+              {clientKey ? (
+                <span>Client Key created: <span className="font-mono">{clientKey.slice(0,6)}…{clientKey.slice(-6)}</span></span>
+              ) : ckError ? (
+                <span className="text-red-300">Error: {ckError}</span>
+              ) : (
+                <span className="text-white/60">No client key yet</span>
+              )}
+            </div>
+            <Button variant="outline" onClick={handleCreateClientKey} className="border-white/20 text-white hover:bg-white/10">
+              <Key className="w-4 h-4 mr-2" /> Create Client Key
+            </Button>
           </div>
           <div className="flex gap-3 items-end flex-wrap">
             <div className="flex-1 min-w-[260px]">
