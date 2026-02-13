@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+// redeploy ping v2
 
 Deno.serve(async (req) => {
   try {

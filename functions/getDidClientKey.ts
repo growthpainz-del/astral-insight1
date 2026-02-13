@@ -11,8 +11,11 @@ Deno.serve(async (req) => {
     // Optional payload overrides
     let payload = {};
     try { payload = await req.json(); } catch (_) {}
-    const ttlSeconds = typeof payload.ttlSeconds === 'number' ? payload.ttlSeconds : 3600; // 1 hour default
+    const ttlSeconds = typeof payload.ttlSeconds === 'number' ? payload.ttlSeconds : undefined; // optional per API
     const allowOrigin = payload.allowOrigin || req.headers.get('origin') || undefined;
+    const allowedDomains = Array.isArray(payload.allowed_domains)
+      ? payload.allowed_domains
+      : (allowOrigin ? [allowOrigin] : []);
 
     const apiKey = Deno.env.get('DID_API_KEY');
     const apiSecret = Deno.env.get('DID_API_SECRET');
@@ -22,6 +25,11 @@ Deno.serve(async (req) => {
 
     const basicAuth = `Basic ${btoa(`${apiKey}:${apiSecret}`)}`;
 
+    // Ensure we have at least one allowed domain (use Origin or provided list)
+    if (!allowedDomains.length) {
+      return Response.json({ error: 'allowed_domains is required: provide an array of domains, or call from a browser so Origin can be used' }, { status: 400 });
+    }
+
     const res = await fetch('https://api.d-id.com/agents/client-key', {
       method: 'POST',
       headers: {
@@ -30,8 +38,7 @@ Deno.serve(async (req) => {
         'accept': 'application/json',
       },
       body: JSON.stringify({
-        ttlSeconds,
-        ...(allowOrigin ? { allowOrigin } : {}),
+        allowed_domains: allowedDomains,
       }),
     });
 
