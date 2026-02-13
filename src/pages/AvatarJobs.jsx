@@ -11,7 +11,7 @@ import { format } from 'date-fns';
 import { createAvatarJob } from '@/functions/createAvatarJob';
 import { refreshAvatarJob } from '@/functions/refreshAvatarJob';
 import { getAvatarConfigStatus } from '@/functions/getAvatarConfigStatus';
-import { getDidClientKey } from '@/functions/getDidClientKey';
+import { createDidClientKey } from '@/functions/createDidClientKey';
 
 export default function AvatarJobs() {
   const qc = useQueryClient();
@@ -64,17 +64,24 @@ export default function AvatarJobs() {
     };
 
     const handleCreateClientKey = async () => {
-    try {
-      setCkError(null);
-      setClientKey(null);
-      const res = await getDidClientKey({ allowed_domains: [window.location.origin] });
-      const data = res.data;
-      if (data?.client_key) setClientKey(data.client_key);
-      else setCkError(data?.error || 'Failed to create client key');
-    } catch (e) {
-      setCkError(e?.response?.data?.error || e.message || 'Failed to create client key');
-    }
-    };
+              try {
+                setCkError(null);
+                setClientKey(null);
+                const res = await createDidClientKey({ allowedDomains: [window.location.origin] });
+                const data = res.data;
+                if (data?.client_key) {
+                  setClientKey(data.client_key);
+                } else {
+                  setCkError({ message: data?.error || 'Failed to create client key', status: res.status, details: data });
+                }
+              } catch (e) {
+                setCkError({
+                  message: e?.response?.data?.error || e.message || 'Failed to create client key',
+                  status: e?.response?.status,
+                  details: e?.response?.data,
+                });
+              }
+              };
 
   return (
     <div className="max-w-5xl mx-auto p-6 text-white">
@@ -93,15 +100,25 @@ export default function AvatarJobs() {
             </div>
           </div>
           <div className="flex items-center justify-between gap-3">
-            <div className="text-sm text-white/80">
-              {clientKey ? (
-                <span>Client Key created: <span className="font-mono">{clientKey.slice(0,6)}…{clientKey.slice(-6)}</span></span>
-              ) : ckError ? (
-                <span className="text-red-300">Error: {ckError}</span>
-              ) : (
-                <span className="text-white/60">No client key yet</span>
-              )}
-            </div>
+            <div className="text-sm text-white/80 max-w-full">
+                                {clientKey ? (
+                                  <span>Client Key created: <span className="font-mono">{clientKey.slice(0,6)}…{clientKey.slice(-6)}</span></span>
+                                ) : ckError ? (
+                                  <div className="text-red-300">
+                                    <div>
+                                      Error: {typeof ckError === 'string' ? ckError : ckError.message}
+                                      {typeof ckError !== 'string' && ckError.status ? ` (HTTP ${ckError.status})` : ''}
+                                    </div>
+                                    {typeof ckError !== 'string' && ckError.details ? (
+                                      <pre className="mt-1 p-2 bg-white/5 rounded border border-white/10 overflow-x-auto text-[11px] text-red-200/90 max-h-40">
+                                        {JSON.stringify(ckError.details, null, 2)}
+                                      </pre>
+                                    ) : null}
+                                  </div>
+                                ) : (
+                                  <span className="text-white/60">No client key yet</span>
+                                )}
+                              </div>
             <Button variant="outline" onClick={handleCreateClientKey} className="border-white/20 text-white hover:bg-white/10">
               <Key className="w-4 h-4 mr-2" /> Create Client Key
             </Button>
