@@ -62,9 +62,14 @@ export default function AvatarJobs() {
               <label className="block text-sm mb-1 text-white/80">Reading ID</label>
               <Input value={readingId} onChange={e => setReadingId(e.target.value)} placeholder="e.g. 3c1f..." className="bg-white/10 border-white/20 text-white" />
             </div>
-            <Button onClick={() => readingId && createMut.mutate({ readingId })} disabled={!readingId || createMut.isPending} className="bg-purple-600 hover:bg-purple-700">
-              <Plus className="w-4 h-4 mr-2" /> {createMut.isPending ? 'Creating…' : 'Create Job'}
-            </Button>
+            <div className="flex gap-2">
+              <Button onClick={() => readingId && createMut.mutate({ readingId })} disabled={!readingId || createMut.isPending} className="bg-purple-600 hover:bg-purple-700">
+                <Plus className="w-4 h-4 mr-2" /> {createMut.isPending ? 'Creating…' : 'Create Job'}
+              </Button>
+              <Button variant="outline" onClick={handleUseLatest} disabled={createMut.isPending} className="border-white/20 text-white hover:bg-white/10">
+                <Play className="w-4 h-4 mr-2" /> Use most recent
+              </Button>
+            </div>
           </div>
 
           <div className="overflow-x-auto mt-4">
