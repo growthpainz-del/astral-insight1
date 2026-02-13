@@ -44,6 +44,7 @@ import TokenBalanceDisplay from "@/components/pricing/TokenBalanceDisplay";
 import AppErrorBoundary from "@/components/common/AppErrorBoundary";
 import InitializationError from "@/components/common/InitializationError";
 import { queueApiCall } from "@/components/utils/apiQueue";
+import DidAgentEmbed from "@/components/integrations/DidAgentEmbed";
 
 const NavLink = ({ to, children }) => {
   const location = useLocation();
@@ -858,6 +859,7 @@ export default function Layout({ children, currentPageName }) {
           </div>
         </div>
         
+        <DidAgentEmbed />
         {/* Mobile Bottom Navigation */}
         <MobileBottomNav />
         
