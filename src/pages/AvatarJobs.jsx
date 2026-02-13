@@ -10,10 +10,20 @@ import { format } from 'date-fns';
 // Platform V2: import functions directly
 import { createAvatarJob } from '@/functions/createAvatarJob';
 import { refreshAvatarJob } from '@/functions/refreshAvatarJob';
+import { getAvatarConfigStatus } from '@/functions/getAvatarConfigStatus';
 
 export default function AvatarJobs() {
   const qc = useQueryClient();
   const [readingId, setReadingId] = React.useState('');
+  const EXPECTED_AGENT_ID = '7B996DF1_7B27_4A8A_804F_C9221236E77D';
+  const configQuery = useQuery({
+    queryKey: ['avatar-config'],
+    queryFn: async () => {
+      const res = await getAvatarConfigStatus({ expectedAgentId: EXPECTED_AGENT_ID });
+      return res.data;
+    },
+    staleTime: 30000,
+  });
 
   const jobsQuery = useQuery({
     queryKey: ['avatar-jobs'],
@@ -57,6 +67,15 @@ export default function AvatarJobs() {
           <CardTitle className="text-2xl">Avatar Jobs (Admin)</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div className="rounded-lg border border-white/10 bg-white/5 p-3 text-sm">
+            <div className="flex flex-wrap gap-4">
+              <span>Agent ID set: <b>{configQuery.data?.didAgentIdExists ? 'Yes' : 'No'}</b></span>
+              <span>Matches provided: <b>{configQuery.data?.didAgentIdMatches === true ? 'Yes' : configQuery.data?.didAgentIdMatches === false ? 'No' : '—'}</b></span>
+              <span>D‑ID API: <b>{configQuery.data?.didApiReady ? 'OK' : 'Missing'}</b></span>
+              <span>ElevenLabs API: <b>{configQuery.data?.elevenApiReady ? 'OK' : 'Missing'}</b></span>
+              <span>Voice ID: <b>{configQuery.data?.elevenVoiceIdExists ? 'Yes' : 'No'}</b></span>
+            </div>
+          </div>
           <div className="flex gap-3 items-end flex-wrap">
             <div className="flex-1 min-w-[260px]">
               <label className="block text-sm mb-1 text-white/80">Reading ID</label>
