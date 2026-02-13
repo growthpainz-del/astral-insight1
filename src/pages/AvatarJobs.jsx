@@ -13,6 +13,7 @@ import { refreshAvatarJob } from '@/functions/refreshAvatarJob';
 import { getAvatarConfigStatus } from '@/functions/getAvatarConfigStatus';
 import { createDidClientKey } from '@/functions/createDidClientKey';
 import { listDidAgents } from '@/functions/listDidAgents';
+import { queueApiCall } from '@/components/utils/apiQueue';
 
 export default function AvatarJobs() {
   const qc = useQueryClient();
@@ -26,7 +27,7 @@ export default function AvatarJobs() {
   const configQuery = useQuery({
     queryKey: ['avatar-config'],
     queryFn: async () => {
-      const res = await getAvatarConfigStatus({ expectedAgentId: EXPECTED_AGENT_ID });
+      const res = await queueApiCall(() => getAvatarConfigStatus({ expectedAgentId: EXPECTED_AGENT_ID }), 3, 500, 20000);
       return res.data;
     },
     staleTime: 30000,
@@ -43,7 +44,7 @@ export default function AvatarJobs() {
 
   const createMut = useMutation({
     mutationFn: async ({ readingId }) => {
-      const res = await createAvatarJob({ readingId });
+      const res = await queueApiCall(() => createAvatarJob({ readingId }), 3, 800, 60000);
       return res.data;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['avatar-jobs'] })
@@ -51,7 +52,7 @@ export default function AvatarJobs() {
 
   const refreshMut = useMutation({
     mutationFn: async ({ jobId }) => {
-      const res = await refreshAvatarJob({ jobId });
+      const res = await queueApiCall(() => refreshAvatarJob({ jobId }), 3, 600, 20000);
       return res.data;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['avatar-jobs'] })
@@ -71,7 +72,7 @@ export default function AvatarJobs() {
               try {
                 setCkError(null);
                 setClientKey(null);
-                const res = await createDidClientKey({ allowedDomains: [window.location.origin] });
+                const res = await queueApiCall(() => createDidClientKey({ allowedDomains: [window.location.origin] }), 3, 800, 20000);
                 const data = res.data;
                 if (data?.client_key) {
                   setClientKey(data.client_key);
@@ -92,7 +93,7 @@ export default function AvatarJobs() {
         setIsListing(true);
         setListErr(null);
         setAgents(null);
-        const res = await listDidAgents({});
+        const res = await queueApiCall(() => listDidAgents({}), 5, 1000, 20000);
         const data = res.data;
         if (data?.agents) {
           setAgents(data.agents);
