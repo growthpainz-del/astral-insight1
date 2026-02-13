@@ -319,11 +319,12 @@ export default function Layout({ children, currentPageName }) {
   ];
 
   const adminLinks = [
-    { href: "AdminUsers", icon: Users, label: "Manage Users" },
-    { href: "AdminDeckReview", icon: CheckCircle2, label: "Review Decks" },
-    { href: "AdminTokenGrant", icon: Coins, label: "Token Grant" },
-    { href: "SpreadSeeder", icon: Sprout, label: "Seed Spreads" },
-  ];
+            { href: "AdminUsers", icon: Users, label: "Manage Users" },
+            { href: "AdminDeckReview", icon: CheckCircle2, label: "Review Decks" },
+            { href: "AdminTokenGrant", icon: Coins, label: "Token Grant" },
+            { href: "SpreadSeeder", icon: Sprout, label: "Seed Spreads" },
+            { href: "AvatarJobs", icon: Sparkles, label: "Avatar Jobs" },
+          ];
 
   const adminPages = new Set(adminLinks.map(l => l.href));
 
