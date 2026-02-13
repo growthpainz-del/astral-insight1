@@ -327,6 +327,7 @@ if (user && typeof user.token_balance === "number") {
     const { data } = await base44.functions.invoke('generateSpeech', {
       text: seg,
       voiceId: voiceId || selectedVoiceId || "X8Na0RDzhqa1gJFsWu5a",
+      forceElevenLabs: true,
     });
     const b64 = data?.audioContent;
     if (!b64) throw new Error('No audio returned from TTS');
