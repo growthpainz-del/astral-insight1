@@ -76,13 +76,40 @@ Deno.serve(async (req) => {
 
     let didData = await resAgents.json().catch(() => null);
 
-    // If Agents endpoint unsupported, return explicit error for now
+    // If Agents endpoint call failed, try legacy /talks as fallback with voice provider
     if (!resAgents.ok) {
-      await base44.entities.AvatarJob.update(job.id, {
-        status: 'failed',
-        error: `D-ID error (${resAgents.status}): ${didData?.message || didData?.error || 'Unknown'}`
+      const legacyBody = {
+        script: {
+          type: 'text',
+          input: script
+        },
+        source_url: undefined,
+        presenter_id: undefined,
+        provider: { type: 'elevenlabs', voice_id: voiceId },
+        config: { result_format: 'mp4', resolution: job.resolution }
+      };
+
+      const resLegacy = await fetch('https://api.d-id.com/talks', {
+        method: 'POST',
+        headers: {
+          'Authorization': basicAuth,
+          'Content-Type': 'application/json',
+          'accept': 'application/json'
+        },
+        body: JSON.stringify(legacyBody)
       });
-      return Response.json({ error: 'D-ID pre-render failed', details: didData }, { status: resAgents.status });
+
+      let legacyData = await resLegacy.json().catch(() => null);
+
+      if (!resLegacy.ok) {
+        await base44.entities.AvatarJob.update(job.id, {
+          status: 'failed',
+          error: `D-ID error (${resLegacy.status}): ${legacyData?.message || legacyData?.error || 'Unknown'}`
+        });
+        return Response.json({ error: 'D-ID render failed', details: legacyData }, { status: resLegacy.status });
+      }
+
+      didData = legacyData;
     }
 
     const didId = didData?.id || didData?.talk_id || didData?.job_id || null;
