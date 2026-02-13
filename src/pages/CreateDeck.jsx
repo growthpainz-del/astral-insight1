@@ -169,6 +169,7 @@ export default function CreateDeck() {
   const [coachingAnswers, setCoachingAnswers] = React.useState(draft.coaching);
   const [source, setSource] = React.useState(draft.source);
   const [jsonText, setJsonText] = React.useState(draft.jsonText);
+  const jsonInputRef = React.useRef(null);
   const [parseError, setParseError] = React.useState(""); 
   const [detailedError, setDetailedError] = React.useState(""); 
   const [parseWarnings, setParseWarnings] = React.useState([]); 
@@ -1001,6 +1002,29 @@ export default function CreateDeck() {
           </div>
         </header>
 
+        <div className="mb-6 bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 flex flex-wrap items-center justify-between gap-3">
+          <div className="text-sm text-amber-200">
+            Already have a JSON file or data? Skip ahead and import it directly.
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="border-amber-500/40 text-amber-200 hover:bg-amber-900/20"
+            onClick={() => {
+              setStep(2);
+              setSource("json");
+              setTimeout(() => {
+                try {
+                  jsonInputRef?.current?.focus();
+                  jsonInputRef?.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+                } catch (_) {}
+              }, 100);
+            }}
+          >
+            Go to JSON Import
+          </Button>
+        </div>
+
         {/* DRAFT RESTORED BANNER */}
         {draftRestored && (
           <div className="mb-6 bg-blue-900/20 border border-blue-500/40 rounded-lg p-4 flex items-start gap-3">
@@ -1507,6 +1531,7 @@ export default function CreateDeck() {
                 </div>
 
                 <Textarea
+                  ref={jsonInputRef}
                   value={jsonText}
                   onChange={(e) => setJsonText(e.target.value)}
                   className="bg-black/40 border-white/20 text-white min-h-[180px] font-mono text-sm"
