@@ -5,7 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { RefreshCw, Play, Plus, Link as LinkIcon, Key } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { RefreshCw, Play, Plus, Link as LinkIcon, Key, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { format } from 'date-fns';
 // Platform V2: import functions directly
 import { createAvatarJob } from '@/functions/createAvatarJob';
@@ -23,6 +26,7 @@ export default function AvatarJobs() {
         const [agents, setAgents] = React.useState(null);
         const [listErr, setListErr] = React.useState(null);
         const [isListing, setIsListing] = React.useState(false);
+        const [submitMsg, setSubmitMsg] = React.useState(null);
   const EXPECTED_AGENT_ID = '7B996DF1_7B27_4A8A_804F_C9221236E77D';
   const configQuery = useQuery({
     queryKey: ['avatar-config'],
@@ -42,12 +46,38 @@ export default function AvatarJobs() {
     initialData: [],
   });
 
+  const readingsQuery = useQuery({
+    queryKey: ['readings-list'],
+    queryFn: async () => await base44.entities.Reading.list('-updated_date', 50),
+    initialData: [],
+    staleTime: 30000,
+  });
+
   const createMut = useMutation({
     mutationFn: async ({ readingId }) => {
       const res = await queueApiCall(() => createAvatarJob({ readingId }), 3, 800, 60000);
       return res.data;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['avatar-jobs'] })
+    onSuccess: (data) => {
+      setSubmitMsg({
+        type: 'success',
+        message: 'Avatar job created successfully.',
+        jobId: data?.job?.id,
+        resultUrl: data?.job?.result_url || null
+      });
+      qc.invalidateQueries({ queryKey: ['avatar-jobs'] });
+      setReadingId('');
+    },
+    onError: (e) => {
+      if (e?.response?.status === 401) {
+        base44.auth.redirectToLogin(window.location.href);
+        return;
+      }
+      setSubmitMsg({
+        type: 'error',
+        message: e?.response?.data?.error || e.message || 'Failed to create avatar job'
+      });
+    }
   });
 
   const refreshMut = useMutation({
