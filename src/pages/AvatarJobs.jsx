@@ -21,6 +21,7 @@ import { queueApiCall } from '@/components/utils/apiQueue';
 export default function AvatarJobs() {
   const qc = useQueryClient();
   const [readingId, setReadingId] = React.useState('');
+  const [agentId, setAgentId] = React.useState('');
         const [clientKey, setClientKey] = React.useState(null);
         const [ckError, setCkError] = React.useState(null);
         const [agents, setAgents] = React.useState(null);
@@ -54,8 +55,9 @@ export default function AvatarJobs() {
   });
 
   const createMut = useMutation({
-    mutationFn: async ({ readingId }) => {
-      const res = await queueApiCall(() => createAvatarJob({ readingId }), 3, 800, 60000);
+    mutationFn: async ({ readingId, agentId }) => {
+      const payload = agentId ? { readingId, agentId } : { readingId };
+      const res = await queueApiCall(() => createAvatarJob(payload), 3, 800, 60000);
       return res.data;
     },
     onSuccess: (data) => {
@@ -95,7 +97,7 @@ export default function AvatarJobs() {
       alert('No readings found.');
       return;
     }
-    createMut.mutate({ readingId: latest.id });
+    createMut.mutate({ readingId: latest.id, agentId });
     };
 
     const handleCreateClientKey = async () => {
@@ -281,8 +283,14 @@ export default function AvatarJobs() {
               <Input value={readingId} onChange={e => setReadingId(e.target.value)} placeholder="e.g. 3c1f..." className="bg-white/10 border-white/20 text-white" />
             </div>
 
+            <div className="flex-1 min-w-[260px]">
+              <label className="block text-sm mb-1 text-white/80">Agent ID (optional)</label>
+              <Input value={agentId} onChange={e => setAgentId(e.target.value)} placeholder="e.g. v2_agt_MRSoZNL0" className="bg-white/10 border-white/20 text-white" />
+              <p className="mt-1 text-xs text-white/60">Leave blank to use the default configured Agent.</p>
+            </div>
+
             <div className="flex gap-2">
-              <Button onClick={() => readingId && createMut.mutate({ readingId })} disabled={!readingId || createMut.isPending} className="bg-purple-600 hover:bg-purple-700">
+              <Button onClick={() => readingId && createMut.mutate({ readingId, agentId })} disabled={!readingId || createMut.isPending} className="bg-purple-600 hover:bg-purple-700">
                 <Plus className="w-4 h-4 mr-2" /> {createMut.isPending ? 'Creating…' : 'Create Job'}
               </Button>
               <Button variant="outline" onClick={handleUseLatest} disabled={createMut.isPending} className="border-white/20 text-white hover:bg-white/10">

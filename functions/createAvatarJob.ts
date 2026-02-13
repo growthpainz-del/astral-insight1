@@ -8,7 +8,7 @@ Deno.serve(async (req) => {
     const isPro = ['oracle_pro', 'creator'].includes(String(user?.subscription_tier || '').toLowerCase());
     if (!(user.role === 'admin' || isPro)) return Response.json({ error: 'Forbidden: Requires Pro or Admin' }, { status: 403 });
 
-    const { readingId, overrideScript, voiceId: voiceOverride, resolution } = await req.json();
+    const { readingId, overrideScript, voiceId: voiceOverride, resolution, agentId: agentIdOverride } = await req.json();
     if (!readingId) return Response.json({ error: 'readingId is required' }, { status: 400 });
 
     // Fetch reading
@@ -35,11 +35,12 @@ Deno.serve(async (req) => {
 
     const apiKey = Deno.env.get('DID_API_KEY');
     const apiSecret = Deno.env.get('DID_API_SECRET');
-    const agentId = Deno.env.get('DID_AGENT_ID');
+    const envAgentId = Deno.env.get('DID_AGENT_ID');
     const defaultVoice = Deno.env.get('ELEVENLABS_VOICE_ID');
-    if (!apiKey || !apiSecret || !agentId) {
-      return Response.json({ error: 'Missing D-ID secrets (DID_API_KEY, DID_API_SECRET, DID_AGENT_ID)' }, { status: 500 });
+    if (!apiKey || !apiSecret || !(envAgentId || agentIdOverride)) {
+      return Response.json({ error: 'Missing D-ID credentials: need DID_API_KEY, DID_API_SECRET, and an Agent ID (env DID_AGENT_ID or agentId in request)' }, { status: 500 });
     }
+    const effectiveAgentId = agentIdOverride || envAgentId;
     const voiceId = voiceOverride || defaultVoice;
     if (!voiceId) return Response.json({ error: 'Missing ElevenLabs voice (ELEVENLABS_VOICE_ID)' }, { status: 500 });
 
@@ -48,7 +49,7 @@ Deno.serve(async (req) => {
     // Create DB record first (queued)
     const job = await base44.entities.AvatarJob.create({
       reading_id: readingId,
-      agent_id: agentId,
+      agent_id: effectiveAgentId,
       voice_id: voiceId,
       script,
       resolution: (resolution === '1080p' ? '1080p' : '720p'),
@@ -65,7 +66,7 @@ Deno.serve(async (req) => {
       config: { result_format: 'mp4', resolution: job.resolution }
     };
 
-    const resAgents = await fetch(`https://api.d-id.com/agents/${agentId}/talks`, {
+    const resAgents = await fetch(`https://api.d-id.com/agents/${effectiveAgentId}/talks`, {
       method: 'POST',
       headers: {
         'Authorization': basicAuth,
