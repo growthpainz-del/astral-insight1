@@ -54,9 +54,8 @@ Deno.serve(async (req) => {
       status: 'queued'
     });
 
-    // Attempt Agents talks endpoint (preferred for Agent pre-render)
+    // Attempt Agents talks endpoint (preferred for Agent pre-render, path param form)
     const bodyAgents = {
-      agent_id: agentId,
       script: {
         type: 'text',
         input: script,
@@ -65,7 +64,7 @@ Deno.serve(async (req) => {
       config: { result_format: 'mp4', resolution: job.resolution }
     };
 
-    const resAgents = await fetch('https://api.d-id.com/agents/talks', {
+    const resAgents = await fetch(`https://api.d-id.com/agents/${agentId}/talks`, {
       method: 'POST',
       headers: {
         'Authorization': basicAuth,
