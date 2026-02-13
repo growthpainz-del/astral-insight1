@@ -43,6 +43,37 @@ export default function ChanneledReading({ isOpen, drawnCards, deck, spread, que
   const ttsAbortRef = useRef(false);
   const [isTtsPreparing, setIsTtsPreparing] = useState(false);
 
+  // iOS audio unlock + safer audio URLs
+  const webAudioCtxRef = useRef(null);
+  const audioUnlockedRef = useRef(false);
+  const unlockAudio = async () => {
+    try {
+      if (audioUnlockedRef.current) return;
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      if (!webAudioCtxRef.current) webAudioCtxRef.current = new AC();
+      await webAudioCtxRef.current.resume();
+      const buffer = webAudioCtxRef.current.createBuffer(1, 1, 22050);
+      const source = webAudioCtxRef.current.createBufferSource();
+      source.buffer = buffer;
+      source.connect(webAudioCtxRef.current.destination);
+      source.start(0);
+      audioUnlockedRef.current = true;
+    } catch (_) {}
+  };
+
+  const base64ToObjectUrl = (b64, mime = 'audio/mpeg') => {
+    try {
+      const byteChars = atob(b64);
+      const byteNumbers = new Array(byteChars.length);
+      for (let i = 0; i < byteChars.length; i++) byteNumbers[i] = byteChars.charCodeAt(i);
+      const blob = new Blob([new Uint8Array(byteNumbers)], { type: mime });
+      return URL.createObjectURL(blob);
+    } catch {
+      return `data:${mime};base64,${b64}`;
+    }
+  };
+
   // Concise mode + Summary
   const [conciseMode, setConciseMode] = useState(false);
   const [activeTab, setActiveTab] = useState("full");
@@ -299,7 +330,7 @@ if (user && typeof user.token_balance === "number") {
     });
     const b64 = data?.audioContent;
     if (!b64) throw new Error('No audio returned from TTS');
-    ttsAudioMapRef.current[idx] = `data:audio/mpeg;base64,${b64}`;
+    ttsAudioMapRef.current[idx] = base64ToObjectUrl(b64, 'audio/mpeg');
   };
 
   const handleSpeak = async () => {
@@ -310,6 +341,7 @@ if (user && typeof user.token_balance === "number") {
     ttsAbortRef.current = false;
     ttsAudioMapRef.current = {};
     try {
+      await unlockAudio();
       const segs = chunkText(interpretation);
       ttsSegmentsRef.current = segs;
       setTtsSegments(segs);
@@ -323,7 +355,7 @@ if (user && typeof user.token_balance === "number") {
       });
       const b64_0 = ttsData0?.audioContent;
       if (!b64_0) throw new Error('No audio returned from TTS');
-      ttsAudioMapRef.current[0] = `data:audio/mpeg;base64,${b64_0}`;
+      ttsAudioMapRef.current[0] = base64ToObjectUrl(b64_0, 'audio/mpeg');
       if (!audioRef.current) return;
       // Reset and set source, then explicitly load metadata (iOS Safari needs this)
       audioRef.current.pause();
