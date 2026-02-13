@@ -40,6 +40,16 @@ export default function AvatarJobs() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['avatar-jobs'] })
   });
 
+  const handleUseLatest = async () => {
+    const readings = await base44.entities.Reading.list('-updated_date', 1);
+    const latest = readings?.[0];
+    if (!latest?.id) {
+      alert('No readings found.');
+      return;
+    }
+    createMut.mutate({ readingId: latest.id });
+  };
+
   return (
     <div className="max-w-5xl mx-auto p-6 text-white">
       <Card className="bg-white/5 border-white/10">
