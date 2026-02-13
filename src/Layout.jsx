@@ -169,9 +169,12 @@ export default function Layout({ children, currentPageName }) {
     };
   }, [retryCount]); // REMOVED currentPageName - only run on mount or retry
 
-  // Enforce authentication globally: if unauthenticated, auto-redirect to login
+  // Enforce authentication globally: if unauthenticated, auto-redirect to login (skip inside Builder Preview iframe)
   useEffect(() => {
-    if (!isLoading && !user && !redirectingToLogin) {
+    const inBuilderPreview = (() => {
+      try { return window.top !== window.self; } catch (_) { return true; }
+    })();
+    if (!inBuilderPreview && !isLoading && !user && !redirectingToLogin) {
       setRedirectingToLogin(true);
       try {
         const next = window.location.href;

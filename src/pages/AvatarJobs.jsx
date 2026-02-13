@@ -80,6 +80,10 @@ export default function AvatarJobs() {
                   setCkError({ message: data?.error || 'Failed to create client key', status: res.status, details: data });
                 }
               } catch (e) {
+                if (e?.response?.status === 401) {
+                  base44.auth.redirectToLogin(window.location.href);
+                  return;
+                }
                 setCkError({
                   message: e?.response?.data?.error || e.message || 'Failed to create client key',
                   status: e?.response?.status,
@@ -94,6 +98,10 @@ export default function AvatarJobs() {
         setListErr(null);
         setAgents(null);
         const res = await queueApiCall(() => listDidAgents({}), 5, 1000, 20000);
+        if (res?.status === 401) {
+          base44.auth.redirectToLogin(window.location.href);
+          return;
+        }
         const data = res.data;
         if (data?.agents) {
           setAgents(data.agents);
@@ -101,6 +109,10 @@ export default function AvatarJobs() {
           setListErr(data?.error || 'Failed to list agents');
         }
       } catch (e) {
+        if (e?.response?.status === 401) {
+          base44.auth.redirectToLogin(window.location.href);
+          return;
+        }
         setListErr(e?.response?.data?.error || e.message || 'Failed to list agents');
       } finally {
         setIsListing(false);
