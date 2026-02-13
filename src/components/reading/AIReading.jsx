@@ -666,6 +666,10 @@ if (user && typeof user.token_balance === "number") {
         <p className="text-purple-200 text-sm md:text-base">
           {deck?.name ? `${deck.name} Reading` : "Your Reading"}
         </p>
+        <div className="mt-2 flex items-center justify-center gap-2">
+          <span className="text-xs text-white/70">Concise</span>
+          <Switch checked={conciseMode} onCheckedChange={setConciseMode} />
+        </div>
       </div>
 
       {hasInsufficientTokens && (
@@ -866,7 +870,11 @@ if (user && typeof user.token_balance === "number") {
               Your {selectedTier.charAt(0).toUpperCase() + selectedTier.slice(1)} Reading
             </h3>
             <div className="flex items-center gap-2 flex-wrap justify-end">
-              {/* Voice selection hidden – forced voice in use */}
+              {/* Voice selection hidden – forced voice in use */
+              <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-white/5 border border-white/10">
+                <span className="text-xs text-white/70">Concise</span>
+                <Switch checked={conciseMode} onCheckedChange={setConciseMode} />
+              </div>}
 
               {!isSpeaking ? (
                 <Button
