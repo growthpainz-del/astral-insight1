@@ -234,11 +234,53 @@ export default function AvatarJobs() {
             )}
           </div>
 
+          <Alert className="bg-white/5 border-white/10">
+            <AlertTitle className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-purple-300" /> Create Job requirements
+            </AlertTitle>
+            <AlertDescription className="mt-1">
+              <ul className="list-disc pl-5 space-y-1 text-white/80">
+                <li>Select an existing Reading or paste a Reading ID below.</li>
+                <li>Pro or Admin access is required.</li>
+                <li>D‑ID Agent and ElevenLabs Voice must be configured.</li>
+              </ul>
+              <div className="mt-2 flex flex-wrap gap-2 text-xs">
+                <Badge className={configQuery.data?.didApiReady ? 'bg-green-600' : 'bg-red-600'}>
+                  D‑ID {configQuery.data?.didApiReady ? 'OK' : 'Missing'}
+                </Badge>
+                <Badge className={configQuery.data?.elevenApiReady ? 'bg-green-600' : 'bg-red-600'}>
+                  ElevenLabs {configQuery.data?.elevenApiReady ? 'OK' : 'Missing'}
+                </Badge>
+                <Badge className={configQuery.data?.elevenVoiceIdExists ? 'bg-green-600' : 'bg-yellow-600'}>
+                  Voice {configQuery.data?.elevenVoiceIdExists ? 'Set' : 'Not set'}
+                </Badge>
+              </div>
+            </AlertDescription>
+          </Alert>
+
           <div className="flex gap-3 items-end flex-wrap">
             <div className="flex-1 min-w-[260px]">
-              <label className="block text-sm mb-1 text-white/80">Reading ID</label>
+              <label className="block text-sm mb-1 text-white/80">Pick a Reading</label>
+              <Select value={readingId || ''} onValueChange={(v) => setReadingId(v)}>
+                <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                  <SelectValue placeholder={readingsQuery.isLoading ? 'Loading readings…' : 'Choose a recent reading'} />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border-purple-700 text-white max-h-60">
+                  {readingsQuery.data.map((r) => (
+                    <SelectItem key={r.id} value={r.id}>
+                      {(r.title && r.title.trim()) ? r.title : r.id}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="mt-1 text-xs text-white/60">Or paste an ID on the right.</p>
+            </div>
+
+            <div className="flex-1 min-w-[260px]">
+              <label className="block text-sm mb-1 text-white/80">Or paste Reading ID</label>
               <Input value={readingId} onChange={e => setReadingId(e.target.value)} placeholder="e.g. 3c1f..." className="bg-white/10 border-white/20 text-white" />
             </div>
+
             <div className="flex gap-2">
               <Button onClick={() => readingId && createMut.mutate({ readingId })} disabled={!readingId || createMut.isPending} className="bg-purple-600 hover:bg-purple-700">
                 <Plus className="w-4 h-4 mr-2" /> {createMut.isPending ? 'Creating…' : 'Create Job'}
@@ -248,6 +290,33 @@ export default function AvatarJobs() {
               </Button>
             </div>
           </div>
+
+          {submitMsg?.type === 'success' && (
+            <Alert className="mt-3 bg-green-500/10 border-green-500/30">
+              <AlertTitle className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-green-400" /> Job created
+              </AlertTitle>
+              <AlertDescription className="text-white/80">
+                Your avatar job was queued successfully.
+                {submitMsg.resultUrl ? (
+                  <> <a href={submitMsg.resultUrl} target="_blank" rel="noreferrer" className="ml-2 underline text-green-300">Open result</a></>
+                ) : (
+                  <> It may take a moment to finish — click Refresh on the job when ready.</>
+                )}
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {submitMsg?.type === 'error' && (
+            <Alert className="mt-3 border-red-500/30 bg-red-500/10">
+              <AlertTitle className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-red-400" /> Job failed
+              </AlertTitle>
+              <AlertDescription className="text-white/80">
+                {submitMsg.message}
+              </AlertDescription>
+            </Alert>
+          )}
 
           <div className="overflow-x-auto mt-4">
             <Table>
