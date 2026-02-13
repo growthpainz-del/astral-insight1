@@ -12,12 +12,16 @@ import { createAvatarJob } from '@/functions/createAvatarJob';
 import { refreshAvatarJob } from '@/functions/refreshAvatarJob';
 import { getAvatarConfigStatus } from '@/functions/getAvatarConfigStatus';
 import { createDidClientKey } from '@/functions/createDidClientKey';
+import { listDidAgents } from '@/functions/listDidAgents';
 
 export default function AvatarJobs() {
   const qc = useQueryClient();
   const [readingId, setReadingId] = React.useState('');
         const [clientKey, setClientKey] = React.useState(null);
         const [ckError, setCkError] = React.useState(null);
+        const [agents, setAgents] = React.useState(null);
+        const [listErr, setListErr] = React.useState(null);
+        const [isListing, setIsListing] = React.useState(false);
   const EXPECTED_AGENT_ID = '7B996DF1_7B27_4A8A_804F_C9221236E77D';
   const configQuery = useQuery({
     queryKey: ['avatar-config'],
@@ -83,6 +87,25 @@ export default function AvatarJobs() {
               }
               };
 
+    const handleListAgents = async () => {
+      try {
+        setIsListing(true);
+        setListErr(null);
+        setAgents(null);
+        const res = await listDidAgents({});
+        const data = res.data;
+        if (data?.agents) {
+          setAgents(data.agents);
+        } else {
+          setListErr(data?.error || 'Failed to list agents');
+        }
+      } catch (e) {
+        setListErr(e?.response?.data?.error || e.message || 'Failed to list agents');
+      } finally {
+        setIsListing(false);
+      }
+    };
+
   return (
     <div className="max-w-5xl mx-auto p-6 text-white">
       <Card className="bg-white/5 border-white/10">
@@ -123,6 +146,51 @@ export default function AvatarJobs() {
               <Key className="w-4 h-4 mr-2" /> Create Client Key
             </Button>
           </div>
+
+          <div className="rounded-lg border border-white/10 bg-white/5 p-3">
+            <div className="flex items-center justify-between gap-3">
+              <div className="text-sm text-white/80">
+                {agents ? (
+                  <span>Found {agents.length} agent{agents.length === 1 ? '' : 's'}</span>
+                ) : listErr ? (
+                  <span className="text-red-300">Error: {typeof listErr === 'string' ? listErr : listErr?.message}</span>
+                ) : (
+                  <span className="text-white/60">List your D‑ID Agents to copy the Agent ID</span>
+                )}
+              </div>
+              <Button variant="outline" onClick={handleListAgents} disabled={isListing} className="border-white/20 text-white hover:bg-white/10">
+                <RefreshCw className="w-4 h-4 mr-2" /> {isListing ? 'Listing…' : 'List Agents'}
+              </Button>
+            </div>
+            {agents && agents.length > 0 && (
+              <div className="mt-3 overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Name</TableHead>
+                      <TableHead>ID</TableHead>
+                      <TableHead>Created</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {agents.map((a) => (
+                      <TableRow key={a.id}>
+                        <TableCell>{a.name}</TableCell>
+                        <TableCell className="font-mono text-xs">
+                          <div className="flex items-center gap-2">
+                            <span className="truncate max-w-[260px]" title={a.id}>{a.id}</span>
+                            <Button size="sm" variant="ghost" onClick={() => navigator.clipboard.writeText(a.id)} className="hover:bg-white/10 px-2 h-7">Copy</Button>
+                          </div>
+                        </TableCell>
+                        <TableCell>{a.created_at ? format(new Date(a.created_at), 'PP p') : '—'}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </div>
+
           <div className="flex gap-3 items-end flex-wrap">
             <div className="flex-1 min-w-[260px]">
               <label className="block text-sm mb-1 text-white/80">Reading ID</label>

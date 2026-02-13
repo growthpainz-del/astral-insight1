@@ -52,6 +52,7 @@ import Account from './pages/Account';
 import AdminDeckReview from './pages/AdminDeckReview';
 import AdminTokenGrant from './pages/AdminTokenGrant';
 import AdminUsers from './pages/AdminUsers';
+import AvatarJobs from './pages/AvatarJobs';
 import CardGallery from './pages/CardGallery';
 import CardInfo from './pages/CardInfo';
 import CardNames from './pages/CardNames';
@@ -92,7 +93,6 @@ import UserProfile from './pages/UserProfile';
 import WebhookTester from './pages/WebhookTester';
 import WiccanSeeder from './pages/WiccanSeeder';
 import ZodiacReading from './pages/ZodiacReading';
-import AvatarJobs from './pages/AvatarJobs';
 import __Layout from './Layout.jsx';
 
 
@@ -102,6 +102,7 @@ export const PAGES = {
     "AdminDeckReview": AdminDeckReview,
     "AdminTokenGrant": AdminTokenGrant,
     "AdminUsers": AdminUsers,
+    "AvatarJobs": AvatarJobs,
     "CardGallery": CardGallery,
     "CardInfo": CardInfo,
     "CardNames": CardNames,
@@ -142,7 +143,6 @@ export const PAGES = {
     "WebhookTester": WebhookTester,
     "WiccanSeeder": WiccanSeeder,
     "ZodiacReading": ZodiacReading,
-    "AvatarJobs": AvatarJobs,
 }
 
 export const pagesConfig = {
