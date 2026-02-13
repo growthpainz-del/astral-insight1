@@ -1411,6 +1411,74 @@ export default function CreateDeck() {
                   </p>
                   <details className="mt-2">
                     <summary className="cursor-pointer text-cyan-300 hover:text-cyan-200">Show example JSON structure</summary>
+                    <div className="mt-2 flex gap-2 flex-wrap">
+                      <Button
+                        size="sm"
+                        className="bg-purple-600 hover:bg-purple-700"
+                        onClick={() => {
+                          const ex = `{
+  "name": "My Oracle Deck",
+  "description": "A deck for...",
+  "cover_image": "https://example.com/cover.jpg",
+  "back_image_url": "https://example.com/back.jpg",
+  "philosophy": "This deck sees the world through...",
+  "tone": "Use poetic, evocative language...",
+  "cultural_context": "Connect cards to...",
+  "interpretation_style": "Focus on empowerment...",
+  "special_rules": "Reversed cards are...",
+  "rituals": "Encourage journaling...",
+  "cards": [
+    {
+      "name": "Card 1",
+      "number": 1,
+      "overall_meaning": "...",
+      "upright_meaning": "...",
+      "reversed_meaning": "...",
+      "image_url": "https://example.com/card1.jpg"
+    }
+  ]
+}`;
+                          setJsonText(ex);
+                          setParseError("");
+                          setDetailedError("");
+                          setParseWarnings([]);
+                        }}
+                      >
+                        Insert example
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="border-white/20 text-white hover:bg-white/10"
+                        onClick={() => {
+                          const ex = `{
+  "name": "My Oracle Deck",
+  "description": "A deck for...",
+  "cover_image": "https://example.com/cover.jpg",
+  "back_image_url": "https://example.com/back.jpg",
+  "philosophy": "This deck sees the world through...",
+  "tone": "Use poetic, evocative language...",
+  "cultural_context": "Connect cards to...",
+  "interpretation_style": "Focus on empowerment...",
+  "special_rules": "Reversed cards are...",
+  "rituals": "Encourage journaling...",
+  "cards": [
+    {
+      "name": "Card 1",
+      "number": 1,
+      "overall_meaning": "...",
+      "upright_meaning": "...",
+      "reversed_meaning": "...",
+      "image_url": "https://example.com/card1.jpg"
+    }
+  ]
+}`;
+                          navigator.clipboard?.writeText(ex);
+                        }}
+                      >
+                        Copy
+                      </Button>
+                    </div>
                     <pre className="mt-2 bg-black/30 rounded p-2 text-xs overflow-x-auto">
 {`{
   "name": "My Oracle Deck",
