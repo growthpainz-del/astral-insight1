@@ -3,6 +3,42 @@ import { getDidEmbedConfig } from "@/functions/getDidEmbedConfig";
 
 export default function DidAgentEmbed() {
   useEffect(() => {
+    // If inside the Builder preview iframe, show a small hint and skip loading (3P widgets often block iframes)
+    const inPreview = (() => { try { return window.top !== window.self; } catch (_) { return true; } })();
+    if (inPreview) {
+      if (!document.getElementById('did-agent-preview-hint')) {
+        const hint = document.createElement('div');
+        hint.id = 'did-agent-preview-hint';
+        hint.style.position = 'fixed';
+        hint.style.right = '16px';
+        hint.style.bottom = '96px';
+        hint.style.zIndex = '2147483647';
+        hint.style.background = 'rgba(0,0,0,0.75)';
+        hint.style.backdropFilter = 'blur(6px)';
+        hint.style.border = '1px solid rgba(255,255,255,0.2)';
+        hint.style.borderRadius = '12px';
+        hint.style.padding = '10px 12px';
+        hint.style.color = 'white';
+        hint.style.fontSize = '12px';
+        hint.style.display = 'flex';
+        hint.style.alignItems = 'center';
+        hint.style.gap = '8px';
+        hint.textContent = 'D-ID agent hidden in preview. Open app in a new tab to see it.';
+        const btn = document.createElement('button');
+        btn.textContent = 'Open';
+        btn.style.background = '#7c3aed';
+        btn.style.color = 'white';
+        btn.style.border = 'none';
+        btn.style.borderRadius = '999px';
+        btn.style.padding = '6px 10px';
+        btn.style.cursor = 'pointer';
+        btn.onclick = () => { try { window.open(window.location.href, '_blank'); } catch (_) {} };
+        hint.appendChild(btn);
+        document.body.appendChild(hint);
+      }
+      return;
+    }
+
     if (document.getElementById("did-agent-loader")) return;
 
     (async () => {
