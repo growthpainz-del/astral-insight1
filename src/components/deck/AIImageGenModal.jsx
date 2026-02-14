@@ -4,13 +4,16 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Wand2, Image as ImageIcon, Check, Copy, AlertTriangle } from "lucide-react";
+import { Loader2, Wand2, Image as ImageIcon, Check, Copy, AlertTriangle, Heart } from "lucide-react";
 import { GenerateImage } from "@/integrations/Core";
 import { Card as CardEntity } from "@/entities/Card";
+import { base44 } from "@/api/base44Client";
 
 const ASPECTS = [
   { id: "portrait", label: "Portrait (2:3)", w: 2, h: 3, promptHint: "portrait 2:3 aspect ratio" },
   { id: "square", label: "Square (1:1)", w: 1, h: 1, promptHint: "square 1:1 aspect ratio" },
+  { id: "landscape", label: "Landscape (16:9)", w: 16, h: 9, promptHint: "landscape 16:9 aspect ratio" },
+  { id: "classic", label: "Classic (3:2)", w: 3, h: 2, promptHint: "classic 3:2 aspect ratio" },
 ];
 
 const BASE_SIZES = [
@@ -29,10 +32,13 @@ function computeDims(aspectId, baseWidth) {
 
 export default function AIImageGenModal({ isOpen, onClose, card, defaultPrompt, onApplied }) {
   const [prompt, setPrompt] = React.useState(defaultPrompt || "");
+  const [negative, setNegative] = React.useState("");
+  const [style, setStyle] = React.useState("photorealistic");
   const [seed, setSeed] = React.useState("");
   const [aspect, setAspect] = React.useState("portrait");
   const [baseSize, setBaseSize] = React.useState("1024");
   const [isGenerating, setIsGenerating] = React.useState(false);
+  const [isSavingInspiration, setIsSavingInspiration] = React.useState(false);
   const [error, setError] = React.useState("");
   const [resultUrl, setResultUrl] = React.useState("");
 
@@ -40,6 +46,8 @@ export default function AIImageGenModal({ isOpen, onClose, card, defaultPrompt, 
     if (isOpen) {
       const base = defaultPrompt || buildPromptFromCard(card);
       setPrompt(base);
+      setNegative(card?.ai_image_negative_prompt || "");
+      setStyle("photorealistic");
       setSeed("");
       setResultUrl("");
       setError("");
@@ -70,9 +78,12 @@ export default function AIImageGenModal({ isOpen, onClose, card, defaultPrompt, 
       const dims = computeDims(aspect, baseW);
       const aspectHint = (ASPECTS.find((a) => a.id === aspect)?.promptHint) || "";
       const sizeHint = `target size ${dims.width}x${dims.height} pixels`;
+      const styleHint = style && style !== "none" ? `style: ${style}` : "";
+      const negativeHint = negative ? `negative prompt: ${negative}` : "";
       const fullPrompt =
         (seed ? `${prompt}\nseed: ${seed}` : prompt) +
-        `; ${aspectHint}; ${sizeHint}; centered composition`;
+        `; ${aspectHint}; ${sizeHint}; ${styleHint}; centered composition` +
+        (negativeHint ? `\n${negativeHint}` : "");
 
       const { url } = await GenerateImage({ prompt: fullPrompt });
       if (!url) {
@@ -109,6 +120,37 @@ export default function AIImageGenModal({ isOpen, onClose, card, defaultPrompt, 
     }
   };
 
+  const saveInspiration = async () => {
+    if (!resultUrl) return;
+    setIsSavingInspiration(true);
+    setError("");
+    try {
+      if (card?.id) {
+        const newHistory = [...(card.ai_prompt_history || []), {
+          prompt,
+          timestamp: new Date().toISOString(),
+          created_by: undefined,
+          source: "regeneration",
+          image_url: resultUrl,
+          generation_success: true,
+          notes: [style && style !== "none" ? `style=${style}` : null, negative ? `negative=${negative}` : null].filter(Boolean).join("; ")
+        }];
+        const newImages = Array.isArray(card.ai_generated_images) ? [...card.ai_generated_images, resultUrl] : [resultUrl];
+        await CardEntity.update(card.id, { ai_generated_images: newImages, ai_prompt_history: newHistory });
+      }
+      await base44.entities.UploadAsset.create({
+        file_url: resultUrl,
+        linked_card_id: card?.id || undefined,
+        file_name: `AI Inspiration - ${card?.name || "Card"}`,
+        tags: ["ai_generated", "inspiration"]
+      });
+    } catch (e) {
+      setError(e?.message || "Failed to save inspiration");
+    } finally {
+      setIsSavingInspiration(false);
+    }
+  };
+
   const baseW = parseInt(baseSize, 10);
   const dims = computeDims(aspect, baseW);
 
@@ -133,6 +175,32 @@ export default function AIImageGenModal({ isOpen, onClose, card, defaultPrompt, 
                 className="bg-slate-800 border-slate-700 min-h-[120px]"
                 placeholder="Describe the card artwork you want..."
               />
+            </div>
+
+            <div className="md:col-span-3 space-y-2">
+              <Label>Negative prompt (things to avoid)</Label>
+              <Textarea
+                value={negative}
+                onChange={(e) => setNegative(e.target.value)}
+                className="bg-slate-800 border-slate-700 min-h-[80px]"
+                placeholder="blurry, text, watermark, extra fingers, low quality"
+              />
+            </div>
+
+            <div>
+              <Label>Style</Label>
+              <Select value={style} onValueChange={setStyle}>
+                <SelectTrigger className="bg-slate-800 border-slate-700">
+                  <SelectValue placeholder="Select style" />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-900 border-slate-700 text-white">
+                  <SelectItem value="none">None</SelectItem>
+                  <SelectItem value="photorealistic">Photorealistic</SelectItem>
+                  <SelectItem value="anime">Anime</SelectItem>
+                  <SelectItem value="oil painting">Oil painting</SelectItem>
+                  <SelectItem value="watercolor">Watercolor</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div>
@@ -195,10 +263,14 @@ export default function AIImageGenModal({ isOpen, onClose, card, defaultPrompt, 
                   className="max-h-[360px] w-auto mx-auto rounded"
                 />
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 <Button onClick={applyToCard} className="bg-emerald-600 hover:bg-emerald-700">
                   <Check className="w-4 h-4 mr-2" />
                   Apply to card
+                </Button>
+                <Button variant="outline" onClick={saveInspiration} disabled={isSavingInspiration} className="border-white/20">
+                  {isSavingInspiration ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Heart className="w-4 h-4 mr-2" />}
+                  Save inspiration
                 </Button>
                 <Button variant="outline" onClick={copyUrl} className="border-white/20">
                   <Copy className="w-4 h-4 mr-2" />
