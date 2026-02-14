@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { User } from "@/entities/User";
 import { Button } from "@/components/ui/button";
@@ -298,7 +297,7 @@ export default function SubscriptionManagement() {
                 </li>
               </ul>
               <a 
-                href="https://gumroad.com/l/oracle-pro" 
+                href="https://growthpainz.gumroad.com/l/wxnje?_gl=1*1x72vg6*_ga*MTM0NDI3NTgwMi4xNzY5NTE5Njc5*_ga_6LJN6D94N6*czE3NzEwNDc3NDYkbzQkZzEkdDE3NzEwNDgxMDQkajE1JGwwJGgw" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="block w-full"

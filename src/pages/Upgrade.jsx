@@ -16,7 +16,7 @@ import { motion } from "framer-motion";
 // ACTUAL GUMROAD PRODUCT LINKS
 const GUMROAD_LINKS = {
   mystic: "https://growthpainz.gumroad.com/l/ghsad",
-  oracle_pro: "https://growthpainz.gumroad.com/l/ibcai",
+  oracle_pro: "https://growthpainz.gumroad.com/l/wxnje?_gl=1*1x72vg6*_ga*MTM0NDI3NTgwMi4xNzY5NTE5Njc5*_ga_6LJN6D94N6*czE3NzEwNDc3NDYkbzQkZzEkdDE3NzEwNDgxMDQkajE1JGwwJGgw",
   creator: "https://growthpainz.gumroad.com/l/wxnje",
   tokens_20: "https://growthpainz.gumroad.com/l/jcxfui",
   tokens_50: "https://growthpainz.gumroad.com/l/bhzra",
