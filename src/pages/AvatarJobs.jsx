@@ -77,8 +77,14 @@ export default function AvatarJobs() {
     },
     onError: (e) => {
       if (e?.response?.status === 401) {
+        const vendor401 = e?.response?.data?.details || e?.response?.data?.vendor_status; // provider auth failed
         const inBuilderPreview = (() => { try { return window.top !== window.self; } catch (_) { return true; } })();
-        if (inBuilderPreview) {
+        if (vendor401) {
+          setSubmitMsg({
+            type: 'error',
+            message: e?.response?.data?.error || 'Provider authentication failed. Please verify your D‑ID and ElevenLabs credentials in Settings.'
+          });
+        } else if (inBuilderPreview) {
           setSubmitMsg({
             type: 'error',
             message: 'Please log in to create an agent video. Open the published app or use the Login button in the sidebar.'

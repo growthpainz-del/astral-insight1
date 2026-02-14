@@ -104,11 +104,12 @@ Deno.serve(async (req) => {
       let legacyData = await resLegacy.json().catch(() => null);
 
       if (!resLegacy.ok) {
+        const mappedStatus = resLegacy.status === 401 ? 502 : resLegacy.status; // Never bubble vendor 401 to client
         await base44.entities.AvatarJob.update(job.id, {
           status: 'failed',
           error: `D-ID error (${resLegacy.status}): ${legacyData?.message || legacyData?.error || 'Unknown'}`
         });
-        return Response.json({ error: 'D-ID render failed', details: legacyData }, { status: resLegacy.status });
+        return Response.json({ error: 'D-ID render failed', details: legacyData, vendor_status: resLegacy.status }, { status: mappedStatus });
       }
 
       didData = legacyData;
