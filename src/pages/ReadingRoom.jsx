@@ -10,6 +10,7 @@ import { queueApiCall } from "@/components/utils/apiQueue";
 import { motion, AnimatePresence } from "framer-motion";
 import PullToRefresh from "@/components/common/PullToRefresh";
 import { Label } from "@/components/ui/label";
+import DidAgentEmbed from "@/components/integrations/DidAgentEmbed";
 
 function DeckCard({ deck, isOwned = false }) {
   return (
