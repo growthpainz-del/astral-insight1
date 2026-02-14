@@ -446,6 +446,8 @@ export default function ReadingRoom() {
   return (
     <PullToRefresh onRefresh={loadData}>
       <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-black text-white">
+        <div id="did-agent-container" className="fixed right-4 bottom-24 z-[60] w-[360px] max-w-[90vw] min-h-[520px] pointer-events-auto" />
+        <DidAgentEmbed mode="full" targetId="did-agent-container" forceInPreview clientKey="Z29vZ2xlLW9hdXRoMnwxMTU4Mjg4NTQ2NzM5OTExMjUyOTQ6X1FLR2p1b0pjcUtOemJHX3NpM0py" agentId="v2_agt_MRSoZNL0" />
       {/* Crystal Ball Reading Modal */}
       {showCrystalBall && (
         <CrystalBallReading 
