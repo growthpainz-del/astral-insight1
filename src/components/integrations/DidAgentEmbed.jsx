@@ -1,11 +1,11 @@
 import React, { useEffect } from "react";
 import { getDidEmbedConfig } from "@/functions/getDidEmbedConfig";
 
-export default function DidAgentEmbed() {
+export default function DidAgentEmbed({ mode = 'full', targetId, position = 'right', orientation = 'horizontal', name = 'did-agent', forceInPreview = false, clientKey: clientKeyProp, agentId: agentIdProp } = {}) {
   useEffect(() => {
     // If inside the Builder preview iframe, show a small hint and skip loading (3P widgets often block iframes)
     const inPreview = (() => { try { return window.top !== window.self; } catch (_) { return true; } })();
-    if (inPreview) {
+    if (inPreview && !forceInPreview) {
       if (!document.getElementById('did-agent-preview-hint')) {
         const hint = document.createElement('div');
         hint.id = 'did-agent-preview-hint';
@@ -49,8 +49,10 @@ export default function DidAgentEmbed() {
           console.warn('[D-ID] Unauthorized when fetching embed config');
           return;
         }
-        const cfg = res?.data;
-        if (!cfg?.client_key || !cfg?.agent_id) {
+        const cfg = res?.data || {};
+        const clientKey = clientKeyProp || cfg.client_key;
+        const agentId = agentIdProp || cfg.agent_id;
+        if (!clientKey || !agentId) {
           console.warn('[D-ID] Missing client key or agent id');
           return;
         }
@@ -60,13 +62,14 @@ export default function DidAgentEmbed() {
         script.type = "module";
         script.src = "https://agent.d-id.com/v2/index.js";
 
-        script.setAttribute("data-mode", "fabio");
-        script.setAttribute("data-client-key", cfg.client_key);
-        script.setAttribute("data-agent-id", cfg.agent_id);
-        script.setAttribute("data-name", "did-agent");
+        script.setAttribute("data-mode", mode);
+        script.setAttribute("data-client-key", clientKey);
+        script.setAttribute("data-agent-id", agentId);
+        script.setAttribute("data-name", name);
         script.setAttribute("data-monitor", "true");
-        script.setAttribute("data-orientation", "horizontal");
-        script.setAttribute("data-position", "right");
+        script.setAttribute("data-orientation", orientation);
+        script.setAttribute("data-position", position);
+        if (targetId) script.setAttribute("data-target-id", targetId);
 
         script.onload = () => console.log("[D-ID] Agent ready");
         script.onerror = () => console.error("[D-ID] Agent script failed to load");
