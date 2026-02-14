@@ -862,7 +862,26 @@ export default function Layout({ children, currentPageName }) {
         <DidAgentEmbed />
         {/* Mobile Bottom Navigation */}
         <MobileBottomNav />
-        
+        {/* Always-accessible Login button at top-right when unauthenticated (helps in builder preview) */}
+        {!user && !redirectingToLogin && (
+          <div className="fixed z-[60] top-3 right-3">
+            <Button
+              size="sm"
+              className="btn-dark-outline"
+              onClick={() => {
+                try {
+                  const next = window.location.href;
+                  base44.auth.redirectToLogin(next);
+                } catch (_) {
+                  base44.auth.redirectToLogin();
+                }
+              }}
+            >
+              Login
+            </Button>
+          </div>
+        )}
+
         {isSidebarOpen && (
           <div 
             className="md:hidden fixed inset-0 bg-black/50 z-40 backdrop-blur-sm"
