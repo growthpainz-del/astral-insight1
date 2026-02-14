@@ -16,6 +16,7 @@ import { refreshAvatarJob } from '@/functions/refreshAvatarJob';
 import { getAvatarConfigStatus } from '@/functions/getAvatarConfigStatus';
 import { createDidClientKey } from '@/functions/createDidClientKey';
 import { listDidAgents } from '@/functions/listDidAgents';
+import { verifyAvatarPassword } from '@/functions/verifyAvatarPassword';
 import { queueApiCall } from '@/components/utils/apiQueue';
 
 export default function AvatarJobs() {
@@ -23,12 +24,46 @@ export default function AvatarJobs() {
   const [readingId, setReadingId] = React.useState('');
   const [agentId, setAgentId] = React.useState('');
   const [voiceId, setVoiceId] = React.useState('');
+        const [unlocked, setUnlocked] = React.useState(false);
+        const [pw, setPw] = React.useState('');
+        const [verifyErr, setVerifyErr] = React.useState(null);
+        const [isVerifying, setIsVerifying] = React.useState(false);
+
+        React.useEffect(() => {
+          try {
+            const ok = sessionStorage.getItem('avatarJobsUnlocked') === '1';
+            if (ok) setUnlocked(true);
+            const saved = sessionStorage.getItem('avatarJobsPassword') || '';
+            if (saved) setPw(saved);
+          } catch (_) {}
+        }, []);
         const [clientKey, setClientKey] = React.useState(null);
         const [ckError, setCkError] = React.useState(null);
         const [agents, setAgents] = React.useState(null);
         const [listErr, setListErr] = React.useState(null);
         const [isListing, setIsListing] = React.useState(false);
         const [submitMsg, setSubmitMsg] = React.useState(null);
+
+        const handleUnlock = async () => {
+          setVerifyErr(null);
+          setIsVerifying(true);
+          try {
+            const res = await verifyAvatarPassword({ accessPassword: pw });
+            if (res?.status === 200) {
+              try {
+                sessionStorage.setItem('avatarJobsUnlocked', '1');
+                sessionStorage.setItem('avatarJobsPassword', pw);
+              } catch (_) {}
+              setUnlocked(true);
+            } else {
+              setVerifyErr('Invalid password');
+            }
+          } catch (e) {
+            setVerifyErr(e?.response?.data?.error || e.message || 'Invalid password');
+          } finally {
+            setIsVerifying(false);
+          }
+        };
   const EXPECTED_AGENT_ID = '7B996DF1_7B27_4A8A_804F_C9221236E77D';
   const configQuery = useQuery({
     queryKey: ['avatar-config'],
@@ -56,15 +91,17 @@ export default function AvatarJobs() {
   });
 
   const createMut = useMutation({
-    mutationFn: async ({ readingId, agentId, voiceId }) => {
-      const payload = {
-        readingId,
-        ...(agentId ? { agentId } : {}),
-        ...(voiceId ? { voiceId } : {}),
-      };
-      const res = await queueApiCall(() => createAvatarJob(payload), 3, 800, 60000);
-      return res.data;
-    },
+        mutationFn: async ({ readingId, agentId, voiceId }) => {
+          const pwd = (() => { try { return sessionStorage.getItem('avatarJobsPassword') || ''; } catch (_) { return ''; } })();
+          const payload = {
+            readingId,
+            ...(agentId ? { agentId } : {}),
+            ...(voiceId ? { voiceId } : {}),
+            accessPassword: pwd,
+          };
+          const res = await queueApiCall(() => createAvatarJob(payload), 3, 800, 60000);
+          return res.data;
+        },
     onSuccess: (data) => {
       setSubmitMsg({
         type: 'success',
@@ -102,10 +139,11 @@ export default function AvatarJobs() {
   });
 
   const refreshMut = useMutation({
-    mutationFn: async ({ jobId }) => {
-      const res = await queueApiCall(() => refreshAvatarJob({ jobId }), 3, 600, 20000);
-      return res.data;
-    },
+        mutationFn: async ({ jobId }) => {
+          const pwd = (() => { try { return sessionStorage.getItem('avatarJobsPassword') || ''; } catch (_) { return ''; } })();
+          const res = await queueApiCall(() => refreshAvatarJob({ jobId, accessPassword: pwd }), 3, 600, 20000);
+          return res.data;
+        },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['avatar-jobs'] })
   });
 
@@ -185,8 +223,31 @@ export default function AvatarJobs() {
       }
     };
 
-  return (
-    <div className="max-w-5xl mx-auto p-6 text-white">
+  if (!unlocked) {
+            return (
+              <div className="max-w-5xl mx-auto p-6 text-white">
+                <Card className="bg-white/5 border-white/10 max-w-md mx-auto">
+                  <CardHeader>
+                    <CardTitle className="text-2xl">Unlock Avatar Jobs</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div>
+                      <label className="block text-sm mb-1 text-white/80">Password</label>
+                      <Input type="password" value={pw} onChange={e => setPw(e.target.value)} className="bg-white/10 border-white/20 text-white" />
+                    </div>
+                    {verifyErr && <div className="text-red-300 text-sm">{verifyErr}</div>}
+                    <div className="flex justify-end">
+                      <Button onClick={handleUnlock} disabled={!pw || isVerifying} className="bg-purple-600 hover:bg-purple-700">
+                        {isVerifying ? 'Verifying…' : 'Unlock'}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            );
+          }
+          return (
+            <div className="max-w-5xl mx-auto p-6 text-white">
       <Card className="bg-white/5 border-white/10">
         <CardHeader>
           <CardTitle className="text-2xl">Avatar Jobs (Admin)</CardTitle>

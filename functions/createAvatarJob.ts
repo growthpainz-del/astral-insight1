@@ -5,10 +5,13 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    const isPro = ['oracle_pro', 'creator'].includes(String(user?.subscription_tier || '').toLowerCase());
-    if (!(user.role === 'admin' || isPro)) return Response.json({ error: 'Forbidden: Requires Pro or Admin' }, { status: 403 });
+    // Access control moved below after reading body
 
-    const { readingId, overrideScript, voiceId: voiceOverride, resolution, agentId: agentIdOverride } = await req.json();
+    const { readingId, overrideScript, voiceId: voiceOverride, resolution, agentId: agentIdOverride, accessPassword } = await req.json();
+
+    const pwEnv = Deno.env.get('AVATAR_JOBS_PASSWORD') || '';
+    const allowByPassword = (user.role === 'admin') || (pwEnv && accessPassword && String(accessPassword) === String(pwEnv));
+    if (!allowByPassword) return Response.json({ error: 'Forbidden: Invalid or missing access password' }, { status: 403 });
     if (!readingId) return Response.json({ error: 'readingId is required' }, { status: 400 });
 
     // Fetch reading

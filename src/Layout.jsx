@@ -344,7 +344,7 @@ export default function Layout({ children, currentPageName }) {
             { href: "AvatarJobs", icon: Sparkles, label: "Avatar Jobs" },
           ];
 
-  const adminPages = new Set(adminLinks.map(l => l.href));
+  const adminPages = new Set(adminLinks.map(l => l.href).filter(p => p !== 'AvatarJobs'));
       const isProTier = ['oracle_pro','creator'].includes(String(user?.subscription_tier || '').toLowerCase());
       const canAccessCurrentPage = isAdmin || (currentPageName === 'AvatarJobs' && isProTier);
 

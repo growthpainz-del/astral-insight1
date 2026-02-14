@@ -5,10 +5,13 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    const isPro = ['oracle_pro', 'creator'].includes(String(user?.subscription_tier || '').toLowerCase());
-    if (!(user.role === 'admin' || isPro)) return Response.json({ error: 'Forbidden: Requires Pro or Admin' }, { status: 403 });
+    // Access control moved below after reading body
 
-    const { jobId } = await req.json();
+    const { jobId, accessPassword } = await req.json();
+
+    const pwEnv = Deno.env.get('AVATAR_JOBS_PASSWORD') || '';
+    const allowByPassword = (user.role === 'admin') || (pwEnv && accessPassword && String(accessPassword) === String(pwEnv));
+    if (!allowByPassword) return Response.json({ error: 'Forbidden: Invalid or missing access password' }, { status: 403 });
     if (!jobId) return Response.json({ error: 'jobId is required' }, { status: 400 });
 
     const jobs = await base44.entities.AvatarJob.filter({ id: jobId });
