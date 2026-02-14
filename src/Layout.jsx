@@ -375,6 +375,24 @@ export default function Layout({ children, currentPageName }) {
       <div className="bg-gray-900 text-white min-h-screen">
         <NetworkBanner />
         {children}
+        {!user && !redirectingToLogin && (
+          <div className="fixed z-[60] top-3 right-3">
+            <Button
+              size="sm"
+              className="btn-dark-outline"
+              onClick={() => {
+                try {
+                  const next = window.location.href;
+                  base44.auth.redirectToLogin(next);
+                } catch (_) {
+                  base44.auth.redirectToLogin();
+                }
+              }}
+            >
+              Login
+            </Button>
+          </div>
+        )}
       </div>
     );
   }
