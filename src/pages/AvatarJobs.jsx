@@ -77,7 +77,15 @@ export default function AvatarJobs() {
     },
     onError: (e) => {
       if (e?.response?.status === 401) {
-        base44.auth.redirectToLogin(window.location.href);
+        const inBuilderPreview = (() => { try { return window.top !== window.self; } catch (_) { return true; } })();
+        if (inBuilderPreview) {
+          setSubmitMsg({
+            type: 'error',
+            message: 'Please log in to create an agent video. Open the published app or use the Login button in the sidebar.'
+          });
+        } else {
+          base44.auth.redirectToLogin(window.location.href);
+        }
         return;
       }
       setSubmitMsg({
@@ -118,7 +126,12 @@ export default function AvatarJobs() {
                 }
               } catch (e) {
                 if (e?.response?.status === 401) {
-                  base44.auth.redirectToLogin(window.location.href);
+                  const inBuilderPreview = (() => { try { return window.top !== window.self; } catch (_) { return true; } })();
+                  if (inBuilderPreview) {
+                    setListErr('Please log in to list agents. Open the published app or use the Login button in the sidebar.');
+                  } else {
+                    base44.auth.redirectToLogin(window.location.href);
+                  }
                   return;
                 }
                 setCkError({
@@ -136,7 +149,12 @@ export default function AvatarJobs() {
         setAgents(null);
         const res = await queueApiCall(() => listDidAgents({}), 5, 1000, 20000);
         if (res?.status === 401) {
-          base44.auth.redirectToLogin(window.location.href);
+          const inBuilderPreview = (() => { try { return window.top !== window.self; } catch (_) { return true; } })();
+          if (inBuilderPreview) {
+            setListErr('Please log in to list agents. Open the published app or use the Login button in the sidebar.');
+          } else {
+            base44.auth.redirectToLogin(window.location.href);
+          }
           return;
         }
         const data = res.data;
@@ -147,7 +165,12 @@ export default function AvatarJobs() {
         }
       } catch (e) {
         if (e?.response?.status === 401) {
-          base44.auth.redirectToLogin(window.location.href);
+          const inBuilderPreview = (() => { try { return window.top !== window.self; } catch (_) { return true; } })();
+          if (inBuilderPreview) {
+            setCkError('Please log in to create a client key. Open the published app or use the Login button in the sidebar.');
+          } else {
+            base44.auth.redirectToLogin(window.location.href);
+          }
           return;
         }
         setListErr(e?.response?.data?.error || e.message || 'Failed to list agents');
