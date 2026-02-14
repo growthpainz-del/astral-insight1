@@ -33,8 +33,9 @@ Deno.serve(async (req) => {
       });
       data = await resLegacy.json().catch(() => null);
       if (!resLegacy.ok) {
+        const mappedStatus = resLegacy.status === 401 ? 502 : resLegacy.status; // Never bubble vendor 401 to client
         await base44.entities.AvatarJob.update(job.id, { error: `D-ID status error (${resLegacy.status}): ${data?.message || data?.error || 'Unknown'}` });
-        return Response.json({ error: 'Failed to fetch status', details: data }, { status: resLegacy.status });
+        return Response.json({ error: 'Failed to fetch status', details: data, vendor_status: resLegacy.status }, { status: mappedStatus });
       }
       res = resLegacy;
     }
