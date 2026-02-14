@@ -134,7 +134,7 @@ export default function AvatarJobs() {
                 if (e?.response?.status === 401) {
                   const inBuilderPreview = (() => { try { return window.top !== window.self; } catch (_) { return true; } })();
                   if (inBuilderPreview) {
-                    setListErr('Please log in to list agents. Open the published app or use the Login button in the sidebar.');
+                    setCkError('Please log in to create a client key. Open the published app or use the Login button in the sidebar.');
                   } else {
                     base44.auth.redirectToLogin(window.location.href);
                   }
@@ -173,7 +173,7 @@ export default function AvatarJobs() {
         if (e?.response?.status === 401) {
           const inBuilderPreview = (() => { try { return window.top !== window.self; } catch (_) { return true; } })();
           if (inBuilderPreview) {
-            setCkError('Please log in to create a client key. Open the published app or use the Login button in the sidebar.');
+            setListErr('Please log in to list agents. Open the published app or use the Login button in the sidebar.');
           } else {
             base44.auth.redirectToLogin(window.location.href);
           }
