@@ -382,7 +382,16 @@ export default function AvatarJobs() {
                   <TableRow key={j.id}>
                     <TableCell>{j.created_date ? format(new Date(j.created_date), 'PP p') : '-'}</TableCell>
                     <TableCell className="max-w-[240px] truncate" title={j.reading_id}>{j.reading_id}</TableCell>
-                    <TableCell>{j.status}</TableCell>
+                    <TableCell>
+                      <div className="flex flex-col max-w-[280px]">
+                        <span>{j.status}</span>
+                        {j.error && (
+                          <span className="text-red-300 text-xs mt-1 truncate" title={j.error}>
+                            {j.error}
+                          </span>
+                        )}
+                      </div>
+                    </TableCell>
                     <TableCell>
                       {j.result_url ? (
                         <a href={j.result_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-indigo-300 hover:underline"><Play className="w-4 h-4" />Open</a>

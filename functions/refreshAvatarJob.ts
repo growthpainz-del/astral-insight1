@@ -40,14 +40,18 @@ Deno.serve(async (req) => {
       res = resLegacy;
     }
 
-    const status = data?.status || job.status;
+    const statusRaw = data?.status || job.status;
+    const isFailed = ['error','failed','canceled','cancelled'].includes(String(statusRaw || '').toLowerCase());
     const resultUrl = data?.result_url || data?.result?.url || job.result_url;
-    const finalStatus = resultUrl ? 'completed' : (status === 'done' ? 'completed' : (status || 'processing'));
+    const finalStatus = resultUrl
+      ? 'completed'
+      : (statusRaw === 'done' ? 'completed' : (isFailed ? 'failed' : (statusRaw || 'processing')));
+    const errMsg = isFailed ? (data?.message || data?.error || data?.details || 'Rendering failed') : null;
 
     const updated = await base44.entities.AvatarJob.update(job.id, {
       status: finalStatus,
       result_url: resultUrl || undefined,
-      error: null
+      error: errMsg
     });
 
     return Response.json({ job: updated, did: data });
