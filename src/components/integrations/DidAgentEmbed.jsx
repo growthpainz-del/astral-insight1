@@ -30,7 +30,7 @@ export default function DidAgentEmbed() {
         script.setAttribute("data-name", "did-agent");
         script.setAttribute("data-monitor", "true");
         script.setAttribute("data-orientation", "vertical");
-        script.setAttribute("data-position", "left");
+        script.setAttribute("data-position", "right");
 
         script.onload = () => console.log("[D-ID] Agent ready");
         script.onerror = () => console.error("[D-ID] Agent script failed to load");

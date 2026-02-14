@@ -35,6 +35,7 @@ import ReadingSessionManager from "@/components/reading/ReadingSessionManager";
 import EnhancedCardViewer from "@/components/reading/EnhancedCardViewer";
 import DisablePullToRefresh from "@/components/common/DisablePullToRefresh";
 import ShuffleAnimation from "@/components/reading/ShuffleAnimation";
+import DidAgentEmbed from "@/components/integrations/DidAgentEmbed";
 
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
@@ -202,6 +203,7 @@ export default function ReadingPage() {
   // (shelf disabled)
   const [selectedCard, setSelectedCard] = useState(null);
   const [showAI, setShowAI] = useState(false);
+  const [showAgent, setShowAgent] = useState(false);
   
   const [isLoading, setIsLoading] = useState(true);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -228,6 +230,9 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
   
   // NEW: Card reveal states
   const [revealedCards, setRevealedCards] = useState(new Set());
+  useEffect(() => {
+    if (showAI) setShowAgent(true);
+  }, [showAI]);
 
 
   // Deck picker state when no deck is selected
@@ -1006,6 +1011,7 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
         onSaved={handleSessionSaved}
       />
       </div>
+      {showAgent && <DidAgentEmbed />}
       </>
       );
 }
