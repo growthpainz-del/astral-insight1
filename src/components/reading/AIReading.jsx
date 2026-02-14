@@ -14,7 +14,7 @@ import { jsPDF } from "jspdf";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 
-export default function ChanneledReading({ isOpen, drawnCards, deck, spread, question, onClose }) {
+export default function ChanneledReading({ isOpen, drawnCards, deck, spread, question, onClose, onInterpretationReady }) {
   const [interpretation, setInterpretation] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState("");
@@ -177,6 +177,8 @@ const { data } = await base44.functions.invoke('generateAdvancedReading', {
 if (data.error) throw new Error(data.error);
 
 setInterpretation((data.interpretation || "").replace(/\*/g, ""));
+// Notify parent that interpretation is ready
+try { if (typeof onInterpretationReady === 'function') onInterpretationReady(); } catch (_) {}
 setSavedReadingId(null);
 setIsFavorite(false);
 

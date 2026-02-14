@@ -230,9 +230,6 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
   
   // NEW: Card reveal states
   const [revealedCards, setRevealedCards] = useState(new Set());
-  useEffect(() => {
-    if (showAI) setShowAgent(true);
-  }, [showAI]);
 
 
   // Deck picker state when no deck is selected
@@ -924,6 +921,7 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
               spread={selectedSpread}
               question={question}
               onClose={() => setShowAI(false)}
+              onInterpretationReady={() => setShowAgent(true)}
             />
 
             {/* Card Relationships Section */}
