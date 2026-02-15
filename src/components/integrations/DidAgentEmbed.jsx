@@ -4,6 +4,7 @@ import { getDidEmbedConfig } from "@/functions/getDidEmbedConfig";
 export default function DidAgentEmbed({ mode = 'full', targetId, position = 'right', orientation = 'horizontal', name = 'did-agent', forceInPreview = false, clientKey: clientKeyProp, agentId: agentIdProp } = {}) {
   const [srcDoc, setSrcDoc] = useState("");
   const [error, setError] = useState(null);
+  const [attempt, setAttempt] = useState(0);
   const frameRef = useRef(null);
   useEffect(() => {
     // If inside the Builder preview iframe, show a small hint and skip loading (3P widgets often block iframes)
@@ -54,10 +55,11 @@ export default function DidAgentEmbed({ mode = 'full', targetId, position = 'rig
         const clientKey = clientKeyProp || cfg.client_key;
         const agentId = agentIdProp || cfg.agent_id;
 
+        const mask = (k) => (k && k.length > 12 ? (String(k).slice(0,8) + '…' + String(k).slice(-4)) : k);
         console.log('[D-ID] Embed config:', {
           origin,
           agentId,
-          clientKey_sample: clientKey ? String(clientKey).slice(0, 10) + '…' : null,
+          clientKey_masked: mask(clientKey || ''),
           from_cache: cfg?.cached === true
         });
 
@@ -70,7 +72,8 @@ export default function DidAgentEmbed({ mode = 'full', targetId, position = 'rig
         // Validate client key shape (avoid passing user IDs like google-oauth2|...)
         const looksBase64 = /^[A-Za-z0-9+/=]+$/.test(String(clientKey));
         if (String(clientKey).includes('google-oauth2') || String(clientKey).length < 40 || !looksBase64) {
-          console.error('[D-ID] Invalid client key detected:', clientKey, { agentId, origin });
+          const masked = mask(clientKey || '');
+          console.error('[D-ID] Invalid client key detected:', masked, { agentId, origin });
           setError('Invalid D-ID client key detected (looks like a user/session ID). Please contact support to fix configuration.');
           return;
         }
@@ -118,7 +121,7 @@ export default function DidAgentEmbed({ mode = 'full', targetId, position = 'rig
         try { window.dispatchEvent(new CustomEvent('did-agent-error', { detail: { name } })); } catch (_) {}
       }
     })();
-  }, []);
+  }, [attempt]);
 
   // Render inside an iframe (frame mode) or an inline error UI
   if (error) {
@@ -135,6 +138,16 @@ export default function DidAgentEmbed({ mode = 'full', targetId, position = 'rig
         <div style={{ marginTop: 6 }}>{error}</div>
         <div style={{ marginTop: 6, fontSize: 12, opacity: 0.8 }}>
           If you're in preview, try “Open in new tab”. Check console for details.
+        </div>
+        <div style={{ marginTop: 10, display: 'flex', gap: 8, justifyContent: 'center' }}>
+          <button
+            onClick={() => { try { setError(null); setSrcDoc(''); setAttempt((a) => a + 1); } catch(_) {} }}
+            style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid #d39e00', background: '#ffe08a', color: '#7a5b00', cursor: 'pointer' }}
+          >Retry</button>
+          <button
+            onClick={() => { try { window.open(window.location.href, '_blank'); } catch(_) {} }}
+            style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid #7c3aed', background: '#7c3aed', color: '#fff', cursor: 'pointer' }}
+          >Open in new tab</button>
         </div>
       </div>
     );
