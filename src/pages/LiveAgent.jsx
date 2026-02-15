@@ -161,7 +161,6 @@ export default function LiveAgent() {
                   orientation="horizontal"
                   name="live-agent"
                   forceInPreview
-                  agentId="v2_agt_MRSoZNL0"
                 />
               </div>
             )}
