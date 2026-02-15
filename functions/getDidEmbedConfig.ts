@@ -20,15 +20,15 @@ Deno.serve(async (req) => {
     }
 
     // Always create a domain-scoped client key for the current origin to avoid whitelist mismatches
-    const apiKey = Deno.env.get('DID_API_KEY');
-    const apiSecret = Deno.env.get('DID_API_SECRET');
+    const apiKey = Deno.env.get('API_USERNAME') || Deno.env.get('DID_API_KEY');
+    const apiSecret = Deno.env.get('API_PASSWORD') || Deno.env.get('DID_API_SECRET');
     if (!apiKey || !apiSecret) {
       // Fallback: if API creds are missing, try returning a pre-set client key (if provided)
       const clientKeyFromEnv = Deno.env.get('DID_CLIENT_KEY');
       if (clientKeyFromEnv) {
         return Response.json({ client_key: clientKeyFromEnv, agent_id: agentId });
       }
-      return Response.json({ error: 'D-ID API credentials not set' }, { status: 500 });
+      return Response.json({ error: 'D-ID API credentials not set (API_USERNAME/API_PASSWORD or DID_API_KEY/DID_API_SECRET)' }, { status: 500 });
     }
 
     if (!allowedDomains.length) {

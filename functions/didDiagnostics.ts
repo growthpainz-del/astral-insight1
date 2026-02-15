@@ -10,15 +10,15 @@ Deno.serve(async (req) => {
     let body = {};
     try { body = await req.json(); } catch (_) {}
 
-    const apiKey = Deno.env.get('DID_API_KEY');
-    const apiSecret = Deno.env.get('DID_API_SECRET');
+    const apiKey = Deno.env.get('API_USERNAME') || Deno.env.get('DID_API_KEY');
+    const apiSecret = Deno.env.get('API_PASSWORD') || Deno.env.get('DID_API_SECRET');
     const envAgentId = Deno.env.get('DID_AGENT_ID') || null;
     const agentId = body.agentId || envAgentId;
 
     if (!apiKey || !apiSecret) {
       return Response.json({
         auth_ok: false,
-        message: 'Missing DID_API_KEY or DID_API_SECRET',
+        message: 'Missing API_USERNAME/API_PASSWORD (or DID_API_KEY/DID_API_SECRET)',
       }, { status: 500 });
     }
 

@@ -17,10 +17,10 @@ Deno.serve(async (req) => {
       ? payload.allowed_domains
       : (allowOrigin ? [allowOrigin] : []);
 
-    const apiKey = Deno.env.get('DID_API_KEY');
-    const apiSecret = Deno.env.get('DID_API_SECRET');
+    const apiKey = Deno.env.get('API_USERNAME') || Deno.env.get('DID_API_KEY');
+    const apiSecret = Deno.env.get('API_PASSWORD') || Deno.env.get('DID_API_SECRET');
     if (!apiKey || !apiSecret) {
-      return Response.json({ error: 'D-ID API credentials not set' }, { status: 500 });
+      return Response.json({ error: 'D-ID API credentials not set (API_USERNAME/API_PASSWORD or DID_API_KEY/DID_API_SECRET)' }, { status: 500 });
     }
 
     const basicAuth = `Basic ${btoa(`${apiKey}:${apiSecret}`)}`;

@@ -12,10 +12,10 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden: Requires Pro or Admin' }, { status: 403 });
     }
 
-    const apiKey = Deno.env.get('DID_API_KEY');
-    const apiSecret = Deno.env.get('DID_API_SECRET');
+    const apiKey = Deno.env.get('API_USERNAME') || Deno.env.get('DID_API_KEY');
+    const apiSecret = Deno.env.get('API_PASSWORD') || Deno.env.get('DID_API_SECRET');
     if (!apiKey || !apiSecret) {
-      return Response.json({ error: 'Missing DID_API_KEY or DID_API_SECRET' }, { status: 500 });
+      return Response.json({ error: 'Missing API_USERNAME/API_PASSWORD (or DID_API_KEY/DID_API_SECRET)' }, { status: 500 });
     }
 
     const basicAuth = 'Basic ' + encodeBase64(new TextEncoder().encode(`${apiKey}:${apiSecret}`));
