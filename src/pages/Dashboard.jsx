@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 
-import { Play, Plus, Clock, TrendingUp, Sparkles, ChevronRight, Eye, Settings, RefreshCw, AlertTriangle } from "lucide-react";
+import { Play, Plus, Clock, TrendingUp, Sparkles, ChevronRight, Eye, Settings, RefreshCw, AlertTriangle, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { isNetworkError } from "@/components/utils/isNetworkError";
 import { queueApiCall } from "@/components/utils/apiQueue";
@@ -285,6 +285,25 @@ export default function Dashboard() {
     window.location.reload(); 
   };
 
+  const handleDownloadManuals = async () => {
+    try {
+      const { data } = await base44.functions.invoke('exportDeckManuals');
+      const json = JSON.stringify(data, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'cosmic_chronicle_manuals.json';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error('Failed to download manuals JSON', e);
+      alert('Failed to export manuals. Please try again.');
+    }
+  };
+
   const isOwnedByUser = (deck) => {
     if (!currentUser || !deck || !deck.created_by) return false;
     return deck.created_by.toLowerCase() === currentUser.email?.toLowerCase();
@@ -378,10 +397,20 @@ export default function Dashboard() {
 
       {/* Quick Actions */}
       <div className="px-8 mb-12">
-        <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
-          <TrendingUp className="w-6 h-6 text-purple-400" />
-          Quick Actions
-        </h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-bold flex items-center gap-2">
+            <TrendingUp className="w-6 h-6 text-purple-400" />
+            Quick Actions
+          </h2>
+          <Button
+            variant="outline"
+            className="border-white/30 text-white hover:bg-white/10 gap-2"
+            onClick={handleDownloadManuals}
+            title="Export Rooted Crescent, I Ching, and Rune manuals JSON"
+          >
+            <Download className="w-4 h-4" /> Download JSON
+          </Button>
+        </div>
         <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide pan-2d">
           {draftDecks.length > 0 && (
             <QuickAction
