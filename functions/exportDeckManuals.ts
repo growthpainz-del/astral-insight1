@@ -64,6 +64,44 @@ Deno.serve(async (req) => {
         console.warn('[exportDeckManuals] Skipped image descriptions for deck', deck.id, e?.message || e);
       }
 
+      // Build per-card mapping into manual (snippets + image descriptions)
+      const escapeRegex = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const baseSections = sections.filter((s) => s.name !== 'Card Image Descriptions');
+      const extractSnippetsFor = (name, maxSnippets = 2) => {
+        const sources = baseSections.map((s) => String(s.content || ''));
+        const text = sources.join('\n\n');
+        const idxs = [];
+        if (!name) return [];
+        const re = new RegExp(escapeRegex(name), 'ig');
+        let m;
+        while ((m = re.exec(text)) && idxs.length < maxSnippets) { idxs.push(m.index); }
+        return idxs.map(i => text.slice(Math.max(0, i - 240), Math.min(text.length, i + 240)).trim());
+      };
+
+      const manualCards = cards.map((c) => {
+        const mapEntry = cardsWithDescriptions.find((x) => String(x.id) === String(c.id));
+        const snippets = extractSnippetsFor(c.name || '');
+        return {
+          card_id: c.id,
+          card_name: c.name,
+          image_description: mapEntry?.image_description || null,
+          manual_snippets: snippets,
+        };
+      });
+
+      const perCardMd = manualCards.map((mc) => {
+        const title = mc.card_name || `Card ${mc.card_id}`;
+        const desc = mc.image_description ? `Image Description: ${mc.image_description}` : 'Image Description: (none)';
+        const snips = (mc.manual_snippets || []).map((s) => `> ${s.replace(/\n/g, '\n> ')}`).join('\n\n');
+        const snipsBlock = snips ? `\n\nExisting Manual Snippets:\n${snips}` : '';
+        return `### ${title}\n${desc}${snipsBlock}`;
+      }).join('\n\n');
+
+      if (perCardMd.trim()) {
+        sections.push({ name: 'Per-Card Manual (with Image Descriptions)', content: perCardMd });
+        combined_text = [combined_text, `## Per-Card Manual (with Image Descriptions)\n${perCardMd}`].filter(Boolean).join('\n\n');
+      }
+
       // Keep only relevant, non-redundant fields
       decksPayload.push({
         id: deck.id,
