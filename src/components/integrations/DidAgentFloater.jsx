@@ -14,11 +14,11 @@ export default function DidAgentFloater() {
       {/* Launcher button (bottom-right) */}
       <Button
         onClick={() => {
+          // Always open modal; in preview we also suggest opening in new tab from inside the modal
+          setOpen(true);
           if (inPreview) {
             try { window.open(window.location.href, '_blank'); } catch (_) {}
-            return;
           }
-          setOpen(true);
         }}
         className="fixed bottom-28 right-4 z-[70] bg-purple-600 hover:bg-purple-700 shadow-lg rounded-full px-4 py-2"
         title="Open Live Agent"
