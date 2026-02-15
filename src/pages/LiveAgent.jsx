@@ -153,14 +153,15 @@ export default function LiveAgent() {
             )}
           </div>
           {connected && (
-            <DidAgentEmbed
-              mode="full"
-              targetId="live-agent-mount"
-              position="right"
-              orientation="horizontal"
-              name="live-agent"
-              forceInPreview
-            />
+            <div className="absolute inset-0">
+              <DidAgentEmbed
+                mode="full"
+                position="right"
+                orientation="horizontal"
+                name="live-agent"
+                forceInPreview
+              />
+            </div>
           )}
         </div>
       </div>
