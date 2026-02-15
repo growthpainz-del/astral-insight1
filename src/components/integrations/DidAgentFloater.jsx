@@ -37,7 +37,7 @@ export default function DidAgentFloater() {
 
           {/* Content container */}
           <div className="absolute inset-0 p-4 md:p-6 flex items-center justify-center">
-            <div className="relative w-full h-full max-w-6xl mx-auto rounded-2xl overflow-hidden border border-white/20 bg-black/80 shadow-2xl">
+            <div className="relative mx-auto rounded-2xl overflow-hidden border border-white/20 bg-black/80 shadow-2xl w-[92vw] max-w-[480px] aspect-video md:w-[80vw] md:max-w-3xl">
               {/* Close */}
               <button
                 onClick={() => setOpen(false)}
