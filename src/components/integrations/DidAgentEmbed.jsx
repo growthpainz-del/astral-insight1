@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { getDidEmbedConfig } from "@/functions/getDidEmbedConfig";
+import { base44 } from "@/api/base44Client";
 
 export default function DidAgentEmbed({ mode = 'full', targetId, position = 'right', orientation = 'horizontal', name = 'did-agent', forceInPreview = false, clientKey: clientKeyProp, agentId: agentIdProp } = {}) {
   const [srcDoc, setSrcDoc] = useState("");
@@ -45,13 +46,36 @@ export default function DidAgentEmbed({ mode = 'full', targetId, position = 'rig
 
     // Build an iframe srcDoc that loads the agent in isolation (frame mode)
     (async () => {
+      let timeoutId;
       try {
         const origin = typeof window !== 'undefined' ? window.location.origin : undefined;
-        const res = await getDidEmbedConfig({ allowed_domains: origin ? [origin] : [] });
-        if (res?.status === 401) {
-          console.warn('[D-ID] Unauthorized when fetching embed config; falling back to provided props.');
+        console.log('[D-ID] init start', { origin });
+        const payload = { allowed_domains: origin ? [origin] : [] };
+
+        // Hard timeout as a safety net
+        timeoutId = setTimeout(() => {
+          console.error('[D-ID] Initialization timeout');
+          setError('Live Agent timed out while initializing. Please Retry.');
+        }, 8000);
+
+        let res;
+        try {
+          res = await getDidEmbedConfig(payload);
+        } catch (e) {
+          console.warn('[D-ID] getDidEmbedConfig import call failed, falling back to functions.invoke', e?.message);
         }
-        const cfg = res?.data || {};
+        if (!res || res?.status >= 400 || !res?.data) {
+          try {
+            res = await base44.functions.invoke('getDidEmbedConfig', payload);
+          } catch (e) {
+            console.error('[D-ID] base44.functions.invoke fallback failed', e?.message);
+          }
+        }
+        if (!res || !res.data) {
+          setError('Live Agent unavailable: could not fetch embed configuration.');
+          return;
+        }
+        const cfg = res.data || {};
         const clientKey = clientKeyProp || cfg.client_key;
         const agentId = agentIdProp || cfg.agent_id;
 
@@ -116,8 +140,10 @@ export default function DidAgentEmbed({ mode = 'full', targetId, position = 'rig
     </body>
     </html>`;
         setSrcDoc(html);
+        if (timeoutId) clearTimeout(timeoutId);
       } catch (e) {
         console.error('[D-ID] Failed to initialize agent', e);
+        setError('Live Agent failed to initialize. See console for details.');
         try { window.dispatchEvent(new CustomEvent('did-agent-error', { detail: { name } })); } catch (_) {}
       }
     })();
@@ -167,6 +193,17 @@ export default function DidAgentEmbed({ mode = 'full', targetId, position = 'rig
             style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid #7c3aed', background: '#7c3aed', color: '#fff', cursor: 'pointer' }}
           >Open in new tab</button>
         </div>
+      </div>
+    );
+  }
+
+  if (!srcDoc) {
+    return (
+      <div style={{
+        width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: '#0b0c10', color: '#9ca3af', borderRadius: 8, border: '1px solid rgba(255,255,255,0.08)'
+      }}>
+        <span>Initializing Live Agent…</span>
       </div>
     );
   }
