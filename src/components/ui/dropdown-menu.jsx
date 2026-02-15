@@ -62,7 +62,6 @@ const DropdownMenuContent = React.forwardRef(({ className, sideOffset = 4, ...pr
 
   return (
     <DropdownMenuPrimitive.Portal>
-      {isMobile && <div className="fixed inset-0 z-40 bg-black/50" />}
       <DropdownMenuPrimitive.Content
         ref={ref}
         sideOffset={isMobile ? 0 : sideOffset}
