@@ -845,7 +845,19 @@ export default function Layout({ children, currentPageName }) {
                     </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
-                <Button onClick={() => base44.auth.redirectToLogin()} className="w-full bg-purple-600 hover:bg-purple-700">Login</Button>
+                <Button
+  onClick={() => {
+    try {
+      const next = window.location.href;
+      base44.auth.redirectToLogin(next);
+    } catch (_) {
+      base44.auth.redirectToLogin();
+    }
+  }}
+  className="w-full bg-purple-600 hover:bg-purple-700"
+>
+  Login
+</Button>
               )}
             </div>
           </aside>
