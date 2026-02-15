@@ -95,5 +95,14 @@ export default function DidAgentEmbed({ mode = 'full', targetId, position = 'rig
     })();
   }, []);
 
-  return null;
+  // Render inside an iframe (frame mode)
+  return (
+    <iframe
+      ref={frameRef}
+      title={name}
+      srcDoc={srcDoc}
+      sandbox="allow-scripts allow-same-origin allow-forms allow-pointer-lock allow-popups"
+      style={{ width: '100%', height: '100%', border: '0', display: srcDoc ? 'block' : 'none' }}
+    />
+  );
 }
