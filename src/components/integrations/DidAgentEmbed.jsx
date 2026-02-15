@@ -50,10 +50,18 @@ export default function DidAgentEmbed({ mode = 'full', targetId, position = 'rig
           console.warn('[D-ID] Unauthorized when fetching embed config; falling back to provided props.');
         }
         const cfg = res?.data || {};
-        const clientKey = clientKeyProp || cfg.client_key;
+        const pickValid = (k) => (typeof k === 'string' && k.length >= 40 && !k.includes('google-oauth2'));
+        const resolvedClientKey =
+          (pickValid(clientKeyProp) ? clientKeyProp : null) ||
+          (pickValid(cfg.client_key) ? cfg.client_key : null);
         const agentId = agentIdProp || cfg.agent_id;
-        if (!clientKey || !agentId) {
-          console.warn('[D-ID] Missing client key or agent id');
+        if (!resolvedClientKey || !agentId) {
+          console.warn('[D-ID] Invalid/missing client key or agent id', {
+            origin,
+            topOrigin: (function(){ try { return window.top?.location?.origin; } catch(_) { return 'cross-origin'; }})(),
+            providedClientKey: clientKeyProp,
+            cfgClientKeyLen: typeof cfg?.client_key === 'string' ? cfg.client_key.length : null
+          });
           return;
         }
 
@@ -69,7 +77,7 @@ export default function DidAgentEmbed({ mode = 'full', targetId, position = 'rig
     <script type="module" id="did-agent-loader"
       src="https://agent.d-id.com/v2/index.js"
       data-mode="${mode}"
-      data-client-key="${clientKey}"
+      data-client-key="${resolvedClientKey}"
       data-agent-id="${agentId}"
       data-name="${name}"
       data-monitor="true"
