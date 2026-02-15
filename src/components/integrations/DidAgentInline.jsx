@@ -127,7 +127,10 @@ export default function DidAgentInline({ mode = 'inline', position = 'right', or
         timeoutId = setTimeout(() => {
           const mount = document.getElementById(mountIdRef.current);
           const hasContent = !!mount?.querySelector('iframe, video, canvas, div[id^="did-"], div[id^="agent-"]');
-          if (!hasContent) onError();
+          if (!hasContent) {
+            console.warn('[D-ID] Timeout waiting for widget mount; forcing retry');
+            onError();
+          }
         }, 12000);
       } catch (e) {
         console.error('[D-ID] Failed to initialize agent', e);
