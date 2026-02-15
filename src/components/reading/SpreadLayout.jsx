@@ -1123,12 +1123,13 @@ export default function SpreadLayout(props) {
                       )}
 
                       {showPositionLabels && (
-                              <div className="mt-2 text-center">
-                                <Badge className={`bg-purple-600/80 text-white ${viewMode === 'compact' ? 'text-[10px] px-1.5 py-0.5' : viewMode === 'detailed' ? 'text-sm px-3 py-1.5' : 'text-xs px-2 py-1'}`}>
-                                  {pos.name}
-                                </Badge>
-                              </div>
-                            )}
+                                            <div className="mt-2 text-center">
+                                              {card?.name && <div className="text-sm font-semibold text-white mb-1">{card.name}</div>}
+                                              <Badge className={`bg-purple-600/80 text-white ${viewMode === 'compact' ? 'text-[10px] px-1.5 py-0.5' : viewMode === 'detailed' ? 'text-sm px-3 py-1.5' : 'text-xs px-2 py-1'}`}>
+                                                {pos.name}
+                                              </Badge>
+                                            </div>
+                                          )}
 
                             <div className="mt-2 text-center space-y-1">
                               {card?.name && <div className="text-sm font-semibold text-white">{card.name}</div>}
