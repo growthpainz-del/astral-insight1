@@ -285,7 +285,7 @@ export default function Dashboard() {
     window.location.reload(); 
   };
 
-  const handleDownloadManuals = async () => {
+  const handleDownloadManuals = async (zip = false) => {
     try {
       const { data } = await base44.functions.invoke('exportDeckManuals');
       const json = JSON.stringify(data, null, 2);
