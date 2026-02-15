@@ -8,28 +8,14 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Load decks (fetch up to 200)
-    const allDecks = await base44.entities.Deck.list('-created_date', 200);
+    // Load all decks (increase limit to 500)
+    const allDecks = await base44.entities.Deck.list('-created_date', 500);
 
-    const normalize = (s) => String(s || '')
-      .toLowerCase()
-      .replace(/[^a-z0-9]/g, '');
-
-    // Target names: Rooted Crescent, I Ching, Rune(s)/Rune My Day (user wrote "ruine/ruins")
-    const wantedMatchers = [
-      (n) => normalize(n).includes('rootedcrescent') || (normalize(n).includes('rooted') && normalize(n).includes('crescent')),
-      (n) => normalize(n).includes('iching') || normalize(n).includes('iching') || normalize(n).includes('iiching') || normalize(n).includes('ichingoracle') || normalize(n).includes('ichinghexagram') || normalize(n).includes('ichingdeck') || normalize(n).includes('ichingcards') || normalize(n).includes('ichinghexagrams') || normalize(n).includes('ichingbook') || normalize(n).includes('ichingyijing') || normalize(n).includes('yijing') || normalize(n).includes('iiching'),
-      (n) => normalize(n).includes('rune') || normalize(n).includes('ruin') || normalize(n).includes('ruins') || normalize(n).includes('runemyday') || normalize(n).includes('runecards')
-    ];
-
-    const matchedDecks = (Array.isArray(allDecks) ? allDecks : []).filter((d) => {
-      const name = d?.name || '';
-      return wantedMatchers.some((fn) => fn(name));
-    });
+    const decksToExport = Array.isArray(allDecks) ? allDecks : [];
 
     const decksPayload = [];
 
-    for (const deck of matchedDecks) {
+    for (const deck of decksToExport) {
       const sections = [];
 
       if (Array.isArray(deck.manual_files) && deck.manual_files.length > 0) {
@@ -51,9 +37,32 @@ Deno.serve(async (req) => {
       }
 
       // Build a single combined text for LLM-friendly ingestion
-      const combined_text = sections
+      let combined_text = sections
         .map((s) => `## ${s.name}\n${String(s.content || '').trim()}`)
         .join('\n\n');
+
+      // Try to append card image descriptions (Google Vision powered) to manual and deck export
+      let cardsWithDescriptions = [];
+      try {
+        const imgRes = await base44.functions.invoke('generateDeckImageDescriptions', { deck_id: deck.id });
+        const imgCards = imgRes?.data?.cards || imgRes?.cards || [];
+        cardsWithDescriptions = imgCards.map((c) => ({
+          id: c.id,
+          name: c.name,
+          image_url: c.image_url,
+          image_description: c.image_description || null,
+        }));
+        const listMd = imgCards
+          .filter((c) => (c.image_description || '').trim().length > 0)
+          .map((c) => `- ${c.name || `Card ${c.id}`}: ${c.image_description}`)
+          .join('\n');
+        if (listMd) {
+          sections.push({ name: 'Card Image Descriptions', content: listMd });
+          combined_text = [combined_text, `## Card Image Descriptions\n${listMd}`].filter(Boolean).join('\n\n');
+        }
+      } catch (e) {
+        console.warn('[exportDeckManuals] Skipped image descriptions for deck', deck.id, e?.message || e);
+      }
 
       // Keep only relevant, non-redundant fields
       decksPayload.push({
@@ -65,6 +74,7 @@ Deno.serve(async (req) => {
           sections,
           combined_text,
         },
+        cards: cardsWithDescriptions,
       });
     }
 
@@ -72,7 +82,7 @@ Deno.serve(async (req) => {
       version: '1.0',
       generated_at: new Date().toISOString(),
       decks: decksPayload,
-      notes: 'Pruned for agent usage: includes deck names and manual texts only (redundant fields removed).',
+      notes: 'Includes manuals and Google Vision-based card image descriptions for every deck.',
     };
 
     return new Response(JSON.stringify(payload, null, 2), {
