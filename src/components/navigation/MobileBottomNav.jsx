@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Home, BookOpen, Palette } from "lucide-react";
+import { Home, BookOpen, Palette, Sparkles } from "lucide-react";
 
 export default function MobileBottomNav() {
   const location = useLocation();
@@ -12,12 +12,14 @@ export default function MobileBottomNav() {
     { key: "Read", root: createPageUrl("ReadingRoom"), label: "Read", icon: BookOpen },
     { key: "Studio", root: createPageUrl("Studio"), label: "Studio", icon: Palette },
     { key: "Journal", root: createPageUrl("Journal"), label: "Journal", icon: BookOpen },
+    { key: "Agent", root: createPageUrl("LiveAgent"), label: "Agent", icon: Sparkles },
   ];
 
   const getTabFromPath = (pathname) => {
     if (pathname.startsWith("/ReadingRoom") || pathname.startsWith("/Reading") || pathname.startsWith("/History") || pathname.startsWith("/ZodiacReading") || pathname.startsWith("/FusionReading") || pathname.startsWith("/DeckGallery")) return "Read";
     if (pathname.startsWith("/Studio") || pathname.startsWith("/CreateDeck") || pathname.startsWith("/DeckView") || pathname.startsWith("/PhotoUploader") || pathname.startsWith("/SpreadManager")) return "Studio";
     if (pathname.startsWith("/Journal")) return "Journal";
+    if (pathname.startsWith("/LiveAgent")) return "Agent";
     return "Home";
   };
 
@@ -29,9 +31,10 @@ export default function MobileBottomNav() {
         Read: saved.Read || tabs[1].root,
         Studio: saved.Studio || tabs[2].root,
         Journal: saved.Journal || tabs[3].root,
+        Agent: saved.Agent || tabs[4].root,
       };
     } catch {
-      return { Home: tabs[0].root, Read: tabs[1].root, Studio: tabs[2].root, Journal: tabs[3].root };
+      return { Home: tabs[0].root, Read: tabs[1].root, Studio: tabs[2].root, Journal: tabs[3].root, Agent: tabs[4].root };
     }
   });
 
