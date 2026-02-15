@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { encodeBase64 } from 'jsr:@std/encoding@1.0.5/base64';
 
 Deno.serve(async (req) => {
   try {
@@ -47,7 +48,7 @@ Deno.serve(async (req) => {
     const voiceId = voiceOverride || defaultVoice;
     if (!voiceId) return Response.json({ error: 'Missing ElevenLabs voice (ELEVENLABS_VOICE_ID)' }, { status: 500 });
 
-    const basicAuth = `Basic ${btoa(`${apiKey}:${apiSecret}`)}`;
+    const basicAuth = 'Basic ' + encodeBase64(new TextEncoder().encode(`${apiKey}:${apiSecret}`));
 
     // Create DB record first (queued)
     const job = await base44.entities.AvatarJob.create({

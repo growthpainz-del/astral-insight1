@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { encodeBase64 } from 'jsr:@std/encoding@1.0.5/base64';
 
 Deno.serve(async (req) => {
   try {
@@ -31,7 +32,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'allowed_domains is required or call from a browser so Origin can be used' }, { status: 400 });
     }
 
-    const basicAuth = 'Basic ' + btoa(`${apiKey}:${apiSecret}`);
+    const basicAuth = 'Basic ' + encodeBase64(new TextEncoder().encode(`${apiKey}:${apiSecret}`));
 
     const resp = await fetch('https://api.d-id.com/agents/client-key', {
       method: 'POST',
