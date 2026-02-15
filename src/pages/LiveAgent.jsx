@@ -135,8 +135,6 @@ export default function LiveAgent() {
               position="right"
               orientation="horizontal"
               name="live-agent"
-              clientKey={CLIENT_KEY}
-              agentId={AGENT_ID}
             />
           )}
         </div>
