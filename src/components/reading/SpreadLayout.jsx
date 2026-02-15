@@ -1105,7 +1105,7 @@ export default function SpreadLayout(props) {
                             <img
                               src={card.image_url}
                               alt={card.name}
-                              className={`w-full h-full object-cover ${(card.isReversed || card.is_reversed) ? 'rotate-180' : ''}`}
+                              className={`w-full h-full object-contain ${(card.isReversed || card.is_reversed) ? 'rotate-180' : ''}`}
                               loading="lazy"
                               draggable={false}
                             />
@@ -1319,7 +1319,7 @@ export default function SpreadLayout(props) {
                               <img
                                 src={card.image_url}
                                 alt={card.name}
-                                className={`w-full h-full object-cover ${(card.isReversed || card.is_reversed) ? 'rotate-180' : ''}`}
+                                className={`w-full h-full object-contain ${(card.isReversed || card.is_reversed) ? 'rotate-180' : ''}`}
                                 loading="lazy"
                                 draggable={false}
                               />
@@ -1341,13 +1341,17 @@ export default function SpreadLayout(props) {
                             className="absolute left-1/2 transform -translate-x-1/2 pointer-events-none"
                             style={{ top: '100%', marginTop: '4px' }}
                           >
+                            {card?.name && (
+                              <div className="text-[11px] md:text-sm font-semibold text-white text-center mb-1 whitespace-nowrap">
+                                {card.name}
+                              </div>
+                            )}
                             <Badge className={`bg-purple-600/90 text-white whitespace-nowrap ${viewMode === 'compact' ? 'text-[10px] px-1.5 py-0.5' : viewMode === 'detailed' ? 'text-sm px-3 py-1.5' : 'text-xs px-2 py-1'}`}>
                               {pos.name}
                             </Badge>
-                            {viewMode === 'detailed' && (
-                              <div className="mt-1 text-center">
-                                {card?.name && <div className="text-xs font-semibold text-white">{card.name}</div>}
-                                {pos?.meaning && <div className="text-[10px] text-purple-200/80">{pos.meaning}</div>}
+                            {pos?.meaning && (
+                              <div className="mt-1 text-center text-[10px] text-purple-200/80">
+                                {pos.meaning}
                               </div>
                             )}
                           </div>
