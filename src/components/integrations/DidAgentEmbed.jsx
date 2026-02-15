@@ -81,8 +81,15 @@ export default function DidAgentEmbed({ mode = 'full', targetId, position = 'rig
       (function(){
         const s = document.getElementById('did-agent-loader');
         function send(type){ try{ parent.postMessage({ type, name: ${JSON.stringify(name)} }, '*'); } catch(_){} }
-        s.addEventListener('load', () => send('did-agent-ready'));
-        s.addEventListener('error', () => send('did-agent-error'));
+        const onReady = () => send('did-agent-ready');
+        const onError = () => send('did-agent-error');
+        s.addEventListener('load', onReady);
+        s.addEventListener('error', onError);
+        // Safety: notify parent if nothing renders after 6s
+        setTimeout(() => {
+          const hasIframeContent = !!document.querySelector('#agent-root iframe, #agent-root video, #agent-root canvas');
+          if (!hasIframeContent) onError();
+        }, 6000);
       })();
     </script>
     </body>
