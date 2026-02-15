@@ -52,7 +52,6 @@ import Account from './pages/Account';
 import AdminDeckReview from './pages/AdminDeckReview';
 import AdminTokenGrant from './pages/AdminTokenGrant';
 import AdminUsers from './pages/AdminUsers';
-import AvatarJobs from './pages/AvatarJobs';
 import CardGallery from './pages/CardGallery';
 import CardInfo from './pages/CardInfo';
 import CardNames from './pages/CardNames';
@@ -103,7 +102,6 @@ export const PAGES = {
     "AdminDeckReview": AdminDeckReview,
     "AdminTokenGrant": AdminTokenGrant,
     "AdminUsers": AdminUsers,
-    "AvatarJobs": AvatarJobs,
     "CardGallery": CardGallery,
     "CardInfo": CardInfo,
     "CardNames": CardNames,

@@ -353,12 +353,10 @@ export default function Layout({ children, currentPageName }) {
             { href: "AdminDeckReview", icon: CheckCircle2, label: "Review Decks" },
             { href: "AdminTokenGrant", icon: Coins, label: "Token Grant" },
             { href: "SpreadSeeder", icon: Sprout, label: "Seed Spreads" },
-            { href: "AvatarJobs", icon: Sparkles, label: "Avatar Jobs" },
           ];
 
-  const adminPages = new Set(adminLinks.map(l => l.href).filter(p => p !== 'AvatarJobs'));
-      const isProTier = ['oracle_pro','creator'].includes(String(user?.subscription_tier || '').toLowerCase());
-      const canAccessCurrentPage = isAdmin || (currentPageName === 'AvatarJobs' && isProTier);
+  const adminPages = new Set(adminLinks.map(l => l.href));
+      const canAccessCurrentPage = isAdmin;
 
   // Redirect non-admins from AIWorkspace to Dashboard
   React.useEffect(() => {
