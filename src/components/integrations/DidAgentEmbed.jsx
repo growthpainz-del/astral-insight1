@@ -47,8 +47,7 @@ export default function DidAgentEmbed({ mode = 'full', targetId, position = 'rig
         const origin = typeof window !== 'undefined' ? window.location.origin : undefined;
         const res = await getDidEmbedConfig({ allowed_domains: origin ? [origin] : [] });
         if (res?.status === 401) {
-          console.warn('[D-ID] Unauthorized when fetching embed config');
-          return;
+        console.warn('[D-ID] Unauthorized when fetching embed config; falling back to provided props.');
         }
         const cfg = res?.data || {};
         const clientKey = clientKeyProp || cfg.client_key;
