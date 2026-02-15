@@ -61,14 +61,12 @@ const DropdownMenuContent = React.forwardRef(({ className, sideOffset = 4, ...pr
   );
 
   return (
-    <DropdownMenuPrimitive.Portal>
-      <DropdownMenuPrimitive.Content
-        ref={ref}
-        sideOffset={isMobile ? 0 : sideOffset}
-        className={cn(isMobile ? sheetClasses : popoverClasses, className)}
-        {...props}
-      />
-    </DropdownMenuPrimitive.Portal>
+    <DropdownMenuPrimitive.Content
+      ref={ref}
+      sideOffset={isMobile ? 0 : sideOffset}
+      className={cn(isMobile ? sheetClasses : popoverClasses, className)}
+      {...props}
+    />
   );
 })
 DropdownMenuContent.displayName = DropdownMenuPrimitive.Content.displayName
