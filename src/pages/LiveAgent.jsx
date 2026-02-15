@@ -145,7 +145,13 @@ export default function LiveAgent() {
 
         <div className="mt-2">
           <div className="text-white/70 text-sm mb-2">Live Agent Window</div>
-          <div id="live-agent-mount" className="relative w-full aspect-video rounded-xl overflow-hidden border border-white/20 bg-black/40" />
+          <div id="live-agent-mount" className="relative w-full aspect-video rounded-xl overflow-hidden border border-white/20 bg-black/40">
+            {connected && agentStatus !== 'ready' && (
+              <div className="absolute inset-0 flex items-center justify-center text-white/70 text-sm">
+                {agentStatus === 'error' ? 'Failed to load agent.' : 'Loading agent…'}
+              </div>
+            )}
+          </div>
           {connected && (
             <DidAgentEmbed
               mode="full"
