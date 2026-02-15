@@ -3,6 +3,7 @@ import { getDidEmbedConfig } from "@/functions/getDidEmbedConfig";
 
 export default function DidAgentEmbed({ mode = 'full', targetId, position = 'right', orientation = 'horizontal', name = 'did-agent', forceInPreview = false, clientKey: clientKeyProp, agentId: agentIdProp } = {}) {
   const [srcDoc, setSrcDoc] = useState("");
+  const [error, setError] = useState(null);
   const frameRef = useRef(null);
   useEffect(() => {
     // If inside the Builder preview iframe, show a small hint and skip loading (3P widgets often block iframes)
@@ -50,18 +51,27 @@ export default function DidAgentEmbed({ mode = 'full', targetId, position = 'rig
           console.warn('[D-ID] Unauthorized when fetching embed config; falling back to provided props.');
         }
         const cfg = res?.data || {};
-        const pickValid = (k) => (typeof k === 'string' && k.length >= 40 && !k.includes('google-oauth2'));
-        const resolvedClientKey =
-          (pickValid(clientKeyProp) ? clientKeyProp : null) ||
-          (pickValid(cfg.client_key) ? cfg.client_key : null);
+        const clientKey = clientKeyProp || cfg.client_key;
         const agentId = agentIdProp || cfg.agent_id;
-        if (!resolvedClientKey || !agentId) {
-          console.warn('[D-ID] Invalid/missing client key or agent id', {
-            origin,
-            topOrigin: (function(){ try { return window.top?.location?.origin; } catch(_) { return 'cross-origin'; }})(),
-            providedClientKey: clientKeyProp,
-            cfgClientKeyLen: typeof cfg?.client_key === 'string' ? cfg.client_key.length : null
-          });
+
+        console.log('[D-ID] Embed config:', {
+          origin,
+          agentId,
+          clientKey_sample: clientKey ? String(clientKey).slice(0, 10) + '…' : null,
+          from_cache: cfg?.cached === true
+        });
+
+        if (!clientKey || !agentId) {
+          console.error('[D-ID] Missing client key or agent id');
+          setError('Live Agent unavailable: missing configuration (client key or agent id).');
+          return;
+        }
+
+        // Validate client key shape (avoid passing user IDs like google-oauth2|...)
+        const looksBase64 = /^[A-Za-z0-9+/=]+$/.test(String(clientKey));
+        if (String(clientKey).includes('google-oauth2') || String(clientKey).length < 40 || !looksBase64) {
+          console.error('[D-ID] Invalid client key detected:', clientKey, { agentId, origin });
+          setError('Invalid D-ID client key detected (looks like a user/session ID). Please contact support to fix configuration.');
           return;
         }
 
@@ -77,7 +87,7 @@ export default function DidAgentEmbed({ mode = 'full', targetId, position = 'rig
     <script type="module" id="did-agent-loader"
       src="https://agent.d-id.com/v2/index.js"
       data-mode="${mode}"
-      data-client-key="${resolvedClientKey}"
+      data-client-key="${clientKey}"
       data-agent-id="${agentId}"
       data-name="${name}"
       data-monitor="true"
@@ -110,7 +120,26 @@ export default function DidAgentEmbed({ mode = 'full', targetId, position = 'rig
     })();
   }, []);
 
-  // Render inside an iframe (frame mode)
+  // Render inside an iframe (frame mode) or an inline error UI
+  if (error) {
+    return (
+      <div style={{
+        padding: '16px',
+        background: '#fff3cd',
+        border: '1px solid #ffeeba',
+        borderRadius: '8px',
+        color: '#856404',
+        textAlign: 'center'
+      }}>
+        <strong>Live Agent Unavailable</strong>
+        <div style={{ marginTop: 6 }}>{error}</div>
+        <div style={{ marginTop: 6, fontSize: 12, opacity: 0.8 }}>
+          If you're in preview, try “Open in new tab”. Check console for details.
+        </div>
+      </div>
+    );
+  }
+
   return (
     <iframe
       ref={frameRef}
