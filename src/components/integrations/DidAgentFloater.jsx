@@ -54,6 +54,7 @@ export default function DidAgentFloater() {
                   position="right"
                   orientation="horizontal"
                   name="live-agent-floater"
+                  forceInPreview
                   // Frame mode uses secure server config (getDidEmbedConfig) to fetch keys
                 />
               </div>
