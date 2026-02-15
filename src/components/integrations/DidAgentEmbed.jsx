@@ -130,7 +130,8 @@ export default function DidAgentEmbed({ mode = 'full', targetId, position = 'rig
       data-orientation="${orientation}"
       data-position="${position}"
       data-target-id="agent-root"
-      ></script>
+      data-target="#agent-root"
+    ></script>
     <script>
       (function(){
         const s = document.getElementById('did-agent-loader');
@@ -139,11 +140,11 @@ export default function DidAgentEmbed({ mode = 'full', targetId, position = 'rig
         const onError = () => send('did-agent-error');
         s.addEventListener('load', onReady);
         s.addEventListener('error', onError);
-        // Safety: notify parent if nothing renders after 6s
+        // Safety: notify parent if nothing renders after 12s (iOS Safari can be slower)
         setTimeout(() => {
-          const hasIframeContent = !!document.querySelector('#agent-root iframe, #agent-root video, #agent-root canvas');
+          const hasIframeContent = !!document.querySelector('#agent-root iframe, #agent-root video, #agent-root canvas, #agent-root div[id^="did-"], #agent-root div[id^="agent-"]');
           if (!hasIframeContent) onError();
-        }, 6000);
+        }, 12000);
       })();
     </script>
     </body>

@@ -86,6 +86,7 @@ export default function DidAgentInline({ mode = 'inline', position = 'right', or
         scriptEl.setAttribute('data-orientation', orientation);
         scriptEl.setAttribute('data-position', position);
         scriptEl.setAttribute('data-target-id', mountIdRef.current);
+        scriptEl.setAttribute('data-target', `#${mountIdRef.current}`);
 
         const onReady = () => { try { window.dispatchEvent(new CustomEvent('did-agent-ready', { detail: { name } })); } catch(_) {} };
         const onError = () => {
@@ -101,12 +102,12 @@ export default function DidAgentInline({ mode = 'inline', position = 'right', or
 
         document.body.appendChild(scriptEl);
 
-        // Safety: notify error if widget didn't attach within 6s
+        // Safety: notify error if widget didn't attach within 12s (iOS Safari can be slower)
         timeoutId = setTimeout(() => {
           const mount = document.getElementById(mountIdRef.current);
-          const hasContent = !!mount?.querySelector('iframe, video, canvas');
+          const hasContent = !!mount?.querySelector('iframe, video, canvas, div[id^="did-"], div[id^="agent-"]');
           if (!hasContent) onError();
-        }, 6000);
+        }, 12000);
       } catch (e) {
         console.error('[D-ID] Failed to initialize agent', e);
         try { window.dispatchEvent(new CustomEvent('did-agent-error', { detail: { name } })); } catch (_) {}
