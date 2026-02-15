@@ -133,6 +133,7 @@ export default function LiveAgent() {
               position="right"
               orientation="horizontal"
               name="live-agent"
+              forceInPreview
             />
           )}
         </div>
