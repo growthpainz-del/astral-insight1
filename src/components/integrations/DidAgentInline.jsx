@@ -1,8 +1,11 @@
 import React, { useEffect, useMemo, useRef } from "react";
 import { getDidEmbedConfig } from "@/functions/getDidEmbedConfig";
+import { base44 } from "@/api/base44Client";
 
 export default function DidAgentInline({ mode = 'inline', position = 'right', orientation = 'horizontal', name = 'did-agent', forceInPreview = false, clientKey: clientKeyProp, agentId: agentIdProp, targetId: targetIdProp } = {}) {
   const mountIdRef = useRef(targetIdProp || `did-agent-root-${Math.random().toString(36).slice(2)}`);
+  const [attempt, setAttempt] = React.useState(0);
+  const hasFlushedRef = useRef(false);
 
   useEffect(() => {
     console.log('[D-ID] DidAgentInline mounted', { forceInPreview, name, mode, position, orientation });
@@ -48,16 +51,26 @@ export default function DidAgentInline({ mode = 'inline', position = 'right', or
     (async () => {
       try {
         const origin = typeof window !== 'undefined' ? window.location.origin : undefined;
-        const res = await getDidEmbedConfig({ allowed_domains: origin ? [origin] : [] });
-        if (res?.status === 401) {
-          console.warn('[D-ID] Unauthorized when fetching embed config; falling back to provided props.');
+        const payload = { allowed_domains: origin ? [origin] : [] };
+        let res;
+        try {
+          res = await getDidEmbedConfig(payload);
+        } catch (e) {
+          console.warn('[D-ID] getDidEmbedConfig direct import failed, will fallback to functions.invoke', e?.message);
+        }
+        if (!res || res?.status >= 400 || !res?.data) {
+          try {
+            res = await base44.functions.invoke('getDidEmbedConfig', payload);
+          } catch (e) {
+            console.error('[D-ID] base44.functions.invoke(getDidEmbedConfig) failed:', e?.message);
+          }
         }
         const cfg = res?.data || {};
         const clientKey = clientKeyProp || cfg.client_key;
         const agentId = agentIdProp || cfg.agent_id;
         if (!clientKey || !agentId) {
           console.warn('[D-ID] Missing client key or agent id');
-          window.dispatchEvent(new CustomEvent('did-agent-error', { detail: { name } }));
+          try { window.dispatchEvent(new CustomEvent('did-agent-error', { detail: { name } })); } catch(_) {}
           return;
         }
 
@@ -75,7 +88,14 @@ export default function DidAgentInline({ mode = 'inline', position = 'right', or
         scriptEl.setAttribute('data-target-id', mountIdRef.current);
 
         const onReady = () => { try { window.dispatchEvent(new CustomEvent('did-agent-ready', { detail: { name } })); } catch(_) {} };
-        const onError = () => { try { window.dispatchEvent(new CustomEvent('did-agent-error', { detail: { name } })); } catch(_) {} };
+        const onError = () => {
+          try { window.dispatchEvent(new CustomEvent('did-agent-error', { detail: { name } })); } catch(_) {}
+          if (!hasFlushedRef.current) {
+            hasFlushedRef.current = true;
+            try { base44.functions.invoke('flushDidKeyCache', { origin: origin || window.location.origin }); } catch(_) {}
+            setTimeout(() => setAttempt(a => a + 1), 0);
+          }
+        };
         scriptEl.addEventListener('load', onReady);
         scriptEl.addEventListener('error', onError);
 
@@ -97,7 +117,7 @@ export default function DidAgentInline({ mode = 'inline', position = 'right', or
       try { if (timeoutId) clearTimeout(timeoutId); } catch (_) {}
       try { if (scriptEl) scriptEl.remove(); } catch (_) {}
     };
-  }, [mode, position, orientation, name, forceInPreview, clientKeyProp, agentIdProp]);
+  }, [mode, position, orientation, name, forceInPreview, clientKeyProp, agentIdProp, attempt]);
 
   return (
     <div id={mountIdRef.current} style={{ width: '100%', height: '100%' }} />
