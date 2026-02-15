@@ -4,12 +4,22 @@ import { encodeBase64 } from 'jsr:@std/encoding@1.0.5/base64';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
-    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    // Allow either authenticated Admin/Pro OR shared-secret header for function tester/automation
+    let user = null;
+    try { user = await base44.auth.me(); } catch (_) {}
+    const secretHeader = req.headers.get('x-avatar-password') || req.headers.get('x-astral-password');
+    const sharedSecret = Deno.env.get('AVATAR_JOBS_PASSWORD');
+    const hasSharedAccess = !!sharedSecret && secretHeader === sharedSecret;
 
-    const isPro = ['oracle_pro', 'creator'].includes(String(user?.subscription_tier || '').toLowerCase());
-    if (!(user.role === 'admin' || isPro)) {
-      return Response.json({ error: 'Forbidden: Requires Pro or Admin' }, { status: 403 });
+    if (!user && !hasSharedAccess) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (user) {
+      const isPro = ['oracle_pro', 'creator'].includes(String(user?.subscription_tier || '').toLowerCase());
+      if (!(user.role === 'admin' || isPro)) {
+        return Response.json({ error: 'Forbidden: Requires Pro or Admin' }, { status: 403 });
+      }
     }
 
     const apiKey = Deno.env.get('DID_API_KEY');
