@@ -88,7 +88,28 @@ export default function DidAgentInline({ mode = 'inline', position = 'right', or
         scriptEl.setAttribute('data-target-id', mountIdRef.current);
         scriptEl.setAttribute('data-target', `#${mountIdRef.current}`);
 
-        const onReady = () => { try { window.dispatchEvent(new CustomEvent('did-agent-ready', { detail: { name } })); } catch(_) {} };
+        const onReady = () => {
+          try {
+            // Verify actual widget mount before signaling ready
+            const mount = document.getElementById(mountIdRef.current);
+            const hasContent = !!mount?.querySelector('iframe, video, canvas, div[id^="did-"], div[id^="agent-"]');
+            if (hasContent) {
+              window.dispatchEvent(new CustomEvent('did-agent-ready', { detail: { name } }));
+            } else {
+              // Some browsers load the script before the agent attaches; re-check shortly
+              setTimeout(() => {
+                const m2 = document.getElementById(mountIdRef.current);
+                const ok = !!m2?.querySelector('iframe, video, canvas, div[id^="did-"], div[id^="agent-"]');
+                window.dispatchEvent(new CustomEvent(ok ? 'did-agent-ready' : 'did-agent-error', { detail: { name } }));
+                if (!ok && !hasFlushedRef.current) {
+                  hasFlushedRef.current = true;
+                  try { base44.functions.invoke('flushDidKeyCache', { origin: origin || window.location.origin }); } catch(_) {}
+                  setTimeout(() => setAttempt(a => a + 1), 0);
+                }
+              }, 1200);
+            }
+          } catch(_) {}
+        };
         const onError = () => {
           try { window.dispatchEvent(new CustomEvent('did-agent-error', { detail: { name } })); } catch(_) {}
           if (!hasFlushedRef.current) {
