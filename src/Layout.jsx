@@ -183,6 +183,8 @@ export default function Layout({ children, currentPageName }) {
         return path === '/login' || path.startsWith('/login') || path.includes('/auth');
       } catch (_) { return false; }
     })();
+
+    // If user is unauthenticated and not already on login-ish route, send them to platform login
     if (!inBuilderPreview && !isLoading && !user && !redirectingToLogin && !isLoginRoute) {
       setRedirectingToLogin(true);
       try {
@@ -191,6 +193,17 @@ export default function Layout({ children, currentPageName }) {
           // If current URL is already a login page (or contains it), redirect back to Dashboard after login to avoid nested from_url
           next = window.location.origin + createPageUrl('Dashboard');
         }
+        base44.auth.redirectToLogin(next);
+      } catch (_) {
+        base44.auth.redirectToLogin();
+      }
+    }
+
+    // If someone navigates to /login inside the app (no such page), forward to platform login
+    if (!inBuilderPreview && isLoginRoute && !redirectingToLogin) {
+      setRedirectingToLogin(true);
+      try {
+        const next = window.location.origin + createPageUrl('Dashboard');
         base44.auth.redirectToLogin(next);
       } catch (_) {
         base44.auth.redirectToLogin();
