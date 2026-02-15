@@ -38,12 +38,27 @@ export default function LiveAgent() {
 
   const handleDisconnect = () => {
     setConnected(false);
+    setAgentStatus('idle');
     // Clean up injected script if present (ensures a fresh session next time)
     try {
       const s = document.getElementById("did-agent-loader");
       if (s) s.remove();
     } catch (_) {}
   };
+
+  React.useEffect(() => {
+    const onReady = () => setAgentStatus('ready');
+    const onError = () => {
+      setAgentStatus('error');
+      setError('Agent failed to load. If you are in preview, open the app in a new tab.');
+    };
+    window.addEventListener('did-agent-ready', onReady);
+    window.addEventListener('did-agent-error', onError);
+    return () => {
+      window.removeEventListener('did-agent-ready', onReady);
+      window.removeEventListener('did-agent-error', onError);
+    };
+  }, []);
 
   return (
     <div className="min-h-screen px-4 md:px-8 py-6 text-white">
