@@ -704,9 +704,14 @@ export default function Layout({ children, currentPageName }) {
                 <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d2a300021f94d0f312c039/4cde5ffdd_IMG_6738.jpg" alt="Logo" className="h-8 w-8" />
                 <span className="font-bold text-lg text-white">Astral Insight</span>
               </Link>
-              <button onClick={() => setIsSidebarOpen(false)} className="md:hidden text-purple-300">
-                <X className="w-6 h-6" />
-              </button>
+              <div className="flex items-center gap-2">
+                <Link to={createPageUrl('LiveAgent')} className="hidden md:block">
+                  <Button size="sm" variant="outline" className="border-white/30 text-white hover:bg-white/10">Live Agent</Button>
+                </Link>
+                <button onClick={() => setIsSidebarOpen(false)} className="md:hidden text-purple-300">
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
             </div>
 
             <nav className="flex-1 px-4 py-4 space-y-2 overflow-y-auto">
