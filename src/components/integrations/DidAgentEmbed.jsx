@@ -71,8 +71,14 @@ export default function DidAgentEmbed({ mode = 'full', targetId, position = 'rig
         script.setAttribute("data-position", position);
         if (targetId) script.setAttribute("data-target-id", targetId);
 
-        script.onload = () => console.log("[D-ID] Agent ready");
-        script.onerror = () => console.error("[D-ID] Agent script failed to load");
+        script.onload = () => {
+          console.log("[D-ID] Agent ready");
+          try { window.dispatchEvent(new CustomEvent('did-agent-ready', { detail: { name } })); } catch (_) {}
+        };
+        script.onerror = () => {
+          console.error("[D-ID] Agent script failed to load");
+          try { window.dispatchEvent(new CustomEvent('did-agent-error', { detail: { name } })); } catch (_) {}
+        };
 
         document.body.appendChild(script);
       } catch (e) {

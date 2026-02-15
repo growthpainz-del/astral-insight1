@@ -8,6 +8,7 @@ export default function LiveAgent() {
   const [micStatus, setMicStatus] = React.useState("idle"); // idle | granted | denied
   const [error, setError] = React.useState("");
   const [connected, setConnected] = React.useState(false);
+  const [agentStatus, setAgentStatus] = React.useState('idle');
 
   // Credentials are fetched dynamically by DidAgentEmbed via getDidEmbedConfig for the current domain.
 
@@ -30,6 +31,8 @@ export default function LiveAgent() {
   };
 
   const handleConnect = () => {
+    setError("");
+    setAgentStatus('idle');
     setConnected(true);
   };
 
