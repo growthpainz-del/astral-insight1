@@ -171,14 +171,25 @@ export default function Layout({ children, currentPageName }) {
   }, [retryCount]); // REMOVED currentPageName - only run on mount or retry
 
   // Enforce authentication globally: if unauthenticated, auto-redirect to login (skip inside Builder Preview iframe)
+  // Also avoid redirect loops when already on /login and sanitize the next URL if it points to /login
   useEffect(() => {
     const inBuilderPreview = (() => {
       try { return window.top !== window.self; } catch (_) { return true; }
     })();
-    if (!inBuilderPreview && !isLoading && !user && !redirectingToLogin) {
+    const isLoginRoute = (() => {
+      try {
+        const path = window.location.pathname.toLowerCase();
+        return path === '/login' || path.startsWith('/login') || path.includes('/auth');
+      } catch (_) { return false; }
+    })();
+    if (!inBuilderPreview && !isLoading && !user && !redirectingToLogin && !isLoginRoute) {
       setRedirectingToLogin(true);
       try {
-        const next = window.location.href;
+        let next = window.location.href;
+        if (/\/login/i.test(next)) {
+          // If current URL is already a login page (or contains it), redirect back to Dashboard after login to avoid nested from_url
+          next = window.location.origin + createPageUrl('Dashboard');
+        }
         base44.auth.redirectToLogin(next);
       } catch (_) {
         base44.auth.redirectToLogin();
