@@ -156,7 +156,7 @@ export default function LiveAgent() {
             {connected && (
               <div className="absolute inset-0">
                 <DidAgentInline
-                  mode="full"
+                  mode="inline"
                   position="right"
                   orientation="horizontal"
                   name="live-agent"

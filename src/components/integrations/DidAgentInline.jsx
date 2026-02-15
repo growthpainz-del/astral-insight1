@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef } from "react";
 import { getDidEmbedConfig } from "@/functions/getDidEmbedConfig";
 
-export default function DidAgentInline({ mode = 'full', position = 'right', orientation = 'horizontal', name = 'did-agent', forceInPreview = false, clientKey: clientKeyProp, agentId: agentIdProp, targetId: targetIdProp } = {}) {
+export default function DidAgentInline({ mode = 'inline', position = 'right', orientation = 'horizontal', name = 'did-agent', forceInPreview = false, clientKey: clientKeyProp, agentId: agentIdProp, targetId: targetIdProp } = {}) {
   const mountIdRef = useRef(targetIdProp || `did-agent-root-${Math.random().toString(36).slice(2)}`);
 
   useEffect(() => {
@@ -72,7 +72,7 @@ export default function DidAgentInline({ mode = 'full', position = 'right', orie
         scriptEl.setAttribute('data-monitor', 'true');
         scriptEl.setAttribute('data-orientation', orientation);
         scriptEl.setAttribute('data-position', position);
-        scriptEl.setAttribute('data-target-id', mountIdRef.current);
+        scriptEl.setAttribute('data-target', `#${mountIdRef.current}`);
 
         const onReady = () => { try { window.dispatchEvent(new CustomEvent('did-agent-ready', { detail: { name } })); } catch(_) {} };
         const onError = () => { try { window.dispatchEvent(new CustomEvent('did-agent-error', { detail: { name } })); } catch(_) {} };

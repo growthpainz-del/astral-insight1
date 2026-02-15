@@ -50,7 +50,7 @@ export default function DidAgentFloater() {
               {/* Frame-based embed fills container */}
               <div className="absolute inset-0">
                 <DidAgentEmbed
-                  mode="full"
+                  mode="inline"
                   position="right"
                   orientation="horizontal"
                   name="live-agent-floater"

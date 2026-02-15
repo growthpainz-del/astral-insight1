@@ -122,14 +122,14 @@ export default function DidAgentEmbed({ mode = 'full', targetId, position = 'rig
     <div id="agent-root"></div>
     <script type="module" id="did-agent-loader"
       src="https://agent.d-id.com/v2/index.js"
-      data-mode="${mode}"
+      data-mode="inline"
       data-client-key="${clientKey}"
       data-agent-id="${agentId}"
       data-name="${name}"
       data-monitor="true"
       data-orientation="${orientation}"
       data-position="${position}"
-      data-target-id="agent-root"
+      data-target="#agent-root"
     ></script>
     <script>
       (function(){
