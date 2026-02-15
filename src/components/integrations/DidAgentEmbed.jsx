@@ -39,7 +39,8 @@ export default function DidAgentEmbed({ mode = 'full', targetId, position = 'rig
       return;
     }
 
-    if (document.getElementById("did-agent-loader")) return;
+    const existing = document.getElementById("did-agent-loader");
+    if (existing) existing.remove();
 
     (async () => {
       try {
