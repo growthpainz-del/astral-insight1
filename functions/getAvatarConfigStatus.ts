@@ -18,15 +18,10 @@ Deno.serve(async (req) => {
     const didAgentId = Deno.env.get('DID_AGENT_ID') || '';
     const didApiKey = Deno.env.get('DID_API_KEY') || '';
     const didApiSecret = Deno.env.get('DID_API_SECRET') || '';
-    const elevenKey = Deno.env.get('ELEVENLABS_API_KEY') || '';
-    const elevenVoiceId = Deno.env.get('ELEVENLABS_VOICE_ID') || '';
-
     const payload = {
       didAgentIdExists: !!didAgentId,
       didAgentIdMatches: expected ? (didAgentId === expected) : null,
       didApiReady: !!(didApiKey && didApiSecret),
-      elevenApiReady: !!elevenKey,
-      elevenVoiceIdExists: !!elevenVoiceId,
       didAgentIdSuffix: didAgentId ? didAgentId.slice(-6) : null,
     };
 
