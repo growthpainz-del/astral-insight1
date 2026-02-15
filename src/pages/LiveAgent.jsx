@@ -152,7 +152,7 @@ export default function LiveAgent() {
 
         <div className="mt-2">
           <div className="text-white/70 text-sm mb-2">Live Agent Window</div>
-          <div id="live-agent-mount" className="relative w-full aspect-video rounded-2xl overflow-hidden border border-white/20 bg-gradient-to-br from-slate-900/80 to-black/60 shadow-2xl ring-1 ring-white/10 backdrop-blur-sm">
+          <div id="live-agent-mount" className="relative w-full md:max-w-[720px] mx-auto aspect-video rounded-2xl overflow-hidden border border-white/20 bg-gradient-to-br from-slate-900/80 to-black/60 shadow-2xl ring-1 ring-white/10 backdrop-blur-sm">
             {connected && (
               <div className="absolute inset-0">
                 <DidAgentInline
