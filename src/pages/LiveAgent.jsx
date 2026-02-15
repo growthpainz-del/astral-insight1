@@ -52,11 +52,18 @@ export default function LiveAgent() {
       setAgentStatus('error');
       setError('Agent failed to load. If you are in preview, open the app in a new tab.');
     };
+    const onMessage = (e) => {
+      const t = e?.data?.type;
+      if (t === 'did-agent-ready') onReady();
+      if (t === 'did-agent-error') onError();
+    };
     window.addEventListener('did-agent-ready', onReady);
     window.addEventListener('did-agent-error', onError);
+    window.addEventListener('message', onMessage);
     return () => {
       window.removeEventListener('did-agent-ready', onReady);
       window.removeEventListener('did-agent-error', onError);
+      window.removeEventListener('message', onMessage);
     };
   }, []);
 
