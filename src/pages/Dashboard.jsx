@@ -406,7 +406,7 @@ export default function Dashboard() {
             variant="outline"
             className="border-white/30 text-white hover:bg-white/10 gap-2"
             onClick={handleDownloadManuals}
-            title="Export Rooted Crescent, I Ching, and Rune manuals JSON"
+            title="Export manuals + image descriptions for all decks"
           >
             <Download className="w-4 h-4" /> Download JSON
           </Button>
