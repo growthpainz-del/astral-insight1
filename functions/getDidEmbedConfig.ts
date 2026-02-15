@@ -31,6 +31,24 @@ function cacheKeyForOrigins(origins, key) {
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
+    // Optional admin-only flush: if x-flush-cache header is present and user is admin, clear cache
+    const flushHeader = req.headers.get('x-flush-cache');
+    if (flushHeader) {
+      try {
+        const user = await base44.auth.me();
+        if (user?.role === 'admin') {
+          const target = flushHeader === '*' ? null : flushHeader;
+          if (target) {
+            clientKeyCache.delete(target);
+          } else {
+            clientKeyCache.clear();
+          }
+          return Response.json({ ok: true, flushed: target || 'all' });
+        }
+      } catch (_) {
+        // ignore auth errors for non-admins
+      }
+    }
     // Auth optional: allow public embed fetch; SDK still available if needed
 
     let body = {};
