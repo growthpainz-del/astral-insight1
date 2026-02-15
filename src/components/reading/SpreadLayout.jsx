@@ -1130,12 +1130,10 @@ export default function SpreadLayout(props) {
                               </div>
                             )}
 
-                            {viewMode === 'detailed' && (
-                              <div className="mt-2 text-center space-y-1">
-                                {card?.name && <div className="text-sm font-semibold text-white">{card.name}</div>}
-                                {pos?.meaning && <div className="text-xs text-purple-200/80">{pos.meaning}</div>}
-                              </div>
-                            )}
+                            <div className="mt-2 text-center space-y-1">
+                              {card?.name && <div className="text-sm font-semibold text-white">{card.name}</div>}
+                              {pos?.meaning && <div className="text-xs text-purple-200/80">{pos.meaning}</div>}
+                            </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
