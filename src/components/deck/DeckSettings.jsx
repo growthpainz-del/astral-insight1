@@ -44,6 +44,7 @@ export default function DeckSettings({ deckId, isOpen, onClose, onSaved, initial
   const [insightsText, setInsightsText] = React.useState("");
   const [insightsError, setInsightsError] = React.useState("");
   const [exporting, setExporting] = React.useState(false);
+  const [mergingManual, setMergingManual] = React.useState(false);
 
   const [basicName, setBasicName] = React.useState(initialDeck?.name || "");
   const [basicPublic, setBasicPublic] = React.useState(!!initialDeck?.is_public);
@@ -153,6 +154,22 @@ export default function DeckSettings({ deckId, isOpen, onClose, onSaved, initial
       setError(e.message || "Failed to export image descriptions");
     } finally {
       setExporting(false);
+    }
+  };
+
+  const handleMergeDescriptionsIntoManual = async () => {
+    setMergingManual(true);
+    setError("");
+    try {
+      const res = await base44.functions.invoke("mergeImageDescriptionsIntoManual", { deck_id: deckId });
+      const msg = res?.data?.message || "Manual updated";
+      const count = res?.data?.updated_count;
+      window.alert(count != null ? `${msg} (${count} cards updated)` : msg);
+    } catch (e) {
+      console.error("Merge failed:", e);
+      setError(e.message || "Failed to insert image descriptions into manual");
+    } finally {
+      setMergingManual(false);
     }
   };
 
@@ -591,6 +608,26 @@ export default function DeckSettings({ deckId, isOpen, onClose, onSaved, initial
                 {exporting ? "Preparing…" : "Download Image Descriptions (JSON)"}
               </Button>
             </div>
+            </div>
+
+            <div className="bg-black/40 border border-white/10 rounded-lg p-4 mt-4">
+              <Label className="text-white/80 flex items-center gap-2">
+                <FileText className="w-4 h-4" />
+                Insert Image Descriptions Into Manual
+              </Label>
+              <p className="text-sm text-white/60 mt-1">
+                Write each card’s image description under its matching section in the manual.
+              </p>
+              <div className="mt-3">
+                <Button
+                  onClick={handleMergeDescriptionsIntoManual}
+                  disabled={mergingManual || !deckId}
+                  className="btn-dark-outline"
+                >
+                  {mergingManual ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <FileText className="w-4 h-4 mr-2" />}
+                  {mergingManual ? "Updating…" : "Insert Into Manual"}
+                </Button>
+              </div>
             </div>
 
             <div className="border-t border-red-500/30 pt-4 mt-6">
