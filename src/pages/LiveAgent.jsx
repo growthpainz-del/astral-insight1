@@ -1,5 +1,5 @@
 import React from "react";
-import DidAgentEmbed from "@/components/integrations/DidAgentEmbed";
+import DidAgentInline from "@/components/integrations/DidAgentInline";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mic, Video, Plug, Power, ExternalLink } from "lucide-react";
@@ -155,7 +155,7 @@ export default function LiveAgent() {
           <div id="live-agent-mount" className="relative w-full aspect-video rounded-2xl overflow-hidden border border-white/20 bg-gradient-to-br from-slate-900/80 to-black/60 shadow-2xl ring-1 ring-white/10 backdrop-blur-sm">
             {connected && (
               <div className="absolute inset-0">
-                <DidAgentEmbed
+                <DidAgentInline
                   mode="full"
                   position="right"
                   orientation="horizontal"
