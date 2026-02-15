@@ -1,7 +1,9 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { getDidEmbedConfig } from "@/functions/getDidEmbedConfig";
 
 export default function DidAgentEmbed({ mode = 'full', targetId, position = 'right', orientation = 'horizontal', name = 'did-agent', forceInPreview = false, clientKey: clientKeyProp, agentId: agentIdProp } = {}) {
+  const [srcDoc, setSrcDoc] = useState("");
+  const frameRef = useRef(null);
   useEffect(() => {
     // If inside the Builder preview iframe, show a small hint and skip loading (3P widgets often block iframes)
     const inPreview = (() => { try { return window.top !== window.self; } catch (_) { return true; } })();
