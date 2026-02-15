@@ -9,7 +9,7 @@ export default function CardDetailsModal({ open, onClose, card }) {
       <DialogContent className="max-w-2xl bg-slate-900 text-white border border-purple-800/40">
         <DialogHeader>
           <DialogTitle className="text-amber-200">
-            {card?.name || "Card Details"}
+            {card?.name || card?.card_name || card?.card?.name || card?.title || card?.card?.title || "Card Details"}
           </DialogTitle>
         </DialogHeader>
         <CardDetailsPanel card={card} />

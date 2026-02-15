@@ -22,7 +22,7 @@ export default function CardDetailsModal({ open, onClose, card, position }) {
   }
 
   const img = card.image_url || card.image || card.cover_image;
-  const name = safeText(card?.name);
+  const name = safeText(card?.name ?? card?.card_name ?? card?.card?.name ?? card?.title ?? card?.card?.title ?? "");
   const overall = safeText(card?.overall_meaning);
   const upright = safeText(card?.upright_meaning);
   const reversed = safeText(card?.reversed_meaning);

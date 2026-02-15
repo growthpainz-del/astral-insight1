@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card as UICard, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -16,7 +15,7 @@ export default function CardDetailsPanel({ card, isReversed = false, title = "Ca
     );
   }
 
-  const name = card.name || "Untitled";
+  const name = card.name || card.card_name || card?.card?.name || card?.title || card?.card?.title || "Untitled";
   const number = card.number != null ? `#${card.number}` : null;
   const element = card.element && card.element !== "none" ? card.element : null;
 

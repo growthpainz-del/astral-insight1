@@ -17,7 +17,7 @@ export default function CardDetailsPanel(props) {
     card?.card?.image_url ||
     card?.image ||
     "";
-  const name = safeText(card?.name || card?.card?.name || "Card");
+  const name = safeText(card?.name || card?.card_name || card?.card?.name || card?.title || card?.card?.title || "Card");
   const overall = safeText(card?.overall_meaning || card?.card?.overall_meaning);
   const upright = safeText(card?.upright_meaning || card?.card?.upright_meaning);
   const reversed = safeText(card?.reversed_meaning || card?.card?.reversed_meaning);
