@@ -16,6 +16,31 @@ function normalizeOrigin(value) {
 
 function nowMs() { return Date.now(); }
 
+function addWwwVariants(origins) {
+  try {
+    const out = new Set();
+    for (const o of origins || []) {
+      const norm = normalizeOrigin(o) || o;
+      if (!norm) continue;
+      out.add(norm);
+      try {
+        const u = new URL(norm);
+        const hasWww = u.host.startsWith('www.');
+        const baseHost = hasWww ? u.host.slice(4) : u.host;
+        const withWww = `${u.protocol}//www.${baseHost}`;
+        const withoutWww = `${u.protocol}//${baseHost}`;
+        out.add(withWww);
+        out.add(withoutWww);
+      } catch (_) {
+        // ignore parse errors
+      }
+    }
+    return Array.from(out);
+  } catch (_) {
+    return Array.from(new Set(origins || []));
+  }
+}
+
 function getCachedKeyFor(origin) {
   const entry = origin ? clientKeyCache.get(origin) : null;
   if (entry && entry.expiresAt > nowMs()) return entry.key;
@@ -71,7 +96,7 @@ Deno.serve(async (req) => {
     ].filter(Boolean);
 
     const allowedDomainsSet = new Set([...bodyDomains, ...extraOrigins]);
-    const allowedDomains = Array.from(allowedDomainsSet);
+    const allowedDomains = addWwwVariants(Array.from(allowedDomainsSet));
 
 
     const agentId = Deno.env.get('DID_AGENT_ID');
@@ -114,9 +139,64 @@ Deno.serve(async (req) => {
       body: JSON.stringify({ allowed_domains: allowedDomains }),
     });
 
-    const data = await resp.json().catch(() => ({}));
+    let data = {};
+    try { data = await resp.json(); } catch (_) {}
     if (!resp.ok) {
-      console.error('[getDidEmbedConfig] D-ID error', resp.status, data);
+      console.error('[getDidEmbedConfig] D-ID create client-key error', resp.status, data);
+
+      // Try to fetch existing key and update its allowed_domains (merge with requested ones)
+      try {
+        const getResp = await fetch('https://api.d-id.com/agents/client-key', {
+          method: 'GET',
+          headers: { Authorization: basicAuth, accept: 'application/json' },
+        });
+        let getData = {};
+        try { getData = await getResp.json(); } catch (_) {}
+        const existingKey = getData?.client_key || getData?.key || null;
+        const existingDomains = Array.isArray(getData?.allowed_domains)
+          ? getData.allowed_domains.map(normalizeOrigin).filter(Boolean)
+          : [];
+        const mergedDomains = addWwwVariants(Array.from(new Set([...(existingDomains || []), ...allowedDomains])));
+
+        if (existingKey) {
+          let updated = false;
+          const updateHeaders = {
+            Authorization: basicAuth,
+            'Content-Type': 'application/json',
+            accept: 'application/json',
+          };
+          try {
+            let upd = await fetch('https://api.d-id.com/agents/client-key', {
+              method: 'PATCH',
+              headers: updateHeaders,
+              body: JSON.stringify({ allowed_domains: mergedDomains }),
+            });
+            if (!upd.ok) {
+              upd = await fetch('https://api.d-id.com/agents/client-key', {
+                method: 'PUT',
+                headers: updateHeaders,
+                body: JSON.stringify({ allowed_domains: mergedDomains }),
+              });
+            }
+            updated = upd.ok;
+          } catch (e) {
+            console.warn('[getDidEmbedConfig] Failed to update allowed_domains', e?.message);
+          }
+
+          cacheKeyForOrigins(mergedDomains, existingKey);
+          return Response.json({
+            client_key: existingKey,
+            agent_id: agentId,
+            allowed_domains: mergedDomains,
+            updated_domains: updated,
+            cached: false,
+            note: updated ? 'updated-existing' : 'existing-key-used'
+          });
+        }
+      } catch (e) {
+        console.warn('[getDidEmbedConfig] Could not retrieve existing client key', e?.message);
+      }
+
       // Fallback to pre-configured client key if available
       const clientKeyFromEnv = Deno.env.get('DID_CLIENT_KEY');
       if (clientKeyFromEnv) {
@@ -134,7 +214,7 @@ Deno.serve(async (req) => {
     // Cache this key for all listed origins
     cacheKeyForOrigins(allowedDomains, clientKey);
 
-    return Response.json({ client_key: clientKey, agent_id: agentId });
+    return Response.json({ client_key: clientKey, agent_id: agentId, allowed_domains: allowedDomains });
   } catch (error) {
     console.error('[getDidEmbedConfig] Fatal error', error);
     return Response.json({ error: error.message || 'Server error' }, { status: 500 });
