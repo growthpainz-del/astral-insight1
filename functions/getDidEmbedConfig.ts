@@ -50,6 +50,12 @@ Deno.serve(async (req) => {
     const data = await resp.json().catch(() => ({}));
     if (!resp.ok) {
       console.error('[getDidEmbedConfig] D-ID error', resp.status, data);
+      // Fallback to pre-configured client key if available
+      const clientKeyFromEnv = Deno.env.get('DID_CLIENT_KEY');
+      if (clientKeyFromEnv) {
+        console.warn('[getDidEmbedConfig] Falling back to DID_CLIENT_KEY from env');
+        return Response.json({ client_key: clientKeyFromEnv, agent_id: agentId });
+      }
       return Response.json({ error: data?.message || 'Failed to create client key' }, { status: resp.status });
     }
 
