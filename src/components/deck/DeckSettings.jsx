@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Upload, Image as ImageIcon, Trash2, AlertTriangle, Sparkles, FileText } from "lucide-react";
+import { Loader2, Upload, Image as ImageIcon, Trash2, AlertTriangle, Sparkles, FileText, Download } from "lucide-react";
 import FloatingSave from "@/components/common/FloatingSave";
 import { base44 } from "@/api/base44Client";
 
@@ -43,6 +43,7 @@ export default function DeckSettings({ deckId, isOpen, onClose, onSaved, initial
   const [error, setError] = React.useState("");
   const [insightsText, setInsightsText] = React.useState("");
   const [insightsError, setInsightsError] = React.useState("");
+  const [exporting, setExporting] = React.useState(false);
 
   const [basicName, setBasicName] = React.useState(initialDeck?.name || "");
   const [basicPublic, setBasicPublic] = React.useState(!!initialDeck?.is_public);
@@ -127,6 +128,31 @@ export default function DeckSettings({ deckId, isOpen, onClose, onSaved, initial
       patch({ shuffle_animation_url: file_url });
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleExportImageDescriptions = async () => {
+    setExporting(true);
+    setError("");
+    try {
+      const res = await base44.functions.invoke("generateDeckImageDescriptions", { deck_id: deckId });
+      const data = res?.data;
+      const jsonStr = typeof data === "string" ? data : JSON.stringify(data, null, 2);
+      const filename = `${(deck?.name || 'deck').toLowerCase().replace(/[^a-z0-9_-]+/g, '-')}-image-descriptions.json`;
+      const blob = new Blob([jsonStr], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error("Export failed:", e);
+      setError(e.message || "Failed to export image descriptions");
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -545,9 +571,29 @@ export default function DeckSettings({ deckId, isOpen, onClose, onSaved, initial
             {insightsError && (
               <div className="mt-2 text-xs text-red-300">{insightsError}</div>
             )}
-          </div>
+            </div>
 
-          <div className="border-t border-red-500/30 pt-4 mt-6">
+            <div className="bg-black/40 border border-white/10 rounded-lg p-4">
+            <Label className="text-white/80 flex items-center gap-2">
+              <FileText className="w-4 h-4" />
+              Export Image Descriptions
+            </Label>
+            <p className="text-sm text-white/60 mt-1">
+              Download JSON including each card’s ID, dates, name, keywords, and auto-generated image description.
+            </p>
+            <div className="mt-3">
+              <Button
+                onClick={handleExportImageDescriptions}
+                disabled={exporting || !deckId}
+                className="btn-dark-outline"
+              >
+                {exporting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Download className="w-4 h-4 mr-2" />}
+                {exporting ? "Preparing…" : "Download Image Descriptions (JSON)"}
+              </Button>
+            </div>
+            </div>
+
+            <div className="border-t border-red-500/30 pt-4 mt-6">
             <Label className="text-red-400 flex items-center gap-2 mb-2">
               <AlertTriangle className="w-5 h-5" />
               Danger Zone
