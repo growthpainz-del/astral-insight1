@@ -423,6 +423,15 @@ export default function Dashboard() {
             >
               <Download className="w-4 h-4" /> JSON
             </Button>
+            <Link to={createPageUrl("LiveAgent")}>
+              <Button
+                variant="outline"
+                className="border-white/30 text-white hover:bg-white/10 gap-2"
+                title="Open the real-time D-ID Live Agent"
+              >
+                <Sparkles className="w-4 h-4" /> Live Agent
+              </Button>
+            </Link>
             <Button
               variant="outline"
               className="border-white/30 text-white hover:bg-white/10 gap-2"
