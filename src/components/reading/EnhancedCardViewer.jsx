@@ -119,7 +119,7 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
 
 
 
-            <div onClick={handleImageClick} onTouchEnd={(e)=>{ e.preventDefault(); handleImageClick(); }} className="relative w-full max-w-[min(92vw,420px)] mx-auto cursor-pointer select-none" role="button" tabIndex={0} onKeyDown={(e)=>{ if(e.key==='Enter'||e.key===' ') { e.preventDefault(); handleImageClick(); } }} style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}>
+            <div onClick={handleImageClick} onTouchEnd={(e)=>{ e.preventDefault(); handleImageClick(); }} className="relative w-full max-w-[min(92vw,420px)] mx-auto cursor-pointer select-none overflow-visible" role="button" tabIndex={0} onKeyDown={(e)=>{ if(e.key==='Enter'||e.key===' ') { e.preventDefault(); handleImageClick(); } }} style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}>
               {/* Glow effect */}
               <div className={`absolute -inset-4 ${isReversed ? 'bg-purple-600' : 'bg-cyan-600'} opacity-20 blur-3xl rounded-full pointer-events-none`}></div>
               
@@ -148,9 +148,9 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
                 )}
               </div>
 
-              {/* Card Number Badge */}
+              {/* Card Number Badge (moved inside to avoid clipping) */}
               {card.number != null && (
-                <div className="absolute -top-3 -left-3 bg-gradient-to-br from-purple-600 to-pink-600 text-white rounded-full w-12 h-12 flex items-center justify-center font-bold text-lg shadow-lg">
+                <div className="absolute top-2 left-2 bg-gradient-to-br from-purple-600 to-pink-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold text-base shadow-lg pointer-events-none">
                   {card.number}
                 </div>
               )}
