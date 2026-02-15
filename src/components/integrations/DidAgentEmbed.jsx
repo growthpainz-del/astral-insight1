@@ -8,8 +8,10 @@ export default function DidAgentEmbed({ mode = 'full', targetId, position = 'rig
   const [attempt, setAttempt] = useState(0);
   const frameRef = useRef(null);
   useEffect(() => {
+    console.log('[D-ID] DidAgentEmbed mounted', { forceInPreview, name, mode, position, orientation });
     // If inside the Builder preview iframe, show a small hint and skip loading (3P widgets often block iframes)
     const inPreview = (() => { try { return window.top !== window.self; } catch (_) { return true; } })();
+    console.log('[D-ID] Preview detection', { inPreview, forceInPreview });
     if (inPreview && !forceInPreview) {
       if (!document.getElementById('did-agent-preview-hint')) {
         const hint = document.createElement('div');

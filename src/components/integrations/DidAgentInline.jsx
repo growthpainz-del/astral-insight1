@@ -5,7 +5,9 @@ export default function DidAgentInline({ mode = 'full', position = 'right', orie
   const mountIdRef = useRef(targetIdProp || `did-agent-root-${Math.random().toString(36).slice(2)}`);
 
   useEffect(() => {
+    console.log('[D-ID] DidAgentInline mounted', { forceInPreview, name, mode, position, orientation });
     const inPreview = (() => { try { return window.top !== window.self; } catch (_) { return true; } })();
+    console.log('[D-ID] Inline preview detection', { inPreview, forceInPreview });
     if (inPreview && !forceInPreview) {
       if (!document.getElementById('did-agent-preview-hint')) {
         const hint = document.createElement('div');
