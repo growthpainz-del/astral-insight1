@@ -5,6 +5,9 @@ import { Video, X } from "lucide-react";
 
 export default function DidAgentFloater() {
   const [open, setOpen] = React.useState(false);
+  const inPreview = React.useMemo(() => {
+    try { return window.top !== window.self; } catch (_) { return true; }
+  }, []);
 
   return (
     <>
