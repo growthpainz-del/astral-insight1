@@ -161,6 +161,7 @@ export default function LiveAgent() {
                   orientation="horizontal"
                   name="live-agent"
                   forceInPreview
+                  agentId="v2_agt_MRSoZNL0"
                 />
               </div>
             )}
@@ -170,17 +171,6 @@ export default function LiveAgent() {
               </div>
             )}
           </div>
-          {connected && (
-            <div className="absolute inset-0">
-              <DidAgentEmbed
-                mode="full"
-                position="right"
-                orientation="horizontal"
-                name="live-agent"
-                forceInPreview
-              />
-            </div>
-          )}
         </div>
       </div>
     </div>
