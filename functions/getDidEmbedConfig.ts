@@ -1,6 +1,33 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 import { encodeBase64 } from 'jsr:@std/encoding@1.0.5/base64';
 
+// In-memory per-origin client key cache (12h TTL)
+const TTL_MS = 1000 * 60 * 60 * 12; // 12 hours
+const clientKeyCache = new Map(); // origin => { key, expiresAt }
+
+function normalizeOrigin(value) {
+  try {
+    const u = new URL(value);
+    return `${u.protocol}//${u.host}`; // exact origin incl. port
+  } catch (_) {
+    return null;
+  }
+}
+
+function nowMs() { return Date.now(); }
+
+function getCachedKeyFor(origin) {
+  const entry = origin ? clientKeyCache.get(origin) : null;
+  if (entry && entry.expiresAt > nowMs()) return entry.key;
+  if (entry) clientKeyCache.delete(origin);
+  return null;
+}
+
+function cacheKeyForOrigins(origins, key) {
+  const expiresAt = nowMs() + TTL_MS;
+  origins.forEach((o) => { if (o) clientKeyCache.set(o, { key, expiresAt }); });
+}
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -9,10 +36,25 @@ Deno.serve(async (req) => {
     let body = {};
     try { body = await req.json(); } catch (_) {}
 
-    const origin = req.headers.get('origin') || null;
-    const allowedDomains = Array.isArray(body?.allowed_domains) && body.allowed_domains.length
-      ? body.allowed_domains
-      : (origin ? [origin] : []);
+    const originHeader = req.headers.get('origin') || null;
+    const primaryOrigin = originHeader ? normalizeOrigin(originHeader) : null;
+
+    const bodyDomains = Array.isArray(body?.allowed_domains)
+      ? body.allowed_domains.map(normalizeOrigin).filter(Boolean)
+      : [];
+
+    const extraOrigins = [
+      primaryOrigin,
+      'http://localhost:3000',
+      'http://localhost:5173',
+      'http://localhost:8080',
+      'https://builder.base44.app',
+      'https://app.base44.app',
+    ].filter(Boolean);
+
+    const allowedDomainsSet = new Set([...bodyDomains, ...extraOrigins]);
+    const allowedDomains = Array.from(allowedDomainsSet);
+
 
     const agentId = Deno.env.get('DID_AGENT_ID');
     if (!agentId) {
@@ -36,6 +78,13 @@ Deno.serve(async (req) => {
     }
 
     const basicAuth = 'Basic ' + encodeBase64(new TextEncoder().encode(`${apiKey}:${apiSecret}`));
+
+    // Use cached key if available for this origin
+    const cacheLookupOrigin = primaryOrigin || allowedDomains[0] || null;
+    const cachedKey = getCachedKeyFor(cacheLookupOrigin);
+    if (cachedKey) {
+      return Response.json({ client_key: cachedKey, agent_id: agentId, cached: true });
+    }
 
     const resp = await fetch('https://api.d-id.com/agents/client-key', {
       method: 'POST',
@@ -63,6 +112,9 @@ Deno.serve(async (req) => {
     if (!clientKey) {
       return Response.json({ error: 'No client key returned' }, { status: 502 });
     }
+
+    // Cache this key for all listed origins
+    cacheKeyForOrigins(allowedDomains, clientKey);
 
     return Response.json({ client_key: clientKey, agent_id: agentId });
   } catch (error) {
