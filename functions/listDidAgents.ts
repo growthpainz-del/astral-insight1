@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { encodeBase64 } from 'jsr:@std/encoding@1.0.5/base64';
 
 Deno.serve(async (req) => {
   try {
@@ -17,10 +18,10 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Missing DID_API_KEY or DID_API_SECRET' }, { status: 500 });
     }
 
-    const basicAuth = 'Basic ' + btoa(`${apiKey}:${apiSecret}`);
+    const basicAuth = 'Basic ' + encodeBase64(new TextEncoder().encode(`${apiKey}:${apiSecret}`));
 
-    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-    async function fetchWithRetry(url: string, options: RequestInit = {}, cfg: { attempts?: number; baseDelay?: number } = {}) {
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+    async function fetchWithRetry(url, options = {}, cfg = {}) {
       const attempts = cfg.attempts ?? 5;
       const baseDelay = cfg.baseDelay ?? 400;
       for (let i = 1; i <= attempts; i++) {
@@ -62,7 +63,7 @@ Deno.serve(async (req) => {
     const items = Array.isArray(data?.items) ? data.items : (Array.isArray(data) ? data : []);
 
     const agents = items
-      .map((a: any) => ({
+      .map((a) => ({
         id: a?.id || a?._id || a?.agent_id || null,
         name: a?.preview_name || a?.name || a?.title || 'Untitled Agent',
         created_at: a?.created || a?.created_at || a?.createdAt || null,
