@@ -41,15 +41,13 @@ export default function DidAgentEmbed({ mode = 'full', targetId, position = 'rig
       return;
     }
 
-    const existing = document.getElementById("did-agent-loader");
-    if (existing) existing.remove();
-
+    // Build an iframe srcDoc that loads the agent in isolation (frame mode)
     (async () => {
       try {
         const origin = typeof window !== 'undefined' ? window.location.origin : undefined;
         const res = await getDidEmbedConfig({ allowed_domains: origin ? [origin] : [] });
         if (res?.status === 401) {
-        console.warn('[D-ID] Unauthorized when fetching embed config; falling back to provided props.');
+          console.warn('[D-ID] Unauthorized when fetching embed config; falling back to provided props.');
         }
         const cfg = res?.data || {};
         const clientKey = clientKeyProp || cfg.client_key;
@@ -59,32 +57,40 @@ export default function DidAgentEmbed({ mode = 'full', targetId, position = 'rig
           return;
         }
 
-        const script = document.createElement("script");
-        script.id = "did-agent-loader";
-        script.type = "module";
-        script.src = "https://agent.d-id.com/v2/index.js";
-
-        script.setAttribute("data-mode", mode);
-        script.setAttribute("data-client-key", clientKey);
-        script.setAttribute("data-agent-id", agentId);
-        script.setAttribute("data-name", name);
-        script.setAttribute("data-monitor", "true");
-        script.setAttribute("data-orientation", orientation);
-        script.setAttribute("data-position", position);
-        if (targetId) script.setAttribute("data-target-id", targetId);
-
-        script.onload = () => {
-          console.log("[D-ID] Agent ready");
-          try { window.dispatchEvent(new CustomEvent('did-agent-ready', { detail: { name } })); } catch (_) {}
-        };
-        script.onerror = () => {
-          console.error("[D-ID] Agent script failed to load");
-          try { window.dispatchEvent(new CustomEvent('did-agent-error', { detail: { name } })); } catch (_) {}
-        };
-
-        document.body.appendChild(script);
+        const html = `<!doctype html>
+    <html>
+    <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>html,body{height:100%;margin:0;background:#000}#agent-root{position:fixed;inset:0}</style>
+    </head>
+    <body>
+    <div id="agent-root"></div>
+    <script type="module" id="did-agent-loader"
+      src="https://agent.d-id.com/v2/index.js"
+      data-mode="${mode}"
+      data-client-key="${clientKey}"
+      data-agent-id="${agentId}"
+      data-name="${name}"
+      data-monitor="true"
+      data-orientation="${orientation}"
+      data-position="${position}"
+      data-target-id="agent-root"
+    ></script>
+    <script>
+      (function(){
+        const s = document.getElementById('did-agent-loader');
+        function send(type){ try{ parent.postMessage({ type, name: ${JSON.stringify(name)} }, '*'); } catch(_){} }
+        s.addEventListener('load', () => send('did-agent-ready'));
+        s.addEventListener('error', () => send('did-agent-error'));
+      })();
+    </script>
+    </body>
+    </html>`;
+        setSrcDoc(html);
       } catch (e) {
         console.error('[D-ID] Failed to initialize agent', e);
+        try { window.dispatchEvent(new CustomEvent('did-agent-error', { detail: { name } })); } catch (_) {}
       }
     })();
   }, []);
