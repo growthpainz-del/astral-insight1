@@ -414,14 +414,24 @@ export default function Dashboard() {
             <TrendingUp className="w-6 h-6 text-purple-400" />
             Quick Actions
           </h2>
-          <Button
-            variant="outline"
-            className="border-white/30 text-white hover:bg-white/10 gap-2"
-            onClick={handleDownloadManuals}
-            title="Export manuals + image descriptions for all decks"
-          >
-            <Download className="w-4 h-4" /> Download JSON
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              className="border-white/30 text-white hover:bg-white/10 gap-2"
+              onClick={() => handleDownloadManuals(false)}
+              title="Export manuals + image descriptions for all decks (single JSON)"
+            >
+              <Download className="w-4 h-4" /> JSON
+            </Button>
+            <Button
+              variant="outline"
+              className="border-white/30 text-white hover:bg-white/10 gap-2"
+              onClick={() => handleDownloadManuals(true)}
+              title="Export per-deck JSON files in a ZIP (includes agent_cards per deck)"
+            >
+              <Download className="w-4 h-4" /> ZIP (per deck)
+            </Button>
+          </div>
         </div>
         <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide pan-2d">
           {draftDecks.length > 0 && (
