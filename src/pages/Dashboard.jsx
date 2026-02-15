@@ -287,17 +287,29 @@ export default function Dashboard() {
 
   const handleDownloadManuals = async (zip = false) => {
     try {
-      const { data } = await base44.functions.invoke('exportDeckManuals');
-      const json = JSON.stringify(data, null, 2);
-      const blob = new Blob([json], { type: 'application/json' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'cosmic_chronicle_manuals.json';
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
+      const { data } = await base44.functions.invoke('exportDeckManuals', zip ? { per_deck_zip: true } : {});
+      if (zip) {
+        const blob = new Blob([data], { type: 'application/zip' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'deck_exports.zip';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+      } else {
+        const json = JSON.stringify(data, null, 2);
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'cosmic_chronicle_manuals.json';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+      }
     } catch (e) {
       console.error('Failed to download manuals JSON', e);
       alert('Failed to export manuals. Please try again.');
