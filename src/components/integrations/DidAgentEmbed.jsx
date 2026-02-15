@@ -129,8 +129,8 @@ export default function DidAgentEmbed({ mode = 'full', targetId, position = 'rig
       data-monitor="true"
       data-orientation="${orientation}"
       data-position="${position}"
-      data-target="#agent-root"
-    ></script>
+      data-target-id="agent-root"
+      ></script>
     <script>
       (function(){
         const s = document.getElementById('did-agent-loader');

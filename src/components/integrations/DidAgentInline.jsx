@@ -72,7 +72,7 @@ export default function DidAgentInline({ mode = 'inline', position = 'right', or
         scriptEl.setAttribute('data-monitor', 'true');
         scriptEl.setAttribute('data-orientation', orientation);
         scriptEl.setAttribute('data-position', position);
-        scriptEl.setAttribute('data-target', `#${mountIdRef.current}`);
+        scriptEl.setAttribute('data-target-id', mountIdRef.current);
 
         const onReady = () => { try { window.dispatchEvent(new CustomEvent('did-agent-ready', { detail: { name } })); } catch(_) {} };
         const onError = () => { try { window.dispatchEvent(new CustomEvent('did-agent-error', { detail: { name } })); } catch(_) {} };
