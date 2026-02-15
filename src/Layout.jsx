@@ -376,7 +376,7 @@ export default function Layout({ children, currentPageName }) {
       <div className="bg-gray-900 text-white min-h-screen">
         <NetworkBanner />
         {children}
-        {!user && !redirectingToLogin && (
+        {!user && !redirectingToLogin ? (
           <div className="fixed z-[60] top-3 right-3">
             <Button
               size="sm"
@@ -392,6 +392,15 @@ export default function Layout({ children, currentPageName }) {
             >
               Login
             </Button>
+          </div>
+        ) : (
+          <div className="fixed z-[60] top-3 right-3 flex gap-2">
+            <Link to={createPageUrl('Dashboard')}>
+              <Button size="sm" className="btn-dark-outline">Dashboard</Button>
+            </Link>
+            <Link to={createPageUrl('LiveAgent')}>
+              <Button size="sm" variant="outline" className="border-white/30 text-white hover:bg-white/10">Live Agent</Button>
+            </Link>
           </div>
         )}
       </div>
