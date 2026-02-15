@@ -123,6 +123,24 @@ export default function DidAgentEmbed({ mode = 'full', targetId, position = 'rig
     })();
   }, [attempt]);
 
+  // Listen for agent ready/error messages from the iframe
+  useEffect(() => {
+    const onMessage = (e) => {
+      const d = e?.data;
+      if (!d || typeof d !== 'object') return;
+      if (d.name !== name) return;
+      if (d.type === 'did-agent-ready') {
+        console.log('[D-ID] Agent ready event received for', name);
+        setError(null);
+      } else if (d.type === 'did-agent-error') {
+        console.error('[D-ID] Agent error event received for', name);
+        setError('Live Agent failed to initialize. Please Retry or open in a new tab.');
+      }
+    };
+    window.addEventListener('message', onMessage);
+    return () => window.removeEventListener('message', onMessage);
+  }, [name]);
+
   // Render inside an iframe (frame mode) or an inline error UI
   if (error) {
     return (
