@@ -16,8 +16,8 @@ Deno.serve(async (req) => {
     } catch (_) {}
 
     const didAgentId = Deno.env.get('DID_AGENT_ID') || '';
-    const didApiKey = Deno.env.get('DID_API_KEY') || '';
-    const didApiSecret = Deno.env.get('DID_API_SECRET') || '';
+    const didApiKey = Deno.env.get('API_USERNAME') || Deno.env.get('DID_API_KEY') || '';
+    const didApiSecret = Deno.env.get('API_PASSWORD') || Deno.env.get('DID_API_SECRET') || '';
     const payload = {
       didAgentIdExists: !!didAgentId,
       didAgentIdMatches: expected ? (didAgentId === expected) : null,
