@@ -9,9 +9,7 @@ export default function LiveAgent() {
   const [error, setError] = React.useState("");
   const [connected, setConnected] = React.useState(false);
 
-  // Use the provided client key and agent id from the snippet
-  const CLIENT_KEY = "Z29vZ2xlLW9hdXRoMnwxMTU4Mjg4NTQ2NzM5OTExMjUyOTQ6X1FLR2p1b0pjcUtOemJHX3NpM0py";
-  const AGENT_ID = "v2_agt_MRSoZNL0";
+  // Credentials are fetched dynamically by DidAgentEmbed via getDidEmbedConfig for the current domain.
 
   const inPreview = React.useMemo(() => {
     try { return window.top !== window.self; } catch (_) { return true; }
