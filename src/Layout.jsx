@@ -43,6 +43,7 @@ import NetworkBanner from "@/components/common/NetworkBanner";
 import TokenBalanceDisplay from "@/components/pricing/TokenBalanceDisplay";
 import AppErrorBoundary from "@/components/common/AppErrorBoundary";
 import InitializationError from "@/components/common/InitializationError";
+import DidAgentFloater from "@/components/integrations/DidAgentFloater";
 import { queueApiCall } from "@/components/utils/apiQueue";
 
 
@@ -901,6 +902,7 @@ export default function Layout({ children, currentPageName }) {
           </div>
         </div>
         
+        <DidAgentFloater />
         {/* Mobile Bottom Navigation */}
         <MobileBottomNav />
         {/* Always-accessible Login button at top-right when unauthenticated (helps in builder preview) */}
