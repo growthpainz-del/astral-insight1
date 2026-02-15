@@ -95,13 +95,11 @@ export default function DidAgentEmbed({ mode = 'full', targetId, position = 'rig
           return;
         }
 
-        // Validate client key shape (avoid passing user IDs like google-oauth2|...)
-        const looksBase64 = /^[A-Za-z0-9+/=]+$/.test(String(clientKey));
-        if (String(clientKey).includes('google-oauth2') || String(clientKey).length < 40 || !looksBase64) {
+        // Relaxed validation: D-ID client keys may be base64url (include _ and -) and variable length.
+        // Only warn on obvious OAuth-looking IDs, but proceed to let the provider validate.
+        if (String(clientKey).includes('google-oauth2')) {
           const masked = mask(clientKey || '');
-          console.error('[D-ID] Invalid client key detected:', masked, { agentId, origin });
-          setError('Invalid D-ID client key detected (looks like a user/session ID). Please contact support to fix configuration.');
-          return;
+          console.warn('[D-ID] Suspicious client key pattern (oauth-like):', masked, { agentId, origin });
         }
 
         const html = `<!doctype html>
