@@ -7,6 +7,7 @@ export default function DidAgentEmbed({ mode = 'full', targetId, position = 'rig
   const [error, setError] = useState(null);
   const [attempt, setAttempt] = useState(0);
   const frameRef = useRef(null);
+  const hasFlushedRef = useRef(false);
   useEffect(() => {
     console.log('[D-ID] DidAgentEmbed mounted', { forceInPreview, name, mode, position, orientation });
     // If inside the Builder preview iframe, show a small hint and skip loading (3P widgets often block iframes)
@@ -54,10 +55,18 @@ export default function DidAgentEmbed({ mode = 'full', targetId, position = 'rig
         console.log('[D-ID] init start', { origin });
         const payload = { allowed_domains: origin ? [origin] : [] };
 
-        // Hard timeout as a safety net
+        // Hard timeout as a safety net; also attempt one-time cache flush then retry
         timeoutId = setTimeout(() => {
           console.error('[D-ID] Initialization timeout');
           setError('Live Agent timed out while initializing. Please Retry.');
+          try {
+            if (!hasFlushedRef.current) {
+              console.log('[D-ID] Attempting one-time client-key cache flush for', origin);
+              base44.functions.invoke('flushDidKeyCache', { origin: origin || window.location.origin })
+                .then(() => { hasFlushedRef.current = true; setAttempt(a => a + 1); })
+                .catch((e) => console.warn('[D-ID] Cache flush failed', e?.message));
+            }
+          } catch (_) {}
         }, 8000);
 
         let res;
@@ -161,6 +170,14 @@ export default function DidAgentEmbed({ mode = 'full', targetId, position = 'rig
       } else if (d.type === 'did-agent-error') {
         console.error('[D-ID] Agent error event received for', name);
         setError('Live Agent failed to initialize. Please Retry or open in a new tab.');
+        try {
+          if (!hasFlushedRef.current) {
+            console.log('[D-ID] Flushing client-key cache after error…');
+            base44.functions.invoke('flushDidKeyCache', { origin: window.location.origin })
+              .then(() => { hasFlushedRef.current = true; setAttempt(a => a + 1); })
+              .catch((e) => console.warn('[D-ID] Cache flush failed', e?.message));
+          }
+        } catch (_) {}
       }
     };
     window.addEventListener('message', onMessage);
