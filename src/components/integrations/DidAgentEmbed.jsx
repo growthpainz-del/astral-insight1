@@ -101,8 +101,10 @@ export default function DidAgentEmbed({ mode = 'full', targetId, position = 'rig
       ref={frameRef}
       title={name}
       srcDoc={srcDoc}
-      sandbox="allow-scripts allow-same-origin allow-forms allow-pointer-lock allow-popups"
-      style={{ width: '100%', height: '100%', border: '0', display: srcDoc ? 'block' : 'none' }}
+      sandbox="allow-scripts allow-same-origin allow-forms allow-pointer-lock allow-popups allow-presentation allow-downloads"
+      allow="autoplay; microphone; camera; clipboard-write; encrypted-media; fullscreen; picture-in-picture; display-capture"
+      style={{ width: '100%', height: '100%', border: '0', display: srcDoc ? 'block' : 'none', backgroundColor: '#000' }}
+      allowFullScreen
     />
   );
 }
