@@ -135,7 +135,9 @@ export default function LiveAgent() {
                   <Plug className="w-4 h-4" /> Start Live Session
                 </Button>
               ) : (
-                <div className="text-emerald-300 text-sm">Connected. The agent should appear below momentarily.</div>
+                <div className="text-emerald-300 text-sm">
+                  {agentStatus === 'ready' ? 'Agent loaded. You can start speaking.' : 'Connecting… If this takes more than a few seconds, open in a new tab.'}
+                </div>
               )}
             </CardContent>
           </Card>
