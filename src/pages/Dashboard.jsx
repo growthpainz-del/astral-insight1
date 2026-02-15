@@ -248,6 +248,8 @@ export default function Dashboard() {
           setError("🔌 Network connection issue detected. The server may be slow or overloaded. Please wait 30-60 seconds and click 'Try Again'. If this persists, check your internet connection.");
         } else if (error.response?.status === 429) {
           setError("⏱️ Rate limit reached. Please wait 1 minute before trying again.");
+        } else if (error.response?.status === 508) {
+          setError("🔁 Temporary server loop detected (508). Please wait a minute and refresh.");
         } else if (error.response?.status >= 500) {
           setError("🔧 Server is experiencing issues. This is temporary. Please wait 1-2 minutes and try again.");
         } else {

@@ -96,21 +96,33 @@ class ApiQueue {
           error.code === 'ETIMEDOUT' || // NEW: Timeout
           !error.response;
 
-        const isServerError = error.response?.status >= 500;
+        const status = error.response?.status;
+        const isServerError = status >= 500;
+        const isLoop508 = status === 508;
 
         if ((isRateLimitError || isNetworkError || isServerError) && attempt < maxRetries) {
           let delay;
           
           if (isRateLimitError) {
             delay = baseDelay * Math.pow(5, attempt - 1) + Math.random() * 3000;
+          } else if (isLoop508) {
+            // Extra-aggressive backoff for 508 Loop Detected
+            delay = baseDelay * Math.pow(6, attempt - 1) + Math.random() * 2500;
           } else if (isServerError) {
             delay = baseDelay * Math.pow(4, attempt - 1) + Math.random() * 2000; // INCREASED: 4x multiplier (was 3x)
           } else {
             delay = baseDelay * Math.pow(3, attempt - 1) + Math.random() * 1000; // INCREASED: 3x multiplier (was 2x)
           }
           
-          const errorType = isRateLimitError ? 'RATE LIMIT' : isServerError ? 'SERVER ERROR' : 'NETWORK';
-          console.log(`⏳ Retry ${attempt}/${maxRetries}: ${errorType}. Wait ${(delay / 1000).toFixed(1)}s`);
+          const url = error.config?.url;
+          const errorType = isRateLimitError
+            ? 'RATE LIMIT'
+            : isLoop508
+            ? 'SERVER 508'
+            : isServerError
+            ? `SERVER ${status || ''}`
+            : 'NETWORK';
+          console.warn(`⏳ Retry ${attempt}/${maxRetries}: ${errorType} at ${url || 'unknown'}. Wait ${(delay / 1000).toFixed(1)}s`);
           
           await new Promise(resolve => setTimeout(resolve, delay));
           continue;
@@ -120,7 +132,8 @@ class ApiQueue {
             message: error.message,
             status: error.response?.status,
             url: error.config?.url,
-            code: error.code
+            code: error.code,
+            details: error.response?.data || null
           });
           throw error;
         }
