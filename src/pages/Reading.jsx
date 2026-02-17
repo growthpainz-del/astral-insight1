@@ -893,6 +893,20 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
             </div>
             )}
 
+            {/* Reference manual link */}
+            {deck?.name === 'Rooted Crescent Oracle Deck' && (
+              <div className="bg-white/10 border border-white/20 rounded-lg p-3 text-sm mb-3">
+                <a
+                  href="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d2a300021f94d0f312c039/63b9fd985_agentcosmicchronicles.txt"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-cyan-300 hover:underline"
+                >
+                  Reference: Rooted Crescent Oracle Knowledge
+                </a>
+              </div>
+            )}
+
             {/* AI Insight Button */}
             {!showAI && (
               <motion.div
