@@ -36,6 +36,7 @@ import EnhancedCardViewer from "@/components/reading/EnhancedCardViewer";
 import DisablePullToRefresh from "@/components/common/DisablePullToRefresh";
 import ShuffleAnimation from "@/components/reading/ShuffleAnimation";
 import DidAgentEmbed from "@/components/integrations/DidAgentEmbed";
+import VoiceAvatarBubble from "@/components/avatar/VoiceAvatarBubble";
 
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
@@ -1009,6 +1010,7 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
         onSaved={handleSessionSaved}
       />
       </div>
+      <VoiceAvatarBubble />
       {showAgent && <DidAgentEmbed />}
       </>
       );
