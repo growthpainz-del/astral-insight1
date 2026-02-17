@@ -43,7 +43,7 @@ import NetworkBanner from "@/components/common/NetworkBanner";
 import TokenBalanceDisplay from "@/components/pricing/TokenBalanceDisplay";
 import AppErrorBoundary from "@/components/common/AppErrorBoundary";
 import InitializationError from "@/components/common/InitializationError";
-import DidAgentFloater from "@/components/integrations/DidAgentFloater";
+
 import { queueApiCall } from "@/components/utils/apiQueue";
 
 
@@ -357,7 +357,7 @@ export default function Layout({ children, currentPageName }) {
     { href: "Help", icon: HelpCircle, label: "Help & Guides" },
     { href: "SubscriptionManagement", icon: Coins, label: "Subscription" },
     { href: "Account", icon: Users, label: "Account" },
-    { href: "LiveAgent", icon: Sparkles, label: "Live Agent" },
+  
     // AI Workspace is admin-only; we'll filter it from non-admin view below
     { href: "AIWorkspace", icon: Sparkles, label: "🤖 AI Workspace" },
   ];
@@ -421,9 +421,7 @@ export default function Layout({ children, currentPageName }) {
             <Link to={createPageUrl('Dashboard')}>
               <Button size="sm" className="btn-dark-outline">Dashboard</Button>
             </Link>
-            <Link to={createPageUrl('LiveAgent')}>
-              <Button size="sm" variant="outline" className="border-white/30 text-white hover:bg-white/10">Live Agent</Button>
-            </Link>
+
           </div>
         )}
       </div>
@@ -728,9 +726,7 @@ export default function Layout({ children, currentPageName }) {
                 <span className="font-bold text-lg text-white">Astral Insight</span>
               </Link>
               <div className="flex items-center gap-2">
-                <Link to={createPageUrl('LiveAgent')} className="hidden md:block">
-                  <Button size="sm" variant="outline" className="border-white/30 text-white hover:bg-white/10">Live Agent</Button>
-                </Link>
+
                 <button onClick={() => setIsSidebarOpen(false)} className="md:hidden text-purple-300">
                   <X className="w-6 h-6" />
                 </button>
@@ -927,7 +923,7 @@ export default function Layout({ children, currentPageName }) {
           </div>
         </div>
         
-        <DidAgentFloater />
+        
         {/* Mobile Bottom Navigation */}
         <MobileBottomNav />
         {/* Always-accessible Login button at top-right when unauthenticated (helps in builder preview) */}
