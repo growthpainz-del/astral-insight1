@@ -2,8 +2,12 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Mic, MicOff, Volume2, VolumeX, X, ChevronUp, ChevronDown } from "lucide-react";
 import OracleAvatarSVG from "@/components/avatar/OracleAvatarSVG";
+import { base44 } from "@/api/base44Client";
+import { queueLLMCall } from "@/components/utils/apiQueue";
 
-export default function VoiceAvatarBubble() {
+const KB_URL = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d2a300021f94d0f312c039/63b9fd985_agentcosmicchronicles.txt";
+
+export default function VoiceAvatarBubble({ deck = null, spread = null, cards = [], question = "" }) {
   const [open, setOpen] = React.useState(false);
   const [speaking, setSpeaking] = React.useState(false);
   const [listening, setListening] = React.useState(false);
@@ -11,11 +15,14 @@ export default function VoiceAvatarBubble() {
   const [speakText, setSpeakText] = React.useState("");
   const [voices, setVoices] = React.useState([]);
   const [selectedVoice, setSelectedVoice] = React.useState(null);
+  const [responseText, setResponseText] = React.useState("");
+  const [isThinking, setIsThinking] = React.useState(false);
 
   const supportsTTS = typeof window !== "undefined" && "speechSynthesis" in window;
   const SpeechRecognition = typeof window !== "undefined" && (window.SpeechRecognition || window.webkitSpeechRecognition);
   const supportsSTT = Boolean(SpeechRecognition);
   const recognitionRef = React.useRef(null);
+  const lastHeardRef = React.useRef("");
 
   // Load voices and pick a soothing feminine default where available
   React.useEffect(() => {
@@ -61,11 +68,7 @@ export default function VoiceAvatarBubble() {
     utter.pitch = 1.12; // gentle, soothing
     utter.onstart = () => setSpeaking(true);
     utter.onend = () => setSpeaking(false);
-    try {
-      window.speechSynthesis.speak(utter);
-    } catch (_) {
-      setSpeaking(false);
-    }
+    window.speechSynthesis.speak(utter);
   }, [supportsTTS, stopAllSpeech, selectedVoice]);
 
   const startListening = React.useCallback(() => {
@@ -78,19 +81,26 @@ export default function VoiceAvatarBubble() {
       rec.maxAlternatives = 1;
       rec.onstart = () => setListening(true);
       rec.onerror = () => setListening(false);
-      rec.onend = () => setListening(false);
+      rec.onend = () => {
+        setListening(false);
+        const said = (lastHeardRef.current || transcript || "").trim();
+        if (said) {
+          generateResponse(said);
+        }
+      };
       rec.onresult = (event) => {
         let finalText = "";
         for (let i = event.resultIndex; i < event.results.length; i++) {
           finalText += event.results[i][0].transcript;
         }
+        lastHeardRef.current = finalText;
         setTranscript((prev) => (finalText?.trim() ? finalText : prev));
       };
       rec.start();
     } catch (_) {
       setListening(false);
     }
-  }, [supportsSTT, listening, SpeechRecognition]);
+  }, [supportsSTT, listening, SpeechRecognition, transcript]);
 
   const stopListening = React.useCallback(() => {
     try {
@@ -98,6 +108,31 @@ export default function VoiceAvatarBubble() {
     } catch (_) {}
     setListening(false);
   }, []);
+
+  const generateResponse = React.useCallback(async (userText) => {
+    setIsThinking(true);
+    const cardLine = (cards || []).map(c => `${c.name || c.card_name || 'Card'}${c.isReversed ? ' (reversed)' : ''}`).join(', ');
+    const deckName = deck?.name || 'Selected Deck';
+    const spreadName = spread?.name || spread?.id || 'selected spread';
+    const q = question || 'No specific question provided';
+
+    const prompt = `You are Cosmic Oracle Chronicler (Frenzie), an empathetic oracle reader.\n` +
+      `User asked (voice): "${userText}".\n` +
+      `Reading context: Deck: ${deckName}; Spread: ${spreadName}; Question: ${q}; Drawn: ${cardLine || 'n/a'}.\n` +
+      `Using the attached Rooted Crescent Oracle notes when relevant, give a concise, spoken-style response (2-5 sentences), mystical yet grounded, with 1 clear takeaway.`;
+
+    const res = await queueLLMCall(() => base44.integrations.Core.InvokeLLM({
+      prompt,
+      add_context_from_internet: false,
+      file_urls: [KB_URL]
+    }), 3, 3000);
+
+    const answer = typeof res === 'string' ? res : (res?.output || res?.content || JSON.stringify(res));
+    setResponseText(answer || 'I sense a gentle shift—could you say that again?');
+    setSpeakText(answer || 'I sense a gentle shift—could you say that again?');
+    if (answer) speak(answer);
+    setIsThinking(false);
+  }, [cards, deck, question, spread, speak]);
 
   React.useEffect(() => () => stopAllSpeech(), [stopAllSpeech]);
 
@@ -120,11 +155,15 @@ export default function VoiceAvatarBubble() {
 
             <div className="text-xs text-white/70 mb-2">Speak or ask anything about your reading. I can listen and talk back.</div>
 
-            <div className="bg-black/40 rounded-lg p-2 min-h-[64px] text-sm text-white/90 border border-white/10 mb-2">
-              {transcript ? (
-                <div className="whitespace-pre-wrap break-words">{transcript}</div>
-              ) : (
-                <div className="text-white/50">Your voice transcript will appear here…</div>
+            <div className="bg-black/40 rounded-lg p-2 min-h-[72px] text-sm text-white/90 border border-white/10 mb-2 space-y-1">
+              {responseText && (
+                <div className="whitespace-pre-wrap break-words"><span className="text-cyan-300">Frenzie:</span> {responseText}</div>
+              )}
+              {transcript && (
+                <div className="text-white/70 text-xs"><span className="text-white/50">You:</span> {transcript}</div>
+              )}
+              {!responseText && !transcript && (
+                <div className="text-white/50">Speak and I will answer. {isThinking ? 'Thinking…' : ''}</div>
               )}
             </div>
 
@@ -135,16 +174,16 @@ export default function VoiceAvatarBubble() {
                 className={`${listening ? "bg-red-600 hover:bg-red-700" : "bg-purple-600 hover:bg-purple-700"} flex-1`}
               >
                 {listening ? <MicOff className="w-4 h-4 mr-2" /> : <Mic className="w-4 h-4 mr-2" />}
-                {listening ? "Stop" : supportsSTT ? "Listen" : "No STT"}
+                {listening ? "Stop" : supportsSTT ? (isThinking ? "Listening…" : "Listen") : "No STT"}
               </Button>
               <Button
-                onClick={() => (speaking ? stopAllSpeech() : speak(speakText || "Blessings, seeker. Shall we begin?"))}
+                onClick={() => (speaking ? stopAllSpeech() : (responseText ? speak(responseText) : speak(speakText || "Blessings, seeker. Shall we begin?")))}
                 variant="outline"
                 className="flex-1 border-purple-500/40 text-purple-200 hover:bg-purple-500/10"
                 disabled={!supportsTTS}
               >
                 {speaking ? <VolumeX className="w-4 h-4 mr-2" /> : <Volume2 className="w-4 h-4 mr-2" />}
-                {speaking ? "Stop" : supportsTTS ? "Speak" : "No TTS"}
+                {speaking ? "Stop" : supportsTTS ? (responseText ? "Replay" : "Speak") : "No TTS"}
               </Button>
             </div>
 

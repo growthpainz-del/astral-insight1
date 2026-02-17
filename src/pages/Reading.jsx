@@ -1024,7 +1024,12 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
         onSaved={handleSessionSaved}
       />
       </div>
-      <VoiceAvatarBubble />
+      <VoiceAvatarBubble
+        deck={deck}
+        spread={selectedSpread}
+        cards={(placedCards.some(Boolean) ? placedCards : drawnCards).filter(Boolean)}
+        question={question}
+      />
       {showAgent && <DidAgentEmbed />}
       </>
       );
