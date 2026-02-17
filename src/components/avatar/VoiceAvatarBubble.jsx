@@ -1,6 +1,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Mic, MicOff, Volume2, VolumeX, X, ChevronUp, ChevronDown } from "lucide-react";
+import OracleAvatarSVG from "@/components/avatar/OracleAvatarSVG";
 
 export default function VoiceAvatarBubble() {
   const [open, setOpen] = React.useState(false);
@@ -8,11 +9,39 @@ export default function VoiceAvatarBubble() {
   const [listening, setListening] = React.useState(false);
   const [transcript, setTranscript] = React.useState("");
   const [speakText, setSpeakText] = React.useState("");
+  const [voices, setVoices] = React.useState([]);
+  const [selectedVoice, setSelectedVoice] = React.useState(null);
 
   const supportsTTS = typeof window !== "undefined" && "speechSynthesis" in window;
   const SpeechRecognition = typeof window !== "undefined" && (window.SpeechRecognition || window.webkitSpeechRecognition);
   const supportsSTT = Boolean(SpeechRecognition);
   const recognitionRef = React.useRef(null);
+
+  // Load voices and pick a soothing feminine default where available
+  React.useEffect(() => {
+    if (!supportsTTS) return;
+    const pick = (list) => {
+      if (!list?.length) return null;
+      const en = list.filter(v => /en/i.test(v.lang));
+      const candidates = [
+        'Samantha','Victoria','Google UK English Female','Google US English',
+        'Microsoft Zira','Microsoft Aria','Microsoft Hazel','Veena'
+      ];
+      for (const name of candidates) {
+        const m = en.find(v => v.name.includes(name)) || list.find(v => v.name.includes(name));
+        if (m) return m;
+      }
+      return en[0] || list[0] || null;
+    };
+    const loadVoices = () => {
+      const v = window.speechSynthesis.getVoices();
+      setVoices(v);
+      setSelectedVoice(prev => prev || pick(v));
+    };
+    loadVoices();
+    try { window.speechSynthesis.onvoiceschanged = loadVoices; } catch (_) {}
+    return () => { try { window.speechSynthesis.onvoiceschanged = null; } catch (_) {} };
+  }, [supportsTTS]);
 
   const stopAllSpeech = React.useCallback(() => {
     try {
@@ -27,8 +56,9 @@ export default function VoiceAvatarBubble() {
     if (!supportsTTS || !text) return;
     stopAllSpeech();
     const utter = new SpeechSynthesisUtterance(text);
-    utter.rate = 1;
-    utter.pitch = 1.05;
+    if (selectedVoice) utter.voice = selectedVoice;
+    utter.rate = 0.95; // calmer pace
+    utter.pitch = 1.12; // gentle, soothing
     utter.onstart = () => setSpeaking(true);
     utter.onend = () => setSpeaking(false);
     try {
@@ -36,7 +66,7 @@ export default function VoiceAvatarBubble() {
     } catch (_) {
       setSpeaking(false);
     }
-  }, [supportsTTS, stopAllSpeech]);
+  }, [supportsTTS, stopAllSpeech, selectedVoice]);
 
   const startListening = React.useCallback(() => {
     if (!supportsSTT || listening) return;
@@ -80,7 +110,7 @@ export default function VoiceAvatarBubble() {
           <div className="w-72 sm:w-80 bg-slate-900/95 backdrop-blur-xl border border-purple-500/30 rounded-2xl shadow-2xl p-3 sm:p-4 text-white">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <div className={`h-8 w-8 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 ${bubblePulse}`} />
+                <OracleAvatarSVG size={28} talking={speaking} listening={listening} />
                 <div className="text-sm font-semibold">Frenzie</div>
               </div>
               <button onClick={() => setOpen(false)} className="text-white/70 hover:text-white">
@@ -136,7 +166,7 @@ export default function VoiceAvatarBubble() {
           className={`h-14 w-14 rounded-full shadow-lg shadow-purple-900/30 bg-gradient-to-br from-purple-600 to-cyan-500 flex items-center justify-center border border-white/10 active:scale-95 transition ${bubblePulse}`}
           title="Open voice guide"
         >
-          {open ? <ChevronDown className="w-5 h-5 text-white" /> : <ChevronUp className="w-5 h-5 text-white" />}
+          <OracleAvatarSVG size={22} talking={speaking} listening={listening} />
         </button>
       </div>
     </div>
