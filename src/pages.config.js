@@ -92,6 +92,7 @@ import UserProfile from './pages/UserProfile';
 import WebhookTester from './pages/WebhookTester';
 import WiccanSeeder from './pages/WiccanSeeder';
 import ZodiacReading from './pages/ZodiacReading';
+import DIDAgent from './pages/DIDAgent';
 import __Layout from './Layout.jsx';
 
 
@@ -141,6 +142,7 @@ export const PAGES = {
     "WebhookTester": WebhookTester,
     "WiccanSeeder": WiccanSeeder,
     "ZodiacReading": ZodiacReading,
+    "DIDAgent": DIDAgent,
 }
 
 export const pagesConfig = {
