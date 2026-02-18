@@ -106,14 +106,36 @@ export default function LiveAgent() {
         </div>
 
         <div className="bg-white/10 border border-white/20 rounded-lg p-3 flex flex-col md:flex-row gap-3 items-start md:items-end">
-          <div className="flex-1 w-full">
-            <label className="block text-xs text-white/70 mb-1">Agent ID</label>
-            <Input
-              value={agentId}
-              onChange={(e) => setAgentId(e.target.value)}
-              placeholder="v2_agt_..."
-              className="bg-black/30 border-white/20 text-white placeholder:text-white/50"
-            />
+          <div className="flex-1 w-full grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+            <div className="md:col-span-2">
+              <label className="block text-xs text-white/70 mb-1">Agent ID</label>
+              <Input
+                value={agentId}
+                onChange={(e) => setAgentId(e.target.value)}
+                placeholder="v2_agt_..."
+                className="bg-black/30 border-white/20 text-white placeholder:text-white/50"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-white/70 mb-1">Curated Deck IDs (comma-separated)</label>
+              <Input
+                placeholder="deckId1, deckId2, ..."
+                className="bg-black/30 border-white/20 text-white placeholder:text-white/50"
+                onBlur={async (e) => {
+                  const raw = e.target.value || '';
+                  const deck_ids = raw.split(',').map(s => s.trim()).filter(Boolean);
+                  try {
+                    const { base44 } = await import("@/api/base44Client");
+                    const existing = await base44.entities.DidAgentConfig.list();
+                    if (existing && existing.length) {
+                      await base44.entities.DidAgentConfig.update(existing[0].id, { deck_ids });
+                    } else {
+                      await base44.entities.DidAgentConfig.create({ agent_id: agentId || 'v2_agt_hF1S2XwN', deck_ids });
+                    }
+                  } catch (e) { console.warn('Failed to persist deck_ids', e); }
+                }}
+              />
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <Button
