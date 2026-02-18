@@ -12,6 +12,9 @@ export default function LiveAgent() {
   const [decks, setDecks] = useState([]);
   const [selectedDeckIds, setSelectedDeckIds] = useState([]);
   const [search, setSearch] = useState("");
+  const inPreview = React.useMemo(() => {
+    try { return window.top !== window.self; } catch (_) { return true; }
+  }, []);
   const scriptRef = useRef(null);
 
   const mountScript = () => {
@@ -58,7 +61,9 @@ export default function LiveAgent() {
         localStorage.setItem("did_live_agent_id", fallback);
       }
     } catch (_) {}
-    mountScript();
+    if (!inPreview) {
+      mountScript();
+    }
 
     return () => {
       try {
@@ -72,7 +77,7 @@ export default function LiveAgent() {
 
   useEffect(() => {
     // Re-mount when agent ID changes (e.g., after saving)
-    if (scriptRef.current) {
+    if (!inPreview && scriptRef.current) {
       mountScript();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -189,7 +194,21 @@ export default function LiveAgent() {
           </div>
         </div>
 
-        {/* Target container for D-ID Agent embed */}
+        {/* Preview warning + Target container for D-ID Agent embed */}
+        {inPreview && (
+          <div className="w-full mb-3 bg-amber-500/10 border border-amber-500/40 text-amber-200 rounded-lg p-3">
+            Live Agent can’t run inside the builder preview (iframe). Use the published app or open this page in a new tab.
+            <div className="mt-2">
+              <Button
+                variant="outline"
+                className="border-amber-500/40 text-amber-200 hover:bg-amber-500/10"
+                onClick={() => window.open(window.location.href, '_blank')}
+              >
+                Open in new tab
+              </Button>
+            </div>
+          </div>
+        )}
         <div
           id="did-agent-container"
           className="w-full aspect-video bg-black/30 border border-white/10 rounded-xl overflow-hidden"
