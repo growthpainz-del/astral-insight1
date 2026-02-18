@@ -357,7 +357,6 @@ export default function Layout({ children, currentPageName }) {
     { href: "Help", icon: HelpCircle, label: "Help & Guides" },
     { href: "SubscriptionManagement", icon: Coins, label: "Subscription" },
     { href: "Account", icon: Users, label: "Account" },
-    { href: "DIDAgent", icon: Sparkles, label: "D-ID Agent" },
 
     // AI Workspace is admin-only; we'll filter it from non-admin view below
     { href: "AIWorkspace", icon: Sparkles, label: "🤖 AI Workspace" },

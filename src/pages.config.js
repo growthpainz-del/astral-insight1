@@ -56,7 +56,6 @@ import CardGallery from './pages/CardGallery';
 import CardInfo from './pages/CardInfo';
 import CardNames from './pages/CardNames';
 import CreateDeck from './pages/CreateDeck';
-import DIDAgent from './pages/DIDAgent';
 import Dashboard from './pages/Dashboard';
 import Deck from './pages/Deck';
 import DeckCreationWizard from './pages/DeckCreationWizard';
@@ -107,7 +106,6 @@ export const PAGES = {
     "CardInfo": CardInfo,
     "CardNames": CardNames,
     "CreateDeck": CreateDeck,
-    "DIDAgent": DIDAgent,
     "Dashboard": Dashboard,
     "Deck": Deck,
     "DeckCreationWizard": DeckCreationWizard,
