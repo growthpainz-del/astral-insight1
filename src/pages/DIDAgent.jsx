@@ -122,8 +122,24 @@ export default function DIDAgent() {
   };
 
   const handleSelectAgent = async (id) => {
-    setInputId(id);
-    await handleLoadAgent();
+    if (!id) return;
+    setLoading(true);
+    setError('');
+    try {
+      try { localStorage.setItem('did_demo_agent_id', id); } catch (_) {}
+      setAgentId(id);
+      setInputId(id);
+      try {
+        await didUpdateAgent({ agentId: id, llm_provider: 'openai', llm_model: 'gpt-4.1-nano' });
+      } catch (_) {}
+      const res = await didGetAgent({ agentId: id });
+      const data = res?.data || res;
+      setAgent(data);
+    } catch (e) {
+      setError(e?.message || 'Failed to load agent');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSaveInstructions = async () => {
