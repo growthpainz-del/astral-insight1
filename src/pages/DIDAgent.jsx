@@ -8,6 +8,9 @@ import { didCreateAgent } from '@/functions/didCreateAgent';
 import { didGetAgent } from '@/functions/didGetAgent';
 import { didUpdateAgent } from '@/functions/didUpdateAgent';
 import { deepThink } from '@/functions/deepThink';
+import { didListAgents } from '@/functions/didListAgents';
+import AgentsList from '@/components/did/AgentsList';
+import { Textarea } from '@/components/ui/textarea';
 
 export default function DIDAgent() {
   const [agentId, setAgentId] = React.useState(null);
@@ -18,6 +21,10 @@ export default function DIDAgent() {
   const [deepPrompt, setDeepPrompt] = React.useState('');
   const [deepResult, setDeepResult] = React.useState('');
   const [deepLoading, setDeepLoading] = React.useState(false);
+  const [instructionsValue, setInstructionsValue] = React.useState('');
+  const [savingInstructions, setSavingInstructions] = React.useState(false);
+  const [agents, setAgents] = React.useState([]);
+  const [agentsLoading, setAgentsLoading] = React.useState(false);
 
   const ensureAgent = React.useCallback(async () => {
     setLoading(true);
@@ -55,6 +62,14 @@ export default function DIDAgent() {
 
   React.useEffect(() => { ensureAgent(); }, [ensureAgent]);
 
+  React.useEffect(() => {
+    setInstructionsValue(agent?.user_data || agent?.llm?.instructions || '');
+  }, [agent]);
+
+  React.useEffect(() => {
+    loadAgents();
+  }, []);
+
   const resetAgent = async () => {
     try { localStorage.removeItem('did_demo_agent_id'); } catch (_) {}
     setAgent(null); setAgentId(null); setInputId(''); setError('');
@@ -90,6 +105,40 @@ export default function DIDAgent() {
     if (!saved) { setError('No saved agent_id found'); return; }
     setInputId(saved);
     await handleLoadAgent();
+  };
+
+  const loadAgents = async () => {
+    setAgentsLoading(true);
+    try {
+      const res = await didListAgents({});
+      const data = res?.data || res;
+      const items = Array.isArray(data) ? data : (data?.items || data?.data || []);
+      setAgents(items);
+    } catch (e) {
+      // silent
+    } finally {
+      setAgentsLoading(false);
+    }
+  };
+
+  const handleSelectAgent = async (id) => {
+    setInputId(id);
+    await handleLoadAgent();
+  };
+
+  const handleSaveInstructions = async () => {
+    if (!agentId) return;
+    setSavingInstructions(true);
+    try {
+      await didUpdateAgent({ agentId, user_data: instructionsValue });
+      const res = await didGetAgent({ agentId });
+      const data = res?.data || res;
+      setAgent(data);
+    } catch (e) {
+      setError(e?.message || 'Failed to save instructions');
+    } finally {
+      setSavingInstructions(false);
+    }
   };
 
   const handleDeepThink = async () => {
@@ -153,6 +202,15 @@ export default function DIDAgent() {
             <div className="bg-red-900/30 border border-red-500/40 rounded-md p-3 text-sm text-red-200 mb-3">{error}</div>
           )}
 
+          <div className="mb-4 bg-black/20 border border-white/10 rounded-lg p-3">
+            <AgentsList
+              agents={agents}
+              loading={agentsLoading}
+              onRefresh={loadAgents}
+              onSelect={handleSelectAgent}
+            />
+          </div>
+
           {!agent && (
             <div className="py-16 text-center text-white/80">
               <Loader2 className="w-8 h-8 animate-spin mx-auto mb-3" />
@@ -207,6 +265,30 @@ export default function DIDAgent() {
                 {deepResult && (
                   <div className="mt-2 text-white/80 text-sm whitespace-pre-wrap">{deepResult}</div>
                 )}
+              </div>
+            </div>
+          )}
+
+          {agent && (
+            <div className="mt-4 bg-black/30 border border-white/10 rounded-lg p-3 space-y-2">
+              <div className="text-sm font-medium text-white/80">Instructions / Notes</div>
+              <Textarea
+                value={instructionsValue}
+                onChange={(e) => setInstructionsValue(e.target.value)}
+                placeholder="Write agent instructions or notes (stored in user_data)…"
+                className="bg-black/30 border-white/20 text-white min-h-24"
+              />
+              <div className="flex justify-end">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleSaveInstructions}
+                  disabled={savingInstructions}
+                  className="border-white/20 text-white hover:bg-white/10"
+                >
+                  {savingInstructions ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                  Save Instructions
+                </Button>
               </div>
             </div>
           )}
