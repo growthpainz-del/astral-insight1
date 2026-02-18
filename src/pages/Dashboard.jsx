@@ -434,6 +434,15 @@ export default function Dashboard() {
                 <Sparkles className="w-4 h-4" /> Live Agent
               </Button>
             </Link>
+            <Link to={createPageUrl("DIDAgent")}>
+              <Button
+                variant="outline"
+                className="border-white/30 text-white hover:bg-white/10 gap-2"
+                title="Test the D-ID Agent demo (default LLM)"
+              >
+                <Sparkles className="w-4 h-4" /> Test D-ID Agent
+              </Button>
+            </Link>
             <Button
               variant="outline"
               className="border-white/30 text-white hover:bg-white/10 gap-2"
