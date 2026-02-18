@@ -6,6 +6,7 @@ import { createPageUrl } from '@/utils';
 import { Link } from 'react-router-dom';
 import { didCreateAgent } from '@/functions/didCreateAgent';
 import { didGetAgent } from '@/functions/didGetAgent';
+import { didUpdateAgent } from '@/functions/didUpdateAgent';
 
 export default function DIDAgent() {
   const [agentId, setAgentId] = React.useState(null);
@@ -31,6 +32,13 @@ export default function DIDAgent() {
 
       setAgentId(id);
       setInputId(id);
+
+      // Ensure LLM is set to GPT-4.1 Nano
+      try {
+        await didUpdateAgent({ agentId: id, llm_provider: 'openai', llm_model: 'gpt-4.1-nano' });
+      } catch (_) {}
+
+      // Fetch updated agent
       const res2 = await didGetAgent({ agentId: id });
       const agentData = res2?.data || res2;
       setAgent(agentData);
@@ -56,6 +64,12 @@ export default function DIDAgent() {
     try {
       try { localStorage.setItem('did_demo_agent_id', inputId); } catch (_) {}
       setAgentId(inputId);
+
+      // Ensure LLM is set to GPT-4.1 Nano
+      try {
+        await didUpdateAgent({ agentId: inputId, llm_provider: 'openai', llm_model: 'gpt-4.1-nano' });
+      } catch (_) {}
+
       const res = await didGetAgent({ agentId: inputId });
       const data = res?.data || res;
       setAgent(data);
