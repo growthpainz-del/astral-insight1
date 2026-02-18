@@ -11,7 +11,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Missing D_ID_API_KEY secret' }, { status: 500 });
     }
 
-    const { agentId, llm_provider, llm_model, llm_temperature } = await req.json().catch(() => ({}));
+    const { agentId, llm_provider, llm_model, llm_temperature, user_data, instructions } = await req.json().catch(() => ({}));
     if (!agentId) {
       return Response.json({ error: 'agentId is required' }, { status: 400 });
     }
