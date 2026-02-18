@@ -16,13 +16,14 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'agentId is required' }, { status: 400 });
     }
 
-    const body = {
-      llm: {
-        provider: llm_provider || 'openai',
-        model: llm_model || 'gpt-4.1-nano',
-        ...(typeof llm_temperature === 'number' ? { temperature: llm_temperature } : {})
-      }
-    };
+    const body = {};
+    const llm = {};
+    if (llm_provider) llm.provider = llm_provider;
+    if (llm_model) llm.model = llm_model;
+    if (typeof llm_temperature === 'number') llm.temperature = llm_temperature;
+    if (instructions) llm.instructions = instructions;
+    if (Object.keys(llm).length > 0) body.llm = llm;
+    if (typeof user_data === 'string') body.user_data = user_data;
 
     const authHeader = 'Basic ' + btoa(apiKey);
 
