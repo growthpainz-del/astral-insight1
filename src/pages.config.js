@@ -56,6 +56,7 @@ import CardGallery from './pages/CardGallery';
 import CardInfo from './pages/CardInfo';
 import CardNames from './pages/CardNames';
 import CreateDeck from './pages/CreateDeck';
+import DIDDemo from './pages/DIDDemo';
 import Dashboard from './pages/Dashboard';
 import Deck from './pages/Deck';
 import DeckCreationWizard from './pages/DeckCreationWizard';
@@ -93,7 +94,6 @@ import UserProfile from './pages/UserProfile';
 import WebhookTester from './pages/WebhookTester';
 import WiccanSeeder from './pages/WiccanSeeder';
 import ZodiacReading from './pages/ZodiacReading';
-import DIDDemo from './pages/DIDDemo';
 import __Layout from './Layout.jsx';
 
 
@@ -107,6 +107,7 @@ export const PAGES = {
     "CardInfo": CardInfo,
     "CardNames": CardNames,
     "CreateDeck": CreateDeck,
+    "DIDDemo": DIDDemo,
     "Dashboard": Dashboard,
     "Deck": Deck,
     "DeckCreationWizard": DeckCreationWizard,
@@ -144,7 +145,6 @@ export const PAGES = {
     "WebhookTester": WebhookTester,
     "WiccanSeeder": WiccanSeeder,
     "ZodiacReading": ZodiacReading,
-    "DIDDemo": DIDDemo,
 }
 
 export const pagesConfig = {

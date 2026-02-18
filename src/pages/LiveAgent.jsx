@@ -72,10 +72,20 @@ export default function LiveAgent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [agentId]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     try {
       if (agentId) localStorage.setItem("did_live_agent_id", agentId);
     } catch (_) {}
+    // Persist to DidAgentConfig (create or update singleton)
+    try {
+      const { base44 } = await import("@/api/base44Client");
+      const existing = await base44.entities.DidAgentConfig.list();
+      if (existing && existing.length) {
+        await base44.entities.DidAgentConfig.update(existing[0].id, { agent_id: agentId });
+      } else {
+        await base44.entities.DidAgentConfig.create({ agent_id: agentId, deck_ids: [] });
+      }
+    } catch (e) { console.warn('Failed to persist agent_id to DidAgentConfig', e); }
     mountScript();
   };
 
