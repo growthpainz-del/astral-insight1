@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Loader2, Bot, RefreshCw, Video } from 'lucide-react';
 import { createPageUrl } from '@/utils';
 import { Link } from 'react-router-dom';
@@ -8,6 +9,7 @@ import { didGetAgent } from '@/functions/didGetAgent';
 
 export default function DIDAgent() {
   const [agentId, setAgentId] = React.useState(null);
+  const [inputId, setInputId] = React.useState('');
   const [agent, setAgent] = React.useState(null);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState('');
@@ -28,6 +30,7 @@ export default function DIDAgent() {
       }
 
       setAgentId(id);
+      setInputId(id);
       const res2 = await didGetAgent({ agentId: id });
       const agentData = res2?.data || res2;
       setAgent(agentData);
@@ -42,8 +45,25 @@ export default function DIDAgent() {
 
   const resetAgent = async () => {
     try { localStorage.removeItem('did_demo_agent_id'); } catch (_) {}
-    setAgent(null); setAgentId(null); setError('');
+    setAgent(null); setAgentId(null); setInputId(''); setError('');
     await ensureAgent();
+  };
+
+  const handleLoadAgent = async () => {
+    if (!inputId) return;
+    setLoading(true);
+    setError('');
+    try {
+      try { localStorage.setItem('did_demo_agent_id', inputId); } catch (_) {}
+      setAgentId(inputId);
+      const res = await didGetAgent({ agentId: inputId });
+      const data = res?.data || res;
+      setAgent(data);
+    } catch (e) {
+      setError(e?.message || 'Failed to load agent');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -60,11 +80,20 @@ export default function DIDAgent() {
         </div>
 
         <div className="bg-white/10 border border-white/20 rounded-xl p-4">
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between mb-3 gap-3 flex-wrap">
             <div className="text-sm text-white/80">
               {agentId ? <>Agent ID: <span className="font-mono text-white/90">{agentId}</span></> : 'No agent yet'}
             </div>
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2">
+              <Input
+                value={inputId}
+                onChange={(e) => setInputId(e.target.value)}
+                placeholder="Paste agent_id (agnt_...)"
+                className="h-8 w-56 bg-black/30 border-white/20 text-white placeholder:text-white/50"
+              />
+              <Button size="sm" variant="outline" onClick={handleLoadAgent} disabled={!inputId || loading} className="border-white/20 text-white hover:bg-white/10">
+                Load
+              </Button>
               <Button size="sm" variant="outline" onClick={ensureAgent} disabled={loading} className="border-white/20 text-white hover:bg-white/10">
                 {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Video className="w-4 h-4 mr-2" />}
                 {loading ? 'Initializing…' : 'Initialize / Refresh'}
