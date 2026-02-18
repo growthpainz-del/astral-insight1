@@ -71,6 +71,7 @@ import Help from './pages/Help';
 import History from './pages/History';
 import Home from './pages/Home';
 import Journal from './pages/Journal';
+import LiveAgent from './pages/LiveAgent';
 import ManualsLibrary from './pages/ManualsLibrary';
 import MyFusions from './pages/MyFusions';
 import Persona from './pages/Persona';
@@ -92,7 +93,6 @@ import UserProfile from './pages/UserProfile';
 import WebhookTester from './pages/WebhookTester';
 import WiccanSeeder from './pages/WiccanSeeder';
 import ZodiacReading from './pages/ZodiacReading';
-import LiveAgent from './pages/LiveAgent';
 import DIDDemo from './pages/DIDDemo';
 import __Layout from './Layout.jsx';
 
@@ -122,6 +122,7 @@ export const PAGES = {
     "History": History,
     "Home": Home,
     "Journal": Journal,
+    "LiveAgent": LiveAgent,
     "ManualsLibrary": ManualsLibrary,
     "MyFusions": MyFusions,
     "Persona": Persona,
@@ -143,7 +144,6 @@ export const PAGES = {
     "WebhookTester": WebhookTester,
     "WiccanSeeder": WiccanSeeder,
     "ZodiacReading": ZodiacReading,
-    "LiveAgent": LiveAgent,
     "DIDDemo": DIDDemo,
 }
 

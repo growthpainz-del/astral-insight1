@@ -44,7 +44,13 @@ export default function LiveAgent() {
     // Load saved agent ID and mount on first render
     try {
       const savedId = localStorage.getItem("did_live_agent_id");
-      if (savedId) setAgentId(savedId);
+      if (savedId) {
+        setAgentId(savedId);
+      } else {
+        const fallback = "v2_agt_hF1S2XwN";
+        setAgentId(fallback);
+        localStorage.setItem("did_live_agent_id", fallback);
+      }
     } catch (_) {}
     mountScript();
 
