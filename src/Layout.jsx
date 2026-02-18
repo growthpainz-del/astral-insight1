@@ -4,30 +4,30 @@ import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import {
-              Home,
-              BookOpen,
-              History,
-              HelpCircle,
-              Users,
-              LogOut,
-              ChevronDown,
-              ChevronLeft,
-              LayoutGrid,
-              Star,
-              Sprout,
-              Heart,
-              Combine,
-              X,
-              Image as ImageIcon,
-              Coins,
-              CheckCircle2,
-              Palette,
-              Layers,
-              Sparkles,
-              Sun,
-              Moon,
-              Laptop
-            } from "lucide-react";
+                    Home,
+                    BookOpen,
+                    History,
+                    HelpCircle,
+                    Users,
+                    LogOut,
+                    ChevronDown,
+                    ChevronLeft,
+                    LayoutGrid,
+                    Star,
+                    Sprout,
+                    Heart,
+                    GitMerge,
+                    X,
+                    Image as ImageIcon,
+                    Coins,
+                    CheckCircle2,
+                    Palette,
+                    Layers,
+                    Sparkles,
+                    Sun,
+                    Moon,
+                    Laptop
+                  } from "lucide-react";
 import {
         DropdownMenu,
         DropdownMenuContent,
@@ -341,9 +341,9 @@ export default function Layout({ children, currentPageName }) {
   ];
 
   const specialReadings = [
-    { href: "FusionReading", icon: Combine, label: "Fusions" },
-    { href: "ZodiacReading", icon: Star, label: "Zodiac" }
-  ];
+            { href: "FusionReading", icon: GitMerge, label: "Fusions" },
+            { href: "ZodiacReading", icon: Star, label: "Zodiac" }
+          ];
 
   const studioLinks = [
     { href: "Studio", icon: Palette, label: "My Decks" },
