@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import { didCreateAgent } from '@/functions/didCreateAgent';
 import { didGetAgent } from '@/functions/didGetAgent';
 import { didUpdateAgent } from '@/functions/didUpdateAgent';
+import { deepThink } from '@/functions/deepThink';
 
 export default function DIDAgent() {
   const [agentId, setAgentId] = React.useState(null);
@@ -14,6 +15,9 @@ export default function DIDAgent() {
   const [agent, setAgent] = React.useState(null);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState('');
+  const [deepPrompt, setDeepPrompt] = React.useState('');
+  const [deepResult, setDeepResult] = React.useState('');
+  const [deepLoading, setDeepLoading] = React.useState(false);
 
   const ensureAgent = React.useCallback(async () => {
     setLoading(true);
@@ -86,6 +90,22 @@ export default function DIDAgent() {
     if (!saved) { setError('No saved agent_id found'); return; }
     setInputId(saved);
     await handleLoadAgent();
+  };
+
+  const handleDeepThink = async () => {
+    if (!deepPrompt.trim()) return;
+    setDeepLoading(true);
+    setDeepResult('');
+    try {
+      const res = await deepThink({ prompt: deepPrompt.trim() });
+      const data = res?.data || res;
+      const out = typeof data?.result === 'string' ? data.result : JSON.stringify(data?.result, null, 2);
+      setDeepResult(out);
+    } catch (e) {
+      setDeepResult(e?.message || 'Failed to run deep-think');
+    } finally {
+      setDeepLoading(false);
+    }
   };
 
   return (
@@ -162,7 +182,31 @@ export default function DIDAgent() {
                 </div>
               )}
               <div className="text-xs text-white/60">
-                This demo uses D-ID default replies (no custom LLM). Next step: enable real-time chat using D-ID Client SDK.
+                LLM is set to GPT-4.1 Nano for low-latency replies. Real-time chat via D-ID SDK coming next.
+              </div>
+              <div className="mt-3 bg-black/30 border border-white/10 rounded-lg p-3">
+                <div className="text-sm font-medium text-white/80 mb-2">Deep‑think test</div>
+                <div className="flex gap-2 flex-wrap">
+                  <Input
+                    value={deepPrompt}
+                    onChange={(e) => setDeepPrompt(e.target.value)}
+                    placeholder="Ask a complex question..."
+                    className="h-9 bg-black/30 border-white/20 text-white placeholder:text-white/50 flex-1 min-w-[220px]"
+                  />
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleDeepThink}
+                    disabled={!deepPrompt.trim() || deepLoading}
+                    className="border-white/20 text-white hover:bg-white/10"
+                  >
+                    {deepLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                    Ask
+                  </Button>
+                </div>
+                {deepResult && (
+                  <div className="mt-2 text-white/80 text-sm whitespace-pre-wrap">{deepResult}</div>
+                )}
               </div>
             </div>
           )}
