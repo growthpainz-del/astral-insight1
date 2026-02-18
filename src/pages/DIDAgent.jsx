@@ -66,6 +66,14 @@ export default function DIDAgent() {
     }
   };
 
+  const handleUseSaved = async () => {
+    let saved = '';
+    try { saved = localStorage.getItem('did_demo_agent_id') || ''; } catch (_) {}
+    if (!saved) { setError('No saved agent_id found'); return; }
+    setInputId(saved);
+    await handleLoadAgent();
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-950 via-purple-950 to-slate-900 text-white">
       <div className="max-w-4xl mx-auto p-6 space-y-6">
@@ -93,6 +101,9 @@ export default function DIDAgent() {
               />
               <Button size="sm" variant="outline" onClick={handleLoadAgent} disabled={!inputId || loading} className="border-white/20 text-white hover:bg-white/10">
                 Load
+              </Button>
+              <Button size="sm" variant="outline" onClick={handleUseSaved} disabled={loading} className="border-white/20 text-white hover:bg-white/10">
+                Use Saved
               </Button>
               <Button size="sm" variant="outline" onClick={ensureAgent} disabled={loading} className="border-white/20 text-white hover:bg-white/10">
                 {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Video className="w-4 h-4 mr-2" />}
