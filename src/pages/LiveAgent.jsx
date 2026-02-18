@@ -17,8 +17,14 @@ export default function LiveAgent() {
       }
     } catch (_) {}
 
-    const id = agentId || "v2_agt_hF1S2XwN";
-    const key = "Z29vZ2xlLW9hdXRoMnwxMTU4Mjg4NTQ2NzM5OTExMjUyOTQ6UXpvMjZoZWFxd3ZSa3lXSmpvMHlM";
+     // Clear previous embed container content to avoid duplicates
+     try {
+       const target = document.getElementById("did-agent-container");
+       if (target) target.innerHTML = "";
+     } catch (_) {}
+
+     const id = agentId || "v2_agt_hF1S2XwN";
+     const key = "Z29vZ2xlLW9hdXRoMnwxMTU4Mjg4NTQ2NzM5OTExMjUyOTQ6UXpvMjZoZWFxd3ZSa3lXSmpvMHlM";
 
     const script = document.createElement("script");
     script.type = "module";

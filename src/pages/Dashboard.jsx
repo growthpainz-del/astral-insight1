@@ -437,7 +437,16 @@ export default function Dashboard() {
                 <Sparkles className="w-4 h-4" /> Live Agent
               </Button>
             </Link>
-<Button
+            <Link to={createPageUrl("DIDDemo")}>
+              <Button
+                variant="outline"
+                className="border-white/30 text-white hover:bg-white/10 gap-2"
+                title="Open the legacy D-ID demo"
+              >
+                <Sparkles className="w-4 h-4" /> D-ID Demo
+              </Button>
+            </Link>
+          <Button
               variant="outline"
               className="border-white/30 text-white hover:bg-white/10 gap-2"
               onClick={() => handleDownloadManuals(true)}
