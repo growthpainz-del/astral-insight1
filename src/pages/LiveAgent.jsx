@@ -3,9 +3,15 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { base44 } from "@/api/base44Client";
 
 export default function LiveAgent() {
   const [agentId, setAgentId] = useState("");
+  const [decks, setDecks] = useState([]);
+  const [selectedDeckIds, setSelectedDeckIds] = useState([]);
+  const [search, setSearch] = useState("");
   const scriptRef = useRef(null);
 
   const mountScript = () => {
@@ -72,21 +78,48 @@ export default function LiveAgent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [agentId]);
 
+  // Load curated list and decks
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const [configs, allDecks] = await Promise.all([
+          base44.entities.DidAgentConfig.list(),
+          base44.entities.Deck.list("-created_date", 500)
+        ]);
+        if (cancelled) return;
+        setDecks(Array.isArray(allDecks) ? allDecks : []);
+        if (configs && configs.length) {
+          const cfg = configs[0];
+          if (Array.isArray(cfg.deck_ids)) setSelectedDeckIds(cfg.deck_ids);
+          if (cfg.agent_id && !agentId) setAgentId(cfg.agent_id);
+        }
+      } catch (e) {
+        console.warn('Failed to load decks/config', e);
+      }
+    };
+    load();
+    return () => { cancelled = true; };
+  }, []);
+
   const handleSave = async () => {
     try {
       if (agentId) localStorage.setItem("did_live_agent_id", agentId);
     } catch (_) {}
     // Persist to DidAgentConfig (create or update singleton)
     try {
-      const { base44 } = await import("@/api/base44Client");
       const existing = await base44.entities.DidAgentConfig.list();
       if (existing && existing.length) {
-        await base44.entities.DidAgentConfig.update(existing[0].id, { agent_id: agentId });
+        await base44.entities.DidAgentConfig.update(existing[0].id, { agent_id: agentId, deck_ids: selectedDeckIds });
       } else {
-        await base44.entities.DidAgentConfig.create({ agent_id: agentId, deck_ids: [] });
+        await base44.entities.DidAgentConfig.create({ agent_id: agentId, deck_ids: selectedDeckIds });
       }
-    } catch (e) { console.warn('Failed to persist agent_id to DidAgentConfig', e); }
+    } catch (e) { console.warn('Failed to persist agent/config to DidAgentConfig', e); }
     mountScript();
+  };
+
+  const toggleDeck = (id) => {
+    setSelectedDeckIds((prev) => prev.includes(id) ? prev.filter(d => d !== id) : [...prev, id]);
   };
 
   return (
@@ -117,24 +150,32 @@ export default function LiveAgent() {
               />
             </div>
             <div>
-              <label className="block text-xs text-white/70 mb-1">Curated Deck IDs (comma-separated)</label>
+              <label className="block text-xs text-white/70 mb-1">Curated Decks</label>
               <Input
-                placeholder="deckId1, deckId2, ..."
-                className="bg-black/30 border-white/20 text-white placeholder:text-white/50"
-                onBlur={async (e) => {
-                  const raw = e.target.value || '';
-                  const deck_ids = raw.split(',').map(s => s.trim()).filter(Boolean);
-                  try {
-                    const { base44 } = await import("@/api/base44Client");
-                    const existing = await base44.entities.DidAgentConfig.list();
-                    if (existing && existing.length) {
-                      await base44.entities.DidAgentConfig.update(existing[0].id, { deck_ids });
-                    } else {
-                      await base44.entities.DidAgentConfig.create({ agent_id: agentId || 'v2_agt_hF1S2XwN', deck_ids });
-                    }
-                  } catch (e) { console.warn('Failed to persist deck_ids', e); }
-                }}
+                placeholder="Search decks..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="mb-2 bg-black/30 border-white/20 text-white placeholder:text-white/50"
               />
+              <div className="rounded-md border border-white/10 bg-black/20">
+                <ScrollArea className="h-56 p-2">
+                  {decks
+                    .filter(d => !search || d.name?.toLowerCase().includes(search.toLowerCase()))
+                    .map(d => (
+                      <label key={d.id} className="flex items-center gap-2 py-1.5 px-1 hover:bg-white/5 rounded">
+                        <Checkbox
+                          checked={selectedDeckIds.includes(d.id)}
+                          onCheckedChange={() => toggleDeck(d.id)}
+                        />
+                        <span className="text-sm truncate">{d.name || 'Untitled Deck'}</span>
+                        <span className="ml-auto text-[10px] text-white/40">{String(d.id).slice(0,6)}…</span>
+                      </label>
+                    ))}
+                  {decks.length === 0 && (
+                    <div className="text-white/60 text-sm">No decks found.</div>
+                  )}
+                </ScrollArea>
+              </div>
             </div>
           </div>
           <div className="flex items-center gap-2">
