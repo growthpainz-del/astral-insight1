@@ -179,10 +179,9 @@ Deno.serve(async (req) => {
 
     // Fetch and sync each deck
     for (const deckId of deckIds) {
-      const deck = await base44.asServiceRole.entities.Deck.get?.(deckId).catch(async () => {
-        const list = await base44.asServiceRole.entities.Deck.filter({ id: deckId });
-        return Array.isArray(list) && list[0] ? list[0] : null;
-      });
+      // Fetch the deck by ID via filter (SDK does not guarantee a get() method)
+      const list = await base44.asServiceRole.entities.Deck.filter({ id: deckId });
+      const deck = Array.isArray(list) && list[0] ? list[0] : null;
       if (!deck) {
         results.push({ deck_id: deckId, status: 'skipped', reason: 'deck not found' });
         continue;
