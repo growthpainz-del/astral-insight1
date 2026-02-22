@@ -600,7 +600,9 @@ export default function Layout({ children, currentPageName }) {
               background-color: rgba(0,255,209,0.12) !important;
             }
 
-            .bg-gray-50, .bg-gray-100, .bg-zinc-50, .bg-neutral-50 {
+            .bg-gray-50, .bg-gray-100, .bg-gray-200,
+            .bg-zinc-50, .bg-zinc-100, .bg-zinc-200,
+            .bg-neutral-50, .bg-neutral-100, .bg-neutral-200 {
               background-color: var(--neon-panel) !important;
             }
 
