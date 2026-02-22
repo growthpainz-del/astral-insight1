@@ -604,7 +604,11 @@ export default function Layout({ children, currentPageName }) {
               background-color: var(--neon-panel) !important;
             }
 
-            .text-black, .text-gray-900, .text-zinc-900, .text-slate-900, .text-neutral-900 {
+            .text-black,
+            .text-gray-900, .text-gray-800, .text-gray-700,
+            .text-zinc-900, .text-zinc-800, .text-zinc-700,
+            .text-slate-900, .text-slate-800, .text-slate-700,
+            .text-neutral-900, .text-neutral-800, .text-neutral-700 {
               color: var(--neon-text) !important;
             }
 
