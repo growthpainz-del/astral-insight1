@@ -542,21 +542,21 @@ export default function Layout({ children, currentPageName }) {
             }
 
             .btn-dark-outline {
-              background-color: rgba(0,0,0,0.6) !important;
-              border: 2px solid rgba(255,255,255,0.7) !important;
-              color: var(--neon-text) !important;
+              background-color: rgba(255,255,255,0.10) !important;
+              border: 2px solid rgba(255,255,255,0.8) !important;
+              color: #ffffff !important;
               font-weight: 800 !important;
               border-radius: 9999px !important;
               padding-left: 1rem !important;
               padding-right: 1rem !important;
               padding-top: 0.5rem !important;
               padding-bottom: 0.5rem !important;
-              box-shadow: 0 0 10px rgba(168,85,247,0.25) inset, 0 2px 10px rgba(0,0,0,0.4);
-              backdrop-filter: blur(6px);
+              box-shadow: 0 0 10px rgba(168,85,247,0.35) inset, 0 2px 10px rgba(0,0,0,0.4);
+              backdrop-filter: blur(8px);
             }
             .btn-dark-outline:hover {
-              background-color: rgba(0,0,0,0.8) !important;
-              box-shadow: 0 0 14px rgba(168,85,247,0.4) inset, 0 4px 16px rgba(0,0,0,0.6);
+              background-color: rgba(255,255,255,0.18) !important;
+              box-shadow: 0 0 14px rgba(168,85,247,0.5) inset, 0 4px 16px rgba(0,0,0,0.6);
             }
             .btn-dark-outline .lucide {
               stroke-width: 2.5px;
