@@ -41,13 +41,15 @@ Deno.serve(async (req) => {
             spread, 
             question, 
             tier = "standard", 
-            includeMoonPhase = false,
+            includeMoonPhase = true,
             personaName,
             personaPreamble,
             adviceDepth = "balanced",
             language = "auto",
             conciseMode = false
         } = await req.json();
+
+        const voiceId = ttsVoiceId || "X8Na0RDzhqa1gJFsWu5a";
 
         // 1. Calculate Costs
         let tokenCost = tier === "quick" ? 1 : tier === "deep" ? 4 : 2;
@@ -127,6 +129,16 @@ Deno.serve(async (req) => {
 
         const aiCoach = deck?.ai_reading_coach || "";
         const coachInstruction = aiCoach ? `\n\nIMPORTANT DECK-SPECIFIC GUIDANCE:\n${aiCoach}` : "";
+
+// Rooted Crescent knowledge injection (from deck manuals or override)
+const rootedCrescentRaw = [
+  rootedCrescentText || "",
+  deck?.manual_content || "",
+  ...(Array.isArray(deck?.manual_files) ? deck.manual_files.map(f => f?.content || "") : [])
+].filter(Boolean).join("\n\n");
+const rootedSection = rootedCrescentRaw.trim()
+  ? `\n\nROOTED CRESCENT KNOWLEDGE (prefer these meanings when relevant):\n${rootedCrescentRaw.slice(0, 4000)}`
+  : "";
         
         // --- PAST READINGS CONTEXT (personalization) ---
         let pastContext = "";
@@ -144,22 +156,7 @@ Deno.serve(async (req) => {
             // ignore personalization if history fetch fails
         }
 
-        // --- PAST READINGS PERSONALIZATION ---
-let pastContext = "";
-try {
-  const recent = await base44.entities.Reading.filter({ created_by: user.email }, "-created_date", 5);
-  if (Array.isArray(recent) && recent.length > 0) {
-    const snippets = recent.map((r, i) => {
-      const tagStr = (r.tags && r.tags.length) ? `Tags: ${r.tags.slice(0,5).join(', ')}` : "";
-      const interp = (r.interpretation || "").replace(/\s+/g, " ").slice(0, 220);
-      return `${i + 1}. ${r.title || r.spread_type || 'Reading'} — ${tagStr}${tagStr ? " | " : ""}${interp}`;
-    }).join("\n");
-    pastContext = `\n\nPAST READINGS CONTEXT (last ${recent.length}):\n${snippets}\n\nUse these recurring themes to personalize tone and focus. Do not repeat the same sentences; build upon them.`;
-  }
-} catch (_) {
-  // ignore personalization if history fetch fails
-}
-
+        
 const questionEmphasis = question && question.trim() 
             ? `\n\n🎯 THE QUERENT'S QUESTION (MUST BE DIRECTLY ADDRESSED):\n"${question}"\n\nThis question is the CORE of your reading. Every card interpretation should relate back to answering this specific question.`
             : "";
@@ -193,32 +190,27 @@ const questionEmphasis = question && question.trim()
         }
         // --------------------------------
 
-        const finalPrompt = `You are ${personaName || "Mystical Guide"}, a skilled and compassionate card reader. ${personaPreamble || "Provide insightful and empowering guidance"}
+        const finalPrompt = `SYSTEM PERSONA: Frenzie — Astral Insight’s interpreter. Witty, embodied, agency-first. Use light endearments sparingly. Prioritize deck-specific meanings (Rooted Crescent), then synced knowledge, then general symbolism. Avoid determinism; no medical/legal/financial advice.
 
-CRITICAL TONE GUIDELINES - READ CAREFULLY:
-- NEVER use apocalyptic, doom-based, or catastrophic language
-- AVOID words like: apocalypse, end of the world, destruction, catastrophe, disaster, collapse
-- Focus on EMPOWERMENT, GROWTH, and PRACTICAL WISDOM
-- Even challenging cards represent OPPORTUNITIES for growth, not disasters
-- Frame obstacles as TEMPORARY and SOLVABLE with the right approach
-- Use uplifting, constructive language that inspires ACTION and HOPE
-- Balance realism with optimism - acknowledge difficulties but emphasize potential
-- Treat "difficult" cards as wake-up calls or invitations to transform, NOT as prophecies of doom
+VOICE_ID: ${voiceId}
 
-FORMAT AND MARKUP RULES:
-- Do not use the asterisk (*) character anywhere (no emphasis, bullets, or decoration).
-- Avoid Markdown: no bold/italics, no bullet lists, no code blocks.
-- Write in clean paragraphs and full sentences only.
+OUTPUT JSON FORMAT (strict):
+{
+  "speak": string,
+  "screen": {
+    "title": string,
+    "insight": string,
+    "vibe": string (optional),
+    "next_steps": string[] (1-3 items)
+  }
+}
 
-${chosenLengthInstruction}
-${conciseMode ? "\nCONCISE MODE: Eliminate filler and transitions. Use short, direct sentences and avoid repeating ideas." : ""}
+GUIDELINES:
+- Use “body as antenna” cues if relevant.
+- If moon phase provided, mention once to amplify the vibe.
+- Concrete actions over vagueness.
 
-CONCISENESS RULES:
-- For each card, write at most 2 sentences specific to its position and the question.
-- Avoid repeating ideas across cards; if overlap exists, acknowledge it briefly without re-explaining.
-- Remove filler and small talk; be direct and concrete.
-- End with a 2–3 sentence synthesis tying the spread together and answering the question directly.
-
+CONTEXT:
 DECK: ${deck?.name || "Oracle Deck"}
 ${deckDescription ? `Deck Theme: ${deckDescription}` : ""}
 ${coachInstruction}
@@ -226,60 +218,44 @@ ${insightsSection}
 ${languageInstruction}
 ${adviceDepthInstruction}
 ${pastContext}
+${rootedSection}
 
- SPREAD STRUCTURE:
+SPREAD STRUCTURE:
 ${spreadStructure}
 ${questionEmphasis}
 ${moonContext}
 
-CARDS IN THIS READING (${relevantCards.length} cards):
+CARDS (${relevantCards.length}):
 ${cardDescriptions}
 
-CRITICAL: You MUST interpret ONLY these ${relevantCards.length} cards shown above. Do not mention any other cards or positions.
+TASK:
+Produce the JSON with a warm, empowering reading in the requested language. Keep “speak” to 6–10 sentences, TTS-friendly. “insight” 2–3 short paragraphs. Tie actions to spread.`;
 
-READING STRUCTURE - FOLLOW THIS EXACTLY:
-1. ${question && question.trim() ? `START by acknowledging their specific question: "${question}"` : 'START with a warm opening'}
-2. ${includeMoonPhase ? "Weave the Lunar Influence naturally into the interpretation." : ""}
-3. Interpret each card IN THE CONTEXT OF THE QUESTION. You MUST explicitly name the card you are discussing (e.g. "The [Card Name] reveals...").
-4. Show how the cards work together to answer the question
-5. ${question && question.trim() ? 'END with a clear, direct answer to their question based on the cards' : 'END with practical guidance'}
-
-Provide a ${tier} reading that:
-1. ${question && question.trim() ? 'DIRECTLY ANSWERS THE QUESTION in your opening paragraph' : 'Addresses the general situation'}
-2. Interprets each card specifically in relation to ${question && question.trim() ? 'the question asked' : 'their path'}, always referring to cards by their full names
-3. Weaves the cards into a cohesive narrative that ${question && question.trim() ? 'answers their question' : 'provides guidance'}
-4. Offers practical, actionable guidance that ${question && question.trim() ? 'helps them act on the answer' : 'inspires confidence'}
-5. ${tier === "deep" ? "Explores deep connections WITHOUT doom language" : tier === "standard" ? "Balances depth with clarity" : "Delivers the core answer clearly"}
-6. FRAMES CHALLENGES AS OPPORTUNITIES - never as disasters
-7. EMPHASIZES the querent's power to SHAPE their future through conscious choices
-8. ${question && question.trim() ? 'CONCLUDES by summarizing the answer to their question' : 'Concludes with empowering guidance'}
-
-REMEMBER: ${question && question.trim() ? `Every sentence should help answer: "${question}"` : 'Focus on empowerment and growth'}
-
-Write in a ${personaPreamble ? personaPreamble.toLowerCase() : "warm"} tone that is UPLIFTING and CONSTRUCTIVE. Begin your interpretation:`;
-
-        let response = await base44.integrations.Core.InvokeLLM({
+        const llm = await base44.integrations.Core.InvokeLLM({
             prompt: finalPrompt,
-            add_context_from_internet: false
+            add_context_from_internet: false,
+            response_json_schema: {
+                type: "object",
+                properties: {
+                    speak: { type: "string" },
+                    screen: {
+                        type: "object",
+                        properties: {
+                            title: { type: "string" },
+                            insight: { type: "string" },
+                            vibe: { type: "string" },
+                            next_steps: { type: "array", items: { type: "string" } }
+                        },
+                        required: ["title", "insight", "next_steps"]
+                    }
+                },
+                required: ["speak", "screen"]
+            }
         });
 
-        if (!response || typeof response !== "string") {
-            throw new Error("Invalid response from interpretation service");
-        }
-
-        // Ensure the reading isn't unnaturally short (occasionally models under-shoot)
-        let text = response.trim();
-        const wordCount = text.split(/\s+/).filter(Boolean).length;
-        if (wordCount < 50) {
-            const expandPrompt = `Expand the following tarot/oracle reading to 180–250 words in clean paragraphs (no markdown, no asterisks). Keep the same message, add helpful, concrete guidance, and preserve uplifting tone.\n\nREADING:\n${text}\n\nExpanded version:`;
-            const expanded = await base44.integrations.Core.InvokeLLM({
-                prompt: expandPrompt,
-                add_context_from_internet: false
-            });
-            if (typeof expanded === 'string' && expanded.trim().length > text.length) {
-                text = expanded.trim();
-            }
-        }
+        const speak = llm?.speak || "";
+        const screen = llm?.screen || { title: "", insight: "", vibe: "", next_steps: [] };
+        let text = `[VOICE_ID:${voiceId}]\n[SPEAK]\n${speak}\n[/SPEAK]\n[SCREEN]\nTitle: ${screen.title}\nInsight: ${screen.insight}${screen.vibe ? `\nVibe: ${screen.vibe}` : ''}\nNext Steps:${Array.isArray(screen.next_steps) && screen.next_steps.length ? `\n- ${screen.next_steps.join('\n- ')}` : ''}\n[/SCREEN]`;
 
         // 4. Deduct Tokens
         if (user && typeof user.token_balance === "number") {
@@ -295,7 +271,10 @@ Write in a ${personaPreamble ? personaPreamble.toLowerCase() : "warm"} tone that
 
         return Response.json({ 
             interpretation: text,
-            moonContext: includeMoonPhase ? moonContext : null
+            moonContext: includeMoonPhase ? moonContext : null,
+            ttsVoiceId: voiceId,
+            speak,
+            screen
         });
 
     } catch (error) {
