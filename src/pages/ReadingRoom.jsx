@@ -551,7 +551,7 @@ export default function ReadingRoom() {
               <Sparkles className="w-6 h-6 text-cyan-400" />
               Official Decks ({publicDecks.length})
             </h2>
-            <Link to={createPageUrl("ReadingRoom?all=1")} className="text-white/60 hover:text-white flex items-center gap-1 text-sm">
+            <Link to={createPageUrl("ReadingRoom?all=1")} className="text-white underline decoration-white/50 hover:decoration-white flex items-center gap-1 text-sm">
               View All Decks <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
@@ -568,7 +568,7 @@ export default function ReadingRoom() {
         <div className="px-8 mb-12">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold">My Decks ({myDecks.length})</h2>
-            <Link to={createPageUrl("Studio")} className="text-white/60 hover:text-white flex items-center gap-1 text-sm">
+            <Link to={createPageUrl("Studio")} className="text-white underline decoration-white/50 hover:decoration-white flex items-center gap-1 text-sm">
               Manage in Studio <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
@@ -589,7 +589,7 @@ export default function ReadingRoom() {
               <Clock className="w-6 h-6 text-indigo-400" />
               Continue Your Journey
             </h2>
-            <Link to={createPageUrl("History")} className="text-white/60 hover:text-white flex items-center gap-1 text-sm">
+            <Link to={createPageUrl("History")} className="text-white underline decoration-white/50 hover:decoration-white flex items-center gap-1 text-sm">
               View All <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
