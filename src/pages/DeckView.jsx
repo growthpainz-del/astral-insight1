@@ -397,7 +397,7 @@ export default function DeckView() {
                   <Link to={galleryUrl}>
                     <Button
                       size="sm"
-                      className="absolute bottom-3 right-3 bg-black/70 hover:bg-black/80 backdrop-blur border border-white/20"
+                      className="absolute bottom-3 right-3 bg-black/70 hover:bg-black/80 text-white backdrop-blur border border-white/40 force-white"
                     >
                       <Eye className="w-4 h-4 mr-2" /> Gallery
                     </Button>
@@ -437,20 +437,20 @@ export default function DeckView() {
                 <p className="text-white/80 mb-4">{deck.description || "No description yet."}</p>
                 <div className="flex flex-wrap gap-2">
                   <Link to={createPageUrl(`Reading?deckId=${deck.id}`)}>
-                    <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
+                    <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold shadow-lg shadow-purple-500/30 force-white">
                       <Play className="w-4 h-4 mr-2" />
                       Start Reading
                     </Button>
                   </Link>
                   <Link to={galleryUrl}>
-                    <Button variant="outline" className="border-white/20 text-white hover:bg-white/10">
+                    <Button variant="outline" className="border-white/50 text-white hover:bg-white/10 force-white">
                       <Eye className="w-4 h-4 mr-2" /> Browse Cards
                     </Button>
                   </Link>
                   <Button
                     onClick={handleExportJson}
                     variant="outline"
-                    className="border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
+                    className="border-emerald-400/60 text-emerald-200 hover:bg-emerald-500/10 font-semibold"
                   >
                     <Download className="w-4 h-4 mr-2" />
                     Export JSON
