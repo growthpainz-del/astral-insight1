@@ -488,6 +488,11 @@ export default function ReadingRoom() {
                 Full Reading
               </Button>
             </Link>
+            <Link to={createPageUrl("Help")}> 
+              <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 force-white">
+                Learn More
+              </Button>
+            </Link>
             <Link to={createPageUrl("History")}>
               <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10">
                 <Clock className="w-5 h-5 mr-2" />
