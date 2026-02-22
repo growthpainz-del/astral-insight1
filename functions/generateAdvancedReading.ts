@@ -46,7 +46,9 @@ Deno.serve(async (req) => {
             personaPreamble,
             adviceDepth = "balanced",
             language = "auto",
-            conciseMode = false
+            conciseMode = false,
+            ttsVoiceId,
+            rootedCrescentText
         } = await req.json();
 
         const voiceId = ttsVoiceId || "X8Na0RDzhqa1gJFsWu5a";
