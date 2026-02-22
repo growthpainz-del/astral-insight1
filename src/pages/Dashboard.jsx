@@ -404,7 +404,7 @@ export default function Dashboard() {
               </Button>
             </Link>
             <Link to={createPageUrl("Help")}>
-              <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 force-white">
+              <Button size="lg" variant="outline" className="border-white/50 text-white hover:bg-white/10 force-white">
                 Learn More
               </Button>
             </Link>
