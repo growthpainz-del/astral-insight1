@@ -393,7 +393,7 @@ export default function Dashboard() {
           <h1 className="text-5xl md:text-7xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400">
             Astral Insight
           </h1>
-          <p className="text-xl md:text-2xl text-white/80 mb-6 max-w-2xl">
+          <p className="text-xl md:text-2xl force-white-80 mb-6 max-w-2xl">
             Your mystical journey into oracle readings, tarot, and cosmic guidance
           </p>
           <div className="flex gap-4">
@@ -404,7 +404,7 @@ export default function Dashboard() {
               </Button>
             </Link>
             <Link to={createPageUrl("Help")}>
-              <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10">
+              <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 force-white">
                 Learn More
               </Button>
             </Link>
