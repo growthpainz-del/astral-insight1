@@ -630,6 +630,7 @@ export default function Layout({ children, currentPageName }) {
             /* Utility: force light text on dark imagery regardless of theme */
             .force-white { color: #ffffff !important; }
             .force-white-80 { color: rgba(255,255,255,0.8) !important; }
+            .force-dark { color: #111827 !important; }
 
             .ring-white, .focus\\:ring-white:focus, .focus-visible\\:ring-white:focus-visible,
             .ring-gray-200, .focus\\:ring-gray-200:focus, .focus-visible\\:ring-gray-200:focus-visible {

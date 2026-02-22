@@ -398,7 +398,7 @@ export default function Dashboard() {
           </p>
           <div className="flex gap-4">
             <Link to={createPageUrl("ReadingRoom")}>
-              <Button size="lg" className="bg-white text-black hover:bg-white/90 font-bold">
+              <Button size="lg" className="bg-white hover:bg-white/90 font-bold force-dark">
                 <Play className="w-5 h-5 mr-2" />
                 Start Reading
               </Button>
