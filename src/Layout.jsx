@@ -608,15 +608,21 @@ export default function Layout({ children, currentPageName }) {
 
             /* Force readable text over dark surfaces (handles responsive classes like md:text-*) */
             .text-black,
-            .text-gray-900, .text-gray-800, .text-gray-700, .text-gray-600,
-            .text-zinc-900, .text-zinc-800, .text-zinc-700, .text-zinc-600,
-            .text-slate-900, .text-slate-800, .text-slate-700, .text-slate-600,
-            .text-neutral-900, .text-neutral-800, .text-neutral-700, .text-neutral-600,
+            .text-gray-950, .text-gray-900, .text-gray-800, .text-gray-700, .text-gray-600,
+            .text-zinc-950, .text-zinc-900, .text-zinc-800, .text-zinc-700, .text-zinc-600,
+            .text-slate-950, .text-slate-900, .text-slate-800, .text-slate-700, .text-slate-600,
+            .text-neutral-950, .text-neutral-900, .text-neutral-800, .text-neutral-700, .text-neutral-600,
+            .text-stone-950, .text-stone-900, .text-stone-800, .text-stone-700, .text-stone-600,
             [class*="text-black"],
-            [class*="text-gray-900"], [class*="text-gray-800"], [class*="text-gray-700"], [class*="text-gray-600"],
-            [class*="text-zinc-900"], [class*="text-zinc-800"], [class*="text-zinc-700"], [class*="text-zinc-600"],
-            [class*="text-slate-900"], [class*="text-slate-800"], [class*="text-slate-700"], [class*="text-slate-600"],
-            [class*="text-neutral-900"], [class*="text-neutral-800"], [class*="text-neutral-700"], [class*="text-neutral-600"] {
+            [class*="text-gray-950"], [class*="text-gray-900"], [class*="text-gray-800"], [class*="text-gray-700"], [class*="text-gray-600"],
+            [class*="text-zinc-950"], [class*="text-zinc-900"], [class*="text-zinc-800"], [class*="text-zinc-700"], [class*="text-zinc-600"],
+            [class*="text-slate-950"], [class*="text-slate-900"], [class*="text-slate-800"], [class*="text-slate-700"], [class*="text-slate-600"],
+            [class*="text-neutral-950"], [class*="text-neutral-900"], [class*="text-neutral-800"], [class*="text-neutral-700"], [class*="text-neutral-600"],
+            [class*="text-stone-950"], [class*="text-stone-900"], [class*="text-stone-800"], [class*="text-stone-700"], [class*="text-stone-600"] {
+              color: var(--neon-text) !important;
+            }
+            /* Markdown / prose blocks */
+            .prose, .prose :where(p, li, strong, em, blockquote, code, pre, h1, h2, h3, h4, h5, h6) {
               color: var(--neon-text) !important;
             }
             a { color: var(--neon-text) !important; }
