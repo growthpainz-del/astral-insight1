@@ -7,6 +7,7 @@ import { Play, Plus, Clock, TrendingUp, Sparkles, ChevronRight, Eye, Settings, R
 import { Button } from "@/components/ui/button";
 import { isNetworkError } from "@/components/utils/isNetworkError";
 import { queueApiCall } from "@/components/utils/apiQueue";
+import AudioOrb from "@/components/reading/AudioOrb";
 
 function DeckCard({ deck, isOwned = false }) {
   const navigate = useNavigate();
@@ -396,7 +397,7 @@ export default function Dashboard() {
           <p className="text-xl md:text-2xl force-white-80 mb-6 max-w-2xl">
             Your mystical journey into oracle readings, tarot, and cosmic guidance
           </p>
-          <div className="flex gap-4">
+          <div className="flex gap-4 items-center">
             <Link to={createPageUrl("ReadingRoom")}>
               <Button size="lg" className="bg-white hover:bg-white/90 font-bold force-dark">
                 <Play className="w-5 h-5 mr-2" />
@@ -408,6 +409,9 @@ export default function Dashboard() {
                 Learn More
               </Button>
             </Link>
+            <div className="ml-2 md:ml-4" title="Quick Read">
+              <AudioOrb variant="link" to={createPageUrl("ReadingRoom")} />
+            </div>
           </div>
         </div>
       </div>
