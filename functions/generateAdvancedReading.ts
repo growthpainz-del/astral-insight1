@@ -293,7 +293,7 @@ Produce the JSON with a warm, empowering reading in the requested language. Keep
             speak = llm?.speak || "";
             screen = llm?.screen || { title: "", insight: "", vibe: "", next_steps: [] };
         }
-        let text = `[VOICE_ID:${voiceId}]\n[SPEAK]\n${speak}\n[/SPEAK]\n[SCREEN]\nTitle: ${screen.title}\nInsight: ${screen.insight}${screen.vibe ? `\nVibe: ${screen.vibe}` : ''}\nNext Steps:${Array.isArray(screen.next_steps) && screen.next_steps.length ? `\n- ${screen.next_steps.join('\n- ')}` : ''}\n[/SCREEN]`;
+        let text = `[SPEAK]\n${speak}\n[/SPEAK]\n[SCREEN]\nTitle: ${screen.title}\nInsight: ${screen.insight}${screen.vibe ? `\nVibe: ${screen.vibe}` : ''}\nNext Steps:${Array.isArray(screen.next_steps) && screen.next_steps.length ? `\n- ${screen.next_steps.join('\n- ')}` : ''}\n[/SCREEN]`;
 
         // 4. Deduct Tokens
         if (user && typeof user.token_balance === "number") {
