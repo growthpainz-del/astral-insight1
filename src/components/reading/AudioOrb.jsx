@@ -3,7 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Mic, Volume2, X, Loader2, Sparkles, StopCircle, Play } from 'lucide-react';
 import { base44 } from "@/api/base44Client";
 
-export default function AudioOrb({ textToSpeak, onComplete, autoPlay = false, variant = "widget" }) {
+import { useNavigate } from 'react-router-dom';
+
+export default function AudioOrb({ textToSpeak, onComplete, autoPlay = false, variant = 'player', to }) {
+  const navigate = useNavigate();
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [audioUrl, setAudioUrl] = useState(null);
@@ -85,8 +88,8 @@ export default function AudioOrb({ textToSpeak, onComplete, autoPlay = false, va
       
       // Draw glowing background orb
       const gradient = ctx.createRadialGradient(centerX, centerY, radius * 0.5, centerX, centerY, radius * 2.5);
-      gradient.addColorStop(0, `rgba(245, 158, 11, ${glowIntensity})`); // Gold center
-      gradient.addColorStop(0.5, `rgba(234, 88, 12, ${glowIntensity * 0.6})`); // Orange mid
+      gradient.addColorStop(0, `rgba(251, 191, 36, ${glowIntensity})`); // Gold/Amber center
+      gradient.addColorStop(0.5, `rgba(249, 115, 22, ${glowIntensity * 0.6})`); // Orange mid
       gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
       
       ctx.fillStyle = gradient;
@@ -95,7 +98,7 @@ export default function AudioOrb({ textToSpeak, onComplete, autoPlay = false, va
       // Draw circular waveform ring
       ctx.beginPath();
       ctx.lineWidth = 3;
-      ctx.strokeStyle = `rgba(254, 243, 199, ${0.5 + glowIntensity * 0.5})`;
+      ctx.strokeStyle = `rgba(254, 240, 138, ${0.5 + glowIntensity * 0.5})`; // Light gold
       ctx.shadowBlur = 15;
       ctx.shadowColor = '#f59e0b'; // Amber shadow
       
@@ -124,7 +127,7 @@ export default function AudioOrb({ textToSpeak, onComplete, autoPlay = false, va
       ctx.arc(centerX, centerY, radius * 0.8, 0, Math.PI * 2);
       ctx.fillStyle = `rgba(0, 0, 0, 0.8)`;
       ctx.fill();
-      ctx.strokeStyle = `rgba(245, 158, 11, ${0.8})`;
+      ctx.strokeStyle = `rgba(245, 158, 11, ${0.8})`; // Amber
       ctx.lineWidth = 2;
       ctx.stroke();
     };
@@ -284,34 +287,47 @@ export default function AudioOrb({ textToSpeak, onComplete, autoPlay = false, va
     }
   };
 
+  const handleClick = (e) => {
+    if (variant === 'link') {
+      if (to) navigate(to);
+    } else {
+      if (!expanded) setExpanded(true);
+    }
+  };
+
+  const containerClasses = variant === 'link' 
+    ? 'relative w-16 h-16' // Widget is static relative element when used inline
+    : `fixed z-[100] right-4 md:right-8 transition-all duration-500 ease-in-out ${
+        expanded ? 'bottom-24 w-80 md:w-96' : 'bottom-24 w-20 h-20' // Bigger for readings
+      }`;
+
   return (
     <motion.div 
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
-      className={`fixed z-[100] transition-all duration-500 ease-in-out ${
-        variant === "mat"
-          ? (expanded ? 'bottom-8 left-1/2 -translate-x-1/2 w-[90vw] max-w-md' : 'bottom-8 right-4 w-16 h-16')
-          : (expanded ? 'bottom-24 right-4 md:right-8 w-72 md:w-80' : 'bottom-24 right-4 md:right-8 w-16 h-16')
-      }`}
+      className={containerClasses}
     >
-      <div className={`relative bg-slate-900/90 backdrop-blur-xl border border-orange-500/30 shadow-[0_0_30px_rgba(234,88,12,0.2)] overflow-hidden transition-all duration-500 ${
-        expanded ? 'rounded-2xl p-6' : 'rounded-full w-16 h-16 flex items-center justify-center cursor-pointer hover:border-orange-400'
+      <div className={`relative bg-slate-900/90 backdrop-blur-xl border border-amber-500/30 shadow-[0_0_30px_rgba(245,158,11,0.2)] overflow-hidden transition-all duration-500 ${
+        expanded ? 'rounded-2xl p-6' : 'rounded-full w-full h-full flex items-center justify-center cursor-pointer hover:border-amber-400 hover:shadow-[0_0_40px_rgba(245,158,11,0.4)] hover:scale-105'
       }`}
-      onClick={() => !expanded && setExpanded(true)}
+      onClick={handleClick}
       >
         
         {/* Minimized View */}
         {!expanded && (
           <div className="relative w-full h-full flex items-center justify-center">
             {isLoading ? (
-              <Loader2 className="w-6 h-6 text-orange-400 animate-spin" />
+              <Loader2 className="w-8 h-8 text-amber-400 animate-spin" />
             ) : isPlaying ? (
               <div className="relative w-full h-full flex items-center justify-center">
-                 <div className="absolute inset-0 rounded-full animate-ping bg-orange-500/20"></div>
-                 <Volume2 className="w-6 h-6 text-orange-400 relative z-10" />
+                 <div className="absolute inset-0 rounded-full animate-ping bg-amber-500/20"></div>
+                 <Volume2 className="w-8 h-8 text-amber-400 relative z-10" />
               </div>
             ) : (
-              <Sparkles className="w-6 h-6 text-amber-400" />
+              <div className="relative w-full h-full flex items-center justify-center">
+                 {variant === 'link' && <div className="absolute inset-0 rounded-full animate-pulse bg-orange-500/10"></div>}
+                 <Sparkles className={`w-8 h-8 ${variant === 'link' ? 'text-amber-400' : 'text-orange-400'} relative z-10`} />
+              </div>
             )}
           </div>
         )}
@@ -320,34 +336,34 @@ export default function AudioOrb({ textToSpeak, onComplete, autoPlay = false, va
         {expanded && (
           <div className="flex flex-col items-center">
             {/* Header */}
-            <div className="w-full flex justify-between items-center mb-4">
+            <div className="w-full flex justify-between items-center mb-6">
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-orange-400 animate-pulse"></div>
-                <span className="text-xs font-bold tracking-wider text-orange-100 uppercase">AI Voice</span>
+                <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></div>
+                <span className="text-sm font-bold tracking-wider text-amber-100 uppercase">Cosmic Oracle</span>
               </div>
               <button 
                 onClick={(e) => { e.stopPropagation(); setExpanded(false); }}
-                className="text-white/50 hover:text-white transition-colors"
+                className="text-white/50 hover:text-white transition-colors p-1"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Visualizer Canvas */}
-            <div className={`relative mb-4 mx-auto ${variant === 'mat' ? 'w-64 h-64' : 'w-48 h-48'}`}>
+            <div className="relative w-56 h-56 md:w-64 md:h-64 mb-6">
               <canvas 
                 ref={canvasRef} 
-                width={variant === 'mat' ? 256 : 192} 
-                height={variant === 'mat' ? 256 : 192} 
+                width={256} 
+                height={256} 
                 className="w-full h-full rounded-full bg-black/40 border border-white/5"
               />
               
               {/* Center Icon/Status */}
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 {isLoading ? (
-                  <Loader2 className="w-8 h-8 text-orange-400 animate-spin" />
+                  <Loader2 className="w-10 h-10 text-amber-400 animate-spin" />
                 ) : !isPlaying && !audioUrl ? (
-                  <Sparkles className="w-8 h-8 text-amber-400/50" />
+                  <Sparkles className="w-10 h-10 text-orange-400/50" />
                 ) : null}
               </div>
             </div>
@@ -357,21 +373,21 @@ export default function AudioOrb({ textToSpeak, onComplete, autoPlay = false, va
               <button 
                 onClick={(e) => { e.stopPropagation(); togglePlayback(); }}
                 disabled={isLoading || !textToSpeak}
-                className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg font-medium text-sm transition-all ${
+                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg font-medium text-base transition-all ${
                   isPlaying 
                     ? 'bg-red-500/20 text-red-300 border border-red-500/50 hover:bg-red-500/30' 
-                    : 'bg-orange-600 hover:bg-orange-500 text-white shadow-lg shadow-orange-500/20'
+                    : 'bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white shadow-lg shadow-amber-500/20'
                 }`}
               >
                 {isLoading ? (
-                  <span>Generating...</span>
+                  <span>Channeling...</span>
                 ) : isPlaying ? (
                   <>
-                    <StopCircle className="w-4 h-4" /> Stop
+                    <StopCircle className="w-5 h-5" /> Stop Reading
                   </>
                 ) : (
                   <>
-                    <Play className="w-4 h-4" /> {audioUrl ? 'Replay' : 'Read Interpretation'}
+                    <Play className="w-5 h-5" /> {audioUrl ? 'Replay Message' : 'Read Interpretation'}
                   </>
                 )}
               </button>
