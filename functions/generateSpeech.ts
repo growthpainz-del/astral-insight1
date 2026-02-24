@@ -31,7 +31,7 @@ Deno.serve(async (req) => {
         if (!apiKey) {
             return Response.json({ error: 'ElevenLabs API key not configured' }, { status: 500 });
         }
-        apiKey = apiKey.trim(); // Sanitization
+        apiKey = apiKey.replace(/[^\x00-\x7F]/g, "").trim(); // Remove any non-ASCII hidden characters
         
         console.log(`[generateSpeech] API Key present (len=${apiKey.length})`);
 
