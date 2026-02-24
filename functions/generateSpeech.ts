@@ -19,7 +19,13 @@ Deno.serve(async (req) => {
         const text = payload.text;
         // Only use payload voiceId if it's explicitly provided and not empty
         const requestedVoiceId = payload.voiceId;
-        const voiceId = requestedVoiceId || defaultVoiceId;
+        let voiceId = requestedVoiceId || defaultVoiceId;
+
+        // Auto-fix common copy-paste errors (e.g. "email:voiceId")
+        if (voiceId && voiceId.includes(':')) {
+            voiceId = voiceId.split(':').pop().trim();
+        }
+        voiceId = voiceId.trim();
 
         console.log(`[generateSpeech] Voice ID resolution: Env=${envVoiceId}, Requested=${requestedVoiceId}, Final=${voiceId}`);
 
