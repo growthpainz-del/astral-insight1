@@ -25,8 +25,6 @@ export default function ChanneledReading({ isOpen, drawnCards, deck, spread, que
   const [progress, setProgress] = useState({ current: 0, total: 0, message: "" });
   
   // ElevenLabs TTS
-  const [elevenVoices, setElevenVoices] = useState([]);
-  const [selectedVoiceId, setSelectedVoiceId] = useState("");
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [savedReadingId, setSavedReadingId] = useState(null);
   const [isFavorite, setIsFavorite] = useState(false);
@@ -93,11 +91,7 @@ export default function ChanneledReading({ isOpen, drawnCards, deck, spread, que
     }
   }, [isOpen]);
 
-  // Leave voice selection empty to use backend default
-  useEffect(() => {
-    if (!isOpen) return;
-    setSelectedVoiceId('');
-  }, [isOpen]);
+
 
   const generateInterpretation = async (tier = "quick") => {
     if (!drawnCards || drawnCards.length === 0) {
@@ -321,16 +315,15 @@ if (user && typeof user.token_balance === "number") {
     return parts.length ? parts : [text];
   };
 
-  const fetchTtsForIndex = async (idx, voiceId) => {
+  const fetchTtsForIndex = async (idx) => {
     if (ttsAbortRef.current) return;
     if (ttsAudioMapRef.current[idx]) return;
     const seg = (ttsSegmentsRef.current && ttsSegmentsRef.current[idx]) || ttsSegments[idx];
     if (!seg) return;
     
     const payload = { text: seg, forceElevenLabs: true };
-    const targetVoiceId = voiceId || selectedVoiceId;
-    if (targetVoiceId) payload.voiceId = targetVoiceId;
-
+    // Voice ID is handled by backend default
+    
     const { data } = await base44.functions.invoke('generateSpeech', payload);
     const b64 = data?.audioContent;
     if (!b64) throw new Error('No audio returned from TTS');
@@ -355,8 +348,7 @@ if (user && typeof user.token_balance === "number") {
       // Generate first segment immediately using local 'segs' to avoid state race
       const firstSeg = segs[0];
       const payload0 = { text: firstSeg, forceElevenLabs: true };
-      if (selectedVoiceId) payload0.voiceId = selectedVoiceId;
-
+      
       const { data: ttsData0 } = await base44.functions.invoke('generateSpeech', payload0);
       const b64_0 = ttsData0?.audioContent;
       if (!b64_0) throw new Error('No audio returned from TTS');
@@ -379,7 +371,7 @@ if (user && typeof user.token_balance === "number") {
         ttsIndexRef.current = next;
         try {
           if (!ttsAudioMapRef.current[next]) {
-            await fetchTtsForIndex(next, selectedVoiceId);
+            await fetchTtsForIndex(next);
           }
           if (audioRef.current) {
             audioRef.current.pause();
@@ -390,7 +382,7 @@ if (user && typeof user.token_balance === "number") {
           }
           const ahead = next + 1;
           if (ahead < segs.length) {
-            fetchTtsForIndex(ahead, selectedVoiceId).catch(()=>{});
+            fetchTtsForIndex(ahead).catch(()=>{});
           }
         } catch (e) {
           try {
@@ -408,7 +400,7 @@ if (user && typeof user.token_balance === "number") {
       try {
         await audioRef.current.play();
         if (segs.length > 1) {
-          fetchTtsForIndex(1, selectedVoiceId).catch(()=>{});
+          fetchTtsForIndex(1).catch(()=>{});
         }
       } catch (e) {
         try {
@@ -425,21 +417,14 @@ if (user && typeof user.token_balance === "number") {
       const msg = String(err?.message || '');
       const code = err?.response?.status || (/(\b401\b|\b403\b|\b404\b)/.test(msg) ? 401 : 0);
       if (code === 401 || code === 403) {
+        // Auth error - backend should have handled fallback, but if we're here, try local
         try {
-          await fetchTtsForIndex(0, "SMgSeP4jlTCMzplwwkwP");
-          if (audioRef.current) {
-            audioRef.current.src = ttsAudioMapRef.current[0];
-            await audioRef.current.play();
-          }
-        } catch (err2) {
-          try {
-            await speakWithWebAPI(interpretation);
-            setError('Using device voice (local).');
-          } catch {
-            setError('Text-to-speech failed (auth).');
-          } finally {
-            setIsSpeaking(false);
-          }
+          await speakWithWebAPI(interpretation);
+          setError('Using device voice (local).');
+        } catch {
+          setError('Text-to-speech failed (auth).');
+        } finally {
+          setIsSpeaking(false);
         }
       } else {
         try {
