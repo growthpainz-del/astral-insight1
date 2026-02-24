@@ -233,30 +233,65 @@ ${cardDescriptions}
 TASK:
 Produce the JSON with a warm, empowering reading in the requested language. Keep “speak” to 6–10 sentences, TTS-friendly. “insight” 2–3 short paragraphs. Tie actions to spread.`;
 
-        const llm = await base44.integrations.Core.InvokeLLM({
-            prompt: finalPrompt,
-            add_context_from_internet: false,
-            response_json_schema: {
-                type: "object",
-                properties: {
-                    speak: { type: "string" },
-                    screen: {
-                        type: "object",
-                        properties: {
-                            title: { type: "string" },
-                            insight: { type: "string" },
-                            vibe: { type: "string" },
-                            next_steps: { type: "array", items: { type: "string" } }
-                        },
-                        required: ["title", "insight", "next_steps"]
-                    }
-                },
-                required: ["speak", "screen"]
-            }
-        });
+        // Use the Base44 Agent 'cosmic_oracle_chronicler' for the reading
+        let speak = "";
+        let screen = { title: "", insight: "", vibe: "", next_steps: [] };
 
-        const speak = llm?.speak || "";
-        const screen = llm?.screen || { title: "", insight: "", vibe: "", next_steps: [] };
+        try {
+            // Create a temporary conversation for this reading
+            const conversation = await base44.agents.createConversation({
+                agent_name: "cosmic_oracle_chronicler",
+                metadata: {
+                    name: `Reading for ${user.email} - ${new Date().toISOString()}`,
+                    description: "Advanced Reading Generation"
+                }
+            });
+
+            // Add the user message with the prompt
+            const agentResponse = await base44.agents.addMessage(conversation, {
+                role: "user",
+                content: finalPrompt
+            });
+
+            // The agent response content should be the JSON string
+            const responseText = agentResponse.content || "";
+            
+            // Try to parse the JSON from the response
+            // The agent might wrap it in markdown code blocks, so clean it up
+            const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+            const jsonString = jsonMatch ? jsonMatch[0] : responseText;
+            
+            const llm = JSON.parse(jsonString);
+            speak = llm?.speak || "";
+            screen = llm?.screen || { title: "", insight: "", vibe: "", next_steps: [] };
+
+        } catch (agentError) {
+            console.error("Agent execution failed, falling back to InvokeLLM:", agentError);
+            // Fallback to InvokeLLM if agent fails
+            const llm = await base44.integrations.Core.InvokeLLM({
+                prompt: finalPrompt,
+                add_context_from_internet: false,
+                response_json_schema: {
+                    type: "object",
+                    properties: {
+                        speak: { type: "string" },
+                        screen: {
+                            type: "object",
+                            properties: {
+                                title: { type: "string" },
+                                insight: { type: "string" },
+                                vibe: { type: "string" },
+                                next_steps: { type: "array", items: { type: "string" } }
+                            },
+                            required: ["title", "insight", "next_steps"]
+                        }
+                    },
+                    required: ["speak", "screen"]
+                }
+            });
+            speak = llm?.speak || "";
+            screen = llm?.screen || { title: "", insight: "", vibe: "", next_steps: [] };
+        }
         let text = `[VOICE_ID:${voiceId}]\n[SPEAK]\n${speak}\n[/SPEAK]\n[SCREEN]\nTitle: ${screen.title}\nInsight: ${screen.insight}${screen.vibe ? `\nVibe: ${screen.vibe}` : ''}\nNext Steps:${Array.isArray(screen.next_steps) && screen.next_steps.length ? `\n- ${screen.next_steps.join('\n- ')}` : ''}\n[/SCREEN]`;
 
         // 4. Deduct Tokens
