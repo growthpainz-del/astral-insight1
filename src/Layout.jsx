@@ -359,8 +359,7 @@ export default function Layout({ children, currentPageName }) {
     { href: "Account", icon: Users, label: "Account" },
     { href: "LiveAgent", icon: Sparkles, label: "Live Agent" },
 
-    // AI Workspace is admin-only; we'll filter it from non-admin view below
-    { href: "AIWorkspace", icon: Sparkles, label: "🤖 AI Workspace" },
+
   ];
 
   const adminLinks = [
@@ -373,12 +372,7 @@ export default function Layout({ children, currentPageName }) {
   const adminPages = new Set(adminLinks.map(l => l.href));
       const canAccessCurrentPage = isAdmin;
 
-  // Redirect non-admins from AIWorkspace to Dashboard
-  React.useEffect(() => {
-    if (currentPageName === 'AIWorkspace' && !isAdmin) {
-                navigate(createPageUrl('Dashboard'));
-    }
-  }, [currentPageName, isAdmin]);
+
   const hideFloatingSaveOn = new Set(["DeckView", "Reading", "DeckGallery", "CreateDeck"]);
 
   // Show initialization error ONLY for critical failures and while still loading
@@ -796,7 +790,7 @@ export default function Layout({ children, currentPageName }) {
               <div className="pt-4">
                 <p className="px-4 pt-2 pb-1 text-xs font-semibold text-purple-400 uppercase tracking-wider">More</p>
                 {moreLinks
-                  .filter(link => isAdmin || link.href !== 'AIWorkspace')
+
                   .map(link => (
                     <NavLink key={link.href} to={createPageUrl(link.href)}>
                       <link.icon className="w-5 h-5 mr-3" />
