@@ -1,0 +1,313 @@
+import React, { useEffect, useRef, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Mic, Volume2, X, Loader2, Sparkles, StopCircle, Play } from 'lucide-react';
+import { base44 } from "@/api/base44Client";
+
+export default function AudioOrb({ textToSpeak, onComplete, autoPlay = false }) {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [audioUrl, setAudioUrl] = useState(null);
+  const [expanded, setExpanded] = useState(false);
+  
+  const canvasRef = useRef(null);
+  const audioRef = useRef(null);
+  const audioContextRef = useRef(null);
+  const analyserRef = useRef(null);
+  const sourceRef = useRef(null);
+  const animationRef = useRef(null);
+
+  // Auto-play when text changes
+  useEffect(() => {
+    if (textToSpeak && autoPlay) {
+      handleSpeak(textToSpeak);
+    }
+  }, [textToSpeak, autoPlay]);
+
+  const cleanupAudio = () => {
+    if (audioContextRef.current) {
+      if (audioContextRef.current.state !== 'closed') {
+        audioContextRef.current.suspend();
+      }
+    }
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+    }
+  };
+
+  useEffect(() => {
+    return cleanupAudio;
+  }, []);
+
+  const initAudioContext = () => {
+    if (!audioContextRef.current) {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      audioContextRef.current = new AudioContext();
+      analyserRef.current = audioContextRef.current.createAnalyser();
+      analyserRef.current.fftSize = 256;
+      // Connect audio element to analyser
+      if (audioRef.current) {
+        sourceRef.current = audioContextRef.current.createMediaElementSource(audioRef.current);
+        sourceRef.current.connect(analyserRef.current);
+        analyserRef.current.connect(audioContextRef.current.destination);
+      }
+    } else if (audioContextRef.current.state === 'suspended') {
+      audioContextRef.current.resume();
+    }
+  };
+
+  const drawVisualizer = () => {
+    if (!canvasRef.current || !analyserRef.current) return;
+    
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    const width = canvas.width;
+    const height = canvas.height;
+    const centerX = width / 2;
+    const centerY = height / 2;
+    const radius = Math.min(width, height) / 3;
+    
+    const bufferLength = analyserRef.current.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+    
+    const draw = () => {
+      animationRef.current = requestAnimationFrame(draw);
+      analyserRef.current.getByteFrequencyData(dataArray);
+      
+      ctx.clearRect(0, 0, width, height);
+      
+      // Calculate average volume for glow intensity
+      let sum = 0;
+      for (let i = 0; i < bufferLength; i++) {
+        sum += dataArray[i];
+      }
+      const average = sum / bufferLength;
+      const glowIntensity = Math.max(0.2, average / 100);
+      
+      // Draw glowing background orb
+      const gradient = ctx.createRadialGradient(centerX, centerY, radius * 0.5, centerX, centerY, radius * 2.5);
+      gradient.addColorStop(0, `rgba(139, 92, 246, ${glowIntensity})`); // Purple center
+      gradient.addColorStop(0.5, `rgba(6, 182, 212, ${glowIntensity * 0.6})`); // Cyan mid
+      gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, width, height);
+      
+      // Draw circular waveform ring
+      ctx.beginPath();
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = `rgba(200, 255, 255, ${0.5 + glowIntensity * 0.5})`;
+      ctx.shadowBlur = 15;
+      ctx.shadowColor = '#06b6d4'; // Cyan shadow
+      
+      const sliceAngle = (Math.PI * 2) / bufferLength;
+      
+      for (let i = 0; i < bufferLength; i++) {
+        const v = dataArray[i] / 128.0; // Normalized 0-2 (approx)
+        const currentRadius = radius + (v * radius * 0.4); // Distort radius based on volume
+        
+        const angle = i * sliceAngle;
+        const x = centerX + Math.cos(angle) * currentRadius;
+        const y = centerY + Math.sin(angle) * currentRadius;
+        
+        if (i === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+      }
+      
+      ctx.closePath();
+      ctx.stroke();
+      
+      // Inner circle (core)
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius * 0.8, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(0, 0, 0, 0.8)`;
+      ctx.fill();
+      ctx.strokeStyle = `rgba(139, 92, 246, ${0.8})`;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    };
+    
+    draw();
+  };
+
+  const handleSpeak = async (text) => {
+    if (!text) return;
+    
+    // Stop any current playback
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+    
+    setIsLoading(true);
+    setIsPlaying(false);
+    setExpanded(true); // Open the widget when speaking starts
+    
+    try {
+      const response = await base44.functions.invoke('generateSpeech', {
+        text: text,
+        forceElevenLabs: true
+      });
+      
+      if (response.data?.audioContent) {
+        const audioSrc = `data:audio/mpeg;base64,${response.data.audioContent}`;
+        setAudioUrl(audioSrc);
+        
+        // Wait for state update then play
+        setTimeout(async () => {
+          if (audioRef.current) {
+            initAudioContext();
+            try {
+              await audioRef.current.play();
+              setIsPlaying(true);
+              drawVisualizer();
+            } catch (e) {
+              console.error("Playback failed (likely user interaction needed):", e);
+              setIsPlaying(false);
+            }
+          }
+        }, 100);
+      }
+    } catch (error) {
+      console.error("Failed to generate speech:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const togglePlayback = () => {
+    if (!audioRef.current || !audioUrl) {
+      if (textToSpeak) handleSpeak(textToSpeak);
+      return;
+    }
+    
+    if (isPlaying) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+      if (animationRef.current) cancelAnimationFrame(animationRef.current);
+    } else {
+      initAudioContext();
+      audioRef.current.play().then(() => {
+        setIsPlaying(true);
+        drawVisualizer();
+      }).catch(e => console.error(e));
+    }
+  };
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className={`fixed z-[100] right-4 md:right-8 transition-all duration-500 ease-in-out ${
+        expanded ? 'bottom-24 w-72 md:w-80' : 'bottom-24 w-16 h-16'
+      }`}
+    >
+      <div className={`relative bg-slate-900/90 backdrop-blur-xl border border-cyan-500/30 shadow-[0_0_30px_rgba(6,182,212,0.2)] overflow-hidden transition-all duration-500 ${
+        expanded ? 'rounded-2xl p-4' : 'rounded-full w-16 h-16 flex items-center justify-center cursor-pointer hover:border-cyan-400'
+      }`}
+      onClick={() => !expanded && setExpanded(true)}
+      >
+        
+        {/* Minimized View */}
+        {!expanded && (
+          <div className="relative w-full h-full flex items-center justify-center">
+            {isLoading ? (
+              <Loader2 className="w-6 h-6 text-cyan-400 animate-spin" />
+            ) : isPlaying ? (
+              <div className="relative w-full h-full flex items-center justify-center">
+                 <div className="absolute inset-0 rounded-full animate-ping bg-cyan-500/20"></div>
+                 <Volume2 className="w-6 h-6 text-cyan-400 relative z-10" />
+              </div>
+            ) : (
+              <Sparkles className="w-6 h-6 text-purple-400" />
+            )}
+          </div>
+        )}
+
+        {/* Expanded View */}
+        {expanded && (
+          <div className="flex flex-col items-center">
+            {/* Header */}
+            <div className="w-full flex justify-between items-center mb-4">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></div>
+                <span className="text-xs font-bold tracking-wider text-cyan-100 uppercase">AI Voice</span>
+              </div>
+              <button 
+                onClick={(e) => { e.stopPropagation(); setExpanded(false); }}
+                className="text-white/50 hover:text-white transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Visualizer Canvas */}
+            <div className="relative w-48 h-48 mb-4">
+              <canvas 
+                ref={canvasRef} 
+                width={192} 
+                height={192} 
+                className="w-full h-full rounded-full bg-black/40 border border-white/5"
+              />
+              
+              {/* Center Icon/Status */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                {isLoading ? (
+                  <Loader2 className="w-8 h-8 text-cyan-400 animate-spin" />
+                ) : !isPlaying && !audioUrl ? (
+                  <Sparkles className="w-8 h-8 text-purple-400/50" />
+                ) : null}
+              </div>
+            </div>
+
+            {/* Controls */}
+            <div className="w-full flex gap-2">
+              <button 
+                onClick={(e) => { e.stopPropagation(); togglePlayback(); }}
+                disabled={isLoading || !textToSpeak}
+                className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg font-medium text-sm transition-all ${
+                  isPlaying 
+                    ? 'bg-red-500/20 text-red-300 border border-red-500/50 hover:bg-red-500/30' 
+                    : 'bg-cyan-600 hover:bg-cyan-500 text-white shadow-lg shadow-cyan-500/20'
+                }`}
+              >
+                {isLoading ? (
+                  <span>Generating...</span>
+                ) : isPlaying ? (
+                  <>
+                    <StopCircle className="w-4 h-4" /> Stop
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-4 h-4" /> {audioUrl ? 'Replay' : 'Read Interpretation'}
+                  </>
+                )}
+              </button>
+            </div>
+            
+            {/* Status Text */}
+            <div className="mt-3 text-[10px] text-center text-white/40 font-mono">
+              {isLoading ? "Synthesizing voice..." : isPlaying ? "Speaking..." : "Ready"}
+            </div>
+          </div>
+        )}
+
+        {/* Hidden Audio Element */}
+        <audio 
+          ref={audioRef} 
+          src={audioUrl}
+          onEnded={() => {
+            setIsPlaying(false);
+            if (animationRef.current) cancelAnimationFrame(animationRef.current);
+            if (onComplete) onComplete();
+          }}
+          onPause={() => setIsPlaying(false)}
+          className="hidden"
+          crossOrigin="anonymous"
+        />
+      </div>
+    </motion.div>
+  );
+}
