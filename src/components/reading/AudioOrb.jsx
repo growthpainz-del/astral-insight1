@@ -132,10 +132,122 @@ export default function AudioOrb({ textToSpeak, onComplete, autoPlay = false }) 
     draw();
   };
 
+  const segmentsRef = useRef([]);
+  const currentSegmentIndexRef = useRef(0);
+  const audioMapRef = useRef({});
+  const abortRef = useRef(false);
+
+  // Split text into natural chunks (~900 chars)
+  const chunkText = (text, maxLen = 900) => {
+    const parts = [];
+    const paras = text.split(/\n{2,}/).map(p => p.trim()).filter(Boolean);
+    for (const para of paras) {
+      const sentences = para.split(/(?<=[.!?])\s+/);
+      let buf = '';
+      for (const s of sentences) {
+        if ((buf + ' ' + s).trim().length <= maxLen) {
+          buf = (buf ? buf + ' ' : '') + s;
+        } else {
+          if (buf) parts.push(buf);
+          if (s.length > maxLen) {
+            let i = 0;
+            while (i < s.length) {
+              parts.push(s.slice(i, i + maxLen));
+              i += maxLen;
+            }
+            buf = '';
+          } else {
+            buf = s;
+          }
+        }
+      }
+      if (buf) { parts.push(buf); buf = ''; }
+    }
+    return parts.length ? parts : [text];
+  };
+
+  const fetchTtsForIndex = async (idx) => {
+    if (abortRef.current || audioMapRef.current[idx]) return;
+    const seg = segmentsRef.current[idx];
+    if (!seg) return;
+    
+    try {
+      const { data } = await base44.functions.invoke('generateSpeech', {
+        text: seg,
+        forceElevenLabs: true
+      });
+      if (data?.audioContent) {
+        audioMapRef.current[idx] = `data:audio/mpeg;base64,${data.audioContent}`;
+      }
+    } catch (e) {
+      console.error("Failed to pre-fetch audio segment:", e);
+    }
+  };
+
+  const playSegment = async (index) => {
+    if (abortRef.current) return;
+    
+    const url = audioMapRef.current[index];
+    if (!url) {
+      // If not prefetched, wait for it
+      setIsLoading(true);
+      await fetchTtsForIndex(index);
+      setIsLoading(false);
+      if (abortRef.current) return;
+    }
+    
+    const audioUrl = audioMapRef.current[index];
+    if (!audioUrl) {
+      setIsPlaying(false);
+      if (onComplete) onComplete();
+      return; // Failed to get audio
+    }
+
+    setAudioUrl(audioUrl);
+    
+    setTimeout(async () => {
+      if (audioRef.current && !abortRef.current) {
+        initAudioContext();
+        try {
+          audioRef.current.pause();
+          audioRef.current.currentTime = 0;
+          await audioRef.current.play();
+          setIsPlaying(true);
+          drawVisualizer();
+          
+          // Pre-fetch next segment
+          if (index + 1 < segmentsRef.current.length) {
+            fetchTtsForIndex(index + 1);
+          }
+        } catch (e) {
+          console.error("Playback failed:", e);
+          setIsPlaying(false);
+        }
+      }
+    }, 50);
+  };
+
+  const handleEnded = () => {
+    const nextIndex = currentSegmentIndexRef.current + 1;
+    if (nextIndex < segmentsRef.current.length && !abortRef.current) {
+      currentSegmentIndexRef.current = nextIndex;
+      playSegment(nextIndex);
+    } else {
+      setIsPlaying(false);
+      if (animationRef.current) cancelAnimationFrame(animationRef.current);
+      if (onComplete) onComplete();
+    }
+  };
+
   const handleSpeak = async (text) => {
     if (!text) return;
     
-    // Stop any current playback
+    abortRef.current = false;
+    audioMapRef.current = {};
+    const segments = chunkText(text);
+    segmentsRef.current = segments;
+    currentSegmentIndexRef.current = 0;
+    
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
@@ -143,56 +255,32 @@ export default function AudioOrb({ textToSpeak, onComplete, autoPlay = false }) 
     
     setIsLoading(true);
     setIsPlaying(false);
-    setExpanded(true); // Open the widget when speaking starts
+    setExpanded(true);
     
-    try {
-      const response = await base44.functions.invoke('generateSpeech', {
-        text: text,
-        forceElevenLabs: true
-      });
-      
-      if (response.data?.audioContent) {
-        const audioSrc = `data:audio/mpeg;base64,${response.data.audioContent}`;
-        setAudioUrl(audioSrc);
-        
-        // Wait for state update then play
-        setTimeout(async () => {
-          if (audioRef.current) {
-            initAudioContext();
-            try {
-              await audioRef.current.play();
-              setIsPlaying(true);
-              drawVisualizer();
-            } catch (e) {
-              console.error("Playback failed (likely user interaction needed):", e);
-              setIsPlaying(false);
-            }
-          }
-        }, 100);
-      }
-    } catch (error) {
-      console.error("Failed to generate speech:", error);
-    } finally {
-      setIsLoading(false);
-    }
+    await playSegment(0);
   };
 
   const togglePlayback = () => {
-    if (!audioRef.current || !audioUrl) {
-      if (textToSpeak) handleSpeak(textToSpeak);
-      return;
-    }
+    if (!audioRef.current) return;
     
     if (isPlaying) {
+      abortRef.current = true;
       audioRef.current.pause();
       setIsPlaying(false);
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
     } else {
-      initAudioContext();
-      audioRef.current.play().then(() => {
-        setIsPlaying(true);
-        drawVisualizer();
-      }).catch(e => console.error(e));
+      // Re-trigger from start if aborted
+      if (abortRef.current && textToSpeak) {
+        handleSpeak(textToSpeak);
+      } else if (audioUrl) {
+        initAudioContext();
+        audioRef.current.play().then(() => {
+          setIsPlaying(true);
+          drawVisualizer();
+        }).catch(e => console.error(e));
+      } else if (textToSpeak) {
+        handleSpeak(textToSpeak);
+      }
     }
   };
 
@@ -298,12 +386,11 @@ export default function AudioOrb({ textToSpeak, onComplete, autoPlay = false }) 
         <audio 
           ref={audioRef} 
           src={audioUrl}
-          onEnded={() => {
-            setIsPlaying(false);
-            if (animationRef.current) cancelAnimationFrame(animationRef.current);
-            if (onComplete) onComplete();
+          onEnded={handleEnded}
+          onPause={() => {
+            // Only toggle off if it's an actual pause, not just between segments
+            if (abortRef.current) setIsPlaying(false);
           }}
-          onPause={() => setIsPlaying(false)}
           className="hidden"
           crossOrigin="anonymous"
         />
