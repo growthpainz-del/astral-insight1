@@ -42,7 +42,7 @@ Deno.serve(async (req) => {
         console.log(`[generateSpeech] API Key present (len=${apiKey.length})`);
 
         // 3. Call ElevenLabs API
-        const ADAM_ID = "pNInz6obpgDQGcFmaJgB";
+        const FRENZY_ID = "SMgSeP4jlTCMzplwwkwP";
 
         const buildRequest = (vid) => {
             // Use a supported model for all voices
@@ -65,10 +65,10 @@ Deno.serve(async (req) => {
             body: buildRequest(usedVoiceId).body
         });
 
-        if (!response.ok && (response.status === 401 || response.status === 403 || response.status === 404) && usedVoiceId !== ADAM_ID) {
-            console.warn(`[generateSpeech] Voice ${usedVoiceId} failed with ${response.status}. Falling back to Adam (${ADAM_ID})`);
-            // Fallback to a widely available default (Adam) if unauthorized
-            const fallbackVid = ADAM_ID;
+        if (!response.ok && (response.status === 401 || response.status === 403 || response.status === 404) && usedVoiceId !== FRENZY_ID) {
+            console.warn(`[generateSpeech] Voice ${usedVoiceId} failed with ${response.status}. Falling back to Frenzy (${FRENZY_ID})`);
+            // Fallback to a widely available default if unauthorized
+            const fallbackVid = FRENZY_ID;
             const req2 = buildRequest(fallbackVid);
             response = await fetch(req2.url, {
                 method: 'POST',
