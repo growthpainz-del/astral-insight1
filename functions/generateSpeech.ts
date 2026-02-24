@@ -11,8 +11,17 @@ Deno.serve(async (req) => {
 
         // 2. Parse Payload
         const envVoiceId = Deno.env.get("ELEVENLABS_VOICE_ID");
-        const defaultVoiceId = envVoiceId || "SMgSeP4jlTCMzplwwkwP";
-        const { text, voiceId = defaultVoiceId } = await req.json();
+        // Prioritize env var if set, otherwise fallback
+        const systemDefault = "SMgSeP4jlTCMzplwwkwP";
+        const defaultVoiceId = envVoiceId && envVoiceId.length > 0 ? envVoiceId : systemDefault;
+        
+        const payload = await req.json();
+        const text = payload.text;
+        // Only use payload voiceId if it's explicitly provided and not empty
+        const requestedVoiceId = payload.voiceId;
+        const voiceId = requestedVoiceId || defaultVoiceId;
+
+        console.log(`[generateSpeech] Voice ID resolution: Env=${envVoiceId}, Requested=${requestedVoiceId}, Final=${voiceId}`);
 
         if (!text) {
             return Response.json({ error: 'Text is required' }, { status: 400 });
