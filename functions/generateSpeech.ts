@@ -27,10 +27,13 @@ Deno.serve(async (req) => {
             return Response.json({ error: 'Text is required' }, { status: 400 });
         }
 
-        const apiKey = Deno.env.get("ELEVENLABS_API_KEY");
+        let apiKey = Deno.env.get("ELEVENLABS_API_KEY");
         if (!apiKey) {
             return Response.json({ error: 'ElevenLabs API key not configured' }, { status: 500 });
         }
+        apiKey = apiKey.trim(); // Sanitization
+        
+        console.log(`[generateSpeech] API Key present (len=${apiKey.length})`);
 
         // 3. Call ElevenLabs API
         const ADAM_ID = "pNInz6obpgDQGcFmaJgB";
@@ -45,7 +48,7 @@ Deno.serve(async (req) => {
             };
         };
 
-        let usedVoiceId = voiceId || defaultVoiceId;
+        let usedVoiceId = (voiceId || defaultVoiceId).trim();
         let response = await fetch(buildRequest(usedVoiceId).url, {
             method: 'POST',
             headers: {
