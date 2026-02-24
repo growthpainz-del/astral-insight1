@@ -66,6 +66,7 @@ Deno.serve(async (req) => {
         });
 
         if (!response.ok && (response.status === 401 || response.status === 403 || response.status === 404) && usedVoiceId !== ADAM_ID) {
+            console.warn(`[generateSpeech] Voice ${usedVoiceId} failed with ${response.status}. Falling back to Adam (${ADAM_ID})`);
             // Fallback to a widely available default (Adam) if unauthorized
             const fallbackVid = ADAM_ID;
             const req2 = buildRequest(fallbackVid);
