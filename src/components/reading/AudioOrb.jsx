@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Mic, Volume2, X, Loader2, Sparkles, StopCircle, Play } from 'lucide-react';
 import { base44 } from "@/api/base44Client";
 
-export default function AudioOrb({ textToSpeak, onComplete, autoPlay = false }) {
+export default function AudioOrb({ textToSpeak, onComplete, autoPlay = false, variant = "widget" }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [audioUrl, setAudioUrl] = useState(null);
@@ -85,8 +85,8 @@ export default function AudioOrb({ textToSpeak, onComplete, autoPlay = false }) 
       
       // Draw glowing background orb
       const gradient = ctx.createRadialGradient(centerX, centerY, radius * 0.5, centerX, centerY, radius * 2.5);
-      gradient.addColorStop(0, `rgba(139, 92, 246, ${glowIntensity})`); // Purple center
-      gradient.addColorStop(0.5, `rgba(6, 182, 212, ${glowIntensity * 0.6})`); // Cyan mid
+      gradient.addColorStop(0, `rgba(245, 158, 11, ${glowIntensity})`); // Gold center
+      gradient.addColorStop(0.5, `rgba(234, 88, 12, ${glowIntensity * 0.6})`); // Orange mid
       gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
       
       ctx.fillStyle = gradient;
@@ -95,9 +95,9 @@ export default function AudioOrb({ textToSpeak, onComplete, autoPlay = false }) 
       // Draw circular waveform ring
       ctx.beginPath();
       ctx.lineWidth = 3;
-      ctx.strokeStyle = `rgba(200, 255, 255, ${0.5 + glowIntensity * 0.5})`;
+      ctx.strokeStyle = `rgba(254, 243, 199, ${0.5 + glowIntensity * 0.5})`;
       ctx.shadowBlur = 15;
-      ctx.shadowColor = '#06b6d4'; // Cyan shadow
+      ctx.shadowColor = '#f59e0b'; // Amber shadow
       
       const sliceAngle = (Math.PI * 2) / bufferLength;
       
@@ -124,7 +124,7 @@ export default function AudioOrb({ textToSpeak, onComplete, autoPlay = false }) 
       ctx.arc(centerX, centerY, radius * 0.8, 0, Math.PI * 2);
       ctx.fillStyle = `rgba(0, 0, 0, 0.8)`;
       ctx.fill();
-      ctx.strokeStyle = `rgba(139, 92, 246, ${0.8})`;
+      ctx.strokeStyle = `rgba(245, 158, 11, ${0.8})`;
       ctx.lineWidth = 2;
       ctx.stroke();
     };
@@ -288,12 +288,14 @@ export default function AudioOrb({ textToSpeak, onComplete, autoPlay = false }) 
     <motion.div 
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
-      className={`fixed z-[100] right-4 md:right-8 transition-all duration-500 ease-in-out ${
-        expanded ? 'bottom-24 w-72 md:w-80' : 'bottom-24 w-16 h-16'
+      className={`fixed z-[100] transition-all duration-500 ease-in-out ${
+        variant === "mat"
+          ? (expanded ? 'bottom-8 left-1/2 -translate-x-1/2 w-[90vw] max-w-md' : 'bottom-8 right-4 w-16 h-16')
+          : (expanded ? 'bottom-24 right-4 md:right-8 w-72 md:w-80' : 'bottom-24 right-4 md:right-8 w-16 h-16')
       }`}
     >
-      <div className={`relative bg-slate-900/90 backdrop-blur-xl border border-cyan-500/30 shadow-[0_0_30px_rgba(6,182,212,0.2)] overflow-hidden transition-all duration-500 ${
-        expanded ? 'rounded-2xl p-4' : 'rounded-full w-16 h-16 flex items-center justify-center cursor-pointer hover:border-cyan-400'
+      <div className={`relative bg-slate-900/90 backdrop-blur-xl border border-orange-500/30 shadow-[0_0_30px_rgba(234,88,12,0.2)] overflow-hidden transition-all duration-500 ${
+        expanded ? 'rounded-2xl p-6' : 'rounded-full w-16 h-16 flex items-center justify-center cursor-pointer hover:border-orange-400'
       }`}
       onClick={() => !expanded && setExpanded(true)}
       >
@@ -302,14 +304,14 @@ export default function AudioOrb({ textToSpeak, onComplete, autoPlay = false }) 
         {!expanded && (
           <div className="relative w-full h-full flex items-center justify-center">
             {isLoading ? (
-              <Loader2 className="w-6 h-6 text-cyan-400 animate-spin" />
+              <Loader2 className="w-6 h-6 text-orange-400 animate-spin" />
             ) : isPlaying ? (
               <div className="relative w-full h-full flex items-center justify-center">
-                 <div className="absolute inset-0 rounded-full animate-ping bg-cyan-500/20"></div>
-                 <Volume2 className="w-6 h-6 text-cyan-400 relative z-10" />
+                 <div className="absolute inset-0 rounded-full animate-ping bg-orange-500/20"></div>
+                 <Volume2 className="w-6 h-6 text-orange-400 relative z-10" />
               </div>
             ) : (
-              <Sparkles className="w-6 h-6 text-purple-400" />
+              <Sparkles className="w-6 h-6 text-amber-400" />
             )}
           </div>
         )}
@@ -320,8 +322,8 @@ export default function AudioOrb({ textToSpeak, onComplete, autoPlay = false }) 
             {/* Header */}
             <div className="w-full flex justify-between items-center mb-4">
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></div>
-                <span className="text-xs font-bold tracking-wider text-cyan-100 uppercase">AI Voice</span>
+                <div className="w-2 h-2 rounded-full bg-orange-400 animate-pulse"></div>
+                <span className="text-xs font-bold tracking-wider text-orange-100 uppercase">AI Voice</span>
               </div>
               <button 
                 onClick={(e) => { e.stopPropagation(); setExpanded(false); }}
@@ -332,20 +334,20 @@ export default function AudioOrb({ textToSpeak, onComplete, autoPlay = false }) 
             </div>
 
             {/* Visualizer Canvas */}
-            <div className="relative w-48 h-48 mb-4">
+            <div className={`relative mb-4 mx-auto ${variant === 'mat' ? 'w-64 h-64' : 'w-48 h-48'}`}>
               <canvas 
                 ref={canvasRef} 
-                width={192} 
-                height={192} 
+                width={variant === 'mat' ? 256 : 192} 
+                height={variant === 'mat' ? 256 : 192} 
                 className="w-full h-full rounded-full bg-black/40 border border-white/5"
               />
               
               {/* Center Icon/Status */}
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 {isLoading ? (
-                  <Loader2 className="w-8 h-8 text-cyan-400 animate-spin" />
+                  <Loader2 className="w-8 h-8 text-orange-400 animate-spin" />
                 ) : !isPlaying && !audioUrl ? (
-                  <Sparkles className="w-8 h-8 text-purple-400/50" />
+                  <Sparkles className="w-8 h-8 text-amber-400/50" />
                 ) : null}
               </div>
             </div>
@@ -358,7 +360,7 @@ export default function AudioOrb({ textToSpeak, onComplete, autoPlay = false }) 
                 className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg font-medium text-sm transition-all ${
                   isPlaying 
                     ? 'bg-red-500/20 text-red-300 border border-red-500/50 hover:bg-red-500/30' 
-                    : 'bg-cyan-600 hover:bg-cyan-500 text-white shadow-lg shadow-cyan-500/20'
+                    : 'bg-orange-600 hover:bg-orange-500 text-white shadow-lg shadow-orange-500/20'
                 }`}
               >
                 {isLoading ? (

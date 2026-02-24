@@ -1027,6 +1027,7 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
         <AudioOrb 
           textToSpeak={audioText} 
           autoPlay={true} 
+          variant="mat"
           onComplete={() => console.log('Audio orb playback complete')} 
         />
       )}
