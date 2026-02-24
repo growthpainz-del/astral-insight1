@@ -10,7 +10,9 @@ Deno.serve(async (req) => {
         // Deprecated notice removed to enable ElevenLabs TTS
 
         // 2. Parse Payload
-        const { text, voiceId = "X8Na0RDzhqa1gJFsWu5a" } = await req.json();
+        const envVoiceId = Deno.env.get("ELEVENLABS_VOICE_ID");
+        const defaultVoiceId = envVoiceId || "SMgSeP4jlTCMzplwwkwP";
+        const { text, voiceId = defaultVoiceId } = await req.json();
 
         if (!text) {
             return Response.json({ error: 'Text is required' }, { status: 400 });
@@ -22,24 +24,19 @@ Deno.serve(async (req) => {
         }
 
         // 3. Call ElevenLabs API
-        const RACHEL_ID = "21m00Tcm4TlvDq8ikWAM";
-        const GYPSY_ID = "X8Na0RDzhqa1gJFsWu5a";
         const ADAM_ID = "pNInz6obpgDQGcFmaJgB";
 
         const buildRequest = (vid) => {
-            const isGypsy = vid === GYPSY_ID;
-            // Use a supported model for all voices (older v1 models are no longer available on free tier)
+            // Use a supported model for all voices
             const modelId = "eleven_multilingual_v2"; // universal default
-            const voiceSettings = isGypsy
-                ? { stability: 0.25, similarity_boost: 0.95, style: 0.85, use_speaker_boost: true }
-                : { stability: 0.5, similarity_boost: 0.8, use_speaker_boost: true };
+            const voiceSettings = { stability: 0.5, similarity_boost: 0.8, use_speaker_boost: true };
             return {
                 url: `https://api.elevenlabs.io/v1/text-to-speech/${vid}`,
                 body: JSON.stringify({ text, model_id: modelId, voice_settings: voiceSettings })
             };
         };
 
-        let usedVoiceId = voiceId || GYPSY_ID;
+        let usedVoiceId = voiceId || defaultVoiceId;
         let response = await fetch(buildRequest(usedVoiceId).url, {
             method: 'POST',
             headers: {
