@@ -35,8 +35,7 @@ import ReadingSessionManager from "@/components/reading/ReadingSessionManager";
 import EnhancedCardViewer from "@/components/reading/EnhancedCardViewer";
 import DisablePullToRefresh from "@/components/common/DisablePullToRefresh";
 import ShuffleAnimation from "@/components/reading/ShuffleAnimation";
-import DidAgentEmbed from "@/components/integrations/DidAgentEmbed";
-import VoiceAvatarBubble from "@/components/avatar/VoiceAvatarBubble";
+import AudioOrb from "@/components/reading/AudioOrb";
 
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
@@ -204,7 +203,7 @@ export default function ReadingPage() {
   // (shelf disabled)
   const [selectedCard, setSelectedCard] = useState(null);
   const [showAI, setShowAI] = useState(false);
-  const [showAgent, setShowAgent] = useState(false);
+  const [audioText, setAudioText] = useState("");
   
   const [isLoading, setIsLoading] = useState(true);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -936,7 +935,7 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
               spread={selectedSpread}
               question={question}
               onClose={() => setShowAI(false)}
-              onInterpretationReady={() => setShowAgent(true)}
+              onInterpretationReady={(text) => setAudioText(text)}
             />
 
             {/* Card Relationships Section */}
@@ -1024,13 +1023,13 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
         onSaved={handleSessionSaved}
       />
       </div>
-      <VoiceAvatarBubble
-        deck={deck}
-        spread={selectedSpread}
-        cards={(placedCards.some(Boolean) ? placedCards : drawnCards).filter(Boolean)}
-        question={question}
-      />
-      {showAgent && <DidAgentEmbed />}
+      {audioText && (
+        <AudioOrb 
+          textToSpeak={audioText} 
+          autoPlay={true} 
+          onComplete={() => console.log('Audio orb playback complete')} 
+        />
+      )}
       </>
       );
 }

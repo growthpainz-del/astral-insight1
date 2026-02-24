@@ -178,7 +178,7 @@ if (data.error) throw new Error(data.error);
 
 setInterpretation((data.interpretation || "").replace(/\*/g, ""));
 // Notify parent that interpretation is ready
-try { if (typeof onInterpretationReady === 'function') onInterpretationReady(); } catch (_) {}
+try { if (typeof onInterpretationReady === 'function') onInterpretationReady((data.interpretation || "").replace(/\*/g, "")); } catch (_) {}
 setSavedReadingId(null);
 setIsFavorite(false);
 
