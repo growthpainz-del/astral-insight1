@@ -93,10 +93,10 @@ export default function ChanneledReading({ isOpen, drawnCards, deck, spread, que
     }
   }, [isOpen]);
 
-  // Force default reading voice to the user's preferred voice ID
+  // Leave voice selection empty to use backend default
   useEffect(() => {
     if (!isOpen) return;
-    setSelectedVoiceId('X8Na0RDzhqa1gJFsWu5a');
+    setSelectedVoiceId('');
   }, [isOpen]);
 
   const generateInterpretation = async (tier = "quick") => {
@@ -326,11 +326,12 @@ if (user && typeof user.token_balance === "number") {
     if (ttsAudioMapRef.current[idx]) return;
     const seg = (ttsSegmentsRef.current && ttsSegmentsRef.current[idx]) || ttsSegments[idx];
     if (!seg) return;
-    const { data } = await base44.functions.invoke('generateSpeech', {
-      text: seg,
-      voiceId: voiceId || selectedVoiceId || "X8Na0RDzhqa1gJFsWu5a",
-      forceElevenLabs: true,
-    });
+    
+    const payload = { text: seg, forceElevenLabs: true };
+    const targetVoiceId = voiceId || selectedVoiceId;
+    if (targetVoiceId) payload.voiceId = targetVoiceId;
+
+    const { data } = await base44.functions.invoke('generateSpeech', payload);
     const b64 = data?.audioContent;
     if (!b64) throw new Error('No audio returned from TTS');
     ttsAudioMapRef.current[idx] = base64ToObjectUrl(b64, 'audio/mpeg');
@@ -353,11 +354,10 @@ if (user && typeof user.token_balance === "number") {
       ttsIndexRef.current = 0;
       // Generate first segment immediately using local 'segs' to avoid state race
       const firstSeg = segs[0];
-      const { data: ttsData0 } = await base44.functions.invoke('generateSpeech', {
-        text: firstSeg,
-        voiceId: selectedVoiceId || "X8Na0RDzhqa1gJFsWu5a",
-        forceElevenLabs: true,
-      });
+      const payload0 = { text: firstSeg, forceElevenLabs: true };
+      if (selectedVoiceId) payload0.voiceId = selectedVoiceId;
+
+      const { data: ttsData0 } = await base44.functions.invoke('generateSpeech', payload0);
       const b64_0 = ttsData0?.audioContent;
       if (!b64_0) throw new Error('No audio returned from TTS');
       ttsAudioMapRef.current[0] = base64ToObjectUrl(b64_0, 'audio/mpeg');
@@ -379,7 +379,7 @@ if (user && typeof user.token_balance === "number") {
         ttsIndexRef.current = next;
         try {
           if (!ttsAudioMapRef.current[next]) {
-            await fetchTtsForIndex(next, selectedVoiceId || "X8Na0RDzhqa1gJFsWu5a");
+            await fetchTtsForIndex(next, selectedVoiceId);
           }
           if (audioRef.current) {
             audioRef.current.pause();
@@ -390,7 +390,7 @@ if (user && typeof user.token_balance === "number") {
           }
           const ahead = next + 1;
           if (ahead < segs.length) {
-            fetchTtsForIndex(ahead, selectedVoiceId || "X8Na0RDzhqa1gJFsWu5a").catch(()=>{});
+            fetchTtsForIndex(ahead, selectedVoiceId).catch(()=>{});
           }
         } catch (e) {
           try {
@@ -408,7 +408,7 @@ if (user && typeof user.token_balance === "number") {
       try {
         await audioRef.current.play();
         if (segs.length > 1) {
-          fetchTtsForIndex(1, selectedVoiceId || "X8Na0RDzhqa1gJFsWu5a").catch(()=>{});
+          fetchTtsForIndex(1, selectedVoiceId).catch(()=>{});
         }
       } catch (e) {
         try {

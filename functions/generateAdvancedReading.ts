@@ -51,7 +51,8 @@ Deno.serve(async (req) => {
             rootedCrescentText
         } = await req.json();
 
-        const voiceId = ttsVoiceId || "X8Na0RDzhqa1gJFsWu5a";
+        const envVoiceId = Deno.env.get("ELEVENLABS_VOICE_ID");
+        const voiceId = ttsVoiceId || envVoiceId || "SMgSeP4jlTCMzplwwkwP";
 
         // 1. Calculate Costs
         let tokenCost = tier === "quick" ? 1 : tier === "deep" ? 4 : 2;
