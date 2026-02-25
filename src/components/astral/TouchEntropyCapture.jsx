@@ -20,6 +20,7 @@ export default function TouchEntropyCapture({
   const pointsRef = useRef([]);
   const startTimeRef = useRef(0);
   const accelRef = useRef({ x: 0, y: 0, z: 0 });
+  const entropyScoreRef = useRef(0);
   
   // Initialize permission status check
   useEffect(() => {
@@ -113,6 +114,16 @@ export default function TouchEntropyCapture({
           ctx.moveTo(p.x, p.y);
         }
       }
+
+      // Check progress (run in loop to handle stationary holding)
+      const elapsed = Date.now() - startTimeRef.current;
+      const newProgress = Math.min(100, (elapsed / minDuration) * 100);
+      setProgress(newProgress);
+
+      if (elapsed >= minDuration) {
+        handleComplete();
+        return; // Stop loop
+      }
       
       animationFrameId = requestAnimationFrame(render);
     };
@@ -130,6 +141,7 @@ export default function TouchEntropyCapture({
     setIsComplete(false);
     setProgress(0);
     setEntropyScore(0);
+    entropyScoreRef.current = 0;
     pointsRef.current = [];
     startTimeRef.current = Date.now();
     
@@ -157,23 +169,18 @@ export default function TouchEntropyCapture({
     
     setDebugInfo(prev => ({ ...prev, x: Math.round(x), y: Math.round(y), pressure: pressure.toFixed(2) }));
     
-    // Calculate progress
-    const elapsed = Date.now() - startTimeRef.current;
-    const newProgress = Math.min(100, (elapsed / minDuration) * 100);
-    setProgress(newProgress);
-    
     // Calculate live entropy (simplified chaos metric)
-    // Variance in pressure + Variance in acceleration + Path jitter
     if (pointsRef.current.length > 10) {
        const recent = pointsRef.current.slice(-10);
        const pressureVar = recent.reduce((sum, p) => sum + Math.abs(p.pressure - 0.5), 0);
        const accelVar = recent.reduce((sum, p) => sum + (Math.abs(p.accel.x) + Math.abs(p.accel.y)), 0);
-       setEntropyScore(prev => Math.min(100, prev + (pressureVar + accelVar) * 0.1));
+       
+       const increment = (pressureVar + accelVar) * 0.1;
+       entropyScoreRef.current = Math.min(100, entropyScoreRef.current + increment);
+       setEntropyScore(Math.min(100, entropyScoreRef.current));
     }
-
-    if (elapsed >= minDuration && !isComplete) {
-      handleComplete();
-    }
+    
+    // Progress check moved to animation loop to prevent stalling when stationary
   };
 
   const handlePointerUp = (e) => {
@@ -193,7 +200,7 @@ export default function TouchEntropyCapture({
     const finalData = {
       duration: Date.now() - startTimeRef.current,
       points: pointsRef.current,
-      entropyScore: Math.min(100, Math.round(entropyScore * 10) / 10),
+      entropyScore: Math.min(100, Math.round(entropyScoreRef.current * 10) / 10),
       timestamp: new Date().toISOString()
     };
     
