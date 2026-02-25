@@ -509,7 +509,7 @@ export default function Dashboard() {
             </Link>
           </div>
           <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide pan-2d">
-            {publicDecks.slice(0, 12).map(deck => (
+            {publicDecks.map(deck => (
               <DeckCard key={deck.id} deck={deck} isOwned={isOwnedByUser(deck)} />
             ))}
           </div>
