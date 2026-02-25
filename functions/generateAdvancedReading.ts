@@ -144,6 +144,19 @@ const rootedSection = rootedCrescentRaw.trim()
   ? `\n\nROOTED CRESCENT KNOWLEDGE (prefer these meanings when relevant):\n${rootedCrescentRaw.slice(0, 4000)}`
   : "";
         
+        // --- ASTRAL CALIBRATION CONTEXT ---
+        let astralContext = "";
+        if (astralCalibration && astralCalibration.entropyScore) {
+            const score = parseFloat(astralCalibration.entropyScore);
+            let vibe = "balanced and steady";
+            if (score > 80) vibe = "highly chaotic, energetic, and unpredictable";
+            else if (score > 60) vibe = "dynamic and fluid";
+            else if (score < 20) vibe = "extremely focused, rigid, and calm";
+            else if (score < 40) vibe = "grounded and slow-moving";
+            
+            astralContext = `\n\n🔮 ASTRAL CALIBRATION (User's Current Energetic Signature):\nEntropy Score: ${astralCalibration.entropyScore}/100\nResonance: The user's energy is currently ${vibe}. Subtly weave this energetic state into your interpretation. For example, if they are chaotic, acknowledge their swirling energy. If they are grounded, speak to their stillness. Do not explicitly state their score, just let it flavor your response.`;
+        }
+
         // --- PAST READINGS CONTEXT (personalization) ---
         let pastContext = "";
         try {
@@ -224,6 +237,7 @@ ${languageInstruction}
 ${adviceDepthInstruction}
 ${pastContext}
 ${rootedSection}
+${astralContext}
 
 SPREAD STRUCTURE:
 ${spreadStructure}
