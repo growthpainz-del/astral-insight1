@@ -170,9 +170,21 @@ const { data } = await base44.functions.invoke('generateAdvancedReading', {
 
 if (data.error) throw new Error(data.error);
 
-setInterpretation((data.interpretation || "").replace(/\*/g, ""));
-// Notify parent that interpretation is ready
-try { if (typeof onInterpretationReady === 'function') onInterpretationReady((data.interpretation || "").replace(/\*/g, "")); } catch (_) {}
+// Parse structured response
+const speakText = data.speak || (data.interpretation || "").replace(/\[SPEAK\][\s\S]*?\[\/SPEAK\]/g, "").replace(/\*/g, "");
+const screenData = data.screen || {};
+
+// Construct clean display text without tags
+let displayText = "";
+if (screenData.title) displayText += `## ${screenData.title}\n\n`;
+displayText += screenData.insight || (data.interpretation || "").replace(/\[SPEAK\][\s\S]*?\[\/SPEAK\]/g, "").replace(/\[SCREEN\]|\[\/SCREEN\]|Title:.*|Insight:/g, "").trim();
+if (screenData.vibe) displayText += `\n\n**Vibe:** ${screenData.vibe}`;
+if (screenData.next_steps?.length) displayText += `\n\n**Next Steps:**\n- ${screenData.next_steps.join('\n- ')}`;
+
+setInterpretation(displayText);
+
+// Notify parent with clean speech text
+try { if (typeof onInterpretationReady === 'function') onInterpretationReady(speakText); } catch (_) {}
 setSavedReadingId(null);
 setIsFavorite(false);
 
@@ -183,8 +195,12 @@ try {
     const spreadPositions = spread?.positions || [];
     const numPositions = spreadPositions.length || (drawnCards?.length || 0);
     const relevantCards = (drawnCards || []).slice(0, numPositions);
+    
+    // Use generated title if available, otherwise fallback
+    const readingTitle = screenData.title || (question?.trim()) || `${deck?.name || 'Reading'} — ${new Date().toLocaleString()}`;
+    
     const payload = {
-      title: (question?.trim()) || `${deck?.name || 'Reading'} — ${new Date().toLocaleString()}`,
+      title: readingTitle,
       spread_type: spread?.name || spread?.type || (spreadPositions.length ? `custom_${spreadPositions.length}` : 'custom'),
       deck_id: deckId,
       cards_drawn: relevantCards.map((c, idx) => ({
@@ -194,7 +210,7 @@ try {
         card_name: c.name,
         image_url: c.image_url
       })),
-      interpretation: (data.interpretation || ""),
+      interpretation: displayText,
       date: new Date().toISOString().slice(0,10),
       tags: []
     };
