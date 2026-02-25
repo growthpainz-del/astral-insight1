@@ -34,6 +34,19 @@ export default function AstralTest() {
             This module tests the "connective tissue" between the touch interface and the vibrational state engine.
             It captures <strong>PointerEvents</strong> (pressure, radius) and <strong>DeviceMotion</strong> (accelerometer tremors) to generate an entropy score.
           </p>
+          
+          <div className="mt-4 pt-4 border-t border-white/5">
+            <h3 className="text-xs font-semibold text-purple-300 mb-1 flex items-center gap-1">
+              <Info className="w-3 h-3" />
+              Integration Recommendation
+            </h3>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              <strong>Usage:</strong> Perform this calibration once per device to establish your baseline energetic signature. 
+              This data seeds the random number generators for deck shuffling and AI insights, tuning them to your personal vibration.
+              <br/><br/>
+              You do not need to repeat this before every session unless you feel your energy has shifted significantly.
+            </p>
+          </div>
         </div>
 
         {/* Capture Module */}
