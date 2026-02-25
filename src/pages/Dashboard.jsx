@@ -506,14 +506,20 @@ export default function Dashboard() {
               <Sparkles className="w-6 h-6 text-cyan-400" />
               Official Decks ({publicDecks.length})
             </h2>
-            <Link to={createPageUrl("ReadingRoom")} className="text-white/60 hover:text-white flex items-center gap-1 text-sm">
-              Browse All <ChevronRight className="w-4 h-4" />
-            </Link>
+
           </div>
           <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide pan-2d">
             {publicDecks.map(deck => (
               <DeckCard key={deck.id} deck={deck} isOwned={isOwnedByUser(deck)} />
             ))}
+            <Link to={createPageUrl("ReadingRoom")} className="group flex-shrink-0">
+              <div className="flex flex-col items-center justify-center w-48 aspect-[2/3] rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 hover:border-cyan-400/30 transition-all duration-300">
+                <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform group-hover:bg-cyan-500/20">
+                   <ChevronRight className="w-6 h-6 text-white group-hover:text-cyan-400" />
+                </div>
+                <span className="text-white font-medium group-hover:text-cyan-400 transition-colors">Browse All</span>
+              </div>
+            </Link>
           </div>
         </div>
       )}
