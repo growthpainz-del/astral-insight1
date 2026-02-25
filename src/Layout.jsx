@@ -359,9 +359,6 @@ export default function Layout({ children, currentPageName }) {
     { href: "Help", icon: HelpCircle, label: "Help & Guides" },
     { href: "SubscriptionManagement", icon: Coins, label: "Subscription" },
     { href: "Account", icon: Users, label: "Account" },
-    { href: "LiveAgent", icon: Sparkles, label: "Live Agent" },
-
-
   ];
 
   const adminLinks = [
@@ -369,6 +366,7 @@ export default function Layout({ children, currentPageName }) {
             { href: "AdminDeckReview", icon: CheckCircle2, label: "Review Decks" },
             { href: "AdminTokenGrant", icon: Coins, label: "Token Grant" },
             { href: "SpreadSeeder", icon: Sprout, label: "Seed Spreads" },
+            { href: "LiveAgent", icon: Sparkles, label: "Live Agent" },
           ];
 
   const adminPages = new Set(adminLinks.map(l => l.href));
