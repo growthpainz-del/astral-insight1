@@ -1023,14 +1023,12 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
         onSaved={handleSessionSaved}
       />
       </div>
-      {audioText && (
-        <AudioOrb 
-          textToSpeak={audioText} 
-          autoPlay={true} 
-          variant="mat"
-          onComplete={() => console.log('Audio orb playback complete')} 
-        />
-      )}
+      <AudioOrb 
+        textToSpeak={audioText} 
+        autoPlay={!!audioText} 
+        variant="mat"
+        onComplete={() => console.log('Audio orb playback complete')} 
+      />
       </>
       );
 }
