@@ -48,7 +48,8 @@ Deno.serve(async (req) => {
             language = "auto",
             conciseMode = false,
             ttsVoiceId,
-            rootedCrescentText
+            rootedCrescentText,
+            astralCalibration
         } = await req.json();
 
         const envVoiceId = Deno.env.get("ELEVENLABS_VOICE_ID");

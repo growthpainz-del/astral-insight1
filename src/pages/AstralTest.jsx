@@ -80,7 +80,20 @@ export default function AstralTest() {
                 }, null, 2)}
               </pre>
               <button 
-                onClick={() => alert("Sync simulation complete! Vibrational data has been transmitted to the astral plane.")}
+                onClick={() => {
+                  try {
+                    localStorage.setItem('astral_calibration_data', JSON.stringify({
+                      entropyScore: capturedData.entropyScore,
+                      timestamp: capturedData.timestamp,
+                      tremor_avg: "0.24 G",
+                      pressure_variance: "0.12",
+                      coherence: "High"
+                    }));
+                    alert("Sync complete! Vibrational data has been saved and will tune your future AI readings.");
+                  } catch(e) {
+                    alert("Sync simulation complete! Vibrational data has been transmitted to the astral plane.");
+                  }
+                }}
                 className="absolute top-2 right-2 bg-slate-900/80 hover:bg-slate-800 px-2 py-1 rounded text-[10px] text-cyan-500 border border-cyan-900 transition-colors cursor-pointer"
               >
                 Ready to Sync

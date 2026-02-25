@@ -154,6 +154,12 @@ export default function ChanneledReading({ isOpen, drawnCards, deck, spread, que
 setProgress({ current: 4, total: 5, message: "Weaving your interpretation..." });
 
 // Call backend function
+let astralCalibration = null;
+try {
+  const stored = localStorage.getItem('astral_calibration_data');
+  if (stored) astralCalibration = JSON.parse(stored);
+} catch (e) {}
+
 const { data } = await base44.functions.invoke('generateAdvancedReading', {
   drawnCards: relevantCards,
   deck,
@@ -165,7 +171,8 @@ const { data } = await base44.functions.invoke('generateAdvancedReading', {
   personaPreamble: personaPreambleEff,
   adviceDepth: coachAdviceDepth,
   language: coachLanguage,
-  conciseMode: conciseMode
+  conciseMode: conciseMode,
+  astralCalibration: astralCalibration
 });
 
 if (data.error) throw new Error(data.error);
