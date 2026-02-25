@@ -66,9 +66,12 @@ export default function AstralTest() {
                   }
                 }, null, 2)}
               </pre>
-              <div className="absolute top-2 right-2 bg-slate-900/80 px-2 py-1 rounded text-[10px] text-cyan-500 border border-cyan-900">
+              <button 
+                onClick={() => alert("Sync simulation complete! Vibrational data has been transmitted to the astral plane.")}
+                className="absolute top-2 right-2 bg-slate-900/80 hover:bg-slate-800 px-2 py-1 rounded text-[10px] text-cyan-500 border border-cyan-900 transition-colors cursor-pointer"
+              >
                 Ready to Sync
-              </div>
+              </button>
             </div>
             
             <div className="grid grid-cols-2 gap-2 text-xs">
