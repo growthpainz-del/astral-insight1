@@ -879,29 +879,56 @@ export default function Layout({ children, currentPageName }) {
 
           <div className="flex-1 flex flex-col">
             <header className="md:hidden bg-slate-900/95 backdrop-blur-lg border-b border-purple-800/40 h-16 pt-[env(safe-area-inset-top)] flex items-center px-4 justify-between flex-shrink-0 sticky top-0 z-40">
-              <button 
-                onClick={() => setIsSidebarOpen(true)} 
-                className="text-purple-300 hover:text-purple-100 active:scale-95 transition-all p-2 -ml-2 touch-manipulation"
-                style={{ WebkitTapHighlightColor: 'transparent' }}
-              >
-                <LayoutGrid className="w-6 h-6" />
-              </button>
-              <Link to={createPageUrl('Home')} className="flex items-center gap-2">
+              <div className="flex items-center">
+                {['Home','ReadingRoom','Studio','Journal', 'Dashboard'].includes(currentPageName) ? (
+                  <button 
+                    onClick={() => setIsSidebarOpen(true)} 
+                    className="text-purple-300 hover:text-purple-100 active:scale-95 transition-all p-2 -ml-2 touch-manipulation"
+                    style={{ WebkitTapHighlightColor: 'transparent' }}
+                  >
+                    <LayoutGrid className="w-6 h-6" />
+                  </button>
+                ) : (
+                  <button 
+                    onClick={handleMobileBack} 
+                    className="text-purple-300 hover:text-purple-100 active:scale-95 transition-all p-2 -ml-2 touch-manipulation"
+                    style={{ WebkitTapHighlightColor: 'transparent' }}
+                  >
+                    <ChevronLeft className="w-6 h-6" />
+                  </button>
+                )}
+              </div>
+              <Link to={createPageUrl('Home')} className="flex items-center justify-center absolute left-1/2 -translate-x-1/2">
                 <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d2a300021f94d0f312c039/4cde5ffdd_IMG_6738.jpg" alt="Logo" className="h-8 w-8" />
               </Link>
-              {['Home','ReadingRoom','Studio','Journal'].includes(currentPageName) ? (
-                <Link to={createPageUrl('Home')} className="text-purple-300 hover:text-purple-100 active:scale-95 transition-all p-2 -mr-2 touch-manipulation" style={{ WebkitTapHighlightColor: 'transparent' }}>
-                  <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d2a300021f94d0f312c039/4cde5ffdd_IMG_6738.jpg" alt="Logo" className="h-6 w-6 rounded" />
-                </Link>
-              ) : (
-                <button 
-                  onClick={handleMobileBack} 
-                  className="text-purple-300 hover:text-purple-100 active:scale-95 transition-all p-2 -mr-2 touch-manipulation"
-                  style={{ WebkitTapHighlightColor: 'transparent' }}
-                >
-                  <ChevronLeft className="w-6 h-6" />
-                </button>
-              )}
+              <div className="flex items-center justify-end">
+                {user ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="rounded-full overflow-hidden border border-purple-800/40 focus:outline-none w-8 h-8 -mr-1">
+                        <img 
+                          src={user.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.email)}&background=random`} 
+                          alt="User" 
+                          className="w-full h-full object-cover"
+                        />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48 bg-slate-800 border-purple-700 text-white">
+                      <div className="px-2 py-2 border-b border-purple-800/40 mb-1">
+                        <p className="text-sm font-medium truncate">{user.full_name || user.email}</p>
+                      </div>
+                      <DropdownMenuItem onSelect={handleLogout} className="hover:bg-purple-700/50 cursor-pointer text-red-400 focus:text-red-300">
+                        <LogOut className="w-4 h-4 mr-2" />
+                        <span>Logout</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  <Button size="sm" variant="ghost" className="text-purple-300 px-2 -mr-2" onClick={() => base44.auth.redirectToLogin(window.location.href)}>
+                    Login
+                  </Button>
+                )}
+              </div>
             </header>
 
             <main className="flex-1 w-full" style={{ 
