@@ -18,6 +18,10 @@ export default function AudioOrb({ textToSpeak, onComplete, autoPlay = false, va
   const analyserRef = useRef(null);
   const sourceRef = useRef(null);
   const animationRef = useRef(null);
+  
+  // Refs for Subterranean Audio Engine
+  const rumbleOscillatorRef = useRef(null);
+  const rumbleGainRef = useRef(null);
 
   // Auto-play when text changes
   useEffect(() => {
@@ -47,16 +51,53 @@ export default function AudioOrb({ textToSpeak, onComplete, autoPlay = false, va
       audioContextRef.current = new AudioContext();
       analyserRef.current = audioContextRef.current.createAnalyser();
       analyserRef.current.fftSize = 256;
-      // Connect audio element to analyser
+      
+      // 1. Setup Main Voice Path
       if (audioRef.current) {
         sourceRef.current = audioContextRef.current.createMediaElementSource(audioRef.current);
         sourceRef.current.connect(analyserRef.current);
         analyserRef.current.connect(audioContextRef.current.destination);
       }
+
+      // 2. Setup Subterranean Haptic Rumble Engine (Psychoacoustic vibration)
+      const rumbleGain = audioContextRef.current.createGain();
+      rumbleGain.gain.value = 0; // Starts silent
+      
+      const lowpass = audioContextRef.current.createBiquadFilter();
+      lowpass.type = 'lowpass';
+      lowpass.frequency.value = 80; // Keep it deep and felt rather than heard
+      
+      const oscillator = audioContextRef.current.createOscillator();
+      oscillator.type = 'sine';
+      oscillator.frequency.value = 45; // 45Hz sub-bass frequency for haptic illusion
+      
+      oscillator.connect(lowpass);
+      lowpass.connect(rumbleGain);
+      rumbleGain.connect(audioContextRef.current.destination);
+      
+      oscillator.start();
+      
+      rumbleOscillatorRef.current = oscillator;
+      rumbleGainRef.current = rumbleGain;
+      
     } else if (audioContextRef.current.state === 'suspended') {
       audioContextRef.current.resume();
     }
   };
+
+  // Toggle rumble based on playing state
+  useEffect(() => {
+    if (rumbleGainRef.current && audioContextRef.current) {
+      const now = audioContextRef.current.currentTime;
+      if (isPlaying) {
+        // Fade in subterranean rumble
+        rumbleGainRef.current.gain.setTargetAtTime(0.8, now, 0.5);
+      } else {
+        // Fade out
+        rumbleGainRef.current.gain.setTargetAtTime(0, now, 0.2);
+      }
+    }
+  }, [isPlaying]);
 
   const drawVisualizer = () => {
     if (!canvasRef.current || !analyserRef.current) return;
