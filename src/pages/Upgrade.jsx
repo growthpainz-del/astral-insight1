@@ -16,7 +16,7 @@ import { motion } from "framer-motion";
 // ACTUAL GUMROAD PRODUCT LINKS
 const GUMROAD_LINKS = {
   mystic: "https://growthpainz.gumroad.com/l/ghsad",
-  oracle_pro: "https://growthpainz.gumroad.com/l/wxnje?_gl=1*1x72vg6*_ga*MTM0NDI3NTgwMi4xNzY5NTE5Njc5*_ga_6LJN6D94N6*czE3NzEwNDc3NDYkbzQkZzEkdDE3NzEwNDgxMDQkajE1JGwwJGgw",
+  oracle_pro: "https://growthpainz.gumroad.com/l/ibcai",
   creator: "https://growthpainz.gumroad.com/l/wxnje",
   tokens_20: "https://growthpainz.gumroad.com/l/jcxfui",
   tokens_50: "https://growthpainz.gumroad.com/l/bhzra",
@@ -44,8 +44,12 @@ export default function Upgrade() {
   };
 
   const handleUpgrade = (tier) => {
-    // Redirect to Gumroad checkout
-    window.open(GUMROAD_LINKS[tier], '_blank');
+    // Redirect to Gumroad checkout with pre-filled email
+    let url = GUMROAD_LINKS[tier];
+    if (user?.email) {
+      url += (url.includes('?') ? '&' : '?') + 'email=' + encodeURIComponent(user.email);
+    }
+    window.open(url, '_blank');
   };
 
   const tiers = [

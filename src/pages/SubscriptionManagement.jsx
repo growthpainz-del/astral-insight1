@@ -30,6 +30,14 @@ export default function SubscriptionManagement() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
 
+  const handleUpgrade = (url) => {
+    let finalUrl = url;
+    if (user?.email) {
+      finalUrl += (finalUrl.includes('?') ? '&' : '?') + 'email=' + encodeURIComponent(user.email);
+    }
+    window.open(finalUrl, '_blank');
+  };
+
   // Weekly reading preferences
   const [weeklyEnabled, setWeeklyEnabled] = useState(false);
   const [selectedDeck, setSelectedDeck] = useState("");
@@ -254,16 +262,12 @@ export default function SubscriptionManagement() {
                   <span>All basic features</span>
                 </li>
               </ul>
-              <a 
-                href="https://gumroad.com/l/mystic-tier" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="block w-full"
+              <Button 
+                onClick={() => handleUpgrade("https://growthpainz.gumroad.com/l/ghsad")}
+                className="w-full bg-purple-600 hover:bg-purple-700"
               >
-                <Button className="w-full bg-purple-600 hover:bg-purple-700">
-                  Subscribe
-                </Button>
-              </a>
+                Subscribe
+              </Button>
             </div>
 
             {/* Oracle Pro */}
@@ -296,16 +300,12 @@ export default function SubscriptionManagement() {
                   <span>Fusion readings</span>
                 </li>
               </ul>
-              <a 
-                href="https://growthpainz.gumroad.com/l/wxnje?_gl=1*1x72vg6*_ga*MTM0NDI3NTgwMi4xNzY5NTE5Njc5*_ga_6LJN6D94N6*czE3NzEwNDc3NDYkbzQkZzEkdDE3NzEwNDgxMDQkajE1JGwwJGgw" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="block w-full"
+              <Button 
+                onClick={() => handleUpgrade("https://growthpainz.gumroad.com/l/ibcai")}
+                className="w-full bg-blue-600 hover:bg-blue-700"
               >
-                <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                  Subscribe
-                </Button>
-              </a>
+                Subscribe
+              </Button>
             </div>
 
             {/* Creator Studio */}
@@ -339,16 +339,12 @@ export default function SubscriptionManagement() {
                   <span>Commercial use</span>
                 </li>
               </ul>
-              <a 
-                href="https://gumroad.com/l/creator-studio" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="block w-full"
+              <Button 
+                onClick={() => handleUpgrade("https://growthpainz.gumroad.com/l/wxnje")}
+                className="w-full bg-amber-600 hover:bg-amber-700"
               >
-                <Button className="w-full bg-amber-600 hover:bg-amber-700">
-                  Subscribe
-                </Button>
-              </a>
+                Subscribe
+              </Button>
             </div>
           </div>
 
@@ -360,9 +356,7 @@ export default function SubscriptionManagement() {
                 <div className="text-2xl font-bold text-amber-400 mb-1">20</div>
                 <div className="text-xs text-purple-300 mb-3">tokens</div>
                 <div className="text-lg font-bold text-white mb-3">$1.99</div>
-                <a href="https://gumroad.com/l/tokens-20" target="_blank" rel="noopener noreferrer">
-                  <Button size="sm" variant="outline" className="w-full border-purple-500 text-purple-300">Buy</Button>
-                </a>
+                <Button onClick={() => handleUpgrade("https://growthpainz.gumroad.com/l/jcxfui")} size="sm" variant="outline" className="w-full border-purple-500 text-purple-300">Buy</Button>
               </div>
 
               <div className="bg-slate-800/50 border-2 border-emerald-500/60 rounded-lg p-4 text-center relative">
@@ -372,9 +366,7 @@ export default function SubscriptionManagement() {
                 <div className="text-2xl font-bold text-amber-400 mb-1">50</div>
                 <div className="text-xs text-purple-300 mb-3">tokens</div>
                 <div className="text-lg font-bold text-white mb-3">$3.99</div>
-                <a href="https://gumroad.com/l/tokens-50" target="_blank" rel="noopener noreferrer">
-                  <Button size="sm" className="w-full bg-emerald-600 hover:bg-emerald-700">Buy</Button>
-                </a>
+                <Button onClick={() => handleUpgrade("https://growthpainz.gumroad.com/l/bhzra")} size="sm" className="w-full bg-emerald-600 hover:bg-emerald-700">Buy</Button>
               </div>
 
               <div className="bg-slate-800/50 border border-white/10 rounded-lg p-4 text-center">
@@ -382,9 +374,7 @@ export default function SubscriptionManagement() {
                 <div className="text-xs text-purple-300 mb-3">tokens</div>
                 <div className="text-lg font-bold text-white mb-1">$6.99</div>
                 <div className="text-[10px] text-emerald-400 mb-2">20% savings</div>
-                <a href="https://gumroad.com/l/tokens-100" target="_blank" rel="noopener noreferrer">
-                  <Button size="sm" variant="outline" className="w-full border-purple-500 text-purple-300">Buy</Button>
-                </a>
+                <Button onClick={() => handleUpgrade("https://growthpainz.gumroad.com/l/harwmx")} size="sm" variant="outline" className="w-full border-purple-500 text-purple-300">Buy</Button>
               </div>
 
               <div className="bg-slate-800/50 border-2 border-amber-500/60 rounded-lg p-4 text-center relative">
@@ -395,9 +385,7 @@ export default function SubscriptionManagement() {
                 <div className="text-xs text-purple-300 mb-3">tokens</div>
                 <div className="text-lg font-bold text-white mb-1">$12.99</div>
                 <div className="text-[10px] text-amber-400 mb-2">35% savings</div>
-                <a href="https://gumroad.com/l/tokens-200" target="_blank" rel="noopener noreferrer">
-                  <Button size="sm" className="w-full bg-amber-600 hover:bg-amber-700">Buy</Button>
-                </a>
+                <Button onClick={() => handleUpgrade("https://growthpainz.gumroad.com/l/ndqug")} size="sm" className="w-full bg-amber-600 hover:bg-amber-700">Buy</Button>
               </div>
             </div>
           </div>
