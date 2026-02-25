@@ -26,7 +26,8 @@ import {
                     Sparkles,
                     Sun,
                     Moon,
-                    Laptop
+                    Laptop,
+                    Activity
                   } from "lucide-react";
 import {
         DropdownMenu,
@@ -351,6 +352,7 @@ export default function Layout({ children, currentPageName }) {
     { href: "SpreadManager", icon: Layers, label: "Spreads" },
     { href: "PhotoUploader", icon: ImageIcon, label: "Photo Library" },
     { href: "Persona", icon: Sparkles, label: "Persona" },
+    { href: "AstralTest", icon: Activity, label: "Sensor Test" },
   ];
 
   const moreLinks = [
