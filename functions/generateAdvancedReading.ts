@@ -212,6 +212,7 @@ GUIDELINES:
 - Use “body as antenna” cues if relevant.
 - If moon phase provided, mention once to amplify the vibe.
 - Concrete actions over vagueness.
+- CRITICAL: Weave the meaning of each card's spread position into its interpretation. Explain WHY this card appearing in this specific position matters (e.g., "The Fool in the 'Challenge' position suggests...").
 
 CONTEXT:
 DECK: ${deck?.name || "Oracle Deck"}
