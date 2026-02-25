@@ -667,12 +667,9 @@ if (user && typeof user.token_balance === "number") {
     }
   };
 
-  // Stop TTS on unmount or when regenerating
+  // TTS handled by external AudioOrb component now
   useEffect(() => {
-    if (isGenerating) {
-      handleStop();
-    }
-    return () => handleStop();
+    // cleanup if needed
   }, [isGenerating]);
 
   if (!isOpen) return null;
@@ -892,33 +889,11 @@ if (user && typeof user.token_balance === "number") {
               Your {selectedTier.charAt(0).toUpperCase() + selectedTier.slice(1)} Reading
             </h3>
             <div className="flex items-center gap-2 flex-wrap justify-end">
-              {/* Voice selection hidden – forced voice in use */
+              {/* Voice selection hidden – forced voice in use */}
               <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-white/5 border border-white/10">
                 <span className="text-xs text-white/70">Concise</span>
                 <Switch checked={conciseMode} onCheckedChange={setConciseMode} />
-              </div>}
-
-              {!isSpeaking ? (
-                <Button
-                  onClick={handleSpeak}
-                  variant="ghost"
-                  size="sm"
-                  className="text-purple-300 hover:text-white"
-                >
-                  <Volume2 className="w-4 h-4 mr-2" />
-                  Listen
-                </Button>
-              ) : (
-                <Button
-                  onClick={handleStop}
-                  variant="ghost"
-                  size="sm"
-                  className="text-purple-300 hover:text-white"
-                >
-                  <StopCircle className="w-4 h-4 mr-2" />
-                  Stop
-                </Button>
-              )}
+              </div>
               <Button
                 onClick={handleToggleFavorite}
                 variant="ghost"
@@ -967,16 +942,6 @@ if (user && typeof user.token_balance === "number") {
               </Button>
             </div>
           </div>
-
-
-
-          <audio
-            ref={audioRef}
-            playsInline
-            preload="auto"
-            controls
-            className="w-full max-w-md mx-auto mt-2 opacity-60 hover:opacity-100"
-          />
 
           <Tabs value={activeTab} onValueChange={(v) => {
             setActiveTab(v);
