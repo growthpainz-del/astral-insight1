@@ -431,7 +431,7 @@ export default function SpiritWheel() {
                 {isSpinning ? "Channeling the Spirits..." : "Spin the Wheel"}
               </Button>
               <div className="text-center text-amber-200/50 text-sm italic pt-2">
-                👆 Or swipe the wheel directly to spin
+                👆 Or tap / swipe the wheel directly to spin
               </div>
             </div>
           </div>
@@ -519,14 +519,16 @@ export default function SpiritWheel() {
         {/* Right Column: The Visual Wheel */}
         <div className="flex-1 flex items-start lg:items-center justify-center p-2 lg:p-8 relative min-h-[350px] lg:min-h-[600px] order-1 lg:order-2 overflow-visible">
           <motion.div 
-            className="relative w-[300px] h-[300px] sm:w-[350px] sm:h-[350px] md:w-[450px] md:h-[450px] lg:w-[500px] lg:h-[500px] shrink-0 mt-6 lg:mt-0 cursor-grab active:cursor-grabbing"
+            className="relative w-[300px] h-[300px] sm:w-[350px] sm:h-[350px] md:w-[450px] md:h-[450px] lg:w-[500px] lg:h-[500px] shrink-0 mt-6 lg:mt-0 cursor-pointer"
+            onClick={() => !isSpinning && spinWheel()}
             onPanEnd={(e, info) => {
               const velocity = Math.max(Math.abs(info.velocity.x), Math.abs(info.velocity.y));
-              if (velocity > 300 && !isSpinning) {
+              if (velocity > 200 && !isSpinning) {
                 spinWheel();
               }
             }}
             whileTap={{ scale: 0.98 }}
+            style={{ touchAction: "pan-y" }}
           >
             {/* Pointer / Indicator at top */}
             <div className="absolute top-[-35px] left-1/2 -translate-x-1/2 z-50 drop-shadow-[0_4px_12px_rgba(245,158,11,0.8)]">
