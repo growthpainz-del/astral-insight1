@@ -1,14 +1,16 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { base44 } from "@/api/base44Client";
 
 export default function LiveAgent() {
   const [agentId, setAgentId] = useState("");
+  const [provider, setProvider] = useState("did"); // "did", "heygen", "elevenlabs"
   const [decks, setDecks] = useState([]);
   const [selectedDeckIds, setSelectedDeckIds] = useState([]);
   const [search, setSearch] = useState("");
@@ -18,11 +20,15 @@ export default function LiveAgent() {
   const scriptRef = useRef(null);
 
   const mountScript = () => {
-    // Clean previous script if exists
+    // Clean previous scripts if exists
     try {
-      if (scriptRef.current) {
+      if (scriptRef.current && document.body.contains(scriptRef.current)) {
         document.body.removeChild(scriptRef.current);
         scriptRef.current = null;
+      }
+      const existingEleven = document.querySelector('script[src="https://elevenlabs.io/convai-widget/index.js"]');
+      if (existingEleven) {
+        document.body.removeChild(existingEleven);
       }
     } catch (_) {}
 
@@ -32,42 +38,71 @@ export default function LiveAgent() {
        if (target) target.innerHTML = "";
      } catch (_) {}
 
-     const id = agentId || "v2_agt_hF1S2XwN";
-     const key = "Z29vZ2xlLW9hdXRoMnwxMTU4Mjg4NTQ2NzM5OTExMjUyOTQ6UXpvMjZoZWFxd3ZSa3lXSmpvMHlM";
+     const id = agentId || "23c2218d081f473bbc67e2f7d8fd6e8e";
 
-    const script = document.createElement("script");
-    script.type = "module";
-    script.src = "https://agent.d-id.com/v2/index.js";
-    script.setAttribute("data-mode", "full");
-    script.setAttribute("data-client-key", key);
-    script.setAttribute("data-agent-id", id);
-    script.setAttribute("data-name", "did-agent");
-    script.setAttribute("data-monitor", "true");
-    script.setAttribute("data-target-id", "did-agent-container");
+     if (provider === "did") {
+       const key = "Z29vZ2xlLW9hdXRoMnwxMTU4Mjg4NTQ2NzM5OTExMjUyOTQ6UXpvMjZoZWFxd3ZSa3lXSmpvMHlM";
+       const script = document.createElement("script");
+       script.type = "module";
+       script.src = "https://agent.d-id.com/v2/index.js";
+       script.setAttribute("data-mode", "full");
+       script.setAttribute("data-client-key", key);
+       script.setAttribute("data-agent-id", id);
+       script.setAttribute("data-name", "did-agent");
+       script.setAttribute("data-monitor", "true");
+       script.setAttribute("data-target-id", "did-agent-container");
 
-    document.body.appendChild(script);
-    scriptRef.current = script;
+       document.body.appendChild(script);
+       scriptRef.current = script;
+     } else if (provider === "elevenlabs") {
+       const target = document.getElementById("did-agent-container");
+       if (target) {
+         const convai = document.createElement("elevenlabs-convai");
+         convai.setAttribute("agent-id", id);
+         target.appendChild(convai);
+       }
+       const script = document.createElement("script");
+       script.src = "https://elevenlabs.io/convai-widget/index.js";
+       script.async = true;
+       document.body.appendChild(script);
+       scriptRef.current = script;
+     } else if (provider === "heygen") {
+       const target = document.getElementById("did-agent-container");
+       if (target) {
+         const iframe = document.createElement("iframe");
+         iframe.src = `https://labs.heygen.com/interactive-avatar/${id}`;
+         iframe.allow = "microphone; camera";
+         iframe.className = "w-full h-full border-0";
+         target.appendChild(iframe);
+       }
+     }
   };
 
   useEffect(() => {
     // Load saved agent ID and mount on first render
     try {
       const savedId = localStorage.getItem("did_live_agent_id");
+      const savedProvider = localStorage.getItem("live_agent_provider");
+      if (savedProvider) {
+        setProvider(savedProvider);
+      }
       if (savedId) {
         setAgentId(savedId);
       } else {
-        const fallback = "v2_agt_hF1S2XwN";
+        const fallback = "23c2218d081f473bbc67e2f7d8fd6e8e";
         setAgentId(fallback);
         localStorage.setItem("did_live_agent_id", fallback);
+        localStorage.setItem("live_agent_provider", "heygen");
+        if (!savedProvider) setProvider("heygen");
       }
     } catch (_) {}
     if (!inPreview) {
-      mountScript();
+      setTimeout(mountScript, 100);
     }
 
     return () => {
       try {
-        if (scriptRef.current) {
+        if (scriptRef.current && document.body.contains(scriptRef.current)) {
           document.body.removeChild(scriptRef.current);
         }
       } catch (_) {}
@@ -76,12 +111,12 @@ export default function LiveAgent() {
   }, []);
 
   useEffect(() => {
-    // Re-mount when agent ID changes (e.g., after saving)
-    if (!inPreview && scriptRef.current) {
+    // Re-mount when agent ID or provider changes
+    if (!inPreview) {
       mountScript();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [agentId]);
+  }, [agentId, provider]);
 
   // Load curated list and decks
   useEffect(() => {
@@ -110,6 +145,7 @@ export default function LiveAgent() {
   const handleSave = async () => {
     try {
       if (agentId) localStorage.setItem("did_live_agent_id", agentId);
+      if (provider) localStorage.setItem("live_agent_provider", provider);
     } catch (_) {}
     // Persist to DidAgentConfig (create or update singleton)
     try {
@@ -144,17 +180,36 @@ export default function LiveAgent() {
         </div>
 
         <div className="bg-white/10 border border-white/20 rounded-lg p-3 flex flex-col md:flex-row gap-3 items-start md:items-end">
-          <div className="flex-1 w-full grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+          <div className="flex-1 w-full grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
+            <div className="md:col-span-1">
+              <label className="block text-xs text-white/70 mb-1">Provider</label>
+              <Select value={provider} onValueChange={(val) => { setProvider(val); }}>
+                <SelectTrigger className="bg-black/30 border-white/20 text-white">
+                  <SelectValue placeholder="Provider" />
+                </SelectTrigger>
+                <SelectContent className="bg-black border-white/20 text-white">
+                  <SelectItem value="did">D-ID</SelectItem>
+                  <SelectItem value="heygen">HeyGen</SelectItem>
+                  <SelectItem value="elevenlabs">ElevenLabs</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <div className="md:col-span-2">
               <label className="block text-xs text-white/70 mb-1">Agent ID</label>
               <Input
                 value={agentId}
-                onChange={(e) => setAgentId(e.target.value)}
-                placeholder="v2_agt_..."
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setAgentId(val);
+                  if (val && val.length === 32 && !val.includes("_")) {
+                    setProvider("heygen");
+                  }
+                }}
+                placeholder="Agent ID..."
                 className="bg-black/30 border-white/20 text-white placeholder:text-white/50"
               />
             </div>
-            <div>
+            <div className="md:col-span-1">
               <label className="block text-xs text-white/70 mb-1">Curated Decks</label>
               <Input
                 placeholder="Search decks..."
