@@ -9,10 +9,10 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
-// Generate A-Z and 0-9
+// Generate A-Z and Numbers
 const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-const numbers = '123456789'.split('');
-const outerIds = [...alphabet, 'ZERO', ...numbers];
+const numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11m', '12'];
+const outerIds = [...alphabet, ...numbers];
 
 const WHEEL_DATA = {
   outer: outerIds.map(id => {
@@ -23,16 +23,19 @@ const WHEEL_DATA = {
       "J": { Time: "2:00 PM" },
       "N": { general: "Top center-right (handbook letter N in chosen category)" },
       "W": { general: "Wisdom", time_modifier: true },
-      "ZERO": { general: "Reset / blank slate" },
-      "1": { general: "Direct number meaning (1)" },
-      "2": { general: "Bottom left (Numbers category) - Direct number meaning (2)" },
-      "3": { general: "Direct number meaning (3)" },
-      "4": { general: "Direct number meaning (4)" },
-      "5": { general: "Direct number meaning (5)" },
-      "6": { general: "Direct number meaning (6)" },
-      "7": { general: "Direct number meaning (7)" },
-      "8": { general: "Direct number meaning (8)" },
-      "9": { general: "Direct number meaning (9)" },
+      "0": { general: "Nothing / reset / void / complete cycle" },
+      "1": { general: "New beginning / independence / leadership" },
+      "2": { general: "Partnership / balance / choice" },
+      "3": { general: "Creativity / communication / growth" },
+      "4": { general: "Stability / foundation / structure" },
+      "5": { general: "Change / adventure / freedom" },
+      "6": { general: "Harmony / responsibility / family" },
+      "7": { general: "Introspection / spirituality / wisdom" },
+      "8": { general: "Power / abundance / karma" },
+      "9": { general: "Completion / release / humanitarian" },
+      "10": { general: "New cycle begins" },
+      "11m": { general: "November — your power month (strong supportive energy)" },
+      "12": { general: "Full year / completion of a cycle" },
     };
     return { id, general: `Mystery of ${id}`, ...(special[id] || {}) };
   }),
@@ -88,7 +91,7 @@ const WHEEL_DATA = {
   ]
 };
 
-const CATEGORIES = ["General", "Age", "Body Parts", "Colors", "Lost Items", "Height", "Time", "Zapped", "X-Rated"];
+const CATEGORIES = ["General", "Numbers", "Age", "Body Parts", "Colors", "Lost Items", "Height", "Time", "Zapped", "X-Rated"];
 
 export default function SpiritWheel() {
   const [category, setCategory] = useState("General");
@@ -326,6 +329,7 @@ export default function SpiritWheel() {
       - General: Broad everyday guidance. Any tile gives practical advice.
       - Age: Life stage or maturity level. 
       - Body Parts: Physical body focus. 
+      - Numbers: Interpret as years, quantities, counts, or specific timing clues based on the exact number.
       - Colors: Energy vibe of the color on the tile.
       - Lost Items: Finding something missing. Tile gives location, timing, or clue.
       - Height: Literal or figurative height.
