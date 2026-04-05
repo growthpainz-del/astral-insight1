@@ -10,10 +10,9 @@ Deno.serve(async (req) => {
         // Deprecated notice removed to enable ElevenLabs TTS
 
         // 2. Parse Payload
-        const envVoiceId = Deno.env.get("ELEVENLABS_VOICE_ID");
-        // Prioritize env var if set, otherwise fallback
+        // Using the default working voice directly to avoid 404 errors and extra costs
         const systemDefault = "SMgSeP4jlTCMzplwwkwP";
-        const defaultVoiceId = envVoiceId && envVoiceId.length > 0 ? envVoiceId : systemDefault;
+        const defaultVoiceId = systemDefault;
         
         const payload = await req.json();
         const text = payload.text;
