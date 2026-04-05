@@ -207,6 +207,13 @@ export default function HomePage() {
             <Link to={createPageUrl('SubscriptionManagement')} className="text-purple-300 hover:text-white transition-colors">
               Upgrade
             </Link>
+            <span className="text-purple-600">•</span>
+            <Link to={createPageUrl('PrivacyPolicy')} className="text-purple-300 hover:text-white transition-colors">
+              Privacy & Disclaimers
+            </Link>
+          </div>
+          <div className="mt-6 text-xs text-purple-300/50 max-w-3xl mx-auto leading-relaxed">
+            Disclaimer: The readings and guidance provided by Astral Insight are for entertainment purposes only and do not constitute professional advice. We ensure secured storage of client logins and respect data privacy. User data can be deleted at any time from the Account settings.
           </div>
         </motion.div>
       </div>

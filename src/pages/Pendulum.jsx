@@ -402,6 +402,9 @@ export default function Pendulum() {
         autoPlay={!!aiInterpretation} 
         variant="player"
       />
+      <div className="max-w-4xl mx-auto mt-12 text-center text-xs text-indigo-200/40 pb-8 z-10 relative">
+        Disclaimer: The guidance provided is for entertainment purposes only and does not constitute professional advice. Client logins are secured and data can be deleted at any time.
+      </div>
     </div>
   );
 }

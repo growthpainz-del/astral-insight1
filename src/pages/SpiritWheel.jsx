@@ -795,6 +795,9 @@ export default function SpiritWheel() {
         autoPlay={!!aiInterpretation} 
         variant="player"
       />
+      <div className="max-w-4xl mx-auto mt-12 text-center text-xs text-amber-200/50 pb-8">
+        Disclaimer: The guidance provided is for entertainment purposes only and does not constitute professional advice. Client logins are secured and data can be deleted at any time.
+      </div>
     </div>
   );
 }

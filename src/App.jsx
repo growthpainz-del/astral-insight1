@@ -11,6 +11,7 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import SpiritWheel from '@/pages/SpiritWheel';
 import Pendulum from '@/pages/Pendulum';
+import PrivacyPolicy from '@/pages/PrivacyPolicy';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -65,6 +66,7 @@ const AuthenticatedApp = () => {
       <Route path="*" element={<PageNotFound />} />
       <Route path="/SpiritWheel" element={<LayoutWrapper currentPageName="SpiritWheel"><SpiritWheel /></LayoutWrapper>} />
       <Route path="/Pendulum" element={<LayoutWrapper currentPageName="Pendulum"><Pendulum /></LayoutWrapper>} />
+      <Route path="/PrivacyPolicy" element={<LayoutWrapper currentPageName="PrivacyPolicy"><PrivacyPolicy /></LayoutWrapper>} />
     </Routes>
   );
 };

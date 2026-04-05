@@ -637,8 +637,14 @@ export default function Dashboard() {
       )}
 
       {/* Footer */}
-      <div className="px-8 py-12 text-center text-white/30 text-sm">
-        Astral Insight • Your Gateway to Cosmic Wisdom
+      <div className="px-8 py-12 text-center text-white/30 text-sm flex flex-col items-center gap-4">
+        <div>Astral Insight • Your Gateway to Cosmic Wisdom</div>
+        <Link to={createPageUrl('PrivacyPolicy')} className="text-purple-400 hover:text-purple-300 transition-colors">
+          Privacy Policy & Disclaimers
+        </Link>
+        <div className="max-w-3xl text-xs text-white/20 leading-relaxed">
+          Disclaimer: The readings and guidance provided are for entertainment purposes only and do not constitute professional advice. Client logins are secured, data privacy is respected, and user data can be deleted at any time.
+        </div>
       </div>
 
       <style>{`
