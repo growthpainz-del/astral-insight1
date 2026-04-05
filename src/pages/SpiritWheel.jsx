@@ -52,7 +52,17 @@ const WHEEL_DATA = {
     { id: "🔬", meaning: "Microscope (zoom in / examine)" },
     { id: "🔭", meaning: "Telescope (big picture / far vision)" },
     { id: "💨", meaning: "Smoke" },
-    { id: "🤝", meaning: "Together" }
+    { id: "🤝", meaning: "Together" },
+    { id: "Black", meaning: "Hidden / unconscious mind" },
+    { id: "White", meaning: "Purity / truth" },
+    { id: "Blue", meaning: "Water / communication / inspiration / peace" },
+    { id: "Yellow", meaning: "Air / mental activity" },
+    { id: "Green", meaning: "Nature / fertility / growth" },
+    { id: "Brown", meaning: "Earth / soil" },
+    { id: "Red", meaning: "Fire / passion / sex" },
+    { id: "Grey", meaning: "Stability / neutral" },
+    { id: "Orange", meaning: "Attraction / friendship" },
+    { id: "Purple", meaning: "Intuition / psychic / spirit contact" }
   ],
   inner: [
     { id: "🚪", meaning: "Option closed / path shut for now" },
@@ -615,7 +625,11 @@ export default function SpiritWheel() {
                       fontFamily: activeTheme.fontFamily
                     }}
                   >
-                    {item.id}
+                    {['Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Black', 'White', 'Brown', 'LightBlue', 'Grey', 'Orange'].includes(item.id) ? (
+                      <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 lg:w-5 lg:h-5 rounded-full shadow-inner border border-black/30" style={{ backgroundColor: item.id === 'LightBlue' ? '#add8e6' : item.id.toLowerCase() }}></div>
+                    ) : (
+                      item.id
+                    )}
                   </div>
                   {/* Segment dividers */}
                   <div className="absolute top-0 -translate-x-1/2 w-[3px] h-full" style={{ transform: `rotate(${angle / 2}deg)`, backgroundColor: activeTheme.divider, opacity: 0.8 }}></div>
