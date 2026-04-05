@@ -153,24 +153,26 @@ export default function SpiritWheel() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0f172a] text-amber-50 p-4 md:p-8 font-serif bg-[url('https://www.transparenttextures.com/patterns/wood-pattern.png')] bg-blend-multiply">
+    <div className="min-h-screen bg-[#0f172a] text-amber-50 p-4 md:p-8 font-serif bg-[url('https://www.transparenttextures.com/patterns/wood-pattern.png')] bg-blend-multiply overflow-x-hidden">
+      <div className="max-w-6xl mx-auto mb-6">
+        <div className="flex items-center gap-4">
+          <Link to={createPageUrl("Dashboard")}>
+            <Button variant="ghost" size="icon" className="text-amber-200 hover:text-amber-100 hover:bg-amber-900/50">
+              <ChevronLeft className="w-6 h-6" />
+            </Button>
+          </Link>
+          <div>
+            <h1 className="text-3xl md:text-4xl font-bold text-amber-500 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">Spirit Wheel</h1>
+            <p className="text-sm md:text-base text-amber-200/80">Astro Insights Digital Reading Room</p>
+          </div>
+        </div>
+      </div>
+
       <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-8">
         
         {/* Left Column: Controls & Display */}
-        <div className="flex-1 space-y-6 z-10">
-          <div className="flex items-center gap-4">
-            <Link to={createPageUrl("Dashboard")}>
-              <Button variant="ghost" size="icon" className="text-amber-200 hover:text-amber-100 hover:bg-amber-900/50">
-                <ChevronLeft className="w-6 h-6" />
-              </Button>
-            </Link>
-            <div>
-              <h1 className="text-4xl font-bold text-amber-500 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">Spirit Wheel</h1>
-              <p className="text-amber-200/80">Astro Insights Digital Reading Room</p>
-            </div>
-          </div>
-
-          <div className="bg-slate-900/90 p-6 rounded-xl border border-[#8b5a2b] shadow-[0_4px_20px_rgba(0,0,0,0.5)] space-y-5">
+        <div className="flex-1 space-y-6 z-10 order-2 lg:order-1">
+          <div className="bg-slate-900/90 p-4 md:p-6 rounded-xl border border-[#8b5a2b] shadow-[0_4px_20px_rgba(0,0,0,0.5)] space-y-5">
             <div>
               <Label className="text-amber-200 mb-2 block font-semibold text-lg">Category-Shift Logic</Label>
               <Select value={category} onValueChange={setCategory}>
@@ -263,10 +265,20 @@ export default function SpiritWheel() {
         </div>
 
         {/* Right Column: The Visual Wheel */}
-        <div className="flex-1 flex items-center justify-center p-4 lg:p-8 relative min-h-[400px] lg:min-h-[600px]">
-          <div className="relative w-[320px] h-[320px] md:w-[450px] md:h-[450px] lg:w-[500px] lg:h-[500px]">
+        <div className="flex-1 flex items-start lg:items-center justify-center p-2 lg:p-8 relative min-h-[350px] lg:min-h-[600px] order-1 lg:order-2 overflow-visible">
+          <div className="relative w-[300px] h-[300px] sm:w-[350px] sm:h-[350px] md:w-[450px] md:h-[450px] lg:w-[500px] lg:h-[500px] shrink-0 mt-6 lg:mt-0">
             {/* Pointer / Indicator at top */}
-            <div className="absolute top-[-25px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[20px] border-l-transparent border-r-[20px] border-r-transparent border-t-[40px] border-t-amber-500 z-50 drop-shadow-[0_2px_10px_rgba(245,158,11,0.9)]"></div>
+            <div className="absolute top-[-35px] left-1/2 -translate-x-1/2 z-50 drop-shadow-[0_4px_12px_rgba(245,158,11,0.8)]">
+              <svg width="40" height="48" viewBox="0 0 40 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20 48L0 0H40L20 48Z" fill="url(#pointer-gradient)" />
+                <defs>
+                  <linearGradient id="pointer-gradient" x1="20" y1="0" x2="20" y2="48" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#f59e0b" />
+                    <stop offset="1" stopColor="#b45309" />
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
 
             {/* Outer Ring (36) */}
             <motion.div 
