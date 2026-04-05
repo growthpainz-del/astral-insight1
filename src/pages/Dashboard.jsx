@@ -484,6 +484,12 @@ export default function Dashboard() {
             gradient="bg-gradient-to-br from-indigo-600 to-purple-600"
           />
           <QuickAction
+            label="Spirit Wheel"
+            icon={Sparkles}
+            to={createPageUrl("SpiritWheel")}
+            gradient="bg-gradient-to-br from-amber-700 to-orange-900"
+          />
+          <QuickAction
             label="Explore Decks"
             icon={Sparkles}
             to={createPageUrl("ReadingRoom")}

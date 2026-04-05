@@ -746,12 +746,12 @@ export default function BulkAIImageGenerator({ deckId, onDone }) {
         message: `Generating image for "${card.name}" (${i + 1}/${selectedCards.length})...`
       });
 
+      let styleDNA = "";
       try {
         // Use 3-tier fallback system to get a base prompt
         const { prompt: defaultFallbackPrompt, source: fallbackSource } = getEffectivePrompt(card);
 
         // ENHANCED: Build style DNA prefix with SUPER-STRENGTH emphasis when Style Lock is ON
-        let styleDNA = "";
         if (styleProfile?.ai_prompt_suggestions) {
           const suggestions = styleProfile.ai_prompt_suggestions;
           

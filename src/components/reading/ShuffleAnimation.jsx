@@ -1,8 +1,7 @@
 import React from "react";
 
 export default function ShuffleAnimation({ url, className = "", style = {} }) {
-  if (!url) return null;
-  const isGif = /\.gif($|\?)/i.test(url);
+  const isGif = url ? /\.gif($|\?)/i.test(url) : false;
   const videoRef = React.useRef(null);
   const [autoplayFailed, setAutoplayFailed] = React.useState(false);
 
@@ -21,10 +20,13 @@ export default function ShuffleAnimation({ url, className = "", style = {} }) {
   }, []);
 
   React.useEffect(() => {
+    if (!url) return;
     setAutoplayFailed(false);
     const t = setTimeout(() => { tryPlay(); }, 50);
     return () => clearTimeout(t);
   }, [url, tryPlay]);
+
+  if (!url) return null;
 
   return (
     <div
