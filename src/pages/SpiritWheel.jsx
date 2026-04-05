@@ -509,7 +509,7 @@ export default function SpiritWheel() {
         {/* Right Column: The Visual Wheel */}
         <div className="flex-1 flex items-start lg:items-center justify-center p-2 lg:p-8 relative min-h-[350px] lg:min-h-[600px] order-1 lg:order-2 overflow-visible">
           <motion.div 
-            className="relative w-[300px] h-[300px] sm:w-[350px] sm:h-[350px] md:w-[450px] md:h-[450px] lg:w-[500px] lg:h-[500px] shrink-0 mt-6 lg:mt-0 cursor-grab active:cursor-grabbing touch-none"
+            className="relative w-[300px] h-[300px] sm:w-[350px] sm:h-[350px] md:w-[450px] md:h-[450px] lg:w-[500px] lg:h-[500px] shrink-0 mt-6 lg:mt-0 cursor-grab active:cursor-grabbing"
             onPanEnd={(e, info) => {
               const velocity = Math.max(Math.abs(info.velocity.x), Math.abs(info.velocity.y));
               if (velocity > 300 && !isSpinning) {
