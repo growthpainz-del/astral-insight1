@@ -582,7 +582,7 @@ export default function SpiritWheel() {
 
             {/* Middle Ring (24) */}
             <motion.div 
-              className="absolute inset-[24%] rounded-full border-[5px] overflow-hidden shadow-[inset_0_0_20px_rgba(0,0,0,0.4)]"
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[74%] h-[74%] rounded-full border-[5px] overflow-hidden shadow-[inset_0_0_20px_rgba(0,0,0,0.4)]"
               style={{
                 borderColor: activeTheme.middleBorder,
                 background: `url("${activeTheme.textureUrl}"), radial-gradient(circle, ${activeTheme.middleBg} 0%, ${activeTheme.middleGrad} 100%)`,
@@ -623,7 +623,7 @@ export default function SpiritWheel() {
 
             {/* Inner Ring (12) */}
             <motion.div 
-              className="absolute inset-[48%] rounded-full border-[4px] overflow-hidden shadow-[inset_0_0_15px_rgba(0,0,0,0.5)]"
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[48%] h-[48%] rounded-full border-[4px] overflow-hidden shadow-[inset_0_0_15px_rgba(0,0,0,0.5)]"
               style={{
                 borderColor: activeTheme.innerBorder,
                 background: `url("${activeTheme.textureUrl}"), radial-gradient(circle, ${activeTheme.innerBg} 0%, ${activeTheme.innerGrad} 100%)`,
@@ -660,7 +660,7 @@ export default function SpiritWheel() {
             
             {/* Center Hub */}
             <div 
-              className="absolute inset-[66%] rounded-full border-[5px] shadow-[0_0_20px_rgba(0,0,0,0.8)] z-10 overflow-hidden flex items-center justify-center"
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[22%] h-[22%] rounded-full border-[5px] shadow-[0_0_20px_rgba(0,0,0,0.8)] z-10 overflow-hidden flex items-center justify-center"
               style={{
                 borderColor: activeTheme.hubBorder,
                 backgroundColor: activeTheme.hubBg
