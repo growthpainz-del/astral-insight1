@@ -17,12 +17,32 @@ const outerIds = [...alphabet, ...numbers];
 const WHEEL_DATA = {
   outer: outerIds.map(id => {
     const special = {
-      "A": { general: "New beginning / fresh start", Age: "Spirit Form", Height: "4'10\" - 6'10\"", "Lost Items": "Family member has it / High place", Time: "Morning (9-12am)" },
-      "B": { general: "Communication / Inspiration", Age: "New Embryo - 9 Months", Height: "4'11\" - 6'11\"", "Lost Items": "Pocket / In xmas things" },
-      "G": { general: "Growth", Age: "15-20 yrs", Height: "5'3\"", "Lost Items": "Bathroom", "Body Parts": "Groin", Colors: "Gold / Green / Grey / Glow", constellation: "Ursa Minor" },
-      "J": { Time: "2:00 PM" },
-      "N": { general: "Top center-right (handbook letter N in chosen category)" },
-      "W": { general: "Wisdom", time_modifier: true },
+      "A": { general: "New beginning / fresh start", Age: "New spirit", Relationships: "People that can be around you daily / Aunt / Ancestors", Height: "4'10\" - 6'10\"", "Lost Items": "Family member has it / High place", Time: "Morning (9-12am)" },
+      "B": { general: "Communication / Inspiration", Age: "New Embryo - 9 Months", Relationships: "Brother by blood / Brother-in-law", Height: "4'11\" - 6'11\"", "Lost Items": "Pocket / In xmas things" },
+      "C": { Age: "Born - Next BD" },
+      "D": { Age: "1-4 yrs." },
+      "E": { Age: "4-9 yrs." },
+      "F": { Age: "9-15 yrs." },
+      "G": { general: "Growth", Age: "15-20 yrs.", Height: "5'3\"", "Lost Items": "Bathroom", "Body Parts": "Groin", Colors: "Gold / Green / Grey / Glow", constellation: "Ursa Minor" },
+      "H": { Age: "20-25 yrs." },
+      "I": { Age: "25-30 yrs." },
+      "J": { Age: "30-35 yrs.", Time: "2:00 PM" },
+      "K": { Age: "35-40 yrs." },
+      "L": { Age: "40-45 yrs." },
+      "M": { Age: "45-50 yrs." },
+      "N": { general: "Top center-right (handbook letter N in chosen category)", Age: "50-55 yrs." },
+      "O": { Age: "55-60 yrs." },
+      "P": { Age: "60-65 yrs." },
+      "Q": { Age: "65-70 yrs." },
+      "R": { Age: "70-75 yrs." },
+      "S": { Age: "75-80 yrs.", Relationships: "Step-brother" },
+      "T": { Age: "80-85 yrs." },
+      "U": { Age: "85-90 yrs." },
+      "V": { Age: "90-95 yrs." },
+      "W": { general: "Wisdom", Age: "95-100 yrs.", time_modifier: true },
+      "X": { Age: "100-105 yrs." },
+      "Y": { Age: "105-110 yrs." },
+      "Z": { Age: "Spirit Form" },
       "0": { general: "Nothing / reset / void / complete cycle" },
       "1": { general: "New beginning / independence / leadership" },
       "2": { general: "Partnership / balance / choice" },
@@ -91,7 +111,7 @@ const WHEEL_DATA = {
   ]
 };
 
-const CATEGORIES = ["General", "Numbers", "Age", "Body Parts", "Colors", "Lost Items", "Height", "Time", "Zapped", "X-Rated"];
+const CATEGORIES = ["General", "Relationships", "Numbers", "Age", "Body Parts", "Colors", "Lost Items", "Height", "Time", "Astrology", "Zapped", "X-Rated"];
 
 export default function SpiritWheel() {
   const [category, setCategory] = useState("General");
@@ -327,13 +347,15 @@ export default function SpiritWheel() {
       
       Official Category Guide Context:
       - General: Broad everyday guidance. Any tile gives practical advice.
-      - Age: Life stage or maturity level. 
+      - Relationships: People, dynamics, or connections in your life (romance, family, daily circle).
+      - Age: Life stage or maturity level (A = New spirit, Z = Spirit form, everything between maps to age brackets). 
       - Body Parts: Physical body focus. 
       - Numbers: Interpret as years, quantities, counts, or specific timing clues based on the exact number.
       - Colors: Energy vibe of the color on the tile.
       - Lost Items: Finding something missing. Tile gives location, timing, or clue.
       - Height: Literal or figurative height.
-      - Time: Specific timing or duration.`;
+      - Time: Specific timing or duration.
+      - Astrology: Planetary timing and zodiac energy. The 9 planets influence Earth. Planets move at different speeds along the 12-sign Zodiac path (Aries to Pisces). Aspects strengthen or challenge energy.`;
 
       const response = await base44.integrations.Core.InvokeLLM({ prompt });
       setAiInterpretation(response.text || response);
