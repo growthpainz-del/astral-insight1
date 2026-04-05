@@ -143,7 +143,7 @@ export default function Pendulum() {
 
       const prompt = `You are the official Spirit Wheel Oracle Reader for Astro Insights divination studio.
 
-      You interpret the digital Pendulum with warmth, clarity, and spiritual insight. Style: empowering, grounded, mystical but practical. Keep every reading 3–5 sentences max.
+      You interpret the digital Pendulum with warmth, clarity, and spiritual insight. Style: empowering, grounded, mystical but practical. Keep every reading 3-5 sentences max.
 
       The user has swung the pendulum and received the following elements:
       - Active Category: ${category}
