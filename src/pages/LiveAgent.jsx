@@ -38,7 +38,7 @@ export default function LiveAgent() {
        if (target) target.innerHTML = "";
      } catch (_) {}
 
-     const id = agentId || "23c2218d081f473bbc67e2f7d8fd6e8e";
+     const id = agentId || "v2_agt_hF1S2XwN";
 
      if (provider === "did") {
        const key = "Z29vZ2xlLW9hdXRoMnwxMTU4Mjg4NTQ2NzM5OTExMjUyOTQ6UXpvMjZoZWFxd3ZSa3lXSmpvMHlM";
@@ -89,11 +89,11 @@ export default function LiveAgent() {
       if (savedId) {
         setAgentId(savedId);
       } else {
-        const fallback = "23c2218d081f473bbc67e2f7d8fd6e8e";
+        const fallback = "v2_agt_hF1S2XwN";
         setAgentId(fallback);
         localStorage.setItem("did_live_agent_id", fallback);
-        localStorage.setItem("live_agent_provider", "heygen");
-        if (!savedProvider) setProvider("heygen");
+        localStorage.setItem("live_agent_provider", "did");
+        if (!savedProvider) setProvider("did");
       }
     } catch (_) {}
     if (!inPreview) {
