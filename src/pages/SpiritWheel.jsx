@@ -111,7 +111,7 @@ const WHEEL_DATA = {
   ]
 };
 
-const CATEGORIES = ["General", "Relationships", "Numbers", "Age", "Body Parts", "Colors", "Lost Items", "Height", "Time", "Astrology", "Zapped", "X-Rated"];
+const CATEGORIES = ["General", "Relationships", "Numbers", "Age", "Body Parts", "Colors", "Lost Items", "Height", "Time", "Astrology", "Emotions", "Profiler", "Zapped", "X-Rated"];
 
 export default function SpiritWheel() {
   const [category, setCategory] = useState("General");
@@ -349,13 +349,15 @@ export default function SpiritWheel() {
       - General: Broad everyday guidance. Any tile gives practical advice.
       - Relationships: People, dynamics, or connections in your life (romance, family, daily circle).
       - Age: Life stage or maturity level (A = New spirit, Z = Spirit form, everything between maps to age brackets). 
-      - Body Parts: Physical body focus. 
+      - Body Parts: Points to a specific physical area (head/mind, heart/chest, arms/hands, legs/feet, stomach/digestion, etc.) or health clue. 
       - Numbers: Interpret as years, quantities, counts, or specific timing clues based on the exact number.
       - Colors: Energy vibe of the color on the tile.
       - Lost Items: Finding something missing. Tile gives location, timing, or clue.
       - Height: Literal or figurative height.
       - Time: Specific timing or duration.
-      - Astrology: Planetary timing and zodiac energy. The 9 planets influence Earth. Planets move at different speeds along the 12-sign Zodiac path (Aries to Pisces). Aspects strengthen or challenge energy.`;
+      - Astrology: Planetary timing and zodiac energy. The 9 planets influence Earth. Planets move at different speeds along the 12-sign Zodiac path (Aries to Pisces). Aspects strengthen or challenge energy.
+      - Emotions: Emotional state or heart energy around the question. Current feeling, positive/negative emotions, emotional block or release.
+      - Profiler: Personality profile of a person. Traits, strengths, weaknesses, energetic type, hidden side, or the role they play.`;
 
       const response = await base44.integrations.Core.InvokeLLM({ prompt });
       setAiInterpretation(response.text || response);
