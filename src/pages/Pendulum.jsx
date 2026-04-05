@@ -95,13 +95,40 @@ export default function Pendulum() {
             </div>
           </motion.div>
 
-          {/* Board underneath */}
-          <div className="absolute bottom-0 w-[300px] h-[100px] border-t border-indigo-500/30 rounded-[100%] flex justify-center items-center pointer-events-none opacity-30">
-            <div className="w-[200px] h-[60px] border-t border-indigo-400/20 rounded-[100%]" />
-            <div className="absolute top-0 text-indigo-300/50 text-xs font-serif uppercase tracking-widest translate-y-[-10px]">Yes</div>
-            <div className="absolute bottom-4 text-indigo-300/50 text-xs font-serif uppercase tracking-widest">Yes</div>
-            <div className="absolute left-0 text-indigo-300/50 text-xs font-serif uppercase tracking-widest translate-y-4">No</div>
-            <div className="absolute right-0 text-indigo-300/50 text-xs font-serif uppercase tracking-widest translate-y-4">No</div>
+          {/* Board underneath - Flat Spirit Wheel */}
+          <div 
+            className="absolute bottom-[-100px] w-[350px] h-[350px] rounded-full border-4 border-amber-900/50 shadow-[0_0_50px_rgba(0,0,0,0.8)] flex justify-center items-center pointer-events-none"
+            style={{ transform: 'rotateX(70deg) translateZ(-80px)', transformStyle: 'preserve-3d' }}
+          >
+            {/* Outer ring */}
+            <div className="absolute inset-0 rounded-full border-[8px] border-amber-800/40 bg-black/60 backdrop-blur-md" />
+            {/* Middle ring */}
+            <div className="absolute inset-[15%] rounded-full border-2 border-amber-700/30 bg-indigo-950/40" />
+            {/* Inner ring */}
+            <div className="absolute inset-[35%] rounded-full border border-amber-600/30 bg-purple-950/30" />
+            {/* Center hub */}
+            <div className="absolute inset-[45%] rounded-full border-2 border-amber-500/40 bg-black/80 flex items-center justify-center shadow-[0_0_20px_rgba(245,158,11,0.2)]">
+              <div className="w-8 h-8 rounded-full bg-amber-500/20 blur-sm" />
+            </div>
+            
+            {/* Letters/Numbers on outer ring */}
+            {"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".split("").map((char, i, arr) => (
+              <div 
+                key={i}
+                className="absolute top-0 left-1/2 -translate-x-1/2 w-[1px] h-[50%] origin-bottom"
+                style={{ transform: `rotate(${(i * 360) / arr.length}deg)` }}
+              >
+                <div className="absolute top-1 -translate-x-1/2 text-amber-500/70 text-[12px] font-bold" style={{ transform: 'rotateX(-70deg)' }}>
+                  {char}
+                </div>
+              </div>
+            ))}
+
+            {/* Answer Areas inside middle ring */}
+            <div className="absolute top-[22%] text-amber-400/80 font-serif font-bold tracking-widest text-xl" style={{ transform: 'rotateX(-70deg)' }}>YES</div>
+            <div className="absolute bottom-[22%] text-amber-400/80 font-serif font-bold tracking-widest text-xl" style={{ transform: 'rotateX(-70deg)' }}>YES</div>
+            <div className="absolute left-[15%] text-amber-400/80 font-serif font-bold tracking-widest text-xl" style={{ transform: 'rotateX(-70deg)' }}>NO</div>
+            <div className="absolute right-[15%] text-amber-400/80 font-serif font-bold tracking-widest text-xl" style={{ transform: 'rotateX(-70deg)' }}>NO</div>
           </div>
         </div>
 
