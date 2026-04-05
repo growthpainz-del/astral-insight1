@@ -666,15 +666,11 @@ export default function SpiritWheel() {
                 backgroundColor: activeTheme.hubBg
               }}
             >
-              {themeId === 'wood' || themeId === 'galaxy' ? (
                 <img 
-                  src={themeId === 'wood' ? "https://media.base44.com/images/public/68d2a300021f94d0f312c039/c249f1513_IMG_8330.png" : "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d2a300021f94d0f312c039/4cde5ffdd_IMG_6738.jpg"} 
-                  alt="Center Spirit" 
-                  className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ${themeId === 'wood' ? 'min-w-[350%] min-h-[350%] filter contrast-125 saturate-110' : 'min-w-[120%] min-h-[120%]'} object-cover pointer-events-none`} 
+                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d2a300021f94d0f312c039/4cde5ffdd_IMG_6738.jpg" 
+                  alt="Center Logo" 
+                  className="w-full h-full object-cover pointer-events-none" 
                 />
-              ) : (
-                <div className="w-1/3 h-1/3 rounded-full" style={{ backgroundColor: activeTheme.outerBorder, boxShadow: `0 0 20px ${activeTheme.outerBorder}` }}></div>
-              )}
             </div>
           </motion.div>
         </div>

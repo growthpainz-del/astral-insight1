@@ -107,8 +107,12 @@ export default function Pendulum() {
             {/* Inner ring */}
             <div className="absolute inset-[35%] rounded-full border border-amber-600/30 bg-purple-950/30" />
             {/* Center hub */}
-            <div className="absolute inset-[45%] rounded-full border-2 border-amber-500/40 bg-black/80 flex items-center justify-center shadow-[0_0_20px_rgba(245,158,11,0.2)]">
-              <div className="w-8 h-8 rounded-full bg-amber-500/20 blur-sm" />
+            <div className="absolute inset-[45%] rounded-full border-2 border-amber-500/40 bg-black/80 flex items-center justify-center shadow-[0_0_20px_rgba(245,158,11,0.2)] overflow-hidden">
+              <img 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d2a300021f94d0f312c039/4cde5ffdd_IMG_6738.jpg" 
+                alt="Center Logo" 
+                className="w-full h-full object-cover opacity-90" 
+              />
             </div>
             
             {/* Letters/Numbers on outer ring */}
