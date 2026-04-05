@@ -215,7 +215,22 @@ export default function SpiritWheel() {
 
     setRotations({ outer: newOuter, middle: newMiddle, inner: newInner });
 
+    // Haptic feedback simulation (slowing down ticking feel)
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+      try {
+        const pattern = [];
+        let delay = 30;
+        for (let i = 0; i < 28; i++) {
+          pattern.push(15); // short vibration (tick)
+          pattern.push(delay); // pause
+          delay += 10; // increase pause to simulate slowing down
+        }
+        navigator.vibrate(pattern);
+      } catch (e) {}
+    }
+
     setTimeout(() => {
+      if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate([30, 50, 30]); // Final reveal vibration
       setIsSpinning(false);
       setSelectedIndices({
         outer: (36 - Math.round((newOuter % 360) / 10)) % 36,
@@ -396,14 +411,19 @@ export default function SpiritWheel() {
               <Switch checked={blankMode} onCheckedChange={setBlankMode} className="data-[state=checked]:bg-amber-600" />
             </div>
 
-            <Button 
-              onClick={spinWheel} 
-              disabled={isSpinning}
-              className="w-full bg-[#8b5a2b] hover:bg-[#a66d35] text-amber-50 py-8 text-xl shadow-[inset_0_0_10px_rgba(0,0,0,0.5),0_4px_15px_rgba(0,0,0,0.4)] border border-[#a66d35]"
-            >
-              {isSpinning ? <RefreshCw className="animate-spin w-6 h-6 mr-3" /> : <Sparkles className="w-6 h-6 mr-3" />}
-              {isSpinning ? "Channeling the Spirits..." : "Spin the Wheel"}
-            </Button>
+            <div className="space-y-2">
+              <Button 
+                onClick={spinWheel} 
+                disabled={isSpinning}
+                className="w-full bg-[#8b5a2b] hover:bg-[#a66d35] text-amber-50 py-8 text-xl shadow-[inset_0_0_10px_rgba(0,0,0,0.5),0_4px_15px_rgba(0,0,0,0.4)] border border-[#a66d35] active:scale-95 transition-transform"
+              >
+                {isSpinning ? <RefreshCw className="animate-spin w-6 h-6 mr-3" /> : <Sparkles className="w-6 h-6 mr-3" />}
+                {isSpinning ? "Channeling the Spirits..." : "Spin the Wheel"}
+              </Button>
+              <div className="text-center text-amber-200/50 text-sm italic pt-2">
+                👆 Or swipe the wheel directly to spin
+              </div>
+            </div>
           </div>
 
           {/* Results Area */}
@@ -488,7 +508,16 @@ export default function SpiritWheel() {
 
         {/* Right Column: The Visual Wheel */}
         <div className="flex-1 flex items-start lg:items-center justify-center p-2 lg:p-8 relative min-h-[350px] lg:min-h-[600px] order-1 lg:order-2 overflow-visible">
-          <div className="relative w-[300px] h-[300px] sm:w-[350px] sm:h-[350px] md:w-[450px] md:h-[450px] lg:w-[500px] lg:h-[500px] shrink-0 mt-6 lg:mt-0">
+          <motion.div 
+            className="relative w-[300px] h-[300px] sm:w-[350px] sm:h-[350px] md:w-[450px] md:h-[450px] lg:w-[500px] lg:h-[500px] shrink-0 mt-6 lg:mt-0 cursor-grab active:cursor-grabbing touch-none"
+            onPanEnd={(e, info) => {
+              const velocity = Math.max(Math.abs(info.velocity.x), Math.abs(info.velocity.y));
+              if (velocity > 300 && !isSpinning) {
+                spinWheel();
+              }
+            }}
+            whileTap={{ scale: 0.98 }}
+          >
             {/* Pointer / Indicator at top */}
             <div className="absolute top-[-35px] left-1/2 -translate-x-1/2 z-50 drop-shadow-[0_4px_12px_rgba(245,158,11,0.8)]">
               <svg width="40" height="48" viewBox="0 0 40 48" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -635,7 +664,7 @@ export default function SpiritWheel() {
                 <div className="w-1/3 h-1/3 rounded-full" style={{ backgroundColor: activeTheme.outerBorder, boxShadow: `0 0 20px ${activeTheme.outerBorder}` }}></div>
               )}
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>
