@@ -90,6 +90,70 @@ export default function SpiritWheel() {
   const [aiInterpretation, setAiInterpretation] = useState("");
   const [isAiLoading, setIsAiLoading] = useState(false);
 
+  const [themeId, setThemeId] = useState("wood");
+  const [customTheme, setCustomTheme] = useState({
+    outerBg: "#e6b981", outerGrad: "#c48b53", outerBorder: "#2b1810",
+    middleBg: "#d4a373", middleGrad: "#b57a42", middleBorder: "#2b1810",
+    innerBg: "#b57a42", innerGrad: "#9c602d", innerBorder: "#2b1810",
+    hubBorder: "#2b1810", hubBg: "black",
+    textOuter: "#2b1810", textMiddle: "#2b1810", textInner: "#2b1810",
+    divider: "#2b1810", pin: "#e2e8f0",
+    textureUrl: "https://www.transparenttextures.com/patterns/wood-pattern.png",
+    fontFamily: '"Comic Sans MS", "Chalkboard SE", "Comic Neue", sans-serif'
+  });
+
+  const WHEEL_THEMES = {
+    wood: {
+      name: "Classic Wood",
+      outerBg: "#e6b981", outerGrad: "#c48b53", outerBorder: "#2b1810",
+      middleBg: "#d4a373", middleGrad: "#b57a42", middleBorder: "#2b1810",
+      innerBg: "#b57a42", innerGrad: "#9c602d", innerBorder: "#2b1810",
+      hubBorder: "#2b1810", hubBg: "black",
+      textOuter: "#2b1810", textMiddle: "#2b1810", textInner: "#2b1810",
+      divider: "#2b1810", pin: "#e2e8f0",
+      textureUrl: "https://www.transparenttextures.com/patterns/wood-pattern.png",
+      fontFamily: '"Comic Sans MS", "Chalkboard SE", "Comic Neue", sans-serif'
+    },
+    galaxy: {
+      name: "Cosmic Galaxy",
+      outerBg: "#1e1b4b", outerGrad: "#0f172a", outerBorder: "#818cf8",
+      middleBg: "#2e1065", middleGrad: "#1e1b4b", middleBorder: "#818cf8",
+      innerBg: "#3b0764", innerGrad: "#2e1065", innerBorder: "#818cf8",
+      hubBorder: "#c084fc", hubBg: "#0f172a",
+      textOuter: "#e0e7ff", textMiddle: "#e0e7ff", textInner: "#e0e7ff",
+      divider: "#4f46e5", pin: "#fcd34d",
+      textureUrl: "https://www.transparenttextures.com/patterns/stardust.png",
+      fontFamily: 'serif'
+    },
+    neon: {
+      name: "Cyber Neon",
+      outerBg: "#000000", outerGrad: "#0a0a0a", outerBorder: "#06b6d4",
+      middleBg: "#000000", middleGrad: "#0a0a0a", middleBorder: "#ec4899",
+      innerBg: "#000000", innerGrad: "#0a0a0a", innerBorder: "#8b5cf6",
+      hubBorder: "#10b981", hubBg: "#000000",
+      textOuter: "#22d3ee", textMiddle: "#f472b6", textInner: "#c084fc",
+      divider: "#333333", pin: "#ffffff",
+      textureUrl: "https://www.transparenttextures.com/patterns/cubes.png",
+      fontFamily: 'monospace'
+    },
+    parchment: {
+      name: "Ancient Parchment",
+      outerBg: "#fef3c7", outerGrad: "#fde68a", outerBorder: "#92400e",
+      middleBg: "#fde68a", middleGrad: "#fcd34d", middleBorder: "#92400e",
+      innerBg: "#fcd34d", innerGrad: "#fbbf24", innerBorder: "#92400e",
+      hubBorder: "#92400e", hubBg: "#78350f",
+      textOuter: "#78350f", textMiddle: "#78350f", textInner: "#78350f",
+      divider: "#b45309", pin: "#78350f",
+      textureUrl: "https://www.transparenttextures.com/patterns/paper.png",
+      fontFamily: 'serif'
+    },
+    custom: {
+      name: "Custom Build"
+    }
+  };
+
+  const activeTheme = themeId === 'custom' ? customTheme : WHEEL_THEMES[themeId];
+
   const [decks, setDecks] = useState([]);
   const [selectedDeckId, setSelectedDeckId] = useState("none");
   const [deckCards, setDeckCards] = useState([]);
@@ -245,6 +309,61 @@ export default function SpiritWheel() {
         <div className="flex-1 space-y-6 z-10 order-2 lg:order-1">
           <div className="bg-slate-900/90 p-4 md:p-6 rounded-xl border border-[#8b5a2b] shadow-[0_4px_20px_rgba(0,0,0,0.5)] space-y-5">
             <div>
+              <Label className="text-amber-200 mb-2 block font-semibold text-lg">Wheel Design Theme</Label>
+              <Select value={themeId} onValueChange={setThemeId}>
+                <SelectTrigger className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 h-12 text-lg mb-4">
+                  <SelectValue placeholder="Select a theme" />
+                </SelectTrigger>
+                <SelectContent className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100">
+                  <SelectItem value="wood">Classic Wood</SelectItem>
+                  <SelectItem value="galaxy">Cosmic Galaxy</SelectItem>
+                  <SelectItem value="neon">Cyber Neon</SelectItem>
+                  <SelectItem value="parchment">Ancient Parchment</SelectItem>
+                  <SelectItem value="custom">Custom Build...</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              {themeId === 'custom' && (
+                <div className="grid grid-cols-2 gap-4 mb-4 bg-black/30 p-3 rounded-lg border border-[#5c3a21]">
+                  <div>
+                    <Label className="text-amber-200/80 text-xs">Outer Ring</Label>
+                    <div className="flex gap-2 mt-1">
+                      <input type="color" value={customTheme.outerBg} onChange={e => setCustomTheme({...customTheme, outerBg: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
+                      <input type="color" value={customTheme.outerGrad} onChange={e => setCustomTheme({...customTheme, outerGrad: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-amber-200/80 text-xs">Middle Ring</Label>
+                    <div className="flex gap-2 mt-1">
+                      <input type="color" value={customTheme.middleBg} onChange={e => setCustomTheme({...customTheme, middleBg: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
+                      <input type="color" value={customTheme.middleGrad} onChange={e => setCustomTheme({...customTheme, middleGrad: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-amber-200/80 text-xs">Inner Ring</Label>
+                    <div className="flex gap-2 mt-1">
+                      <input type="color" value={customTheme.innerBg} onChange={e => setCustomTheme({...customTheme, innerBg: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
+                      <input type="color" value={customTheme.innerGrad} onChange={e => setCustomTheme({...customTheme, innerGrad: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-amber-200/80 text-xs">Text & Dots</Label>
+                    <div className="flex gap-2 mt-1">
+                      <input type="color" value={customTheme.textOuter} onChange={e => setCustomTheme({...customTheme, textOuter: e.target.value, textMiddle: e.target.value, textInner: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
+                      <input type="color" value={customTheme.pin} onChange={e => setCustomTheme({...customTheme, pin: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-amber-200/80 text-xs">Borders</Label>
+                    <div className="flex gap-2 mt-1">
+                      <input type="color" value={customTheme.outerBorder} onChange={e => setCustomTheme({...customTheme, outerBorder: e.target.value, middleBorder: e.target.value, innerBorder: e.target.value, hubBorder: e.target.value, divider: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div>
               <Label className="text-amber-200 mb-2 block font-semibold text-lg">Category-Shift Logic</Label>
               <Select value={category} onValueChange={setCategory}>
                 <SelectTrigger className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 h-12 text-lg mb-4">
@@ -385,9 +504,10 @@ export default function SpiritWheel() {
 
             {/* Outer Ring (36) */}
             <motion.div 
-              className="absolute inset-0 rounded-full border-[6px] border-[#2b1810] bg-[#e6b981] overflow-hidden shadow-[inset_0_0_30px_rgba(43,24,16,0.6),0_15px_35px_rgba(0,0,0,0.8)]"
+              className="absolute inset-0 rounded-full border-[6px] overflow-hidden shadow-[inset_0_0_30px_rgba(0,0,0,0.4),0_15px_35px_rgba(0,0,0,0.6)]"
               style={{
-                background: 'url("https://www.transparenttextures.com/patterns/wood-pattern.png"), radial-gradient(circle, #e6b981 0%, #c48b53 100%)',
+                borderColor: activeTheme.outerBorder,
+                background: `url("${activeTheme.textureUrl}"), radial-gradient(circle, ${activeTheme.outerBg} 0%, ${activeTheme.outerGrad} 100%)`,
                 backgroundBlendMode: 'multiply',
               }}
               animate={{ rotate: rotations.outer }}
@@ -400,29 +520,31 @@ export default function SpiritWheel() {
                   style={{ transform: `rotate(${i * 10}deg)` }}
                 >
                   <div 
-                    className="absolute top-1.5 sm:top-2 md:top-3 -translate-x-1/2 text-xs md:text-sm lg:text-base font-bold text-[#2b1810]" 
+                    className="absolute top-1.5 sm:top-2 md:top-3 -translate-x-1/2 text-xs md:text-sm lg:text-base font-bold" 
                     style={{ 
+                      color: activeTheme.textOuter,
                       opacity: blankMode && !isRevealed ? 0 : 1, 
                       transition: 'opacity 0.3s',
-                      textShadow: '0.5px 0.5px 0 rgba(255,255,255,0.4)',
-                      fontFamily: '"Comic Sans MS", "Chalkboard SE", "Comic Neue", sans-serif'
+                      textShadow: themeId === 'wood' || themeId === 'parchment' ? '0.5px 0.5px 0 rgba(255,255,255,0.4)' : '0 0 5px currentColor',
+                      fontFamily: activeTheme.fontFamily
                     }}
                   >
                     {item.id}
                   </div>
                   {/* Segment dividers (Burnt Wood Lines) */}
-                  <div className="absolute top-0 -translate-x-1/2 w-[3px] h-full bg-[#2b1810]/80" style={{ transform: 'rotate(5deg)' }}></div>
+                  <div className="absolute top-0 -translate-x-1/2 w-[3px] h-full" style={{ transform: 'rotate(5deg)', backgroundColor: activeTheme.divider, opacity: 0.8 }}></div>
                   {/* Silver Pins */}
-                  <div className="absolute top-[2px] -translate-x-1/2 w-[3px] h-[3px] sm:w-1 sm:h-1 md:w-1.5 md:h-1.5 rounded-full bg-slate-200 shadow-sm border border-slate-500 z-10" style={{ transform: 'rotate(5deg)' }}></div>
+                  <div className="absolute top-[2px] -translate-x-1/2 w-[3px] h-[3px] sm:w-1 sm:h-1 md:w-1.5 md:h-1.5 rounded-full shadow-sm border border-black/30 z-10" style={{ transform: 'rotate(5deg)', backgroundColor: activeTheme.pin }}></div>
                 </div>
               ))}
             </motion.div>
 
             {/* Middle Ring (24) */}
             <motion.div 
-              className="absolute inset-[24%] rounded-full border-[5px] border-[#2b1810] bg-[#d4a373] overflow-hidden shadow-[inset_0_0_20px_rgba(43,24,16,0.6)]"
+              className="absolute inset-[24%] rounded-full border-[5px] overflow-hidden shadow-[inset_0_0_20px_rgba(0,0,0,0.4)]"
               style={{
-                background: 'url("https://www.transparenttextures.com/patterns/wood-pattern.png"), radial-gradient(circle, #d4a373 0%, #b57a42 100%)',
+                borderColor: activeTheme.middleBorder,
+                background: `url("${activeTheme.textureUrl}"), radial-gradient(circle, ${activeTheme.middleBg} 0%, ${activeTheme.middleGrad} 100%)`,
                 backgroundBlendMode: 'multiply',
               }}
               animate={{ rotate: rotations.middle }}
@@ -435,12 +557,13 @@ export default function SpiritWheel() {
                   style={{ transform: `rotate(${i * 15}deg)` }}
                 >
                   <div 
-                    className="absolute top-1.5 sm:top-2 md:top-3 -translate-x-1/2 flex items-center justify-center text-[9px] md:text-sm lg:text-base font-bold text-[#2b1810] whitespace-nowrap" 
+                    className="absolute top-1.5 sm:top-2 md:top-3 -translate-x-1/2 flex items-center justify-center text-[9px] md:text-sm lg:text-base font-bold whitespace-nowrap" 
                     style={{ 
+                      color: activeTheme.textMiddle,
                       opacity: blankMode && !isRevealed ? 0 : 1, 
                       transition: 'opacity 0.3s',
-                      textShadow: '0.5px 0.5px 0 rgba(255,255,255,0.4)',
-                      fontFamily: '"Comic Sans MS", "Chalkboard SE", "Comic Neue", sans-serif'
+                      textShadow: themeId === 'wood' || themeId === 'parchment' ? '0.5px 0.5px 0 rgba(255,255,255,0.4)' : '0 0 5px currentColor',
+                      fontFamily: activeTheme.fontFamily
                     }}
                   >
                     {['Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Black', 'White', 'Brown', 'LightBlue'].includes(item.id) ? (
@@ -450,18 +573,19 @@ export default function SpiritWheel() {
                     )}
                   </div>
                   {/* Segment dividers */}
-                  <div className="absolute top-0 -translate-x-1/2 w-[3px] h-full bg-[#2b1810]/80" style={{ transform: 'rotate(7.5deg)' }}></div>
+                  <div className="absolute top-0 -translate-x-1/2 w-[3px] h-full" style={{ transform: 'rotate(7.5deg)', backgroundColor: activeTheme.divider, opacity: 0.8 }}></div>
                   {/* Silver Pins */}
-                  <div className="absolute top-[2px] -translate-x-1/2 w-[3px] h-[3px] sm:w-1 sm:h-1 md:w-1.5 md:h-1.5 rounded-full bg-slate-200 shadow-sm border border-slate-500 z-10" style={{ transform: 'rotate(7.5deg)' }}></div>
+                  <div className="absolute top-[2px] -translate-x-1/2 w-[3px] h-[3px] sm:w-1 sm:h-1 md:w-1.5 md:h-1.5 rounded-full shadow-sm border border-black/30 z-10" style={{ transform: 'rotate(7.5deg)', backgroundColor: activeTheme.pin }}></div>
                 </div>
               ))}
             </motion.div>
 
             {/* Inner Ring (12) */}
             <motion.div 
-              className="absolute inset-[48%] rounded-full border-[4px] border-[#2b1810] bg-[#b57a42] overflow-hidden shadow-[inset_0_0_15px_rgba(43,24,16,0.7)]"
+              className="absolute inset-[48%] rounded-full border-[4px] overflow-hidden shadow-[inset_0_0_15px_rgba(0,0,0,0.5)]"
               style={{
-                background: 'url("https://www.transparenttextures.com/patterns/wood-pattern.png"), radial-gradient(circle, #b57a42 0%, #9c602d 100%)',
+                borderColor: activeTheme.innerBorder,
+                background: `url("${activeTheme.textureUrl}"), radial-gradient(circle, ${activeTheme.innerBg} 0%, ${activeTheme.innerGrad} 100%)`,
                 backgroundBlendMode: 'multiply',
               }}
               animate={{ rotate: rotations.inner }}
@@ -474,27 +598,42 @@ export default function SpiritWheel() {
                   style={{ transform: `rotate(${i * 30}deg)` }}
                 >
                   <div 
-                    className="absolute top-1.5 sm:top-2 md:top-4 -translate-x-1/2 text-[10px] sm:text-xs md:text-lg lg:text-xl font-bold text-[#2b1810]" 
+                    className="absolute top-1.5 sm:top-2 md:top-4 -translate-x-1/2 text-[10px] sm:text-xs md:text-lg lg:text-xl font-bold" 
                     style={{ 
+                      color: activeTheme.textInner,
                       opacity: blankMode && !isRevealed ? 0 : 1, 
                       transition: 'opacity 0.3s',
-                      textShadow: '0.5px 0.5px 0 rgba(255,255,255,0.4)',
-                      fontFamily: '"Comic Sans MS", "Chalkboard SE", "Comic Neue", sans-serif'
+                      textShadow: themeId === 'wood' || themeId === 'parchment' ? '0.5px 0.5px 0 rgba(255,255,255,0.4)' : '0 0 5px currentColor',
+                      fontFamily: activeTheme.fontFamily
                     }}
                   >
                     {item.id}
                   </div>
                   {/* Segment dividers */}
-                  <div className="absolute top-0 -translate-x-1/2 w-[3px] h-full bg-[#2b1810]/80" style={{ transform: 'rotate(15deg)' }}></div>
+                  <div className="absolute top-0 -translate-x-1/2 w-[3px] h-full" style={{ transform: 'rotate(15deg)', backgroundColor: activeTheme.divider, opacity: 0.8 }}></div>
                   {/* Silver Pins */}
-                  <div className="absolute top-[2px] -translate-x-1/2 w-[3px] h-[3px] sm:w-1 sm:h-1 md:w-1.5 md:h-1.5 rounded-full bg-slate-200 shadow-sm border border-slate-500 z-10" style={{ transform: 'rotate(15deg)' }}></div>
+                  <div className="absolute top-[2px] -translate-x-1/2 w-[3px] h-[3px] sm:w-1 sm:h-1 md:w-1.5 md:h-1.5 rounded-full shadow-sm border border-black/30 z-10" style={{ transform: 'rotate(15deg)', backgroundColor: activeTheme.pin }}></div>
                 </div>
               ))}
             </motion.div>
             
             {/* Center Hub */}
-            <div className="absolute inset-[66%] rounded-full border-[5px] border-[#2b1810] bg-black shadow-[0_0_20px_rgba(0,0,0,0.8)] z-10 overflow-hidden flex items-center justify-center">
-              <img src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/c249f1513_IMG_8330.png" alt="Center Spirit" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 min-w-[350%] min-h-[350%] object-cover pointer-events-none filter contrast-125 saturate-110" />
+            <div 
+              className="absolute inset-[66%] rounded-full border-[5px] shadow-[0_0_20px_rgba(0,0,0,0.8)] z-10 overflow-hidden flex items-center justify-center"
+              style={{
+                borderColor: activeTheme.hubBorder,
+                backgroundColor: activeTheme.hubBg
+              }}
+            >
+              {themeId === 'wood' || themeId === 'galaxy' ? (
+                <img 
+                  src={themeId === 'wood' ? "https://media.base44.com/images/public/68d2a300021f94d0f312c039/c249f1513_IMG_8330.png" : "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d2a300021f94d0f312c039/4cde5ffdd_IMG_6738.jpg"} 
+                  alt="Center Spirit" 
+                  className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ${themeId === 'wood' ? 'min-w-[350%] min-h-[350%] filter contrast-125 saturate-110' : 'min-w-[120%] min-h-[120%]'} object-cover pointer-events-none`} 
+                />
+              ) : (
+                <div className="w-1/3 h-1/3 rounded-full" style={{ backgroundColor: activeTheme.outerBorder, boxShadow: `0 0 20px ${activeTheme.outerBorder}` }}></div>
+              )}
             </div>
           </div>
         </div>
