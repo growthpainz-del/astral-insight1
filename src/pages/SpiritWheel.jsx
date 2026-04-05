@@ -37,44 +37,44 @@ const WHEEL_DATA = {
     return { id, general: `Mystery of ${id}`, ...(special[id] || {}) };
   }),
   middle: [
-    { id: "🚪", meaning: "Closed Door → Option closed / path shut" },
-    { id: "♫", meaning: "Music Note → Creative flow & harmony" },
-    { id: "11m", meaning: "November (11m) → Power month" },
-    { id: "SP", meaning: "Spring" },
-    { id: "FA", meaning: "Fall" },
-    { id: "WI", meaning: "Winter" },
-    { id: "SU", meaning: "Summer" },
-    { id: "Purple", meaning: "Intuition / psychic download" },
-    { id: "Red", meaning: "Fire / passion / sex" },
-    { id: "Black", meaning: "Hidden / unconscious mind" },
-    { id: "Blue", meaning: "Communication / Truth" },
-    { id: "Green", meaning: "Growth / Healing" },
-    { id: "Yellow", meaning: "Joy / Energy" },
-    { id: "White", meaning: "Purity / Spirit" },
-    { id: "Brown", meaning: "Grounding / Earth" },
-    { id: "LightBlue", meaning: "Peace / Calm" },
-    { id: "Square", meaning: "Window / Television / Computer" },
-    { id: "Spiral", meaning: "Spinning / galaxy / space" },
-    { id: "👁️", meaning: "Eye → Watching / awareness" },
-    { id: "⛺", meaning: "Tent → Temporary shelter / camping" },
-    { id: "☕", meaning: "Mug → Comfort / morning / meeting" },
-    { id: "✅", meaning: "Check → Confirmed / correct" },
-    { id: "☹️", meaning: "Sad → Disappointment / sorrow" },
-    { id: "🔭", meaning: "Telescope → Looking far ahead / seeking" }
+    { id: "🍷", meaning: "Drink" },
+    { id: "✈️", meaning: "Travel" },
+    { id: "♂️", meaning: "Male" },
+    { id: "♀️", meaning: "Female" },
+    { id: "☹️", meaning: "Unhappy" },
+    { id: "😊", meaning: "Happy" },
+    { id: "😠", meaning: "Mad" },
+    { id: "👂", meaning: "Listen" },
+    { id: "⏪", meaning: "Look to the past" },
+    { id: "⏩", meaning: "Look to the future" },
+    { id: "⚖️", meaning: "Law" },
+    { id: "⏳", meaning: "Time" },
+    { id: "🔬", meaning: "Microscope (zoom in / examine)" },
+    { id: "🔭", meaning: "Telescope (big picture / far vision)" },
+    { id: "💨", meaning: "Smoke" },
+    { id: "🤝", meaning: "Together" }
   ],
   inner: [
-    { id: "↑", meaning: "Go → Yes / forward motion" },
-    { id: "?", meaning: "What? → Clarify the question" },
-    { id: "😊", meaning: "Hi! → Positive energy is here" },
-    { id: "BYE", meaning: "Until next time." },
-    { id: "LOVE", meaning: "Heart connection, romance, deep feeling." },
-    { id: "STOP", meaning: "Stop / Nothing." },
-    { id: "⏳", meaning: "Hourglass → Time is passing / wait" },
-    { id: "↓", meaning: "Down Arrow → Grounding / dig deeper" },
-    { id: "◬", meaning: "Triangle → Manifestation / power" },
-    { id: "$", meaning: "Money → Financial focus / abundance" },
-    { id: "❤️", meaning: "Heart → Deep love / affection" },
-    { id: "★", meaning: "Star → Hope / guidance / fame" }
+    { id: "🚪", meaning: "Option closed / path shut for now" },
+    { id: "🔓", meaning: "Option open / path is clear" },
+    { id: "❤️", meaning: "Love / heart connection" },
+    { id: "💰", meaning: "Money / financial flow" },
+    { id: "♫", meaning: "Music / creative harmony" },
+    { id: "⚠️", meaning: "Bad / warning / evil" },
+    { id: "✅", meaning: "Yes" },
+    { id: "❌", meaning: "No" },
+    { id: "⏹", meaning: "Stop" },
+    { id: "▶", meaning: "Go" },
+    { id: "❓", meaning: "What? / Clarify" },
+    { id: "👋", meaning: "Hi!!! I’m here / positive presence" },
+    { id: "✌️", meaning: "Bye... until next time" },
+    { id: "📖", meaning: "Knowledge" },
+    { id: "💍", meaning: "Marriage" },
+    { id: "🔥", meaning: "Nothing" },
+    { id: "⬆️", meaning: "North / that way" },
+    { id: "➡️", meaning: "East / that way" },
+    { id: "⬇️", meaning: "South / that way" },
+    { id: "⬅️", meaning: "West / that way" }
   ]
 };
 
@@ -209,9 +209,13 @@ export default function SpiritWheel() {
       setDrawnCard(null);
     }
     
-    const newOuter = rotations.outer + 360 * 3 + Math.floor(Math.random() * 36) * 10;
-    const newMiddle = rotations.middle - 360 * 3 - Math.floor(Math.random() * 24) * 15;
-    const newInner = rotations.inner + 360 * 4 + Math.floor(Math.random() * 12) * 30;
+    const outerLen = WHEEL_DATA.outer.length;
+    const middleLen = WHEEL_DATA.middle.length;
+    const innerLen = WHEEL_DATA.inner.length;
+
+    const newOuter = rotations.outer + 360 * 3 + Math.floor(Math.random() * outerLen) * (360 / outerLen);
+    const newMiddle = rotations.middle - 360 * 3 - Math.floor(Math.random() * middleLen) * (360 / middleLen);
+    const newInner = rotations.inner + 360 * 4 + Math.floor(Math.random() * innerLen) * (360 / innerLen);
 
     setRotations({ outer: newOuter, middle: newMiddle, inner: newInner });
 
@@ -233,9 +237,9 @@ export default function SpiritWheel() {
       if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate([30, 50, 30]); // Final reveal vibration
       setIsSpinning(false);
       setSelectedIndices({
-        outer: (36 - Math.round((newOuter % 360) / 10)) % 36,
-        middle: Math.round((Math.abs(newMiddle) % 360) / 15) % 24, // reverse direction
-        inner: (12 - Math.round((newInner % 360) / 30)) % 12
+        outer: (outerLen - Math.round((newOuter % 360) / (360 / outerLen))) % outerLen,
+        middle: Math.round((Math.abs(newMiddle) % 360) / (360 / middleLen)) % middleLen, // reverse direction
+        inner: (innerLen - Math.round((newInner % 360) / (360 / innerLen))) % innerLen
       });
       if (!blankMode) {
         setIsRevealed(true);
@@ -554,11 +558,13 @@ export default function SpiritWheel() {
               animate={{ rotate: rotations.outer }}
               transition={{ duration: 4.5, type: "tween", ease: "circOut" }}
             >
-              {WHEEL_DATA.outer.map((item, i) => (
+              {WHEEL_DATA.outer.map((item, i) => {
+                const angle = 360 / WHEEL_DATA.outer.length;
+                return (
                 <div 
                   key={i} 
                   className="absolute top-0 left-1/2 -translate-x-1/2 w-[1px] h-[50%] origin-bottom"
-                  style={{ transform: `rotate(${i * 10}deg)` }}
+                  style={{ transform: `rotate(${i * angle}deg)` }}
                 >
                   <div 
                     className="absolute top-1.5 sm:top-2 md:top-3 -translate-x-1/2 text-xs md:text-sm lg:text-base font-bold" 
@@ -573,11 +579,11 @@ export default function SpiritWheel() {
                     {item.id}
                   </div>
                   {/* Segment dividers (Burnt Wood Lines) */}
-                  <div className="absolute top-0 -translate-x-1/2 w-[3px] h-full" style={{ transform: 'rotate(5deg)', backgroundColor: activeTheme.divider, opacity: 0.8 }}></div>
+                  <div className="absolute top-0 -translate-x-1/2 w-[3px] h-full" style={{ transform: `rotate(${angle / 2}deg)`, backgroundColor: activeTheme.divider, opacity: 0.8 }}></div>
                   {/* Silver Pins */}
-                  <div className="absolute top-[2px] -translate-x-1/2 w-[3px] h-[3px] sm:w-1 sm:h-1 md:w-1.5 md:h-1.5 rounded-full shadow-sm border border-black/30 z-10" style={{ transform: 'rotate(5deg)', backgroundColor: activeTheme.pin }}></div>
+                  <div className="absolute top-[2px] -translate-x-1/2 w-[3px] h-[3px] sm:w-1 sm:h-1 md:w-1.5 md:h-1.5 rounded-full shadow-sm border border-black/30 z-10" style={{ transform: `rotate(${angle / 2}deg)`, backgroundColor: activeTheme.pin }}></div>
                 </div>
-              ))}
+              )})}
             </motion.div>
 
             {/* Middle Ring (24) */}
@@ -591,11 +597,13 @@ export default function SpiritWheel() {
               animate={{ rotate: rotations.middle }}
               transition={{ duration: 4.2, type: "tween", ease: "circOut" }}
             >
-              {WHEEL_DATA.middle.map((item, i) => (
+              {WHEEL_DATA.middle.map((item, i) => {
+                const angle = 360 / WHEEL_DATA.middle.length;
+                return (
                 <div 
                   key={i} 
                   className="absolute top-0 left-1/2 -translate-x-1/2 w-[1px] h-[50%] origin-bottom"
-                  style={{ transform: `rotate(${i * 15}deg)` }}
+                  style={{ transform: `rotate(${i * angle}deg)` }}
                 >
                   <div 
                     className="absolute top-1.5 sm:top-2 md:top-3 -translate-x-1/2 flex items-center justify-center text-[9px] md:text-sm lg:text-base font-bold whitespace-nowrap" 
@@ -607,18 +615,14 @@ export default function SpiritWheel() {
                       fontFamily: activeTheme.fontFamily
                     }}
                   >
-                    {['Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Black', 'White', 'Brown', 'LightBlue'].includes(item.id) ? (
-                      <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 lg:w-5 lg:h-5 rounded-full shadow-inner border border-black/30" style={{ backgroundColor: item.id === 'LightBlue' ? '#add8e6' : item.id.toLowerCase() }}></div>
-                    ) : (
-                      item.id
-                    )}
+                    {item.id}
                   </div>
                   {/* Segment dividers */}
-                  <div className="absolute top-0 -translate-x-1/2 w-[3px] h-full" style={{ transform: 'rotate(7.5deg)', backgroundColor: activeTheme.divider, opacity: 0.8 }}></div>
+                  <div className="absolute top-0 -translate-x-1/2 w-[3px] h-full" style={{ transform: `rotate(${angle / 2}deg)`, backgroundColor: activeTheme.divider, opacity: 0.8 }}></div>
                   {/* Silver Pins */}
-                  <div className="absolute top-[2px] -translate-x-1/2 w-[3px] h-[3px] sm:w-1 sm:h-1 md:w-1.5 md:h-1.5 rounded-full shadow-sm border border-black/30 z-10" style={{ transform: 'rotate(7.5deg)', backgroundColor: activeTheme.pin }}></div>
+                  <div className="absolute top-[2px] -translate-x-1/2 w-[3px] h-[3px] sm:w-1 sm:h-1 md:w-1.5 md:h-1.5 rounded-full shadow-sm border border-black/30 z-10" style={{ transform: `rotate(${angle / 2}deg)`, backgroundColor: activeTheme.pin }}></div>
                 </div>
-              ))}
+              )})}
             </motion.div>
 
             {/* Inner Ring (12) */}
@@ -632,11 +636,13 @@ export default function SpiritWheel() {
               animate={{ rotate: rotations.inner }}
               transition={{ duration: 3.8, type: "tween", ease: "circOut" }}
             >
-              {WHEEL_DATA.inner.map((item, i) => (
+              {WHEEL_DATA.inner.map((item, i) => {
+                const angle = 360 / WHEEL_DATA.inner.length;
+                return (
                 <div 
                   key={i} 
                   className="absolute top-0 left-1/2 -translate-x-1/2 w-[1px] h-[50%] origin-bottom"
-                  style={{ transform: `rotate(${i * 30}deg)` }}
+                  style={{ transform: `rotate(${i * angle}deg)` }}
                 >
                   <div 
                     className="absolute top-1.5 sm:top-2 md:top-4 -translate-x-1/2 text-[10px] sm:text-xs md:text-lg lg:text-xl font-bold" 
@@ -651,11 +657,11 @@ export default function SpiritWheel() {
                     {item.id}
                   </div>
                   {/* Segment dividers */}
-                  <div className="absolute top-0 -translate-x-1/2 w-[3px] h-full" style={{ transform: 'rotate(15deg)', backgroundColor: activeTheme.divider, opacity: 0.8 }}></div>
+                  <div className="absolute top-0 -translate-x-1/2 w-[3px] h-full" style={{ transform: `rotate(${angle / 2}deg)`, backgroundColor: activeTheme.divider, opacity: 0.8 }}></div>
                   {/* Silver Pins */}
-                  <div className="absolute top-[2px] -translate-x-1/2 w-[3px] h-[3px] sm:w-1 sm:h-1 md:w-1.5 md:h-1.5 rounded-full shadow-sm border border-black/30 z-10" style={{ transform: 'rotate(15deg)', backgroundColor: activeTheme.pin }}></div>
+                  <div className="absolute top-[2px] -translate-x-1/2 w-[3px] h-[3px] sm:w-1 sm:h-1 md:w-1.5 md:h-1.5 rounded-full shadow-sm border border-black/30 z-10" style={{ transform: `rotate(${angle / 2}deg)`, backgroundColor: activeTheme.pin }}></div>
                 </div>
-              ))}
+              )})}
             </motion.div>
             
             {/* Center Hub */}
