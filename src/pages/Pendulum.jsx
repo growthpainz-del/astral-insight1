@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { ChevronLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import AudioOrb from "@/components/reading/AudioOrb";
 
 export default function Pendulum() {
   const [isSwinging, setIsSwinging] = useState(false);
@@ -156,6 +157,11 @@ export default function Pendulum() {
           {isSwinging ? "Consulting the Spirits..." : "Release Pendulum"}
         </Button>
       </div>
+      <AudioOrb 
+        textToSpeak={answer ? `The pendulum says: ${answer}` : ""} 
+        autoPlay={!!answer} 
+        variant="player"
+      />
     </div>
   );
 }

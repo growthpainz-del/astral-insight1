@@ -8,6 +8,7 @@ import { Sparkles, RefreshCw, Eye, ChevronLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import AudioOrb from "@/components/reading/AudioOrb";
 
 // Generate A-Z and Numbers
 const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
@@ -789,6 +790,11 @@ export default function SpiritWheel() {
           </motion.div>
         </div>
       </div>
+      <AudioOrb 
+        textToSpeak={aiInterpretation} 
+        autoPlay={!!aiInterpretation} 
+        variant="player"
+      />
     </div>
   );
 }
