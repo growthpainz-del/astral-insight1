@@ -111,7 +111,7 @@ const WHEEL_DATA = {
   ]
 };
 
-const CATEGORIES = ["General", "Relationships", "Numbers", "Age", "Body Parts", "Colors", "Lost Items", "Height", "Time", "Astrology", "Emotions", "Profiler", "Zapped", "X-Rated"];
+const CATEGORIES = ["General", "Relationships", "Numbers", "Age", "Body Parts", "Colors", "Lost Items", "Height", "Time", "Astrology", "Emotions", "Profiler", "Seasons and Shapes", "Traveling", "Zapped", "X-Rated"];
 
 export default function SpiritWheel() {
   const [category, setCategory] = useState("General");
@@ -357,7 +357,9 @@ export default function SpiritWheel() {
       - Time: Specific timing or duration.
       - Astrology: Planetary timing and zodiac energy. The 9 planets influence Earth. Planets move at different speeds along the 12-sign Zodiac path (Aries to Pisces). Aspects strengthen or challenge energy.
       - Emotions: Emotional state or heart energy around the question. Current feeling, positive/negative emotions, emotional block or release.
-      - Profiler: Personality profile of a person. Traits, strengths, weaknesses, energetic type, hidden side, or the role they play.`;
+      - Profiler: Personality profile of a person. Traits, strengths, weaknesses, energetic type, hidden side, or the role they play.
+      - Seasons and Shapes: Seasonal energy (Spring=growth, Summer=expansion, Fall=release, Winter=rest) or symbolic shapes (Circle=wholeness, Square=stability, Triangle=change, Spiral=evolution) for timing and form.
+      - Traveling: Journeys, movement, or travel energy. Physical trip, movement/progress in life, direction/destination, or safe/challenging travel.`;
 
       const response = await base44.integrations.Core.InvokeLLM({ prompt });
       setAiInterpretation(response.text || response);
