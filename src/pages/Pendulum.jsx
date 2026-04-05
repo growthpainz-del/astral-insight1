@@ -116,7 +116,7 @@ export default function Pendulum() {
             </div>
             
             {/* Letters/Numbers on outer ring */}
-            {"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".split("").map((char, i, arr) => (
+            {[..."ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""), "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11m", "12"].map((char, i, arr) => (
               <div 
                 key={i}
                 className="absolute top-0 left-1/2 -translate-x-1/2 w-[1px] h-[50%] origin-bottom"
