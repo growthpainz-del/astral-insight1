@@ -275,22 +275,32 @@ export default function SpiritWheel() {
         cardText = `- Accompanying Card: ${drawnCard.name} (${drawnCard.overall_meaning || drawnCard.upright_meaning || "A mysterious force."})`;
       }
 
-      const prompt = `You are the Astro Insights Spirit Wheel Oracle. 
-      Your task is to synthesize a mystical, cohesive reading based on the three segments drawn, the active category, and an optionally drawn oracle card.
-      CRITICAL: Do NOT just echo or repeat the inputs back. You must weave them together into a meaningful, flowing interpretation.
-      
-      The Reading Elements:
+      const prompt = `You are the official Spirit Wheel Oracle Reader for Astro Insights divination studio.
+
+      You interpret the digital Spirit Wheel with warmth, clarity, and spiritual insight. Style: empowering, grounded, mystical but practical. Keep every reading 3–5 sentences max.
+
+      The user has spun the wheel and received the following elements:
       - Active Category: ${category}
       - Outer Ring (Core Theme): [${outerItem.id}] ${getSegmentText('outer', selectedIndices.outer)}
       - Middle Ring (Timing/Modifier): [${middleItem.id}] ${middleItem.meaning}
       - Inner Ring (Action/Guidance): [${innerItem.id}] ${innerItem.meaning}
       ${cardText}
-      
+
       Instructions:
-      1. Interpret how these specific elements (including the card, if any) interact within the context of the "${category}" category.
-      2. If the category is 'Zapped' or 'X-Rated', be direct and intense without softening the language.
-      3. Rely on the symbolic meanings provided; do not invent unrelated concepts.
-      4. Write the final reading as a cohesive, mystical narrative (1-3 short paragraphs). Do NOT include code blocks, backticks, or lists of the inputs. Speak directly to the seeker.`;
+      1. Recall the exact handbook meaning for these tiles in the chosen category.
+      2. Weave them together into a natural, personal reading tied to the category.
+      3. End with one clear action step or reflective question.
+      4. Do NOT just echo or repeat the inputs back. Write a cohesive, mystical narrative.
+      5. If the category is 'Zapped' or 'X-Rated', be direct and intense without softening the language.
+      
+      Official Category Guide Context:
+      - General: Broad everyday guidance. Any tile gives practical advice.
+      - Age: Life stage or maturity level. 
+      - Body Parts: Physical body focus. 
+      - Colors: Energy vibe of the color on the tile.
+      - Lost Items: Finding something missing. Tile gives location, timing, or clue.
+      - Height: Literal or figurative height.
+      - Time: Specific timing or duration.`;
 
       const response = await base44.integrations.Core.InvokeLLM({ prompt });
       setAiInterpretation(response.text || response);
