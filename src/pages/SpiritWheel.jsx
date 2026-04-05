@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -90,11 +90,60 @@ export default function SpiritWheel() {
   const [aiInterpretation, setAiInterpretation] = useState("");
   const [isAiLoading, setIsAiLoading] = useState(false);
 
+  const [decks, setDecks] = useState([]);
+  const [selectedDeckId, setSelectedDeckId] = useState("none");
+  const [deckCards, setDeckCards] = useState([]);
+  const [drawnCard, setDrawnCard] = useState(null);
+
+  useEffect(() => {
+    const fetchDecks = async () => {
+      try {
+        const publicDecks = await base44.entities.Deck.filter({ is_public: true, publish_status: 'published' }, '-created_date', 100);
+        const user = await base44.auth.me().catch(() => null);
+        let myDecks = [];
+        if (user?.email) {
+          const mine = await base44.entities.Deck.filter({ created_by: user.email }, '-updated_date', 100);
+          myDecks = Array.isArray(mine) ? mine.filter(d => d.publish_status !== 'draft' && d.publish_status !== 'pending_review') : [];
+        }
+        
+        const allDecksMap = new Map();
+        [...(publicDecks || []), ...myDecks].forEach(d => allDecksMap.set(d.id, d));
+        setDecks(Array.from(allDecksMap.values()));
+      } catch (e) {
+        console.error("Failed to load decks", e);
+      }
+    };
+    fetchDecks();
+  }, []);
+
+  useEffect(() => {
+    if (!selectedDeckId || selectedDeckId === "none") {
+      setDeckCards([]);
+      return;
+    }
+    const fetchCards = async () => {
+      try {
+        const cards = await base44.entities.Card.filter({ deck_id: selectedDeckId });
+        setDeckCards(cards || []);
+      } catch (e) {
+        console.error("Failed to load cards", e);
+      }
+    };
+    fetchCards();
+  }, [selectedDeckId]);
+
   const spinWheel = () => {
     if (isSpinning) return;
     setIsSpinning(true);
     setIsRevealed(false);
     setAiInterpretation("");
+    
+    if (selectedDeckId !== "none" && deckCards.length > 0) {
+      const randomCard = deckCards[Math.floor(Math.random() * deckCards.length)];
+      setDrawnCard(randomCard);
+    } else {
+      setDrawnCard(null);
+    }
     
     const newOuter = rotations.outer + 360 * 3 + Math.floor(Math.random() * 36) * 10;
     const newMiddle = rotations.middle - 360 * 3 - Math.floor(Math.random() * 24) * 15;
@@ -142,8 +191,13 @@ export default function SpiritWheel() {
       const middleItem = WHEEL_DATA.middle[selectedIndices.middle];
       const innerItem = WHEEL_DATA.inner[selectedIndices.inner];
 
+      let cardText = "";
+      if (drawnCard) {
+        cardText = `- Accompanying Card: ${drawnCard.name} (${drawnCard.overall_meaning || drawnCard.upright_meaning || "A mysterious force."})`;
+      }
+
       const prompt = `You are the Astro Insights Spirit Wheel Oracle. 
-      Your task is to synthesize a mystical, cohesive reading based on the three segments drawn and the active category.
+      Your task is to synthesize a mystical, cohesive reading based on the three segments drawn, the active category, and an optionally drawn oracle card.
       CRITICAL: Do NOT just echo or repeat the inputs back. You must weave them together into a meaningful, flowing interpretation.
       
       The Reading Elements:
@@ -151,9 +205,10 @@ export default function SpiritWheel() {
       - Outer Ring (Core Theme): [${outerItem.id}] ${getSegmentText('outer', selectedIndices.outer)}
       - Middle Ring (Timing/Modifier): [${middleItem.id}] ${middleItem.meaning}
       - Inner Ring (Action/Guidance): [${innerItem.id}] ${innerItem.meaning}
+      ${cardText}
       
       Instructions:
-      1. Interpret how these three specific elements interact within the context of the "${category}" category.
+      1. Interpret how these specific elements (including the card, if any) interact within the context of the "${category}" category.
       2. If the category is 'Zapped' or 'X-Rated', be direct and intense without softening the language.
       3. Rely on the symbolic meanings provided; do not invent unrelated concepts.
       4. Write the final reading as a cohesive, mystical narrative (1-3 short paragraphs). Do NOT include code blocks, backticks, or lists of the inputs. Speak directly to the seeker.`;
@@ -192,11 +247,24 @@ export default function SpiritWheel() {
             <div>
               <Label className="text-amber-200 mb-2 block font-semibold text-lg">Category-Shift Logic</Label>
               <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 h-12 text-lg">
+                <SelectTrigger className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 h-12 text-lg mb-4">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100">
                   {CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                </SelectContent>
+              </Select>
+
+              <Label className="text-amber-200 mb-2 block font-semibold text-lg">Accompanying Deck (Optional)</Label>
+              <Select value={selectedDeckId} onValueChange={setSelectedDeckId}>
+                <SelectTrigger className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 h-12 text-lg">
+                  <SelectValue placeholder="None" />
+                </SelectTrigger>
+                <SelectContent className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 max-h-64 overflow-y-auto">
+                  <SelectItem value="none">None</SelectItem>
+                  {decks.map(d => (
+                    <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -259,6 +327,25 @@ export default function SpiritWheel() {
                   </div>
                   <div className="text-xl text-amber-50">{getSegmentText('inner', selectedIndices.inner)}</div>
                 </div>
+                
+                {drawnCard && (
+                  <div className="p-4 bg-[#1c0f05] rounded-lg border border-[#5c3a21] flex flex-col md:flex-row gap-4 items-center md:items-start animate-in fade-in slide-in-from-bottom-4 duration-700">
+                    <div className="w-24 h-36 flex-shrink-0 rounded-md overflow-hidden border border-[#8b5a2b] bg-black shadow-[0_0_15px_rgba(245,158,11,0.2)]">
+                      {drawnCard.image_url ? (
+                        <img src={drawnCard.image_url} alt={drawnCard.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-amber-500/30 text-xs text-center p-2">No Image</div>
+                      )}
+                    </div>
+                    <div className="flex-1 text-center md:text-left">
+                      <div className="text-sm text-amber-500/70 uppercase font-semibold mb-1 flex justify-center md:justify-start">
+                        <span>Accompanying Card</span>
+                      </div>
+                      <div className="text-xl font-bold text-amber-400 mb-1">{drawnCard.name}</div>
+                      <div className="text-sm text-amber-100/80">{drawnCard.subtitle || drawnCard.overall_meaning || drawnCard.upright_meaning}</div>
+                    </div>
+                  </div>
+                )}
                 
                 <Button onClick={getInterpretation} disabled={isAiLoading} className="w-full mt-6 bg-[#3b2313] hover:bg-[#4a2c18] border border-[#8b5a2b] text-lg py-6">
                   {isAiLoading ? <RefreshCw className="w-5 h-5 mr-2 animate-spin text-amber-400" /> : <Sparkles className="w-5 h-5 mr-2 text-amber-400" />}
