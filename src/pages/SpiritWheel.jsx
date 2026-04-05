@@ -11,8 +11,8 @@ import { createPageUrl } from '@/utils';
 
 // Generate A-Z and 0-9
 const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-const numbers = '0123456789'.split('');
-const outerIds = [...alphabet, ...numbers];
+const numbers = '123456789'.split('');
+const outerIds = [...alphabet, 'ZERO', ...numbers];
 
 const WHEEL_DATA = {
   outer: outerIds.map(id => {
@@ -23,7 +23,7 @@ const WHEEL_DATA = {
       "J": { Time: "2:00 PM" },
       "N": { general: "Top center-right (handbook letter N in chosen category)" },
       "W": { general: "Wisdom", time_modifier: true },
-      "0": { general: "Reset / blank slate" },
+      "ZERO": { general: "Reset / blank slate" },
       "1": { general: "Direct number meaning (1)" },
       "2": { general: "Bottom left (Numbers category) - Direct number meaning (2)" },
       "3": { general: "Direct number meaning (3)" },
@@ -47,9 +47,20 @@ const WHEEL_DATA = {
     { id: "Purple", meaning: "Intuition / psychic download" },
     { id: "Red", meaning: "Fire / passion / sex" },
     { id: "Black", meaning: "Hidden / unconscious mind" },
+    { id: "Blue", meaning: "Communication / Truth" },
+    { id: "Green", meaning: "Growth / Healing" },
+    { id: "Yellow", meaning: "Joy / Energy" },
+    { id: "White", meaning: "Purity / Spirit" },
+    { id: "Brown", meaning: "Grounding / Earth" },
+    { id: "LightBlue", meaning: "Peace / Calm" },
     { id: "Square", meaning: "Window / Television / Computer" },
     { id: "Spiral", meaning: "Spinning / galaxy / space" },
-    ...Array.from({length: 12}).map((_, i) => ({ id: `M${i}`, meaning: "Unknown depth" }))
+    { id: "👁️", meaning: "Eye → Watching / awareness" },
+    { id: "⛺", meaning: "Tent → Temporary shelter / camping" },
+    { id: "☕", meaning: "Mug → Comfort / morning / meeting" },
+    { id: "✅", meaning: "Check → Confirmed / correct" },
+    { id: "☹️", meaning: "Sad → Disappointment / sorrow" },
+    { id: "🔭", meaning: "Telescope → Looking far ahead / seeking" }
   ],
   inner: [
     { id: "↑", meaning: "Go → Yes / forward motion" },
@@ -58,7 +69,12 @@ const WHEEL_DATA = {
     { id: "BYE", meaning: "Until next time." },
     { id: "LOVE", meaning: "Heart connection, romance, deep feeling." },
     { id: "STOP", meaning: "Stop / Nothing." },
-    ...Array.from({length: 6}).map((_, i) => ({ id: `I${i}`, meaning: "Inner voice" }))
+    { id: "⏳", meaning: "Hourglass → Time is passing / wait" },
+    { id: "↓", meaning: "Down Arrow → Grounding / dig deeper" },
+    { id: "◬", meaning: "Triangle → Manifestation / power" },
+    { id: "$", meaning: "Money → Financial focus / abundance" },
+    { id: "❤️", meaning: "Heart → Deep love / affection" },
+    { id: "★", meaning: "Star → Hope / guidance / fame" }
   ]
 };
 
@@ -282,11 +298,10 @@ export default function SpiritWheel() {
 
             {/* Outer Ring (36) */}
             <motion.div 
-              className="absolute inset-0 rounded-full border-[6px] border-[#5c3a21] bg-[#4a2c18] overflow-hidden"
+              className="absolute inset-0 rounded-full border-[6px] border-[#2b1810] bg-[#e6b981] overflow-hidden shadow-[inset_0_0_30px_rgba(43,24,16,0.6),0_15px_35px_rgba(0,0,0,0.8)]"
               style={{
-                background: 'url("https://www.transparenttextures.com/patterns/wood-pattern.png"), radial-gradient(circle, #3a2818 0%, #2a1b0a 100%)',
+                background: 'url("https://www.transparenttextures.com/patterns/wood-pattern.png"), radial-gradient(circle, #e6b981 0%, #c48b53 100%)',
                 backgroundBlendMode: 'multiply',
-                boxShadow: 'inset 0 0 30px rgba(0,0,0,0.9), 0 10px 30px rgba(0,0,0,0.8)'
               }}
               animate={{ rotate: rotations.outer }}
               transition={{ duration: 4.5, type: "tween", ease: "circOut" }}
@@ -297,22 +312,31 @@ export default function SpiritWheel() {
                   className="absolute top-0 left-1/2 -translate-x-1/2 w-[1px] h-[50%] origin-bottom"
                   style={{ transform: `rotate(${i * 10}deg)` }}
                 >
-                  <div className="absolute top-3 -translate-x-1/2 text-xs md:text-sm lg:text-base font-bold text-amber-200 drop-shadow-md" style={{ opacity: blankMode && !isRevealed ? 0 : 1, transition: 'opacity 0.3s' }}>
+                  <div 
+                    className="absolute top-1.5 sm:top-2 md:top-3 -translate-x-1/2 text-xs md:text-sm lg:text-base font-bold text-[#2b1810]" 
+                    style={{ 
+                      opacity: blankMode && !isRevealed ? 0 : 1, 
+                      transition: 'opacity 0.3s',
+                      textShadow: '0.5px 0.5px 0 rgba(255,255,255,0.4)',
+                      fontFamily: '"Comic Sans MS", "Chalkboard SE", "Comic Neue", sans-serif'
+                    }}
+                  >
                     {item.id}
                   </div>
-                  {/* Segment dividers */}
-                  <div className="absolute top-0 -translate-x-1/2 w-[2px] h-full bg-[#1a0f05]/40" style={{ transform: 'rotate(5deg)' }}></div>
+                  {/* Segment dividers (Burnt Wood Lines) */}
+                  <div className="absolute top-0 -translate-x-1/2 w-[3px] h-full bg-[#2b1810]/80" style={{ transform: 'rotate(5deg)' }}></div>
+                  {/* Silver Pins */}
+                  <div className="absolute top-[2px] -translate-x-1/2 w-[3px] h-[3px] sm:w-1 sm:h-1 md:w-1.5 md:h-1.5 rounded-full bg-slate-200 shadow-sm border border-slate-500 z-10" style={{ transform: 'rotate(5deg)' }}></div>
                 </div>
               ))}
             </motion.div>
 
             {/* Middle Ring (24) */}
             <motion.div 
-              className="absolute inset-[18%] rounded-full border-[5px] border-[#3b2313] bg-[#2d1b0d] overflow-hidden"
+              className="absolute inset-[24%] rounded-full border-[5px] border-[#2b1810] bg-[#d4a373] overflow-hidden shadow-[inset_0_0_20px_rgba(43,24,16,0.6)]"
               style={{
-                background: 'url("https://www.transparenttextures.com/patterns/wood-pattern.png"), radial-gradient(circle, #2d1b0d 0%, #1c0f05 100%)',
+                background: 'url("https://www.transparenttextures.com/patterns/wood-pattern.png"), radial-gradient(circle, #d4a373 0%, #b57a42 100%)',
                 backgroundBlendMode: 'multiply',
-                boxShadow: 'inset 0 0 25px rgba(0,0,0,0.9), 0 5px 20px rgba(0,0,0,0.6)'
               }}
               animate={{ rotate: rotations.middle }}
               transition={{ duration: 4.2, type: "tween", ease: "circOut" }}
@@ -323,22 +347,35 @@ export default function SpiritWheel() {
                   className="absolute top-0 left-1/2 -translate-x-1/2 w-[1px] h-[50%] origin-bottom"
                   style={{ transform: `rotate(${i * 15}deg)` }}
                 >
-                  <div className="absolute top-3 -translate-x-1/2 text-[10px] md:text-sm lg:text-base font-bold text-amber-300 drop-shadow-md whitespace-nowrap" style={{ opacity: blankMode && !isRevealed ? 0 : 1, transition: 'opacity 0.3s' }}>
-                    {item.id}
+                  <div 
+                    className="absolute top-1.5 sm:top-2 md:top-3 -translate-x-1/2 flex items-center justify-center text-[9px] md:text-sm lg:text-base font-bold text-[#2b1810] whitespace-nowrap" 
+                    style={{ 
+                      opacity: blankMode && !isRevealed ? 0 : 1, 
+                      transition: 'opacity 0.3s',
+                      textShadow: '0.5px 0.5px 0 rgba(255,255,255,0.4)',
+                      fontFamily: '"Comic Sans MS", "Chalkboard SE", "Comic Neue", sans-serif'
+                    }}
+                  >
+                    {['Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Black', 'White', 'Brown', 'LightBlue'].includes(item.id) ? (
+                      <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 lg:w-5 lg:h-5 rounded-full shadow-inner border border-black/30" style={{ backgroundColor: item.id === 'LightBlue' ? '#add8e6' : item.id.toLowerCase() }}></div>
+                    ) : (
+                      item.id
+                    )}
                   </div>
                   {/* Segment dividers */}
-                  <div className="absolute top-0 -translate-x-1/2 w-[2px] h-full bg-[#0a0502]/50" style={{ transform: 'rotate(7.5deg)' }}></div>
+                  <div className="absolute top-0 -translate-x-1/2 w-[3px] h-full bg-[#2b1810]/80" style={{ transform: 'rotate(7.5deg)' }}></div>
+                  {/* Silver Pins */}
+                  <div className="absolute top-[2px] -translate-x-1/2 w-[3px] h-[3px] sm:w-1 sm:h-1 md:w-1.5 md:h-1.5 rounded-full bg-slate-200 shadow-sm border border-slate-500 z-10" style={{ transform: 'rotate(7.5deg)' }}></div>
                 </div>
               ))}
             </motion.div>
 
             {/* Inner Ring (12) */}
             <motion.div 
-              className="absolute inset-[38%] rounded-full border-[4px] border-[#2a180c] bg-[#1a0f05] overflow-hidden"
+              className="absolute inset-[48%] rounded-full border-[4px] border-[#2b1810] bg-[#b57a42] overflow-hidden shadow-[inset_0_0_15px_rgba(43,24,16,0.7)]"
               style={{
-                background: 'url("https://www.transparenttextures.com/patterns/wood-pattern.png"), radial-gradient(circle, #1a0f05 0%, #0a0502 100%)',
+                background: 'url("https://www.transparenttextures.com/patterns/wood-pattern.png"), radial-gradient(circle, #b57a42 0%, #9c602d 100%)',
                 backgroundBlendMode: 'multiply',
-                boxShadow: 'inset 0 0 20px rgba(0,0,0,0.9), 0 0 15px rgba(0,0,0,0.7)'
               }}
               animate={{ rotate: rotations.inner }}
               transition={{ duration: 3.8, type: "tween", ease: "circOut" }}
@@ -349,19 +386,28 @@ export default function SpiritWheel() {
                   className="absolute top-0 left-1/2 -translate-x-1/2 w-[1px] h-[50%] origin-bottom"
                   style={{ transform: `rotate(${i * 30}deg)` }}
                 >
-                  <div className="absolute top-4 -translate-x-1/2 text-sm md:text-lg lg:text-xl font-bold text-amber-400 drop-shadow-[0_0_5px_rgba(245,158,11,0.5)]" style={{ opacity: blankMode && !isRevealed ? 0 : 1, transition: 'opacity 0.3s' }}>
+                  <div 
+                    className="absolute top-1.5 sm:top-2 md:top-4 -translate-x-1/2 text-[10px] sm:text-xs md:text-lg lg:text-xl font-bold text-[#2b1810]" 
+                    style={{ 
+                      opacity: blankMode && !isRevealed ? 0 : 1, 
+                      transition: 'opacity 0.3s',
+                      textShadow: '0.5px 0.5px 0 rgba(255,255,255,0.4)',
+                      fontFamily: '"Comic Sans MS", "Chalkboard SE", "Comic Neue", sans-serif'
+                    }}
+                  >
                     {item.id}
                   </div>
                   {/* Segment dividers */}
-                  <div className="absolute top-0 -translate-x-1/2 w-[2px] h-full bg-black/60" style={{ transform: 'rotate(15deg)' }}></div>
+                  <div className="absolute top-0 -translate-x-1/2 w-[3px] h-full bg-[#2b1810]/80" style={{ transform: 'rotate(15deg)' }}></div>
+                  {/* Silver Pins */}
+                  <div className="absolute top-[2px] -translate-x-1/2 w-[3px] h-[3px] sm:w-1 sm:h-1 md:w-1.5 md:h-1.5 rounded-full bg-slate-200 shadow-sm border border-slate-500 z-10" style={{ transform: 'rotate(15deg)' }}></div>
                 </div>
               ))}
             </motion.div>
             
             {/* Center Hub */}
-            <div className="absolute inset-[44%] rounded-full border-4 border-amber-600 bg-[#8b5a2b] shadow-[0_0_20px_rgba(0,0,0,0.8)] z-10 flex items-center justify-center"
-                 style={{ background: 'radial-gradient(circle, #a66d35 0%, #5c3a21 100%)' }}>
-              <div className="w-4 h-4 md:w-6 md:h-6 bg-amber-200 rounded-full shadow-[0_0_10px_rgba(253,230,138,0.8)]"></div>
+            <div className="absolute inset-[66%] rounded-full border-[5px] border-[#2b1810] bg-black shadow-[0_0_20px_rgba(0,0,0,0.8)] z-10 overflow-hidden flex items-center justify-center">
+              <img src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/c249f1513_IMG_8330.png" alt="Center Spirit" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 min-w-[350%] min-h-[350%] object-cover pointer-events-none filter contrast-125 saturate-110" />
             </div>
           </div>
         </div>
