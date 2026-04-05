@@ -343,7 +343,8 @@ export default function Layout({ children, currentPageName }) {
 
   const specialReadings = [
             { href: "FusionReading", icon: GitMerge, label: "Fusions" },
-            { href: "ZodiacReading", icon: Star, label: "Zodiac" }
+            { href: "ZodiacReading", icon: Star, label: "Zodiac" },
+            { href: "AgentChat", icon: Sparkles, label: "Oracle Chat" }
           ];
 
   const studioLinks = [
@@ -367,7 +368,6 @@ export default function Layout({ children, currentPageName }) {
             { href: "AdminTokenGrant", icon: Coins, label: "Token Grant" },
             { href: "SpreadSeeder", icon: Sprout, label: "Seed Spreads" },
             { href: "LiveAgent", icon: Sparkles, label: "Live Agent" },
-            { href: "AgentChat", icon: Sparkles, label: "Oracle Chat" },
           ];
 
   const adminPages = new Set(adminLinks.map(l => l.href));

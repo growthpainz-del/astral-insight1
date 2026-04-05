@@ -484,6 +484,12 @@ export default function Dashboard() {
             gradient="bg-gradient-to-br from-indigo-600 to-purple-600"
           />
           <QuickAction
+            label="Oracle Chat"
+            icon={Sparkles}
+            to={createPageUrl("AgentChat")}
+            gradient="bg-gradient-to-br from-blue-600 to-cyan-600"
+          />
+          <QuickAction
             label="Spirit Wheel"
             icon={Sparkles}
             to={createPageUrl("SpiritWheel")}
