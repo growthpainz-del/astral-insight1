@@ -365,13 +365,13 @@ export default function Pendulum() {
                 style={{ transform: 'rotateX(70deg) translateZ(-80px)', transformStyle: 'preserve-3d' }}
               >
                 {/* Outer ring */}
-                <div className="absolute inset-0 rounded-full border-[8px] border-amber-800/40 bg-black/60 backdrop-blur-md" />
+                <div className="absolute inset-0 rounded-full border-[8px] border-amber-800 bg-black" />
                 {/* Middle ring */}
-                <div className="absolute inset-[15%] rounded-full border-2 border-amber-700/30 bg-indigo-950/40" />
+                <div className="absolute inset-[15%] rounded-full border-2 border-amber-700 bg-indigo-950" />
                 {/* Inner ring */}
-                <div className="absolute inset-[35%] rounded-full border border-amber-600/30 bg-purple-950/30" />
+                <div className="absolute inset-[35%] rounded-full border border-amber-600 bg-purple-950" />
                 {/* Center hub */}
-                <div className="absolute inset-[45%] rounded-full border-2 border-amber-500/40 bg-black/80 flex items-center justify-center shadow-[0_0_20px_rgba(245,158,11,0.2)] overflow-hidden">
+                <div className="absolute inset-[45%] rounded-full border-2 border-amber-500 bg-black flex items-center justify-center shadow-[0_0_20px_rgba(245,158,11,0.2)] overflow-hidden">
                   <img 
                     src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d2a300021f94d0f312c039/4cde5ffdd_IMG_6738.jpg" 
                     alt="Center Logo" 
