@@ -126,15 +126,21 @@ export default function SpiritWheel() {
       const middleItem = WHEEL_DATA.middle[selectedIndices.middle];
       const innerItem = WHEEL_DATA.inner[selectedIndices.inner];
 
-      const prompt = `You are the Spirit Wheel Interpreter. You must never offer personal opinions.
-      Active Category: ${category}
-      Outer Segment: ${outerItem.id} -> ${getSegmentText('outer', selectedIndices.outer)}
-      Middle Segment: ${middleItem.id} -> ${middleItem.meaning}
-      Inner Segment: ${innerItem.id} -> ${innerItem.meaning}
+      const prompt = `You are the Astro Insights Spirit Wheel Oracle. 
+      Your task is to synthesize a mystical, cohesive reading based on the three segments drawn and the active category.
+      CRITICAL: Do NOT just echo or repeat the inputs back. You must weave them together into a meaningful, flowing interpretation.
       
-      If the user is in 'Zapped' or 'X-Rated' mode, provide the high-intensity warning results immediately without softening the language.
-      Strictly use handbook text without hallucinating additional meanings.
-      Always provide the response in a clean block for copy-pasting.`;
+      The Reading Elements:
+      - Active Category: ${category}
+      - Outer Ring (Core Theme): [${outerItem.id}] ${getSegmentText('outer', selectedIndices.outer)}
+      - Middle Ring (Timing/Modifier): [${middleItem.id}] ${middleItem.meaning}
+      - Inner Ring (Action/Guidance): [${innerItem.id}] ${innerItem.meaning}
+      
+      Instructions:
+      1. Interpret how these three specific elements interact within the context of the "${category}" category.
+      2. If the category is 'Zapped' or 'X-Rated', be direct and intense without softening the language.
+      3. Rely on the symbolic meanings provided; do not invent unrelated concepts.
+      4. Write the final reading as a cohesive, mystical narrative (1-3 short paragraphs). Do NOT include code blocks, backticks, or lists of the inputs. Speak directly to the seeker.`;
 
       const response = await base44.integrations.Core.InvokeLLM({ prompt });
       setAiInterpretation(response.text || response);
