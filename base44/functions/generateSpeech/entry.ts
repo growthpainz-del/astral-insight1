@@ -26,7 +26,7 @@ Deno.serve(async (req) => {
         }
         voiceId = voiceId.trim();
 
-        console.log(`[generateSpeech] Voice ID resolution: Env=${envVoiceId}, Requested=${requestedVoiceId}, Final=${voiceId}`);
+        console.log(`[generateSpeech] Voice ID resolution: Requested=${requestedVoiceId}, Final=${voiceId}`);
 
         if (!text) {
             return Response.json({ error: 'Text is required' }, { status: 400 });
