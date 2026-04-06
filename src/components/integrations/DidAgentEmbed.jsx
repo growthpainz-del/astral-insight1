@@ -18,7 +18,7 @@ export default function DidAgentEmbed({ agentId, clientKey, mode = "full", targe
       if (target) target.innerHTML = "";
     } catch (_) {}
 
-    const id = agentId || (typeof localStorage !== 'undefined' && localStorage.getItem('did_live_agent_id')) || "v2_agt_umRtTPFu";
+    const id = agentId || (typeof localStorage !== 'undefined' && localStorage.getItem('did_live_agent_id')) || "v2_agt_hF1S2XwN";
     const key = clientKey || (typeof localStorage !== 'undefined' && localStorage.getItem('did_client_key')) || "Z3Jvd3RocGFpbnpAcHJvdG9ubWFpbC5jb20:81RHy8AxIg8fZB5M61Sd8";
 
     const script = document.createElement("script");

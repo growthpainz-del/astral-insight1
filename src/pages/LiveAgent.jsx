@@ -38,7 +38,7 @@ export default function LiveAgent() {
        if (target) target.innerHTML = "";
      } catch (_) {}
 
-     const id = agentId || "v2_agt_umRtTPFu";
+     const id = agentId || "v2_agt_hF1S2XwN";
 
      if (provider === "did") {
        const key = "Z3Jvd3RocGFpbnpAcHJvdG9ubWFpbC5jb20:81RHy8AxIg8fZB5M61Sd8";
@@ -89,7 +89,7 @@ export default function LiveAgent() {
       if (savedId) {
         setAgentId(savedId);
       } else {
-        const fallback = "v2_agt_umRtTPFu";
+        const fallback = "v2_agt_hF1S2XwN";
         setAgentId(fallback);
         localStorage.setItem("did_live_agent_id", fallback);
         localStorage.setItem("live_agent_provider", "did");
