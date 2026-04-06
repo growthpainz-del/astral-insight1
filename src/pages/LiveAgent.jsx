@@ -38,10 +38,10 @@ export default function LiveAgent() {
        if (target) target.innerHTML = "";
      } catch (_) {}
 
-     const id = agentId || "v2_agt_hF1S2XwN";
+     const id = agentId || "v2_agt_umRtTPFu";
 
      if (provider === "did") {
-       const key = "Z29vZ2xlLW9hdXRoMnwxMTU4Mjg4NTQ2NzM5OTExMjUyOTQ6UXpvMjZoZWFxd3ZSa3lXSmpvMHlM";
+       const key = "Z3Jvd3RocGFpbnpAcHJvdG9ubWFpbC5jb20:81RHy8AxIg8fZB5M61Sd8";
        const script = document.createElement("script");
        script.type = "module";
        script.src = "https://agent.d-id.com/v2/index.js";
@@ -89,7 +89,7 @@ export default function LiveAgent() {
       if (savedId) {
         setAgentId(savedId);
       } else {
-        const fallback = "v2_agt_hF1S2XwN";
+        const fallback = "v2_agt_umRtTPFu";
         setAgentId(fallback);
         localStorage.setItem("did_live_agent_id", fallback);
         localStorage.setItem("live_agent_provider", "did");
