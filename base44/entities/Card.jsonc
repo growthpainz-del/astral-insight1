@@ -1,0 +1,254 @@
+{
+  "name": "Card",
+  "type": "object",
+  "properties": {
+    "deck_id": {
+      "type": "string",
+      "description": "ID of the deck this card belongs to"
+    },
+    "name": {
+      "type": "string",
+      "description": "Name of the card"
+    },
+    "subtitle": {
+      "type": "string",
+      "description": "Short subtitle shown with the card"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "URL to the card image"
+    },
+    "video_url": {
+      "type": "string",
+      "description": "URL to a short animated video clip or audio file for the card"
+    },
+    "frame_style": {
+      "type": "string",
+      "enum": [
+        "none",
+        "vignette_burn",
+        "black_border",
+        "white_border"
+      ],
+      "default": "none",
+      "description": "Visual frame or effect applied to the card image."
+    },
+    "number": {
+      "type": "number",
+      "description": "Card number or position in deck"
+    },
+    "element": {
+      "type": "string",
+      "enum": [
+        "air",
+        "fire",
+        "water",
+        "earth",
+        "spirit",
+        "none",
+        "Cloud",
+        "Cache",
+        "Pixel",
+        "Algorithm",
+        "Network"
+      ],
+      "description": "Elemental association"
+    },
+    "keywords": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Keywords associated with this card"
+    },
+    "vibrational_metadata": {
+      "type": "object",
+      "properties": {
+        "dwell_threshold": {
+          "type": "integer"
+        },
+        "entropy_bias": {
+          "type": "number"
+        },
+        "vibe_tag_primary": {
+          "type": "string"
+        },
+        "audio_echo_slug": {
+          "type": "string"
+        }
+      },
+      "description": "Astral-Insight vibrational tuning configuration"
+    },
+    "ancient_wisdom": {
+      "type": "string",
+      "description": "Ancient wisdom, binaural beat info, or traditional connections"
+    },
+    "overall_meaning": {
+      "type": "string",
+      "description": "Overall meaning and theme of the card"
+    },
+    "symbol_description": {
+      "type": "string",
+      "description": "Visual description of the card's engraved symbol"
+    },
+    "upright_meaning": {
+      "type": "string",
+      "description": "Meaning when card appears upright"
+    },
+    "upright_insight": {
+      "type": "string",
+      "description": "Upright insights and deeper understanding"
+    },
+    "upright_action": {
+      "type": "string",
+      "description": "Recommended actions when upright"
+    },
+    "reversed_meaning": {
+      "type": "string",
+      "description": "Meaning when card appears reversed"
+    },
+    "reversed_insight": {
+      "type": "string",
+      "description": "Reversed insights and deeper understanding"
+    },
+    "reversed_action": {
+      "type": "string",
+      "description": "Recommended actions when reversed"
+    },
+    "interaction": {
+      "type": "string",
+      "description": "How this card interacts with others or special notes"
+    },
+    "musician_quote": {
+      "type": "string",
+      "description": "Wise words from musicians (Badi Boom specific)"
+    },
+    "facedown_meaning": {
+      "type": "string",
+      "description": "Meaning when card is face down (runes specific)"
+    },
+    "custom": {
+      "type": "string",
+      "description": "Custom Notes for AI"
+    },
+    "custom_ai_notes": {
+      "type": "string",
+      "description": "Admin/AI-only notes to steer readings (alias of custom). Prefer this when present."
+    },
+    "custom_ai_helper": {
+      "type": "string",
+      "description": "Optional helper/guide notes for AI, same purpose as custom_ai_notes."
+    },
+    "custom_notes": {
+      "type": "string",
+      "description": "Alternative field name for custom AI notes (alias)."
+    },
+    "custom_fields": {
+      "type": "object",
+      "description": "User-defined custom fields for additional card descriptions",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "description": "Display name for this custom field"
+          },
+          "value": {
+            "type": "string",
+            "description": "The content/description for this field"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "scripture",
+              "meaning",
+              "action",
+              "wisdom",
+              "other"
+            ],
+            "default": "other",
+            "description": "Type of description this field represents"
+          }
+        }
+      }
+    },
+    "ai_image_prompt": {
+      "type": "string",
+      "description": "Saved AI prompt text for image generation"
+    },
+    "ai_image_negative_prompt": {
+      "type": "string",
+      "description": "Negative prompt text for image generation"
+    },
+    "ai_prompt_style": {
+      "type": "string",
+      "description": "Style tags or preset (e.g., 'studio photo, neon noir, cyberpunk')"
+    },
+    "ai_prompt_metadata": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Additional AI params (aspect ratio, model, steps, seed, guidance)"
+    },
+    "ai_reference_image_url": {
+      "type": "string",
+      "description": "Reference/seed image to keep style consistent across generations"
+    },
+    "ai_generated_images": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "URLs for AI-generated images for this card"
+    },
+    "ai_prompt_history": {
+      "type": "array",
+      "description": "Version history of all prompts used for this card",
+      "items": {
+        "type": "object",
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "description": "The prompt text at this version"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When this version was created"
+          },
+          "created_by": {
+            "type": "string",
+            "description": "User email who created this version"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "manual_edit",
+              "auto_fill",
+              "json_import",
+              "bulk_generator",
+              "regeneration",
+              "initial"
+            ],
+            "description": "How this prompt was created"
+          },
+          "image_url": {
+            "type": "string",
+            "description": "Image generated with this prompt (if any)"
+          },
+          "generation_success": {
+            "type": "boolean",
+            "description": "Whether image generation succeeded with this prompt"
+          },
+          "notes": {
+            "type": "string",
+            "description": "Optional notes about this version"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "deck_id",
+    "name"
+  ]
+}

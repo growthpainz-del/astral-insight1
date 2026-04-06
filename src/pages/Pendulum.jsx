@@ -10,56 +10,66 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { base44 } from '@/api/base44Client';
 
-// Generate A-Z and Numbers
-const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-const numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11m', '12'];
-const outerIds = [...alphabet, ...numbers];
+// 50 Cards of the Rooted Crescent Oracle Deck
+const ROOTED_CARDS_DATA = [
+  { id: "1", name: "The Rooted Journey", symbol: "Minimalist tree root curling into a tight spiral circle.", meaning: "Grounded wisdom balances intuition and strength for growth." },
+  { id: "2", name: "The Endless Storm", symbol: "Stylized swirling storm lines inside a sturdy circle.", meaning: "Resilience shines through challenges, finding wisdom in scars." },
+  { id: "3", name: "Guardian of the Desert", symbol: "Simple saguaro cactus with three balanced arms.", meaning: "Thrive in adversity, balancing protection and nurturing." },
+  { id: "4", name: "Petals of Resilience", symbol: "Single open flower with five strong petals and solid center.", meaning: "Blend strength and softness to grow through challenges." },
+  { id: "5", name: "Emergence from Chaos", symbol: "Cracked circle with a butterfly breaking free.", meaning: "Clarity transforms struggles into opportunities." },
+  { id: "6", name: "The Jaws of Time", symbol: "Open jaws formed by clock hands around a small circle.", meaning: "Cherish the present to align with your purpose." },
+  { id: "7", name: "The Seer's Gaze", symbol: "Open eye with three concentric circles in the pupil.", meaning: "Intuition reveals hidden truths for spiritual growth." },
+  { id: "8", name: "The Guardian of Reflection", symbol: "Still pond circle with three gentle ripple lines.", meaning: "Deep reflection uncovers transformative wisdom." },
+  { id: "9", name: "The Silent Observer", symbol: "Closed eye with soft arched brow above.", meaning: "Silence fosters empathy and profound insight." },
+  { id: "10", name: "Between the Folds", symbol: "Simple folded layers unfolding into a smooth curve.", meaning: "Patience reveals hidden truths and clarity." },
+  { id: "11", name: "The Veil of Solitude", symbol: "Teardrop-shaped veil or curtain with soft folds.", meaning: "Solitude heals and transforms pain into wisdom." },
+  { id: "12", name: "Shielding Embrace", symbol: "Two curved arms forming a protective circle.", meaning: "Quiet support offers comfort without control." },
+  { id: "13", name: "The Wild Embrace", symbol: "Stylized flame inside a leaf-shaped heart.", meaning: "Unleash passion and instincts for authentic connection." },
+  { id: "14", name: "Ghostly Patrons", symbol: "Two faint overlapping ethereal figures in a circle.", meaning: "Past connections offer strength and wisdom." },
+  { id: "15", name: "In-Tan-Demoiselles", symbol: "Two figures back-to-back holding hands in a circle.", meaning: "Shared joy uplifts through collaboration." },
+  { id: "16", name: "The Alchemist's Cauldron", symbol: "Small cauldron with three flames underneath.", meaning: "Transform talents into new possibilities." },
+  { id: "17", name: "The Muse's Morning Star", symbol: "Bright star rising above a simple horizon line.", meaning: "Inspiration guides dreams to reality." },
+  { id: "18", name: "Starweaver's Embrace", symbol: "Two interlocking crescents forming a star.", meaning: "Weave cosmic inspiration for bold creation." },
+  { id: "19", name: "Visionary Journey", symbol: "Winding path leading toward an open horizon.", meaning: "Expand consciousness through exploration." },
+  { id: "20", name: "Illuminating Insight", symbol: "Bright star with radiating light beams.", meaning: "Brilliance lights new creative paths." },
+  { id: "21", name: "Luna Duala", symbol: "Two overlapping crescents (one light, one dark).", meaning: "Harmonize opposites for wholeness." },
+  { id: "22", name: "The Comfort Paradox", symbol: "Soft cushion shape merging into sharp upward arrow.", meaning: "Balance comfort with growth for progress." },
+  { id: "23", name: "The 4 Shadows", symbol: "Four small triangles arranged in a diamond.", meaning: "Embrace shadows for freedom and unity." },
+  { id: "24", name: "The Eye of Siren", symbol: "Stylized eye merged with a simple star or wave.", meaning: "Discern truth from illusion in relationships." },
+  { id: "25", name: "The Cosmic Vision", symbol: "Swirling cosmic circle with tiny stars inside.", meaning: "Universal truths bring inner peace." },
+  { id: "26", name: "The Weaver of Truth", symbol: "Simple loom or interwoven threads forming a web.", meaning: "Gently embrace truth for acceptance." },
+  { id: "27", name: "The Deflected", symbol: "Shield shape with arrows bouncing off.", meaning: "Reflect on defenses to embrace vulnerability." },
+  { id: "28", name: "The Day Moon's Grip", symbol: "Crescent moon gently holding a small sun disk.", meaning: "Forgiveness releases burdens for harmony." },
+  { id: "29", name: "Echoes of the Mind", symbol: "Concentric sound waves or ripples from a center point.", meaning: "Inner guidance offers protection and clarity." },
+  { id: "30", name: "The Heart Full Foundress", symbol: "Sturdy heart shape with roots at the base.", meaning: "Nurture with love and strength for growth." },
+  { id: "31", name: "Guardian of In-Essence", symbol: "Small glowing inner flame or child-like spark.", meaning: "Protect your inner joy and essence." },
+  { id: "32", name: "The Sureline of Purpose", symbol: "Straight arrow piercing a solid circle.", meaning: "Stand firm in purpose through introspection." },
+  { id: "33", name: "Nis Puk's Whisper", symbol: "Playful small creature silhouette with speech swirl.", meaning: "Playful wisdom guides subtly." },
+  { id: "34", name: "The Patient Feminine", symbol: "Gentle curved feminine figure in seated pose.", meaning: "Patience and grounded strength lead to growth." },
+  { id: "35", name: "The Garden Portal", symbol: "Simple arch or gate with upward flowing lines.", meaning: "Courage opens gateways to new dimensions." },
+  { id: "36", name: "With Chains Unbound", symbol: "Broken chain links forming an open circle.", meaning: "Break free from patterns for new paths." },
+  { id: "37", name: "Nature's Whisper", symbol: "Leaf or tree branch with subtle wind lines.", meaning: "Nature’s cycles guide wisdom and vitality." },
+  { id: "38", name: "Back Road Whispers", symbol: "Winding road path disappearing into distance.", meaning: "Winding paths lead to wisdom through exploration." },
+  { id: "39", name: "Veins of the Void", symbol: "Cracked dark circle with light veins flowing in.", meaning: "Emerge from shadows to claim your true self." },
+  { id: "40", name: "The Triad of Synergy", symbol: "Three interlocking circles or triangles.", meaning: "Harmonize mind, body, spirit for strength." },
+  { id: "41", name: "The Fun Gus In Us", symbol: "Mushroom with connected mycelium threads at base.", meaning: "Community and reciprocity foster joy." },
+  { id: "42", name: "The Voyage of Shadows", symbol: "Small boat on stylized wavy lines.", meaning: "Navigate inner darkness for growth." },
+  { id: "43", name: "Fringe Fusions", symbol: "Two different shapes (circle + triangle) merging.", meaning: "Blend unconventional ideas for growth." },
+  { id: "44", name: "Cascading Illumination", symbol: "Waterfall of light dots or lines flowing down.", meaning: "Insights flow to light new paths." },
+  { id: "45", name: "In-Tan-Demoiselles II", symbol: "Two figures back-to-back holding hands in circle.", meaning: "Shared joy uplifts through collaboration." },
+  { id: "46", name: "Blabbergaster", symbol: "Explosive speech bubble with chaotic energy lines.", meaning: "Embrace chaos for bold expression." },
+  { id: "47", name: "The Mountain's Keeper", symbol: "Triangular mountain peak with strong flat base.", meaning: "Ascend with clear vision and strength." },
+  { id: "48", name: "Harmonic Gates of Ascension", symbol: "Simple arch or gate with upward flowing lines.", meaning: "Align with cosmic flow for transformation." },
+  { id: "49", name: "The Humble Huntress", symbol: "Small bow and arrow pointing upward.", meaning: "Pursue goals with quiet determination." },
+  { id: "50", name: "The Jealous-Eye", symbol: "Eye with a small heart or trust symbol inside.", meaning: "Acknowledge jealousy to build trust." }
+];
 
 const WHEEL_DATA = {
-  outer: outerIds.map(id => {
-    const special = {
-      "A": { general: "New beginning / fresh start", Age: "New spirit", Relationships: "People that can be around you daily / Aunt / Ancestors", Height: "4'10\" - 6'10\"", "Lost Items": "Family member has it / High place", Time: "Morning (9-12am)" },
-      "B": { general: "Communication / Inspiration", Age: "New Embryo - 9 Months", Relationships: "Brother by blood / Brother-in-law", Height: "4'11\" - 6'11\"", "Lost Items": "Pocket / In xmas things" },
-      "C": { Age: "Born - Next BD" },
-      "D": { Age: "1-4 yrs." },
-      "E": { Age: "4-9 yrs." },
-      "F": { Age: "9-15 yrs." },
-      "G": { general: "Growth", Age: "15-20 yrs.", Height: "5'3\"", "Lost Items": "Bathroom", "Body Parts": "Groin", Colors: "Gold / Green / Grey / Glow", constellation: "Ursa Minor" },
-      "H": { Age: "20-25 yrs." },
-      "I": { Age: "25-30 yrs." },
-      "J": { Age: "30-35 yrs.", Time: "2:00 PM" },
-      "K": { Age: "35-40 yrs." },
-      "L": { Age: "40-45 yrs." },
-      "M": { Age: "45-50 yrs." },
-      "N": { general: "Top center-right (handbook letter N in chosen category)", Age: "50-55 yrs." },
-      "O": { Age: "55-60 yrs." },
-      "P": { Age: "60-65 yrs." },
-      "Q": { Age: "65-70 yrs." },
-      "R": { Age: "70-75 yrs." },
-      "S": { Age: "75-80 yrs.", Relationships: "Step-brother" },
-      "T": { Age: "80-85 yrs." },
-      "U": { Age: "85-90 yrs." },
-      "V": { Age: "90-95 yrs." },
-      "W": { general: "Wisdom", Age: "95-100 yrs.", time_modifier: true },
-      "X": { Age: "100-105 yrs." },
-      "Y": { Age: "105-110 yrs." },
-      "Z": { Age: "Spirit Form" },
-      "0": { general: "Nothing / reset / void / complete cycle" },
-      "1": { general: "New beginning / independence / leadership" },
-      "2": { general: "Partnership / balance / choice" },
-      "3": { general: "Creativity / communication / growth" },
-      "4": { general: "Stability / foundation / structure" },
-      "5": { general: "Change / adventure / freedom" },
-      "6": { general: "Harmony / responsibility / family" },
-      "7": { general: "Introspection / spirituality / wisdom" },
-      "8": { general: "Power / abundance / karma" },
-      "9": { general: "Completion / release / humanitarian" },
-      "10": { general: "New cycle begins" },
-      "11m": { general: "November — your power month (strong supportive energy)" },
-      "12": { general: "Full year / completion of a cycle" },
-    };
-    return { id, general: `Mystery of ${id}`, ...(special[id] || {}) };
-  }),
+  outer: ROOTED_CARDS_DATA.map(c => ({
+    id: c.id,
+    name: c.name,
+    general: `${c.name} (${c.symbol}): ${c.meaning}`
+  })),
   middle: [
     { id: "🍷", meaning: "Drink" },
     { id: "✈️", meaning: "Travel" },
@@ -125,9 +135,7 @@ export default function Pendulum() {
   const getSegmentText = (ring, index) => {
     if (ring === 'outer') {
       const item = WHEEL_DATA.outer[index];
-      if (category === 'Time' && item.Time) return item.Time;
-      if (category !== 'General' && item[category]) return item[category];
-      return item.general || item.id;
+      return item.name || item.id;
     }
     if (ring === 'middle') return WHEEL_DATA.middle[index].meaning;
     if (ring === 'inner') return WHEEL_DATA.inner[index].meaning;
@@ -148,7 +156,7 @@ export default function Pendulum() {
       The user has swung the pendulum and received the following elements:
       - Active Category: ${category}
       - Question: ${question || "General guidance"}
-      - Outer Ring (Core Theme): [${outerItem.id}] ${getSegmentText('outer', selectedIndices.outer)}
+      - Outer Ring (Core Theme): [${outerItem.id}] ${outerItem.general}
       - Middle Ring (Timing/Modifier): [${middleItem.id}] ${middleItem.meaning}
       - Inner Ring (Action/Guidance): [${innerItem.id}] ${innerItem.meaning}
 
