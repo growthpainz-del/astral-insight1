@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { isNetworkError } from "@/components/utils/isNetworkError";
 import { queueApiCall } from "@/components/utils/apiQueue";
 import AudioOrb from "@/components/reading/AudioOrb";
+import MoonPhaseWidget from "@/components/dashboard/MoonPhaseWidget";
 
 function DeckCard({ deck, isOwned = false }) {
   const navigate = useNavigate();
@@ -414,6 +415,11 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Lunar Cycle Widget */}
+      <div className="px-8 mb-12 max-w-7xl mx-auto">
+        <MoonPhaseWidget />
       </div>
 
       {/* Quick Actions */}
