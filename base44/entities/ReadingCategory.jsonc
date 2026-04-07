@@ -1,0 +1,63 @@
+{
+  "name": "ReadingCategory",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name of the category (e.g., Love, Career, Spiritual Growth)"
+    },
+    "description": {
+      "type": "string",
+      "description": "What this category focuses on"
+    },
+    "booster_symbols": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "description": "The emoji or text symbol (e.g., \ud83d\udddd\ufe0f, \ud83c\udf0a, \u23f3)"
+          },
+          "meaning": {
+            "type": "string",
+            "description": "The specific meaning of this symbol when drawn in this category"
+          }
+        },
+        "required": [
+          "symbol",
+          "meaning"
+        ]
+      },
+      "description": "The pool of random symbols and their exact meanings for this category"
+    },
+    "branch_1_title": {
+      "type": "string",
+      "default": "The Core Energy",
+      "description": "Title for the first branch of information"
+    },
+    "branch_2_title": {
+      "type": "string",
+      "default": "The Modifier",
+      "description": "Title for the second branch of information"
+    },
+    "branch_3_title": {
+      "type": "string",
+      "default": "The Outcome",
+      "description": "Title for the third branch of information"
+    },
+    "interpretation_instructions": {
+      "type": "string",
+      "description": "The exact text shown to the user instructing them how to synthesize and interpret these 3 branches themselves."
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "name",
+    "booster_symbols",
+    "interpretation_instructions"
+  ]
+}
