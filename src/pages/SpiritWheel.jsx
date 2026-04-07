@@ -343,73 +343,31 @@ export default function SpiritWheel() {
       const middleItem = wheelData.middle[selectedIndices.middle];
       const innerItem = wheelData.inner[selectedIndices.inner];
 
-      let cardText = "";
       let cardName = "";
       if (drawnCard) {
         cardName = drawnCard.name;
-        cardText = `Accompanying Card: ${drawnCard.name} (${drawnCard.overall_meaning || drawnCard.upright_meaning || "A mysterious force."})`;
       }
 
-      // Check if it's the Rooted Crescent Oracle deck (or if there's an accompanying card and we want a non-AI interpretation)
-      // Let's create a database-driven reading based on combinations
-      if (drawnCard && category) {
-        // Pseudo-database static reading generation
-        const coreTheme = outerItem.general.split(":")[0] || outerItem.id;
-        const timingModifier = middleItem.meaning;
-        const actionGuidance = innerItem.meaning;
-        
-        let staticReading = `Your reading focuses on ${category}. The core theme is ${coreTheme}. `;
-        
-        staticReading += `Your modifier indicates "${timingModifier}", suggesting the context of your situation. `;
-        staticReading += `Your action guidance is "${actionGuidance}". `;
-        
-        if (drawnCard) {
-          staticReading += `\nThe ${cardName} card has revealed itself: ${drawnCard.overall_meaning || drawnCard.upright_meaning || "Embrace its mystical energy."} `;
-        }
-        
-        staticReading += `\n\nReflect on how ${actionGuidance.toLowerCase()} can be integrated with ${coreTheme} regarding ${category.toLowerCase()}.`;
-        
-        // Wait a short moment to simulate fetching
-        await new Promise(resolve => setTimeout(resolve, 800));
-        setAiInterpretation(staticReading);
-      } else {
-        const prompt = `You are the official Spirit Wheel Oracle Reader for Astro Insights divination studio.
-
-        You interpret the digital Spirit Wheel with warmth, clarity, and spiritual insight. Style: empowering, grounded, mystical but practical. Keep every reading 3–5 sentences max.
-
-        The user has spun the wheel and received the following elements:
-        - Active Category: ${category}
-        - Outer Ring (Core Theme): [${outerItem.id}] ${outerItem.general}
-        - Middle Ring (Timing/Modifier): [${middleItem.id}] ${middleItem.meaning}
-        - Inner Ring (Action/Guidance): [${innerItem.id}] ${innerItem.meaning}
-        ${cardText ? '- ' + cardText : ''}
-
-        Instructions:
-        1. Recall the exact handbook meaning for these tiles in the chosen category.
-        2. Weave them together into a natural, personal reading tied to the category.
-        3. End with one clear action step or reflective question.
-        4. Do NOT just echo or repeat the inputs back. Write a cohesive, mystical narrative.
-        5. If the category is 'Zapped' or 'X-Rated', be direct and intense without softening the language.
-        
-        Official Category Guide Context:
-        - General: Broad everyday guidance. Any tile gives practical advice.
-        - Relationships: People, dynamics, or connections in your life (romance, family, daily circle).
-        - Age: Life stage or maturity level (A = New spirit, Z = Spirit form, everything between maps to age brackets). 
-        - Body Parts: Points to a specific physical area (head/mind, heart/chest, arms/hands, legs/feet, stomach/digestion, etc.) or health clue. 
-        - Numbers: Interpret as years, quantities, counts, or specific timing clues based on the exact number.
-        - Colors: Energy vibe of the color on the tile.
-        - Lost Items: Finding something missing. Tile gives location, timing, or clue.
-        - Height: Literal or figurative height.
-        - Time: Specific timing or duration.
-        - Astrology: Planetary timing and zodiac energy. The 9 planets influence Earth. Planets move at different speeds along the 12-sign Zodiac path (Aries to Pisces). Aspects strengthen or challenge energy.
-        - Emotions: Emotional state or heart energy around the question. Current feeling, positive/negative emotions, emotional block or release.
-        - Profiler: Personality profile of a person. Traits, strengths, weaknesses, energetic type, hidden side, or the role they play.
-        - Seasons and Shapes: Seasonal energy (Spring=growth, Summer=expansion, Fall=release, Winter=rest) or symbolic shapes (Circle=wholeness, Square=stability, Triangle=change, Spiral=evolution) for timing and form.
-        - Traveling: Journeys, movement, or travel energy. Physical trip, movement/progress in life, direction/destination, or safe/challenging travel.`;
-
-        const response = await base44.integrations.Core.InvokeLLM({ prompt });
-        setAiInterpretation(response.text || response);
+      // Database-driven reading based on combinations (Bypasses AI)
+      const coreTheme = outerItem.general.split(":")[0] || outerItem.id;
+      const timingModifier = middleItem.meaning;
+      const actionGuidance = innerItem.meaning;
+      
+      let staticReading = `Your reading focuses on ${category}. The core theme is ${coreTheme}. `;
+      
+      staticReading += `Your modifier indicates "${timingModifier}", suggesting the context of your situation. `;
+      staticReading += `Your action guidance is "${actionGuidance}". `;
+      
+      if (drawnCard) {
+        staticReading += `\nThe ${cardName} card has revealed itself: ${drawnCard.overall_meaning || drawnCard.upright_meaning || "Embrace its mystical energy."} `;
       }
+      
+      staticReading += `\n\nReflect on how ${actionGuidance.toLowerCase()} can be integrated with ${coreTheme} regarding ${category.toLowerCase()}.`;
+      
+      // Wait a short moment to simulate fetching
+      await new Promise(resolve => setTimeout(resolve, 800));
+      setAiInterpretation(staticReading);
+
     } catch (e) {
       console.error(e);
       setAiInterpretation("Failed to get interpretation.");
