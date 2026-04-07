@@ -19,7 +19,7 @@ export default function DidAgentEmbed({ agentId, clientKey, mode = "full", targe
     } catch (_) {}
 
     const id = agentId || (typeof localStorage !== 'undefined' && localStorage.getItem('did_live_agent_id')) || "v2_agt_hF1S2XwN";
-    const key = clientKey || (typeof localStorage !== 'undefined' && localStorage.getItem('did_client_key')) || "Z29vZ2xlLW9hdXRoMnwxMTU4Mjg4NTQ2NzM5OTExMjUyOTQ6UXpvMjZoZWFxd3ZSa3lXSmpvMHlM";
+    const key = clientKey || (typeof localStorage !== 'undefined' && localStorage.getItem('did_client_key')) || "Z3Jvd3RocGFpbnpAcHJvdG9ubWFpbC5jb20:Yqa0WDcNt6h-GiIHv1lS6";
 
     const script = document.createElement("script");
     script.type = "module";
