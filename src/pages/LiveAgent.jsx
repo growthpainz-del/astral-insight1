@@ -41,7 +41,7 @@ export default function LiveAgent() {
      const id = agentId || "v2_agt_hF1S2XwN";
 
      if (provider === "did") {
-       const key = "Z3Jvd3RocGFpbnpAcHJvdG9ubWFpbC5jb20:81RHy8AxIg8fZB5M61Sd8";
+       const key = "Z29vZ2xlLW9hdXRoMnwxMTU4Mjg4NTQ2NzM5OTExMjUyOTQ6UXpvMjZoZWFxd3ZSa3lXSmpvMHlM";
        const script = document.createElement("script");
        script.type = "module";
        script.src = "https://agent.d-id.com/v2/index.js";
