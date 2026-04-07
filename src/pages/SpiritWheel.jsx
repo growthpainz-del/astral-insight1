@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -64,13 +64,7 @@ const ROOTED_CARDS_DATA = [
   { id: "50", name: "The Jealous-Eye", symbol: "Eye with a small heart or trust symbol inside.", meaning: "Acknowledge jealousy to build trust." }
 ];
 
-const WHEEL_DATA = {
-  outer: ROOTED_CARDS_DATA.map(c => ({
-    id: c.id,
-    name: c.name,
-    general: `${c.name} (${c.symbol}): ${c.meaning}`
-  })),
-  middle: [
+const WHEEL_MIDDLE = [
     { id: "🍷", meaning: "Drink" },
     { id: "✈️", meaning: "Travel" },
     { id: "♂️", meaning: "Male" },
@@ -97,8 +91,9 @@ const WHEEL_DATA = {
     { id: "Grey", meaning: "Stability / neutral" },
     { id: "Orange", meaning: "Attraction / friendship" },
     { id: "Purple", meaning: "Intuition / psychic / spirit contact" }
-  ],
-  inner: [
+];
+
+const WHEEL_INNER = [
     { id: "🚪", meaning: "Option closed / path shut for now" },
     { id: "🔓", meaning: "Option open / path is clear" },
     { id: "❤️", meaning: "Love / heart connection" },
@@ -119,8 +114,7 @@ const WHEEL_DATA = {
     { id: "➡️", meaning: "East / that way" },
     { id: "⬇️", meaning: "South / that way" },
     { id: "⬅️", meaning: "West / that way" }
-  ]
-};
+];
 
 const CATEGORIES = ["General", "Relationships", "Numbers", "Age", "Body Parts", "Colors", "Lost Items", "Height", "Time", "Astrology", "Emotions", "Profiler", "Seasons and Shapes", "Traveling", "Zapped", "X-Rated"];
 
@@ -218,6 +212,28 @@ export default function SpiritWheel() {
   const [deckCards, setDeckCards] = useState([]);
   const [drawnCard, setDrawnCard] = useState(null);
 
+  const wheelData = React.useMemo(() => {
+    let outer = ROOTED_CARDS_DATA.map(c => ({
+      id: c.id,
+      name: c.name,
+      general: `${c.name} (${c.symbol}): ${c.meaning}`
+    }));
+
+    if (selectedDeckId !== "none" && deckCards.length > 0) {
+      outer = deckCards.map((c, i) => ({
+        id: c.number != null ? String(c.number) : String(i + 1),
+        name: c.name,
+        general: `${c.name}: ${c.overall_meaning || c.upright_meaning || (c.keywords ? c.keywords.join(', ') : "Mystical energy")}`
+      }));
+    }
+
+    return {
+      outer,
+      middle: WHEEL_MIDDLE,
+      inner: WHEEL_INNER
+    };
+  }, [deckCards, selectedDeckId]);
+
   useEffect(() => {
     const fetchDecks = async () => {
       try {
@@ -268,9 +284,9 @@ export default function SpiritWheel() {
       setDrawnCard(null);
     }
     
-    const outerLen = WHEEL_DATA.outer.length;
-    const middleLen = WHEEL_DATA.middle.length;
-    const innerLen = WHEEL_DATA.inner.length;
+    const outerLen = wheelData.outer.length;
+    const middleLen = wheelData.middle.length;
+    const innerLen = wheelData.inner.length;
 
     const newOuter = rotations.outer + 360 * 3 + Math.floor(Math.random() * outerLen) * (360 / outerLen);
     const newMiddle = rotations.middle - 360 * 3 - Math.floor(Math.random() * middleLen) * (360 / middleLen);
@@ -308,11 +324,11 @@ export default function SpiritWheel() {
 
   const getSegmentText = (ring, index) => {
     if (ring === 'outer') {
-      const item = WHEEL_DATA.outer[index];
+      const item = wheelData.outer[index];
       return item.name || item.id;
     }
-    if (ring === 'middle') return WHEEL_DATA.middle[index].meaning;
-    if (ring === 'inner') return WHEEL_DATA.inner[index].meaning;
+    if (ring === 'middle') return wheelData.middle[index].meaning;
+    if (ring === 'inner') return wheelData.inner[index].meaning;
     return "";
   };
 
@@ -323,9 +339,9 @@ export default function SpiritWheel() {
   const getInterpretation = async () => {
     setIsAiLoading(true);
     try {
-      const outerItem = WHEEL_DATA.outer[selectedIndices.outer];
-      const middleItem = WHEEL_DATA.middle[selectedIndices.middle];
-      const innerItem = WHEEL_DATA.inner[selectedIndices.inner];
+      const outerItem = wheelData.outer[selectedIndices.outer];
+      const middleItem = wheelData.middle[selectedIndices.middle];
+      const innerItem = wheelData.inner[selectedIndices.inner];
 
       let cardText = "";
       if (drawnCard) {
@@ -533,7 +549,7 @@ export default function SpiritWheel() {
                 <div className="p-4 bg-[#1c0f05] rounded-lg border border-[#5c3a21]">
                   <div className="text-sm text-amber-500/70 uppercase font-semibold mb-1 flex justify-between">
                     <span>Outer Ring</span>
-                    <span className="text-amber-300">[{WHEEL_DATA.outer[selectedIndices.outer].id}]</span>
+                    <span className="text-amber-300">[{wheelData.outer[selectedIndices.outer].id}]</span>
                   </div>
                   <div className="text-xl text-amber-50">{getSegmentText('outer', selectedIndices.outer)}</div>
                 </div>
@@ -541,7 +557,7 @@ export default function SpiritWheel() {
                 <div className="p-4 bg-[#1c0f05] rounded-lg border border-[#5c3a21]">
                   <div className="text-sm text-amber-500/70 uppercase font-semibold mb-1 flex justify-between">
                     <span>Middle Ring</span>
-                    <span className="text-amber-300">[{WHEEL_DATA.middle[selectedIndices.middle].id}]</span>
+                    <span className="text-amber-300">[{wheelData.middle[selectedIndices.middle].id}]</span>
                   </div>
                   <div className="text-xl text-amber-50">{getSegmentText('middle', selectedIndices.middle)}</div>
                 </div>
@@ -549,7 +565,7 @@ export default function SpiritWheel() {
                 <div className="p-4 bg-[#1c0f05] rounded-lg border border-[#5c3a21]">
                   <div className="text-sm text-amber-500/70 uppercase font-semibold mb-1 flex justify-between">
                     <span>Inner Ring</span>
-                    <span className="text-amber-300">[{WHEEL_DATA.inner[selectedIndices.inner].id}]</span>
+                    <span className="text-amber-300">[{wheelData.inner[selectedIndices.inner].id}]</span>
                   </div>
                   <div className="text-xl text-amber-50">{getSegmentText('inner', selectedIndices.inner)}</div>
                 </div>
@@ -633,8 +649,8 @@ export default function SpiritWheel() {
               animate={{ rotate: rotations.outer }}
               transition={{ duration: 4.5, type: "tween", ease: "circOut" }}
             >
-              {WHEEL_DATA.outer.map((item, i) => {
-                const angle = 360 / WHEEL_DATA.outer.length;
+              {wheelData.outer.map((item, i) => {
+                const angle = 360 / wheelData.outer.length;
                 return (
                 <div 
                   key={i} 
@@ -683,8 +699,8 @@ export default function SpiritWheel() {
               animate={{ rotate: rotations.middle }}
               transition={{ duration: 4.2, type: "tween", ease: "circOut" }}
             >
-              {WHEEL_DATA.middle.map((item, i) => {
-                const angle = 360 / WHEEL_DATA.middle.length;
+              {wheelData.middle.map((item, i) => {
+                const angle = 360 / wheelData.middle.length;
                 return (
                 <div 
                   key={i} 
@@ -736,8 +752,8 @@ export default function SpiritWheel() {
               animate={{ rotate: rotations.inner }}
               transition={{ duration: 3.8, type: "tween", ease: "circOut" }}
             >
-              {WHEEL_DATA.inner.map((item, i) => {
-                const angle = 360 / WHEEL_DATA.inner.length;
+              {wheelData.inner.map((item, i) => {
+                const angle = 360 / wheelData.inner.length;
                 return (
                 <div 
                   key={i} 
