@@ -574,9 +574,16 @@ export default function SpiritWheel() {
                 )}
                 
                 <Button onClick={getInterpretation} disabled={isAiLoading} className="w-full mt-6 bg-[#3b2313] hover:bg-[#4a2c18] border border-[#8b5a2b] text-lg py-6">
-                  {isAiLoading ? <RefreshCw className="w-5 h-5 mr-2 animate-spin text-amber-400" /> : <Sparkles className="w-5 h-5 mr-2 text-amber-400" />}
-                  Ask AI Oracle Engine
+                  {isAiLoading ? <RefreshCw className="w-5 h-5 mr-2 animate-spin text-amber-400" /> : <Eye className="w-5 h-5 mr-2 text-amber-400" />}
+                  Reveal Instant Reading
                 </Button>
+
+                <Link to={createPageUrl("AgentChat")} className="block mt-4">
+                  <Button className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 border border-purple-400/50 text-lg py-6 shadow-[0_0_15px_rgba(168,85,247,0.4)]">
+                    <Sparkles className="w-5 h-5 mr-2 text-purple-200" />
+                    Deep Dive with Oracle Chat (Premium)
+                  </Button>
+                </Link>
 
                 {aiInterpretation && (
                   <div className="mt-6 p-5 bg-[#0a0502] rounded-lg border border-[#8b5a2b] whitespace-pre-wrap text-base text-amber-100 leading-relaxed shadow-inner">
