@@ -167,6 +167,27 @@ export default function CreateDeck() {
   const [draftRestored, setDraftRestored] = React.useState(draft.hasDraft);
   const [deckData, setDeckData] = React.useState(draft.deckData);
   const [coachingAnswers, setCoachingAnswers] = React.useState(draft.coaching);
+  const [hasCreationLimit, setHasCreationLimit] = React.useState(false);
+  const [isLoadingAuth, setIsLoadingAuth] = React.useState(true);
+
+  React.useEffect(() => {
+    const checkLimits = async () => {
+      try {
+        const user = await base44Client.auth.me();
+        if (user && !user.is_premium) {
+          const myDecks = await base44Client.entities.Deck.filter({ created_by: user.email });
+          if (myDecks && myDecks.length >= 1) {
+            setHasCreationLimit(true);
+          }
+        }
+      } catch (error) {
+        console.error("Error checking limits:", error);
+      } finally {
+        setIsLoadingAuth(false);
+      }
+    };
+    checkLimits();
+  }, []);
   const [source, setSource] = React.useState(draft.source);
   const [jsonText, setJsonText] = React.useState(draft.jsonText);
   const jsonInputRef = React.useRef(null);
@@ -977,6 +998,36 @@ export default function CreateDeck() {
     window.addEventListener('error', handleError);
     return () => window.removeEventListener('error', handleError);
   }, []);
+
+  if (isLoadingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <Loader2 className="w-8 h-8 text-purple-400 animate-spin" />
+      </div>
+    );
+  }
+
+  if (hasCreationLimit) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white px-4 py-8 flex items-center justify-center">
+        <div className="max-w-md w-full bg-slate-900/90 border border-purple-500/30 rounded-xl p-8 text-center">
+          <Sparkles className="w-12 h-12 text-purple-400 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold mb-4">Unlock Unlimited Decks</h2>
+          <p className="text-white/70 mb-6">
+            Free members can create 1 personal deck. Upgrade your membership to create unlimited decks, get a base amount of tokens, and unlock premium features!
+          </p>
+          <div className="flex flex-col gap-3">
+            <Button onClick={() => navigate(createPageUrl("SubscriptionManagement"))} className="bg-purple-600 hover:bg-purple-700 w-full">
+              View Membership Plans
+            </Button>
+            <Button variant="outline" onClick={() => navigate(createPageUrl("Dashboard"))} className="border-white/20 text-white w-full hover:bg-white/10">
+              Return to Dashboard
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white px-4 py-8">

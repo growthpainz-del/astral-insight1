@@ -238,112 +238,73 @@ export default function SubscriptionManagement() {
           <p className="text-purple-300 mb-6">Better value, lower costs - choose the plan that fits your needs</p>
 
           {/* Subscription Tiers Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            {/* Mystic Tier */}
-            <div className="bg-gradient-to-br from-purple-900/40 to-purple-800/20 border-2 border-purple-500/40 rounded-xl p-6">
-              <h3 className="text-xl font-bold text-white mb-2">Mystic Tier</h3>
-              <div className="text-3xl font-bold text-purple-300 mb-1">$4.99</div>
-              <div className="text-sm text-purple-400 mb-4">/month</div>
-              <div className="bg-purple-900/30 rounded-lg p-3 mb-4">
-                <div className="text-2xl font-bold text-amber-400">50 tokens</div>
-                <div className="text-xs text-purple-300">per month</div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 max-w-3xl mx-auto">
+            {/* Free Basic */}
+            <div className="bg-gradient-to-br from-slate-800/40 to-slate-900/20 border-2 border-slate-600/40 rounded-xl p-6 relative flex flex-col">
+              <h3 className="text-xl font-bold text-white mb-2">Basic Access</h3>
+              <div className="text-3xl font-bold text-slate-300 mb-1">$0</div>
+              <div className="text-sm text-slate-400 mb-4">free forever</div>
+              <div className="bg-slate-900/30 rounded-lg p-3 mb-4">
+                <div className="text-xl font-bold text-white">Pay as you go</div>
+                <div className="text-xs text-slate-400">Buy tokens when you need them</div>
               </div>
-              <ul className="space-y-2 text-sm text-purple-200 mb-6">
+              <ul className="space-y-3 text-sm text-slate-200 mb-6 flex-1">
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" />
-                  <span>~50 AI readings</span>
+                  <span>Create <strong>1 Personal Deck</strong></span>
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" />
-                  <span>~25 AI images</span>
+                  <span>Access all official public decks</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" />
-                  <span>All basic features</span>
+                  <span>Buy tokens ad-hoc for AI features</span>
                 </li>
               </ul>
               <Button 
-                onClick={() => handleUpgrade("https://growthpainz.gumroad.com/l/ghsad")}
-                className="w-full bg-purple-600 hover:bg-purple-700"
+                disabled
+                className="w-full bg-slate-700 hover:bg-slate-800"
               >
-                Subscribe
+                Current Plan
               </Button>
             </div>
 
-            {/* Oracle Pro */}
-            <div className="bg-gradient-to-br from-blue-900/40 to-blue-800/20 border-2 border-blue-500/60 rounded-xl p-6 relative">
-              <div className="absolute -top-3 right-4 bg-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-full">
-                ⭐ POPULAR
+            {/* Creator Membership */}
+            <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/20 border-2 border-purple-500/60 rounded-xl p-6 relative flex flex-col">
+              <div className="absolute -top-3 right-4 bg-purple-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-[0_0_10px_rgba(168,85,247,0.5)]">
+                ⭐ UNLIMITED
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">Oracle Pro</h3>
-              <div className="text-3xl font-bold text-blue-300 mb-1">$12.99</div>
-              <div className="text-sm text-blue-400 mb-4">/month</div>
-              <div className="bg-blue-900/30 rounded-lg p-3 mb-4">
+              <h3 className="text-xl font-bold text-white mb-2">Creator Membership</h3>
+              <div className="text-3xl font-bold text-purple-300 mb-1">$9.99</div>
+              <div className="text-sm text-purple-400 mb-4">/month</div>
+              <div className="bg-purple-900/30 rounded-lg p-3 mb-4">
                 <div className="text-2xl font-bold text-amber-400">150 tokens</div>
-                <div className="text-xs text-blue-300">per month</div>
+                <div className="text-xs text-purple-300">included every month</div>
               </div>
-              <ul className="space-y-2 text-sm text-blue-200 mb-6">
+              <ul className="space-y-3 text-sm text-purple-200 mb-6 flex-1">
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" />
-                  <span>~150 AI readings</span>
+                  <span>Create <strong>unlimited decks</strong></span>
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" />
-                  <span>~75 AI images</span>
+                  <span>Publish decks to the community</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" />
-                  <span>Custom personas</span>
+                  <span>Custom AI reading coach personas</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" />
-                  <span>Fusion readings</span>
+                  <span>Discounted extra token packs</span>
                 </li>
               </ul>
               <Button 
                 onClick={() => handleUpgrade("https://growthpainz.gumroad.com/l/ibcai")}
-                className="w-full bg-blue-600 hover:bg-blue-700"
+                className="w-full bg-purple-600 hover:bg-purple-700 shadow-[0_0_15px_rgba(168,85,247,0.4)]"
               >
-                Subscribe
-              </Button>
-            </div>
-
-            {/* Creator Studio */}
-            <div className="bg-gradient-to-br from-amber-900/40 to-amber-800/20 border-2 border-amber-500/40 rounded-xl p-6">
-              <h3 className="text-xl font-bold text-white mb-2">Creator Studio</h3>
-              <div className="text-3xl font-bold text-amber-300 mb-1">$24.99</div>
-              <div className="text-sm text-amber-400 mb-4">/month</div>
-              <div className="bg-amber-900/30 rounded-lg p-3 mb-4">
-                <div className="text-2xl font-bold text-amber-400">400 tokens</div>
-                <div className="text-xs text-amber-300">per month</div>
-              </div>
-              <ul className="space-y-2 text-sm text-amber-200 mb-6">
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" />
-                  <span>~400 AI readings</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" />
-                  <span>~200 AI images</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" />
-                  <span>Bulk AI generation</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" />
-                  <span>Publish public decks</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" />
-                  <span>Commercial use</span>
-                </li>
-              </ul>
-              <Button 
-                onClick={() => handleUpgrade("https://growthpainz.gumroad.com/l/wxnje")}
-                className="w-full bg-amber-600 hover:bg-amber-700"
-              >
-                Subscribe
+                Become a Creator
               </Button>
             </div>
           </div>

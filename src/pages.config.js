@@ -56,7 +56,6 @@ import CardGallery from './pages/CardGallery';
 import CardInfo from './pages/CardInfo';
 import CardNames from './pages/CardNames';
 import CreateDeck from './pages/CreateDeck';
-import DIDDemo from './pages/DIDDemo';
 import Dashboard from './pages/Dashboard';
 import Deck from './pages/Deck';
 import DeckCreationWizard from './pages/DeckCreationWizard';
@@ -72,7 +71,6 @@ import Help from './pages/Help';
 import History from './pages/History';
 import Home from './pages/Home';
 import Journal from './pages/Journal';
-import LiveAgent from './pages/LiveAgent';
 import ManualsLibrary from './pages/ManualsLibrary';
 import MyFusions from './pages/MyFusions';
 import Persona from './pages/Persona';
@@ -108,7 +106,6 @@ export const PAGES = {
     "CardInfo": CardInfo,
     "CardNames": CardNames,
     "CreateDeck": CreateDeck,
-    "DIDDemo": DIDDemo,
     "Dashboard": Dashboard,
     "Deck": Deck,
     "DeckCreationWizard": DeckCreationWizard,
@@ -124,7 +121,6 @@ export const PAGES = {
     "History": History,
     "Home": Home,
     "Journal": Journal,
-    "LiveAgent": LiveAgent,
     "ManualsLibrary": ManualsLibrary,
     "MyFusions": MyFusions,
     "Persona": Persona,
