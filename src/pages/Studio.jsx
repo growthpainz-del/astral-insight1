@@ -139,18 +139,14 @@ export default function Studio() {
 
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      const allDecks = await queueApiCall(() => base44.entities.Deck.list("-created_date", 200));
+      const myDecksRes = await queueApiCall(() => base44.entities.Deck.filter({ created_by: user.email }, "-updated_date", 200));
       
-      const myPublished = (allDecks || []).filter(d => 
-        d.created_by && 
-        d.created_by.toLowerCase() === user.email?.toLowerCase() &&
-        (d.publish_status === "published" || !d.publish_status)
+      const myPublished = (myDecksRes || []).filter(d => 
+        d.publish_status === "published" || !d.publish_status
       );
 
-      const myDrafts = (allDecks || []).filter(d =>
-        d.created_by &&
-        d.created_by.toLowerCase() === user.email?.toLowerCase() &&
-        (d.publish_status === "draft" || d.publish_status === "pending_review" || d.publish_status === "rejected")
+      const myDrafts = (myDecksRes || []).filter(d =>
+        d.publish_status === "draft" || d.publish_status === "pending_review" || d.publish_status === "rejected"
       );
 
       setPublishedDecks(myPublished);
