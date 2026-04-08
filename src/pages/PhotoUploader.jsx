@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { UploadFile } from "@/integrations/Core";
 import { Button } from "@/components/ui/button";
@@ -30,6 +29,23 @@ export default function PhotoUploader() {
   const [matchMode, setMatchMode] = useState("none"); // none | number | name
   const [matching, setMatching] = useState(false);
   const [matchSummary, setMatchSummary] = useState(null);
+  
+  const [library, setLibrary] = useState([]);
+  const [isLoadingLibrary, setIsLoadingLibrary] = useState(true);
+
+  React.useEffect(() => {
+    (async () => {
+      try {
+        setIsLoadingLibrary(true);
+        const assets = await UploadAsset.list("-created_date", 100);
+        setLibrary(assets || []);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsLoadingLibrary(false);
+      }
+    })();
+  }, []);
 
   // add a small helper near the top of the component file
   const isValidFile = (f) => {
@@ -171,6 +187,7 @@ export default function PhotoUploader() {
 
         out.push({ name: f.name || `image_${i+1}`, url: file_url });
         setResults([...out]);
+        setLibrary(prev => [{ id: Date.now() + i, file_name: f.name || `image_${i+1}`, file_url }, ...prev]);
         setProgress(Math.round(((i + 1) / validFiles.length) * 100));
       }
     } catch (e) {
@@ -474,6 +491,41 @@ export default function PhotoUploader() {
             </div>
           </div>
         )}
+
+        <div className="pt-8 border-t border-white/10 space-y-4">
+          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+            <ImageIcon className="w-6 h-6 text-purple-400" />
+            Your Photo Library
+          </h2>
+          {isLoadingLibrary ? (
+            <div className="flex items-center justify-center py-10">
+              <Loader2 className="w-8 h-8 animate-spin text-purple-400" />
+            </div>
+          ) : library.length > 0 ? (
+            <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+              {library.map((asset, idx) => (
+                <div key={asset.id || idx} className="bg-white/5 border border-white/10 rounded-lg overflow-hidden group">
+                  <div className="aspect-square relative">
+                    <img src={asset.file_url} alt={asset.file_name} className="w-full h-full object-cover bg-black/40" />
+                    <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 p-4">
+                      <Button size="sm" variant="secondary" onClick={() => copyUrl(asset.file_url, `lib-${idx}`)} className="w-full text-xs">
+                        {copiedIndex === `lib-${idx}` ? <Check className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />} Copy URL
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="p-2 text-xs text-white/70 truncate text-center" title={asset.file_name}>
+                    {asset.file_name || "Unnamed Image"}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-10 text-white/50 bg-white/5 border border-white/10 rounded-xl">
+              <ImageIcon className="w-12 h-12 mx-auto mb-3 opacity-50" />
+              <p>No photos in your library yet.</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
