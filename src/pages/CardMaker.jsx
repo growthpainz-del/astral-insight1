@@ -11,6 +11,7 @@ import { createPageUrl } from "@/utils";
 
 export default function CardMaker() {
   const [imageSrc, setImageSrc] = useState(null);
+  const [originalImageFileUrl, setOriginalImageFileUrl] = useState("");
   const [cardName, setCardName] = useState("The Fool");
   const [frameStyle, setFrameStyle] = useState("classic_white");
   const [isUploading, setIsUploading] = useState(false);
@@ -61,12 +62,16 @@ export default function CardMaker() {
   }, [imageSrc, cardName, frameStyle]);
 
   const handleAiSuggest = async () => {
-    if (!canvasRef.current) return;
+    if (!originalImageFileUrl && !canvasRef.current) return;
     setIsSuggesting(true);
     try {
-      const blob = await new Promise(resolve => canvasRef.current.toBlob(resolve, 'image/jpeg', 0.9));
-      const file = new File([blob], 'scan.jpg', { type: 'image/jpeg' });
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      let file_url = originalImageFileUrl;
+      if (!file_url && canvasRef.current) {
+        const blob = await new Promise(resolve => canvasRef.current.toBlob(resolve, 'image/jpeg', 0.9));
+        const file = new File([blob], 'scan.jpg', { type: 'image/jpeg' });
+        const uploadRes = await base44.integrations.Core.UploadFile({ file });
+        file_url = uploadRes.file_url;
+      }
       
       const selectedDeck = decks.find(d => d.id === selectedDeckId);
       const deckContext = selectedDeck ? `The deck theme is "${selectedDeck.name}". Category: ${selectedDeck.category}. Description: ${selectedDeck.description || "N/A"}.` : "No specific deck theme, make it a general mystical oracle card.";
@@ -146,7 +151,7 @@ export default function CardMaker() {
     }
   };
 
-  const handleImageUpload = (e) => {
+  const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
@@ -156,6 +161,46 @@ export default function CardMaker() {
       setUploadedUrl("");
     };
     reader.readAsDataURL(file);
+
+    setIsSuggesting(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setOriginalImageFileUrl(file_url);
+      
+      const selectedDeck = decks.find(d => d.id === selectedDeckId);
+      const deckContext = selectedDeck ? `The deck theme is "${selectedDeck.name}". Category: ${selectedDeck.category}. Description: ${selectedDeck.description || "N/A"}.` : "No specific deck theme, make it a general mystical oracle card.";
+      
+      const res = await base44.integrations.Core.InvokeLLM({
+        prompt: `Analyze this image. Suggest a suitable oracle/tarot card name and meaningful interpretations. ${deckContext}`,
+        file_urls: [file_url],
+        response_json_schema: {
+          type: "object",
+          properties: {
+            name: { type: "string" },
+            subtitle: { type: "string" },
+            meaning: { type: "string" },
+            upright_meaning: { type: "string" },
+            reversed_meaning: { type: "string" },
+            keywords: { type: "array", items: { type: "string" } }
+          },
+          required: ["name", "meaning"]
+        }
+      });
+      
+      const parsed = typeof res === "string" ? JSON.parse(res) : res;
+      if (parsed && parsed.name) {
+        setCardName(parsed.name);
+        setCardSubtitle(parsed.subtitle || "");
+        setCardMeaning(parsed.meaning || "");
+        setUprightMeaning(parsed.upright_meaning || "");
+        setReversedMeaning(parsed.reversed_meaning || "");
+        setKeywords(parsed.keywords ? parsed.keywords.join(", ") : "");
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsSuggesting(false);
+    }
   };
 
   const drawCanvas = () => {
