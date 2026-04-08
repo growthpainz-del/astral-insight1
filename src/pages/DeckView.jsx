@@ -32,7 +32,8 @@ import {
   FileText, // ADDED: FileText icon for PDF manuals
   Send, // NEW: Added Send icon for Publishing
   Palette, // NEW: Added Palette icon for Style Extractor
-  AlertTriangle // ADDED: AlertTriangle for error state in Publishing tab
+  AlertTriangle, // ADDED: AlertTriangle for error state in Publishing tab
+  ListPlus
 } from "lucide-react";
 import {
   Accordion,
@@ -66,6 +67,7 @@ import AICoachEditor from "@/components/deck/AICoachEditor";
 import PublishingDashboard from "@/components/deck/PublishingDashboard";
 // NEW: Import StyleExtractor
 import StyleExtractor from "@/components/deck/StyleExtractor";
+import ReadingEngineEditor from "@/components/deck/ReadingEngineEditor";
 import ImageUrlDiagnostics from "@/components/deck/ImageUrlDiagnostics";
 import CardRelationshipVisualizer from "@/components/deck/CardRelationshipVisualizer";
 import DeckInsightsAnalyzer from "@/components/deck/DeckInsightsAnalyzer";
@@ -378,6 +380,17 @@ export default function DeckView() {
           >
             <Send className="w-4 h-4 mr-2" />
             Publishing
+          </Button>
+          <Button
+            variant={activeTab === "structuredReading" ? "default" : "ghost"}
+            onClick={() => {
+              console.log('🎯 Switching to Structured Reading tab');
+              setActiveTab("structuredReading");
+            }}
+            className={`${activeTab === "structuredReading" ? "bg-purple-600" : "text-white/70 hover:text-white"} whitespace-nowrap`}
+          >
+            <ListPlus className="w-4 h-4 mr-2" />
+            Reading Rules
           </Button>
         </div>
 
@@ -858,6 +871,19 @@ export default function DeckView() {
               </p>
               <ManualManager deckId={deck.id} />
             </div>
+          </div>
+        )}
+
+        {activeTab === "structuredReading" && (
+          <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+            <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+              <ListPlus className="w-6 h-6 text-purple-400" />
+              Reading Rules Engine
+            </h2>
+            <p className="text-white/60 mb-6 text-sm">
+              Define the categories, symbols, and logic for your deck's deterministic readings.
+            </p>
+            <ReadingEngineEditor deckId={deck.id} deck={deck} />
           </div>
         )}
 
