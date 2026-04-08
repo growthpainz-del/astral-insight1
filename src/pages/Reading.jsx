@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { motion, AnimatePresence } from "framer-motion";
 import { createPageUrl } from "@/utils";
+import { createPortal } from "react-dom";
 import {
   Shuffle,
   Save,
@@ -585,7 +586,7 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
       <DisablePullToRefresh targetSelector="main" threshold={30} />
       <div className="min-h-screen pb-32 md:pb-24 bg-gradient-to-br from-indigo-950 via-purple-950 to-slate-900">
       {/* Exit button (hidden/disabled when overlays open) */}
-      <div className={`fixed top-3 left-3 z-[100] ${showEnhancedViewer || showRelationshipsOverlay || showCompactSpreadOverlay || showSessionManager ? 'pointer-events-none opacity-60' : 'pointer-events-auto'}`}>
+      <div className={`fixed top-3 left-3 md:hidden z-[100] ${showEnhancedViewer || showRelationshipsOverlay || showCompactSpreadOverlay || showSessionManager ? 'pointer-events-none opacity-60' : 'pointer-events-auto'}`}>
         <Link to={createPageUrl("Dashboard")}>
           <Button
             size="sm"
@@ -945,23 +946,29 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
             )}
 
             {/* AI Reading Section */}
-            <AIReading
-              isOpen={showAI}
-              drawnCards={(placedCards.some(Boolean) ? placedCards : drawnCards).filter(Boolean)}
-              deck={deck}
-              spread={selectedSpread}
-              question={question}
-              onClose={() => setShowAI(false)}
-              onInterpretationReady={(text) => setAudioText(text)}
-            />
+            {typeof document !== 'undefined' ? createPortal(
+              <AIReading
+                isOpen={showAI}
+                drawnCards={(placedCards.some(Boolean) ? placedCards : drawnCards).filter(Boolean)}
+                deck={deck}
+                spread={selectedSpread}
+                question={question}
+                onClose={() => setShowAI(false)}
+                onInterpretationReady={(text) => setAudioText(text)}
+              />,
+              document.body
+            ) : null}
 
             {/* Structured Reading Modal */}
-            <StructuredReading
-              isOpen={showStructuredReading}
-              drawnCards={(placedCards.some(Boolean) ? placedCards : drawnCards).filter(Boolean)}
-              deck={deck}
-              onClose={() => setShowStructuredReading(false)}
-            />
+            {typeof document !== 'undefined' ? createPortal(
+              <StructuredReading
+                isOpen={showStructuredReading}
+                drawnCards={(placedCards.some(Boolean) ? placedCards : drawnCards).filter(Boolean)}
+                deck={deck}
+                onClose={() => setShowStructuredReading(false)}
+              />,
+              document.body
+            ) : null}
 
             {/* Card Relationships Section */}
             {(placedCards.filter(Boolean).length >= 2 || drawnCards.length >= 2) && (
@@ -998,7 +1005,7 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
       </div>
 
       {/* Relationships Overlay */}
-      {showRelationshipsOverlay && (
+      {showRelationshipsOverlay && typeof document !== 'undefined' ? createPortal(
         <div className="fixed inset-0 z-[9998] bg-black/80 backdrop-blur-sm p-4 md:p-8">
           <div className="relative max-w-6xl mx-auto bg-slate-900 rounded-xl border border-purple-500/30 p-4 md:p-6">
             <div className="flex items-center justify-between mb-4">
@@ -1009,13 +1016,14 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
             </div>
             <CardRelationshipVisualizer deckId={deck.id} cards={drawnCards} selectedCards={drawnCards} />
           </div>
-        </div>
-      )}
+        </div>,
+        document.body
+      ) : null}
 
 {/* Compact view only: removed overlay */}
 
        {/* Enhanced Card Viewer Modal - MOVED TO TOP LEVEL WITH HIGHER Z-INDEX */}
-      {viewerCard && showEnhancedViewer && (
+      {viewerCard && showEnhancedViewer && typeof document !== 'undefined' ? createPortal(
         <div className="fixed inset-0 z-[9999]">
           <EnhancedCardViewer
             card={viewerCard.card}
@@ -1029,24 +1037,28 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
               setViewerCard(null);
             }}
           />
-        </div>
-      )}
+        </div>,
+        document.body
+      ) : null}
 
       {/* Session Manager Modal */}
       <div className="mt-8 text-center text-xs text-white/70 bg-white/5 border border-white/10 rounded-lg p-3">
         Disclaimer: The readings and guidance provided are for entertainment purposes only and do not constitute professional advice.
       </div>
-      <ReadingSessionManager
-        isOpen={showSessionManager}
-        onClose={() => setShowSessionManager(false)}
-        deckId={deck?.id}
-        deckName={deck?.name}
-        spreadType={selectedSpread?.name}
-        question={question}
-        drawnCards={drawnCards}
-        interpretation={sessionNotes}
-        onSaved={handleSessionSaved}
-      />
+      {typeof document !== 'undefined' ? createPortal(
+        <ReadingSessionManager
+          isOpen={showSessionManager}
+          onClose={() => setShowSessionManager(false)}
+          deckId={deck?.id}
+          deckName={deck?.name}
+          spreadType={selectedSpread?.name}
+          question={question}
+          drawnCards={drawnCards}
+          interpretation={sessionNotes}
+          onSaved={handleSessionSaved}
+        />,
+        document.body
+      ) : null}
       </div>
       <AudioOrb 
         textToSpeak={audioText} 
