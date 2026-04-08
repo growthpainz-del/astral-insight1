@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Loader2, X, Sparkles, BookOpen, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { QUESTION_CATEGORIES } from "@/lib/cosmic-data";
+import CosmicSymbolSprite from "./CosmicSymbolSprite";
 
 export default function StructuredReading({ isOpen, drawnCards, deck, onClose }) {
   const [categories, setCategories] = useState([]);
@@ -179,6 +180,23 @@ export default function StructuredReading({ isOpen, drawnCards, deck, onClose })
                     <ChevronRight className="w-5 h-5" />
                     {result.branch_2?.title}
                   </h3>
+                  
+                  {result.cosmic_symbol && (
+                    <div className="mb-4 pl-7 flex items-center gap-4">
+                      <div className="flex-shrink-0 p-2 bg-black/40 border border-cyan-500/30 rounded-xl">
+                        <CosmicSymbolSprite name={result.cosmic_symbol.name} className="w-16 h-16" />
+                      </div>
+                      <div>
+                        <div className="text-sm text-cyan-300 font-semibold mb-1">
+                          Cosmic Symbol: {result.cosmic_symbol.name}
+                        </div>
+                        <p className="text-white/80 text-sm leading-snug">
+                          {result.cosmic_symbol.meaning}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
                   <p className="text-white/90 leading-relaxed pl-7 whitespace-pre-wrap">{result.branch_2?.content}</p>
                 </div>
 

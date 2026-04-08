@@ -112,11 +112,12 @@ Deno.serve(async (req) => {
         };
 
         let randomCosmicSymbolStr = "";
+        let cosmic_symbol = null;
         if (question_category) {
             const allSymbols = activeCosmicSymbols.flatMap(c => c.symbols || []);
             if (allSymbols.length > 0) {
-                const randomSymbol = allSymbols[Math.floor(Math.random() * allSymbols.length)];
-                randomCosmicSymbolStr = `Cosmic Symbol (${randomSymbol.name}): ${randomSymbol.meaning}\n(Applying to Focus Area: ${question_category})`;
+                cosmic_symbol = allSymbols[Math.floor(Math.random() * allSymbols.length)];
+                randomCosmicSymbolStr = `Cosmic Symbol (${cosmic_symbol.name}): ${cosmic_symbol.meaning}\n(Applying to Focus Area: ${question_category})`;
             }
         }
 
@@ -125,8 +126,7 @@ Deno.serve(async (req) => {
             title: category.branch_2_title || "The Modifiers",
             content: `Moon Phase: ${moonPhase} - ${moonMeaning}\n` + 
                      `Booster Symbols: \n` + 
-                     selectedBoosters.map(b => `${b.symbol} : ${b.meaning}`).join('\n') +
-                     (randomCosmicSymbolStr ? `\n\n${randomCosmicSymbolStr}` : "")
+                     selectedBoosters.map(b => `${b.symbol} : ${b.meaning}`).join('\n')
         };
 
         // Branch 3: The Supporting Action (Based on subsequent cards, their positions, or generalized guidance)
@@ -151,7 +151,8 @@ Deno.serve(async (req) => {
                 branch_2: branch2,
                 branch_3: branch3,
                 instructions: category.interpretation_instructions,
-                boosters_used: selectedBoosters
+                boosters_used: selectedBoosters,
+                cosmic_symbol: cosmic_symbol
             }
         });
 
