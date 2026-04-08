@@ -99,13 +99,16 @@ Deno.serve(async (req) => {
         }
 
         // 4. Construct the 3 Branches of Information
-        // Branch 1: The Core Energy (Based on the first card drawn)
+        // Branch 1: The Core Energy (Based on the first card drawn and its position)
         const primaryCard = drawnCards[0] || null;
+        let branch1Content = "No card drawn for core energy.";
+        if (primaryCard) {
+            const positionText = primaryCard.position ? ` (in position: ${primaryCard.position} - ${primaryCard.position_meaning || "Core Focus"})` : "";
+            branch1Content = `The ${primaryCard.name}${positionText} brings the primary focus: ${primaryCard.overall_meaning || primaryCard.upright_meaning}`;
+        }
         const branch1 = {
             title: category.branch_1_title || "The Core Energy",
-            content: primaryCard ? 
-                `The ${primaryCard.name} brings the primary focus: ${primaryCard.overall_meaning || primaryCard.upright_meaning}` : 
-                "No card drawn for core energy."
+            content: branch1Content
         };
 
         let randomCosmicSymbolStr = "";
@@ -126,13 +129,20 @@ Deno.serve(async (req) => {
                      (randomCosmicSymbolStr ? `\n\n${randomCosmicSymbolStr}` : "")
         };
 
-        // Branch 3: The Supporting Action (Based on subsequent cards or generalized guidance)
-        const secondaryCard = drawnCards[1] || null;
+        // Branch 3: The Supporting Action (Based on subsequent cards, their positions, or generalized guidance)
+        let branch3Content = "Rely on your boosters and core energy to determine your next steps.";
+        if (drawnCards.length > 1) {
+            const subsequentCards = drawnCards.slice(1);
+            branch3Content = subsequentCards.map((card, idx) => {
+                const posText = card.position ? ` (Position: ${card.position} - ${card.position_meaning || "Influence"})` : "";
+                return `${idx + 1}. ${card.name}${posText}: ${card.upright_action || card.upright_insight || card.overall_meaning || card.upright_meaning}`;
+            }).join('\n\n');
+            branch3Content = `The following forces provide supporting guidance and outcome indicators:\n\n${branch3Content}`;
+        }
+        
         const branch3 = {
             title: category.branch_3_title || "The Action / Outcome",
-            content: secondaryCard ? 
-                `The ${secondaryCard.name} provides supporting guidance: ${secondaryCard.upright_action || secondaryCard.upright_insight || secondaryCard.overall_meaning}` : 
-                "Rely on your boosters and core energy to determine your next steps."
+            content: branch3Content
         };
 
         return Response.json({
