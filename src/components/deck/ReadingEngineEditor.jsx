@@ -123,8 +123,19 @@ export default function ReadingEngineEditor({ deckId, deck }) {
       if (manualContext.length > 20000) manualContext = manualContext.substring(0, 20000) + "...(truncated)";
 
       const insightsContext = deck?.ai_deck_insights ? JSON.stringify(deck.ai_deck_insights, null, 2) : "None";
+      
+      let relationshipsContext = "None";
+      try {
+        const relationships = await base44.entities.CardRelationship.filter({ deck_id: deckId });
+        relationshipsContext = relationships?.length > 0 
+          ? JSON.stringify(relationships.map(r => ({ type: r.relationship_type, notes: r.custom_notes, themes: r.shared_themes })).slice(0, 30))
+          : "None";
+      } catch (err) {
+        console.error("Failed to load relationships for AI context", err);
+      }
 
       const prompt = `You are an expert oracle deck creator. Based on this deck's extensive details, manual, and AI insights, suggest a new Reading Category for a structured reading engine. Make sure the symbols and their meanings are highly relevant to the deck's unique themes, lore, and flavor.
+You MUST also cross-reference and consider the relationships between cards (if any) defined in the deck to inform the category structure and symbols.
 
 Deck Name: ${deck?.name || "Untitled"}
 Deck Description: ${deck?.description || "No description"}
@@ -136,13 +147,16 @@ ${insightsContext}
 Deck Manual Excerpt:
 ${manualContext || "None"}
 
+Card Relationships Overview (Sample):
+${relationshipsContext}
+
 A reading category needs:
 - name: e.g. "Love & Relationships", "Shadow Work"
 - description: What it focuses on
 - branch_1_title: The first card/concept (e.g. "The Core Energy", "Current State")
 - branch_2_title: The second card/concept/modifier (e.g. "The Obstacle", "Hidden Factor")
 - branch_3_title: The third card/concept/outcome (e.g. "The Outcome", "Next Step")
-- booster_symbols: An array of 10 thematic symbols (emojis) and their meanings tailored to this category's theme based on the manual and insights.
+- booster_symbols: An array of 10 thematic symbols (emojis) and their meanings tailored to this category's theme based on the manual, insights, and card relationships.
 - interpretation_instructions: How the user should combine these 3 branches and the booster symbol.
 
 Return a JSON matching the requested schema.`;
