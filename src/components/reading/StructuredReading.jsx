@@ -100,7 +100,7 @@ export default function StructuredReading({ isOpen, drawnCards, deck, onClose })
     if (!result) return;
     setIsGeneratingSummary(true);
     try {
-      const prompt = `Summarize this structured reading into a cohesive, encouraging 2-3 sentence insight:
+      const prompt = `Provide an overall message for this structured reading. Make it a cohesive, encouraging 2-3 sentence insight:
       Branch 1 (${result.branch_1?.title}): ${result.branch_1?.content}
       Branch 2 (${result.branch_2?.title}): ${result.branch_2?.content}
       Branch 3 (${result.branch_3?.title}): ${result.branch_3?.content}`;
@@ -266,7 +266,7 @@ export default function StructuredReading({ isOpen, drawnCards, deck, onClose })
                 {aiSummary ? (
                   <div className="bg-purple-900/20 border border-purple-500/30 rounded-xl p-5 mt-4">
                     <h3 className="text-sm font-bold text-purple-300 uppercase tracking-wider mb-2 flex items-center gap-2">
-                      <Sparkles className="w-4 h-4" /> AI Synthesis
+                      <Sparkles className="w-4 h-4" /> Overall Message
                     </h3>
                     <p className="text-purple-100/90 text-sm leading-relaxed">{aiSummary}</p>
                   </div>
@@ -279,7 +279,7 @@ export default function StructuredReading({ isOpen, drawnCards, deck, onClose })
                       className="border-purple-500/30 text-purple-300 hover:bg-purple-500/20 w-full sm:w-auto"
                     >
                       {isGeneratingSummary ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
-                      Synthesize with AI
+                      Get Overall Message
                     </Button>
                   </div>
                 )}
