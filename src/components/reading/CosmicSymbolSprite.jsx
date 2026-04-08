@@ -12,25 +12,29 @@ const WATER_SYMBOL_ORDER = [
   "Dolphin", "Seagull", "Turtle", "Jellyfish", "Saltwater", "Coral", "Breeze", "Horizon"
 ];
 
+const FIRE_URL = "https://media.base44.com/images/public/68d2a300021f94d0f312c039/3d2aef139_2D416EFE-59DD-4AF7-9F78-41BBAD40DBD5.jpg";
+const EARTH_URL = "https://media.base44.com/images/public/68d2a300021f94d0f312c039/dbc2870e2_6316F7F4-A8D5-4DF1-804E-2456112D7D2E.jpg";
+const WIND_URL = "https://media.base44.com/images/public/68d2a300021f94d0f312c039/413c41ba2_D91B387A-78B7-4CC3-A954-4BA5AF23FBA1.jpg";
+
 const ELEMENTAL_MAP = {
   // Fire
-  "Flame": { x: 48, y: 16 },
-  "Ember": { x: 68, y: 16 },
-  "Inferno": { x: 87, y: 16 },
-  "Phoenix": { x: 106, y: 16 },
-  "Spark": { x: 68, y: 16 }, // Fallback to Ember
+  "Flame": { url: FIRE_URL, x: 2, color: 'rgba(255, 100, 50, 0.6)' },
+  "Ember": { url: FIRE_URL, x: 26, color: 'rgba(255, 100, 50, 0.6)' },
+  "Inferno": { url: FIRE_URL, x: 50, color: 'rgba(255, 100, 50, 0.6)' },
+  "Spark": { url: FIRE_URL, x: 74, color: 'rgba(255, 100, 50, 0.6)' },
+  "Phoenix": { url: FIRE_URL, x: 98, color: 'rgba(255, 100, 50, 0.6)' },
   // Wind
-  "Gust": { x: 48, y: 50 },
-  "Breeze": { x: 68, y: 50 },
-  "Whirlwind": { x: 87, y: 50 },
-  "Feather": { x: 106, y: 50 },
-  "Sky": { x: 68, y: 50 }, // Fallback to Breeze
+  "Gust": { url: WIND_URL, x: 2, color: 'rgba(200, 200, 255, 0.6)' },
+  "Breeze": { url: WIND_URL, x: 26, color: 'rgba(200, 200, 255, 0.6)' },
+  "Whirlwind": { url: WIND_URL, x: 50, color: 'rgba(200, 200, 255, 0.6)' },
+  "Feather": { url: WIND_URL, x: 74, color: 'rgba(200, 200, 255, 0.6)' },
+  "Sky": { url: WIND_URL, x: 98, color: 'rgba(200, 200, 255, 0.6)' },
   // Earth
-  "Mountain": { x: 48, y: 86 },
-  "Tree": { x: 68, y: 86 },
-  "Stone": { x: 87, y: 86 },
-  "Seed": { x: 106, y: 86 },
-  "Soil": { x: 106, y: 86 }, // Fallback to Seed
+  "Mountain": { url: EARTH_URL, x: 2, color: 'rgba(100, 255, 100, 0.6)' },
+  "Tree": { url: EARTH_URL, x: 26, color: 'rgba(100, 255, 100, 0.6)' },
+  "Stone": { url: EARTH_URL, x: 50, color: 'rgba(100, 255, 100, 0.6)' },
+  "Seed": { url: EARTH_URL, x: 74, color: 'rgba(100, 255, 100, 0.6)' },
+  "Soil": { url: EARTH_URL, x: 98, color: 'rgba(100, 255, 100, 0.6)' },
 };
 
 export default function CosmicSymbolSprite({ name, className = "w-16 h-16" }) {
@@ -44,10 +48,10 @@ export default function CosmicSymbolSprite({ name, className = "w-16 h-16" }) {
         className={`inline-block rounded-full ${className}`} 
         title={name}
         style={{
-          backgroundImage: `url(https://media.base44.com/images/public/68d2a300021f94d0f312c039/166426d46_30AA78D8-58C5-4F34-9397-0481786F0F20.jpg)`,
-          backgroundSize: '750%',
-          backgroundPosition: `${pos.x}% ${pos.y}%`,
-          filter: 'invert(1) drop-shadow(0px 0px 6px rgba(255, 150, 50, 0.4))',
+          backgroundImage: `url(${pos.url})`,
+          backgroundSize: '530%',
+          backgroundPosition: `${pos.x}% 40%`,
+          filter: `drop-shadow(0px 0px 6px ${pos.color})`,
           backgroundColor: '#000'
         }}
       />
