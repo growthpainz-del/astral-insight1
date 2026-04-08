@@ -144,10 +144,50 @@ Deno.serve(async (req) => {
             }).join('\n\n');
             branch3Content = `The following forces provide supporting guidance and outcome indicators:\n\n${branch3Content}`;
         }
+
+        let relationshipsText = "";
+        if (drawnCards.length > 1) {
+            const relationshipPromises = [];
+            const pairs = [];
+            for (let i = 0; i < drawnCards.length; i++) {
+                for (let j = i + 1; j < drawnCards.length; j++) {
+                    const c1 = drawnCards[i].id || drawnCards[i].card_id;
+                    const c2 = drawnCards[j].id || drawnCards[j].card_id;
+                    const name1 = drawnCards[i].name;
+                    const name2 = drawnCards[j].name;
+                    if (c1 && c2) {
+                        const minId = c1 < c2 ? c1 : c2;
+                        const maxId = c1 > c2 ? c1 : c2;
+                        const relKey = `${minId}|${maxId}`;
+                        pairs.push({ name1, name2, relKey });
+                        relationshipPromises.push(
+                            base44.asServiceRole.entities.CardRelationship.filter({ deck_id: deck_id, relationship_key: relKey })
+                        );
+                    }
+                }
+            }
+            const relResults = await Promise.all(relationshipPromises);
+            
+            const relationshipDescriptions = [];
+            relResults.forEach((rels, index) => {
+                if (rels && rels.length > 0) {
+                    const pair = pairs[index];
+                    const rel = rels[0];
+                    const type = rel.relationship_type !== 'custom' ? rel.relationship_type : 'connected';
+                    const notes = rel.custom_notes ? ` (${rel.custom_notes})` : '';
+                    const shared = rel.shared_keywords && rel.shared_keywords.length > 0 ? ` [Shared: ${rel.shared_keywords.join(', ')}]` : '';
+                    relationshipDescriptions.push(`• ${pair.name1} & ${pair.name2}: ${type} relationship${notes}${shared}.`);
+                }
+            });
+
+            if (relationshipDescriptions.length > 0) {
+                relationshipsText = `\n\nDetected Card Relationships:\n${relationshipDescriptions.join('\n')}`;
+            }
+        }
         
         const branch3 = {
             title: category.branch_3_title || "The Action / Outcome",
-            content: branch3Content
+            content: branch3Content + relationshipsText
         };
 
         return Response.json({
