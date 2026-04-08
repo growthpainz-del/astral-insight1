@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, Plus, Trash2, Edit, Check, X, Sparkles, Wand2 } from "lucide-react";
+import { Loader2, Plus, Trash2, Edit, Check, X, Sparkles, Wand2, UploadCloud } from "lucide-react";
 import { toast } from "sonner";
 
 export default function ReadingEngineEditor({ deckId, deck }) {
@@ -30,6 +30,30 @@ export default function ReadingEngineEditor({ deckId, deck }) {
   useEffect(() => {
     if (deckId) loadCategories();
   }, [deckId]);
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const json = JSON.parse(event.target.result);
+        if (!json.question_categories && !json.cosmic_symbols) {
+          throw new Error("Missing required fields (question_categories or cosmic_symbols)");
+        }
+        setLoading(true);
+        await base44.entities.Deck.update(deckId, { engine_config: json });
+        toast.success("Engine configuration updated successfully!");
+      } catch(err) {
+        console.error(err);
+        toast.error("Invalid Engine Config JSON file.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = null; // reset input
+  };
 
   const handleAddNew = () => {
     setEditingCategory({
@@ -310,7 +334,19 @@ Return a JSON matching the requested schema.`;
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-3">
+        <div className="relative">
+          <input 
+            type="file" 
+            accept=".json" 
+            onChange={handleFileUpload} 
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            title="Upload Custom Engine Config JSON"
+          />
+          <Button variant="outline" className="border-purple-500/30 text-purple-200 hover:bg-purple-500/20">
+            <UploadCloud className="w-4 h-4 mr-2" /> Upload Engine Config
+          </Button>
+        </div>
         <Button onClick={handleAddNew} className="bg-purple-600 hover:bg-purple-700 text-white">
           <Plus className="w-4 h-4 mr-2" /> New Category
         </Button>

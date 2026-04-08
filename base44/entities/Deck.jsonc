@@ -1,0 +1,253 @@
+{
+  "name": "Deck",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name of the deck"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description of the deck and its purpose"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "tarot",
+        "oracle",
+        "lenormand",
+        "runes",
+        "custom"
+      ],
+      "default": "oracle",
+      "description": "Type of divination deck"
+    },
+    "author": {
+      "type": "string",
+      "description": "Creator or author of the deck"
+    },
+    "cover_image": {
+      "type": "string",
+      "description": "URL to the deck's cover image"
+    },
+    "back_image_url": {
+      "type": "string",
+      "description": "URL to the shared card back image"
+    },
+    "is_public": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this deck is publicly available to all users"
+    },
+    "is_premium": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this deck requires a premium subscription to use"
+    },
+    "publish_status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "pending_review",
+        "published",
+        "rejected"
+      ],
+      "default": "draft",
+      "description": "Publishing workflow status"
+    },
+    "submission_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the deck was submitted for review"
+    },
+    "review_notes": {
+      "type": "string",
+      "description": "Admin notes about why deck was approved or rejected"
+    },
+    "reviewed_by": {
+      "type": "string",
+      "description": "Email of admin who reviewed the deck"
+    },
+    "reviewed_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the deck was reviewed"
+    },
+    "ai_reading_coach": {
+      "type": "string",
+      "description": "AI coaching instructions specific to this deck - guides the AI on tone, philosophy, interpretation style, and special considerations when reading this deck"
+    },
+    "ai_deck_insights": {
+      "type": "object",
+      "description": "Comprehensive AI analysis of deck themes, style, and personality",
+      "properties": {
+        "common_themes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "archetypal_pairings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "cards": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "archetype": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "visual_style": {
+          "type": "object",
+          "properties": {
+            "color_palette": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "artistic_style": {
+              "type": "string"
+            },
+            "symbolism": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "mood": {
+              "type": "string"
+            }
+          }
+        },
+        "semantic_style": {
+          "type": "object",
+          "properties": {
+            "tone": {
+              "type": "string"
+            },
+            "language_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "philosophical_approach": {
+              "type": "string"
+            }
+          }
+        },
+        "deck_personality": {
+          "type": "string",
+          "description": "Overall personality and character of the deck"
+        },
+        "reading_style_suggestions": {
+          "type": "string",
+          "description": "How the deck's nature influences reading interpretations"
+        },
+        "relationship_dynamics": {
+          "type": "string",
+          "description": "How card relationships shape the deck's energy"
+        },
+        "generated_date": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When these insights were generated"
+        }
+      }
+    },
+    "manual_files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Display name for this manual file (e.g., 'Part 1 - Cards 1-20')"
+          },
+          "url": {
+            "type": "string",
+            "description": "URL to the uploaded PDF file"
+          },
+          "content": {
+            "type": "string",
+            "description": "Extracted text content from the PDF"
+          },
+          "uploaded_date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When this manual was uploaded"
+          }
+        },
+        "required": [
+          "name",
+          "url"
+        ]
+      },
+      "description": "Array of manual files associated with this deck"
+    },
+    "manual_url": {
+      "type": "string",
+      "description": "Legacy field - URL to the main manual (for backward compatibility)"
+    },
+    "manual_content": {
+      "type": "string",
+      "description": "Legacy field - content of the main manual (for backward compatibility)"
+    },
+    "censor_mode": {
+      "type": "string",
+      "enum": [
+        "none",
+        "click",
+        "scratch"
+      ],
+      "default": "none",
+      "description": "How card images are censored for this deck: none, click-to-reveal (blur), or scratch-to-reveal overlay."
+    },
+    "censor_overlay_opacity": {
+      "type": "number",
+      "default": 0.85,
+      "description": "Opacity for the scratch overlay (0-1). Higher is darker."
+    },
+    "censor_blur_amount": {
+      "type": "number",
+      "default": 20,
+      "description": "Blur amount in pixels for click-to-reveal mode."
+    },
+    "auto_remove_bg": {
+      "type": "boolean",
+      "default": false,
+      "description": "If true, uploaded images will attempt background removal by default."
+    },
+    "suggested_questions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Optional list of deck-themed question prompts shown to users before a reading"
+    },
+    "shuffle_animation_url": {
+      "type": "string",
+      "description": "URL to a short MP4/WebM or GIF (<=10s) that plays during the shuffle phase before cards appear"
+    },
+    "engine_config": {
+      "type": "object",
+      "description": "Custom JSON config for structured reading engine (question_categories, cosmic_symbols)",
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "name",
+    "category"
+  ]
+}

@@ -14,8 +14,16 @@ export default function StructuredReading({ isOpen, drawnCards, deck, onClose })
   const [isLoadingCategories, setIsLoadingCategories] = useState(false);
   
   const [isGenerating, setIsGenerating] = useState(false);
+
+  const activeQuestionCategories = deck?.engine_config?.question_categories || QUESTION_CATEGORIES;
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (activeQuestionCategories.length > 0 && !questionCategory) {
+      setQuestionCategory(activeQuestionCategories[0].name);
+    }
+  }, [activeQuestionCategories, questionCategory]);
 
   useEffect(() => {
     if (isOpen && deck?.id) {
@@ -32,7 +40,6 @@ export default function StructuredReading({ isOpen, drawnCards, deck, onClose })
       if (activeCategories.length > 0) {
         setSelectedCategoryId(activeCategories[0].id);
       }
-      setQuestionCategory(QUESTION_CATEGORIES[0].name);
     } catch (e) {
       console.error("Failed to load categories:", e);
     } finally {
@@ -50,6 +57,7 @@ export default function StructuredReading({ isOpen, drawnCards, deck, onClose })
     try {
       const response = await base44.functions.invoke("generateStructuredReading", {
         category_id: selectedCategoryId,
+        deck_id: deck.id,
         drawnCards: drawnCards,
         includeMoonPhase: true,
         question_category: questionCategory
@@ -134,7 +142,7 @@ export default function StructuredReading({ isOpen, drawnCards, deck, onClose })
                           <SelectValue placeholder="Select Focus Area" />
                         </SelectTrigger>
                         <SelectContent className="bg-slate-800 border-white/20 text-white">
-                          {QUESTION_CATEGORIES.map(cat => (
+                          {activeQuestionCategories.map(cat => (
                             <SelectItem key={cat.name} value={cat.name} className="py-2">
                               <div className="flex flex-col">
                                 <span className="font-semibold">{cat.name}</span>

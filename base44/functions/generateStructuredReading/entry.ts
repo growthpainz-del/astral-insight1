@@ -60,13 +60,17 @@ const COSMIC_SYMBOLS = [
 Deno.serve(async (req) => {
     try {
         const base44 = createClientFromRequest(req);
-        const { category_id, drawnCards, includeMoonPhase, question_category } = await req.json();
+        const { category_id, deck_id, drawnCards, includeMoonPhase, question_category } = await req.json();
 
         // 1. Get the category definition from the database
         const category = await base44.asServiceRole.entities.ReadingCategory.get(category_id);
         if (!category) {
             return Response.json({ error: "Category not found in database." }, { status: 404 });
         }
+
+        const deck = await base44.asServiceRole.entities.Deck.get(deck_id);
+        const engineConfig = deck?.engine_config || {};
+        const activeCosmicSymbols = engineConfig.cosmic_symbols?.categories || COSMIC_SYMBOLS;
 
         // 2. Randomly select booster symbols from this specific category
         const symbols = category.booster_symbols || [];
@@ -106,9 +110,11 @@ Deno.serve(async (req) => {
 
         let randomCosmicSymbolStr = "";
         if (question_category) {
-            const allSymbols = COSMIC_SYMBOLS.flatMap(c => c.symbols);
-            const randomSymbol = allSymbols[Math.floor(Math.random() * allSymbols.length)];
-            randomCosmicSymbolStr = `Cosmic Symbol (${randomSymbol.name}): ${randomSymbol.meaning}\n(Applying to Focus Area: ${question_category})`;
+            const allSymbols = activeCosmicSymbols.flatMap(c => c.symbols || []);
+            if (allSymbols.length > 0) {
+                const randomSymbol = allSymbols[Math.floor(Math.random() * allSymbols.length)];
+                randomCosmicSymbolStr = `Cosmic Symbol (${randomSymbol.name}): ${randomSymbol.meaning}\n(Applying to Focus Area: ${question_category})`;
+            }
         }
 
         // Branch 2: The Modifiers (Based on Moon Phase and Category Booster Symbols)
