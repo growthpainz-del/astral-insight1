@@ -36,7 +36,21 @@ export default function StructuredReading({ isOpen, drawnCards, deck, onClose })
     try {
       setIsLoadingCategories(true);
       const res = await base44.entities.ReadingCategory.filter({ deck_id: deck.id, is_active: true });
-      const activeCategories = res || [];
+      let activeCategories = res || [];
+      
+      if (activeCategories.length === 0) {
+        activeCategories = [{
+          id: "default",
+          name: "General Reading",
+          description: "Standard rules-based reading",
+          branch_1_title: "The Core Energy",
+          branch_2_title: "The Modifiers",
+          branch_3_title: "The Action / Outcome",
+          interpretation_instructions: "Synthesize these elements to answer your query.",
+          booster_symbols: []
+        }];
+      }
+      
       setCategories(activeCategories);
       if (activeCategories.length > 0) {
         setSelectedCategoryId(activeCategories[0].id);
@@ -56,8 +70,10 @@ export default function StructuredReading({ isOpen, drawnCards, deck, onClose })
     setResult(null);
 
     try {
+      const selectedCategory = categories.find(c => c.id === selectedCategoryId);
       const response = await base44.functions.invoke("generateStructuredReading", {
-        category_id: selectedCategoryId,
+        category_id: selectedCategoryId !== "default" ? selectedCategoryId : null,
+        category: selectedCategory,
         deck_id: deck.id,
         drawnCards: drawnCards,
         includeMoonPhase: true,

@@ -60,12 +60,17 @@ const COSMIC_SYMBOLS = [
 Deno.serve(async (req) => {
     try {
         const base44 = createClientFromRequest(req);
-        const { category_id, deck_id, drawnCards, includeMoonPhase, question_category } = await req.json();
+        const { category_id, category: providedCategory, deck_id, drawnCards, includeMoonPhase, question_category } = await req.json();
 
         // 1. Get the category definition from the database
-        const category = await base44.asServiceRole.entities.ReadingCategory.get(category_id);
+        let category = providedCategory;
+        if (category_id && category_id !== "default") {
+            const dbCategory = await base44.asServiceRole.entities.ReadingCategory.get(category_id);
+            if (dbCategory) category = dbCategory;
+        }
+
         if (!category) {
-            return Response.json({ error: "Category not found in database." }, { status: 404 });
+            return Response.json({ error: "Category not found." }, { status: 404 });
         }
 
         const deck = await base44.asServiceRole.entities.Deck.get(deck_id);
