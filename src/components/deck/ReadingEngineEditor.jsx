@@ -116,10 +116,25 @@ export default function ReadingEngineEditor({ deckId, deck }) {
   const handleAiSuggest = async () => {
     setIsAiGenerating(true);
     try {
-      const prompt = `You are an expert oracle deck creator. Based on this deck's details, suggest a new Reading Category for a structured reading engine. 
+      let manualContext = deck?.manual_content || "";
+      if (deck?.manual_files?.length > 0) {
+        manualContext += "\n" + deck.manual_files.map(f => f.content).filter(Boolean).join("\n\n");
+      }
+      if (manualContext.length > 20000) manualContext = manualContext.substring(0, 20000) + "...(truncated)";
+
+      const insightsContext = deck?.ai_deck_insights ? JSON.stringify(deck.ai_deck_insights, null, 2) : "None";
+
+      const prompt = `You are an expert oracle deck creator. Based on this deck's extensive details, manual, and AI insights, suggest a new Reading Category for a structured reading engine. Make sure the symbols and their meanings are highly relevant to the deck's unique themes, lore, and flavor.
+
 Deck Name: ${deck?.name || "Untitled"}
 Deck Description: ${deck?.description || "No description"}
 AI Reading Coach info: ${deck?.ai_reading_coach || "None"}
+
+Deck AI Insights:
+${insightsContext}
+
+Deck Manual Excerpt:
+${manualContext || "None"}
 
 A reading category needs:
 - name: e.g. "Love & Relationships", "Shadow Work"
@@ -127,7 +142,7 @@ A reading category needs:
 - branch_1_title: The first card/concept (e.g. "The Core Energy", "Current State")
 - branch_2_title: The second card/concept/modifier (e.g. "The Obstacle", "Hidden Factor")
 - branch_3_title: The third card/concept/outcome (e.g. "The Outcome", "Next Step")
-- booster_symbols: An array of 10 thematic symbols (emojis) and their meanings tailored to this category's theme.
+- booster_symbols: An array of 10 thematic symbols (emojis) and their meanings tailored to this category's theme based on the manual and insights.
 - interpretation_instructions: How the user should combine these 3 branches and the booster symbol.
 
 Return a JSON matching the requested schema.`;
