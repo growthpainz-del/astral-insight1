@@ -36,6 +36,7 @@ import EnhancedCardViewer from "@/components/reading/EnhancedCardViewer";
 import DisablePullToRefresh from "@/components/common/DisablePullToRefresh";
 import ShuffleAnimation from "@/components/reading/ShuffleAnimation";
 import AudioOrb from "@/components/reading/AudioOrb";
+import StructuredReading from "@/components/reading/StructuredReading";
 
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
@@ -203,6 +204,7 @@ export default function ReadingPage() {
   // (shelf disabled)
   const [selectedCard, setSelectedCard] = useState(null);
   const [showAI, setShowAI] = useState(false);
+  const [showStructuredReading, setShowStructuredReading] = useState(false);
   const [audioText, setAudioText] = useState("");
   
   const [isLoading, setIsLoading] = useState(true);
@@ -907,23 +909,38 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
             )}
 
             {/* AI Insight Button */}
-            {!showAI && (
+            {!showAI && !showStructuredReading && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="text-center"
+                className="flex flex-col sm:flex-row items-center justify-center gap-6 text-center"
               >
-                <Button
-                  onClick={() => setShowAI(true)}
-                  className="bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 hover:from-purple-700 hover:via-pink-700 hover:to-blue-700 text-white font-bold py-6 px-8 text-lg shadow-lg shadow-purple-500/50"
-                >
-                  <Sparkles className="w-6 h-6 mr-3" />
-                  Unlock Deep Insight
-                  <Sparkles className="w-6 h-6 ml-3" />
-                </Button>
-                <p className="text-purple-300 text-sm mt-3">
-                  Get AI-powered interpretation of your reading
-                </p>
+                <div className="flex flex-col items-center">
+                  <Button
+                    onClick={() => setShowAI(true)}
+                    className="bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 hover:from-purple-700 hover:via-pink-700 hover:to-blue-700 text-white font-bold py-6 px-8 text-lg shadow-lg shadow-purple-500/50 w-full sm:w-auto"
+                  >
+                    <Sparkles className="w-6 h-6 mr-3" />
+                    Unlock Deep Insight
+                    <Sparkles className="w-6 h-6 ml-3" />
+                  </Button>
+                  <p className="text-purple-300 text-sm mt-3">
+                    Get AI-powered interpretation of your reading
+                  </p>
+                </div>
+
+                <div className="flex flex-col items-center">
+                  <Button
+                    onClick={() => setShowStructuredReading(true)}
+                    className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white font-bold py-6 px-8 text-lg shadow-lg shadow-cyan-500/50 w-full sm:w-auto"
+                  >
+                    <BookOpen className="w-6 h-6 mr-3" />
+                    Structured Reading
+                  </Button>
+                  <p className="text-cyan-300 text-sm mt-3">
+                    Deterministic rules-based interpretation
+                  </p>
+                </div>
               </motion.div>
             )}
 
@@ -936,6 +953,14 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
               question={question}
               onClose={() => setShowAI(false)}
               onInterpretationReady={(text) => setAudioText(text)}
+            />
+
+            {/* Structured Reading Modal */}
+            <StructuredReading
+              isOpen={showStructuredReading}
+              drawnCards={(placedCards.some(Boolean) ? placedCards : drawnCards).filter(Boolean)}
+              deck={deck}
+              onClose={() => setShowStructuredReading(false)}
             />
 
             {/* Card Relationships Section */}
