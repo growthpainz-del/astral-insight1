@@ -1,9 +1,66 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
 
+const COSMIC_SYMBOLS = [
+    {
+      name: "Celestial Bodies",
+      description: "light, power, visibility",
+      symbols: [
+        { name: "Sun", meaning: "Vitality, conscious clarity, outward success" },
+        { name: "Moon", meaning: "Intuition, emotional tides, inner rhythms" },
+        { name: "Star", meaning: "Hope, distant guidance, unique spark" },
+        { name: "Comet", meaning: "Sudden insight, swift opportunity, fleeting message" }
+      ]
+    },
+    {
+      name: "Lunar Phases",
+      description: "cycles, timing, emotional flow",
+      symbols: [
+        { name: "New Moon", meaning: "Fresh beginnings, hidden potential, intention setting" },
+        { name: "Crescent Moon", meaning: "Building growth, subtle emergence" },
+        { name: "Full Moon", meaning: "Peak illumination, culmination, emotional height" },
+        { name: "Waning Moon", meaning: "Release, reflection, gentle closure" }
+      ]
+    },
+    {
+      name: "Planetary Forces",
+      description: "core drives, influences",
+      symbols: [
+        { name: "Mercury", meaning: "Quick thought, communication, agile mind" },
+        { name: "Venus", meaning: "Harmony, attraction, heart connections" },
+        { name: "Mars", meaning: "Courage, drive, focused action" },
+        { name: "Jupiter", meaning: "Expansion, opportunity, broader view" },
+        { name: "Saturn", meaning: "Structure, endurance, karmic lessons" }
+      ]
+    },
+    {
+      name: "Crystals & Gems",
+      description: "vibrational anchors, energetic tones",
+      symbols: [
+        { name: "Moonstone", meaning: "Gentle intuition, emotional flow, feminine rhythms" },
+        { name: "Amethyst", meaning: "Calm clarity, spiritual protection, higher awareness" },
+        { name: "Citrine", meaning: "Joyful expansion, personal power, bright abundance" },
+        { name: "Lapis Lazuli", meaning: "Truthful vision, ancient wisdom, clear expression" },
+        { name: "Rose Quartz", meaning: "Heart softening, compassionate connection, unconditional love" },
+        { name: "Clear Quartz", meaning: "Pure amplification, focused energy, universal clarity" }
+      ]
+    },
+    {
+      name: "Astral Phenomena & Ether",
+      description: "mystery, vastness, wonder",
+      symbols: [
+        { name: "Nebula", meaning: "Creative birth, swirling potential, cosmic clouds" },
+        { name: "Galaxy", meaning: "Interconnected destiny, vast patterns, collective story" },
+        { name: "Aurora", meaning: "Ethereal dance, shifting beauty, wonder in motion" },
+        { name: "Black Hole", meaning: "Deep pull, transformation, surrender to unknown" },
+        { name: "Constellation", meaning: "Soul mapping, pattern recognition, guiding stories" }
+      ]
+    }
+];
+
 Deno.serve(async (req) => {
     try {
         const base44 = createClientFromRequest(req);
-        const { category_id, drawnCards, includeMoonPhase } = await req.json();
+        const { category_id, drawnCards, includeMoonPhase, question_category } = await req.json();
 
         // 1. Get the category definition from the database
         const category = await base44.asServiceRole.entities.ReadingCategory.get(category_id);
@@ -47,12 +104,20 @@ Deno.serve(async (req) => {
                 "No card drawn for core energy."
         };
 
+        let randomCosmicSymbolStr = "";
+        if (question_category) {
+            const allSymbols = COSMIC_SYMBOLS.flatMap(c => c.symbols);
+            const randomSymbol = allSymbols[Math.floor(Math.random() * allSymbols.length)];
+            randomCosmicSymbolStr = `Cosmic Symbol (${randomSymbol.name}): ${randomSymbol.meaning}\n(Applying to Focus Area: ${question_category})`;
+        }
+
         // Branch 2: The Modifiers (Based on Moon Phase and Category Booster Symbols)
         const branch2 = {
             title: category.branch_2_title || "The Modifiers",
             content: `Moon Phase: ${moonPhase} - ${moonMeaning}\n` + 
                      `Booster Symbols: \n` + 
-                     selectedBoosters.map(b => `${b.symbol} : ${b.meaning}`).join('\n')
+                     selectedBoosters.map(b => `${b.symbol} : ${b.meaning}`).join('\n') +
+                     (randomCosmicSymbolStr ? `\n\n${randomCosmicSymbolStr}` : "")
         };
 
         // Branch 3: The Supporting Action (Based on subsequent cards or generalized guidance)

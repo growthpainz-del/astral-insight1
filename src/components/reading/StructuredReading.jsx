@@ -5,10 +5,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Loader2, X, Sparkles, BookOpen, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { QUESTION_CATEGORIES } from "@/lib/cosmic-data";
 
 export default function StructuredReading({ isOpen, drawnCards, deck, onClose }) {
   const [categories, setCategories] = useState([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
+  const [questionCategory, setQuestionCategory] = useState("");
   const [isLoadingCategories, setIsLoadingCategories] = useState(false);
   
   const [isGenerating, setIsGenerating] = useState(false);
@@ -30,6 +32,7 @@ export default function StructuredReading({ isOpen, drawnCards, deck, onClose })
       if (activeCategories.length > 0) {
         setSelectedCategoryId(activeCategories[0].id);
       }
+      setQuestionCategory(QUESTION_CATEGORIES[0].name);
     } catch (e) {
       console.error("Failed to load categories:", e);
     } finally {
@@ -48,7 +51,8 @@ export default function StructuredReading({ isOpen, drawnCards, deck, onClose })
       const response = await base44.functions.invoke("generateStructuredReading", {
         category_id: selectedCategoryId,
         drawnCards: drawnCards,
-        includeMoonPhase: true
+        includeMoonPhase: true,
+        question_category: questionCategory
       });
 
       if (response.data?.error) {
@@ -108,18 +112,39 @@ export default function StructuredReading({ isOpen, drawnCards, deck, onClose })
                     <p className="text-amber-200/70 text-sm mt-2">Add reading rules in the Deck Studio to use this feature.</p>
                   </div>
                 ) : (
-                  <div className="space-y-3">
-                    <Label className="text-white">Reading Category</Label>
-                    <Select value={selectedCategoryId} onValueChange={setSelectedCategoryId}>
-                      <SelectTrigger className="bg-black/30 border-white/20 text-white w-full">
-                        <SelectValue placeholder="Select Category" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-slate-800 border-white/20 text-white">
-                        {categories.map(cat => (
-                          <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label className="text-white">Reading Engine (Deck Specific)</Label>
+                      <Select value={selectedCategoryId} onValueChange={setSelectedCategoryId}>
+                        <SelectTrigger className="bg-black/30 border-white/20 text-white w-full">
+                          <SelectValue placeholder="Select Engine" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-slate-800 border-white/20 text-white">
+                          {categories.map(cat => (
+                            <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-white">Focus Area (Question Category)</Label>
+                      <Select value={questionCategory} onValueChange={setQuestionCategory}>
+                        <SelectTrigger className="bg-black/30 border-white/20 text-white w-full h-auto">
+                          <SelectValue placeholder="Select Focus Area" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-slate-800 border-white/20 text-white">
+                          {QUESTION_CATEGORIES.map(cat => (
+                            <SelectItem key={cat.name} value={cat.name} className="py-2">
+                              <div className="flex flex-col">
+                                <span className="font-semibold">{cat.name}</span>
+                                <span className="text-xs text-white/60">{cat.description}</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 )}
 
