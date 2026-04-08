@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Sparkles, RefreshCw, Eye, ChevronLeft } from 'lucide-react';
+import { Sparkles, RefreshCw, Eye, ChevronLeft, Save } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -127,6 +127,34 @@ export default function SpiritWheel() {
   const [selectedIndices, setSelectedIndices] = useState({ outer: 0, middle: 0, inner: 0 });
   const [aiInterpretation, setAiInterpretation] = useState("");
   const [isAiLoading, setIsAiLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSaveReading = async () => {
+    setIsSaving(true);
+    try {
+      await base44.entities.Reading.create({
+        title: `Spirit Wheel: ${category}`,
+        spread_type: "custom",
+        deck_id: selectedDeckId !== "none" ? selectedDeckId : "spirit_wheel",
+        cards_drawn: drawnCard ? [{
+          card_id: drawnCard.id || "0",
+          position: "1",
+          is_reversed: false,
+          card_name: drawnCard.name,
+          image_url: drawnCard.image_url
+        }] : [],
+        interpretation: aiInterpretation,
+        date: new Date().toISOString().split('T')[0],
+        category: "Spirit Wheel"
+      });
+      alert("Reading saved successfully!");
+    } catch (e) {
+      console.error(e);
+      alert("Failed to save reading.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const [themeId, setThemeId] = useState("wood");
   const [customTheme, setCustomTheme] = useState({
@@ -586,8 +614,20 @@ export default function SpiritWheel() {
                 </Link>
 
                 {aiInterpretation && (
-                  <div className="mt-6 p-5 bg-[#0a0502] rounded-lg border border-[#8b5a2b] whitespace-pre-wrap text-base text-amber-100 leading-relaxed shadow-inner">
-                    <div className="text-amber-500 text-sm font-bold uppercase mb-2">Oracle Interpretation</div>
+                  <div className="mt-6 p-5 bg-[#0a0502] rounded-lg border border-[#8b5a2b] whitespace-pre-wrap text-base text-amber-100 leading-relaxed shadow-inner relative">
+                    <div className="flex justify-between items-center mb-2">
+                      <div className="text-amber-500 text-sm font-bold uppercase">Oracle Interpretation</div>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={handleSaveReading}
+                        disabled={isSaving}
+                        className="bg-[#3b2313] hover:bg-[#4a2c18] border-[#8b5a2b] text-amber-400 h-8"
+                      >
+                        <Save className="w-4 h-4 mr-2" />
+                        {isSaving ? "Saving..." : "Save Reading"}
+                      </Button>
+                    </div>
                     {aiInterpretation}
                   </div>
                 )}

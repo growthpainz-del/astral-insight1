@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -25,8 +24,10 @@ import {
   BookOpen,
   Loader2, // New import for loading spinner
   Star, // New import for select item icons
-  Moon // New import for select item icons
+  Moon, // New import for select item icons
+  Save
 } from "lucide-react";
+import { base44 } from "@/api/base44Client";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import UpgradePrompt from "../components/pricing/UpgradePrompt";
@@ -169,6 +170,34 @@ export default function CosmicFusionsPage() { // Kept original component name
   const [reading, setReading] = useState(null);
   const [user, setUser] = useState(null);
   const [isDemoActive, setIsDemoActive] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSaveReading = async () => {
+    setIsSaving(true);
+    try {
+      await base44.entities.Reading.create({
+        title: `Cosmic Fusion for ${reading.name}`,
+        spread_type: "custom",
+        deck_id: selectedDeckId || "zodiac", 
+        cards_drawn: [{
+          card_id: reading.divinationItem.id || "0",
+          card_name: reading.divinationItem.name,
+          image_url: reading.divinationItem.image_url,
+          position: "1",
+          is_reversed: reading.divinationItem.orientation === 'reversed'
+        }],
+        interpretation: reading.aiReading,
+        date: new Date().toISOString().split('T')[0],
+        category: "Zodiac Reading"
+      });
+      alert("Reading saved successfully!");
+    } catch (e) {
+      console.error(e);
+      alert("Failed to save reading.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   // New state variables for deck selection
   const [decks, setDecks] = useState([]);
@@ -461,13 +490,23 @@ Address ${name} directly throughout. Make it personal, mystical, and practical. 
               <Stars className="w-8 h-8 text-purple-400" />
               Cosmic Fusions Reading
             </h1>
-            <Button
-              onClick={() => setReading(null)}
-              variant="outline"
-              className="border-gray-700 text-cyan-300 hover:bg-gray-800"
-            >
-              New Reading
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={handleSaveReading}
+                disabled={isSaving}
+                className="bg-purple-600 hover:bg-purple-700 text-white"
+              >
+                <Save className="w-4 h-4 mr-2" />
+                {isSaving ? "Saving..." : "Save Reading"}
+              </Button>
+              <Button
+                onClick={() => setReading(null)}
+                variant="outline"
+                className="border-gray-700 text-cyan-300 hover:bg-gray-800"
+              >
+                New Reading
+              </Button>
+            </div>
           </div>
 
           {/* Cosmic Elements Display */}

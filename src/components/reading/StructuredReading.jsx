@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Loader2, X, Sparkles, BookOpen, ChevronRight } from "lucide-react";
+import { Loader2, X, Sparkles, BookOpen, ChevronRight, Save } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { QUESTION_CATEGORIES } from "@/lib/cosmic-data";
 import CosmicSymbolSprite from "./CosmicSymbolSprite";
@@ -21,6 +21,36 @@ export default function StructuredReading({ isOpen, drawnCards, deck, onClose })
   const [error, setError] = useState("");
   const [aiSummary, setAiSummary] = useState("");
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSaveReading = async () => {
+    setIsSaving(true);
+    try {
+      const interpretationText = `Branch 1 (${result.branch_1?.title}): ${result.branch_1?.content}\n\nBranch 2 (${result.branch_2?.title}): ${result.branch_2?.content}\n\nBranch 3 (${result.branch_3?.title}): ${result.branch_3?.content}\n\nOverall Message: ${aiSummary}`;
+      
+      await base44.entities.Reading.create({
+        title: `Structured Reading: ${deck?.name || "Unknown"}`,
+        spread_type: "custom",
+        deck_id: deck?.id || "structured",
+        cards_drawn: drawnCards.map(c => ({
+          card_id: c.id || c.card_id || "0",
+          card_name: c.name || c.card_name,
+          image_url: c.image_url,
+          position: c.position ? c.position.toString() : "1",
+          is_reversed: !!c.is_reversed
+        })),
+        interpretation: interpretationText,
+        date: new Date().toISOString().split('T')[0],
+        category: "Structured Reading"
+      });
+      alert("Reading saved successfully!");
+    } catch (e) {
+      console.error(e);
+      alert("Failed to save reading.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   useEffect(() => {
     if (activeQuestionCategories.length > 0 && !questionCategory) {
@@ -304,9 +334,19 @@ export default function StructuredReading({ isOpen, drawnCards, deck, onClose })
                 </Button>
               </>
             ) : (
-              <Button onClick={() => setResult(null)} className="bg-cyan-600 hover:bg-cyan-700 text-white">
-                Read Again
-              </Button>
+              <>
+                <Button 
+                  onClick={handleSaveReading} 
+                  disabled={isSaving} 
+                  className="bg-purple-600 hover:bg-purple-700 text-white"
+                >
+                  <Save className="w-4 h-4 mr-2" />
+                  {isSaving ? "Saving..." : "Save Reading"}
+                </Button>
+                <Button onClick={() => setResult(null)} className="bg-cyan-600 hover:bg-cyan-700 text-white">
+                  Read Again
+                </Button>
+              </>
             )}
           </div>
         </motion.div>

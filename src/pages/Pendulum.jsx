@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, Sparkles, RefreshCw } from 'lucide-react';
+import { ChevronLeft, Sparkles, RefreshCw, Save } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import AudioOrb from "@/components/reading/AudioOrb";
@@ -131,6 +131,28 @@ export default function Pendulum() {
   const [answer, setAnswer] = useState(null);
   const [aiInterpretation, setAiInterpretation] = useState("");
   const [isAiLoading, setIsAiLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSaveReading = async () => {
+    setIsSaving(true);
+    try {
+      await base44.entities.Reading.create({
+        title: `Pendulum: ${category}${question ? ` - ${question}` : ''}`,
+        spread_type: "custom",
+        deck_id: "pendulum",
+        cards_drawn: [],
+        interpretation: aiInterpretation,
+        date: new Date().toISOString().split('T')[0],
+        category: "Pendulum"
+      });
+      alert("Reading saved successfully!");
+    } catch (e) {
+      console.error(e);
+      alert("Failed to save reading.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const getSegmentText = (ring, index) => {
     if (ring === 'outer') {
@@ -307,8 +329,20 @@ export default function Pendulum() {
                     Channeling interpretation...
                   </div>
                 ) : aiInterpretation && (
-                  <div className="p-5 bg-indigo-950/40 rounded-lg border border-indigo-500/50 whitespace-pre-wrap text-base text-amber-100 leading-relaxed shadow-inner">
-                    <div className="text-amber-500 text-sm font-bold uppercase mb-2">Oracle Interpretation</div>
+                  <div className="p-5 bg-indigo-950/40 rounded-lg border border-indigo-500/50 whitespace-pre-wrap text-base text-amber-100 leading-relaxed shadow-inner relative">
+                    <div className="flex justify-between items-center mb-2">
+                      <div className="text-amber-500 text-sm font-bold uppercase">Oracle Interpretation</div>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={handleSaveReading}
+                        disabled={isSaving}
+                        className="bg-indigo-900/50 hover:bg-indigo-800 border-indigo-500/50 text-amber-400 h-8"
+                      >
+                        <Save className="w-4 h-4 mr-2" />
+                        {isSaving ? "Saving..." : "Save Reading"}
+                      </Button>
+                    </div>
                     {aiInterpretation}
                   </div>
                 )}
