@@ -180,3 +180,43 @@ export const WATER_SYMBOLS = {
     }
   ]
 };
+
+export const ELEMENTAL_SYMBOLS = {
+  purpose: "Universal elemental cosmic symbols suitable for any deck manual or oracle reading engine",
+  description: "Broad, flexible meanings for Wind, Fire, and Earth. Designed to layer over any specific card without conflict. Complements the existing Water symbols.",
+  categories: [
+    {
+      name: "Wind",
+      description: "movement, intellect, communication, freedom",
+      symbols: [
+        { name: "Gust", number: 3184, meaning: "Sudden inspiration, swift change, fresh ideas" },
+        { name: "Breeze", number: 6729, meaning: "Gentle guidance, light refreshment, subtle shifts" },
+        { name: "Whirlwind", number: 1947, meaning: "Rapid transformation, chaotic energy, spinning perspectives" },
+        { name: "Feather", number: 5832, meaning: "Light truth, freedom of thought, delicate messages" },
+        { name: "Sky", number: 7461, meaning: "Expansive view, big-picture clarity, limitless potential" }
+      ]
+    },
+    {
+      name: "Fire",
+      description: "passion, energy, transformation, action",
+      symbols: [
+        { name: "Flame", number: 4298, meaning: "Spark of passion, directed energy, inner drive" },
+        { name: "Ember", number: 8153, meaning: "Smoldering potential, quiet power waiting to ignite" },
+        { name: "Inferno", number: 2674, meaning: "Intense transformation, burning away the old" },
+        { name: "Spark", number: 5931, meaning: "Sudden inspiration, quick action, creative ignition" },
+        { name: "Phoenix", number: 1386, meaning: "Rebirth through challenge, resilient rising" }
+      ]
+    },
+    {
+      name: "Earth",
+      description: "stability, growth, manifestation, grounding",
+      symbols: [
+        { name: "Mountain", number: 3749, meaning: "Endurance, unshakeable strength, steady presence" },
+        { name: "Tree", number: 6291, meaning: "Rooted growth, patient expansion, stable foundation" },
+        { name: "Stone", number: 1857, meaning: "Solid truth, reliability, timeless wisdom" },
+        { name: "Seed", number: 7468, meaning: "Latent potential, quiet beginnings, fertile possibility" },
+        { name: "Soil", number: 9124, meaning: "Nurturing ground, manifestation, rich cycles of life" }
+      ]
+    }
+  ]
+};
