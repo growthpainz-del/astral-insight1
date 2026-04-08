@@ -15,6 +15,8 @@ export default function CardMaker() {
   const [frameStyle, setFrameStyle] = useState("classic_white");
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedUrl, setUploadedUrl] = useState("");
+  const [cardMeaning, setCardMeaning] = useState("");
+  const [isSuggesting, setIsSuggesting] = useState(false);
   const canvasRef = useRef(null);
 
   // For saving directly to a deck
@@ -38,9 +40,11 @@ export default function CardMaker() {
     if (selectedDeckId && selectedDeckId !== "none") {
       base44.entities.Card.filter({ deck_id: selectedDeckId }).then(cards => {
         setDeckCards(cards || []);
+        setSelectedCardId("new");
       });
     } else {
       setDeckCards([]);
+      setSelectedCardId("");
     }
   }, [selectedDeckId]);
 
@@ -49,6 +53,43 @@ export default function CardMaker() {
       drawCanvas();
     }
   }, [imageSrc, cardName, frameStyle]);
+
+  const handleAiSuggest = async () => {
+    if (!canvasRef.current) return;
+    setIsSuggesting(true);
+    try {
+      const blob = await new Promise(resolve => canvasRef.current.toBlob(resolve, 'image/jpeg', 0.9));
+      const file = new File([blob], 'scan.jpg', { type: 'image/jpeg' });
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      
+      const selectedDeck = decks.find(d => d.id === selectedDeckId);
+      const deckContext = selectedDeck ? `The deck theme is "${selectedDeck.name}". Category: ${selectedDeck.category}. Description: ${selectedDeck.description || "N/A"}.` : "No specific deck theme, make it a general mystical oracle card.";
+      
+      const res = await base44.integrations.Core.InvokeLLM({
+        prompt: `Analyze this image. Suggest a suitable oracle/tarot card name and a meaningful interpretation/meaning. ${deckContext}`,
+        file_urls: [file_url],
+        response_json_schema: {
+          type: "object",
+          properties: {
+            name: { type: "string" },
+            meaning: { type: "string" }
+          },
+          required: ["name", "meaning"]
+        }
+      });
+      
+      const parsed = typeof res === "string" ? JSON.parse(res) : res;
+      if (parsed && parsed.name) {
+        setCardName(parsed.name);
+        setCardMeaning(parsed.meaning || "");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Failed to get AI suggestion.");
+    } finally {
+      setIsSuggesting(false);
+    }
+  };
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -170,13 +211,26 @@ export default function CardMaker() {
       const file = new File([blob], `${cardName.replace(/\\s+/g, '_')}_cardified.jpg`, { type: 'image/jpeg' });
 
       // 2. Upload using Core integration
-      const { file_url } = await UploadFile({ file });
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
       setUploadedUrl(file_url);
 
       // 3. Attach to card if selected
-      if (selectedCardId && selectedCardId !== "none") {
-        await base44.entities.Card.update(selectedCardId, { image_url: file_url });
-        alert("Image uploaded and attached to card!");
+      if (selectedDeckId && selectedDeckId !== "none") {
+        if (selectedCardId && selectedCardId !== "none" && selectedCardId !== "new") {
+          await base44.entities.Card.update(selectedCardId, { 
+            image_url: file_url,
+            overall_meaning: cardMeaning || undefined 
+          });
+          alert("Image and meaning attached to card!");
+        } else if (selectedCardId === "new") {
+          await base44.entities.Card.create({
+            deck_id: selectedDeckId,
+            name: cardName,
+            image_url: file_url,
+            overall_meaning: cardMeaning || undefined
+          });
+          alert("New card created in deck!");
+        }
       }
 
     } catch (error) {
@@ -221,7 +275,18 @@ export default function CardMaker() {
             {imageSrc && (
               <>
                 <div className="space-y-4 pt-4 border-t border-white/10">
-                  <Label className="text-lg text-white block">2. Customize Card</Label>
+                  <div className="flex items-center justify-between">
+                    <Label className="text-lg text-white block">2. Customize Card</Label>
+                    <Button 
+                      size="sm" 
+                      onClick={handleAiSuggest} 
+                      disabled={isSuggesting}
+                      className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg"
+                    >
+                      {isSuggesting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
+                      AI Suggest
+                    </Button>
+                  </div>
                   
                   <div>
                     <Label className="text-white/70">Card Name</Label>
@@ -230,6 +295,16 @@ export default function CardMaker() {
                       onChange={e => setCardName(e.target.value)} 
                       className="bg-black/40 border-white/20 mt-1"
                       placeholder="e.g. The Fool"
+                    />
+                  </div>
+
+                  <div>
+                    <Label className="text-white/70">Meaning (Optional)</Label>
+                    <textarea 
+                      value={cardMeaning} 
+                      onChange={e => setCardMeaning(e.target.value)} 
+                      className="flex min-h-[60px] w-full rounded-md border border-white/20 bg-black/40 px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-purple-500 disabled:cursor-not-allowed disabled:opacity-50 mt-1"
+                      placeholder="Card meaning..."
                     />
                   </div>
 
@@ -278,6 +353,7 @@ export default function CardMaker() {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="none">None</SelectItem>
+                          <SelectItem value="new">✨ Create New Card</SelectItem>
                           {deckCards.map(c => (
                             <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                           ))}
