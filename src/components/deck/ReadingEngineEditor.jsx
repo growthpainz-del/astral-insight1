@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, Plus, Trash2, Edit, Check, X, Sparkles, Wand2, UploadCloud } from "lucide-react";
+import { Loader2, Plus, Trash2, Edit, Check, X, Sparkles, Wand2, UploadCloud, FileJson } from "lucide-react";
 import { toast } from "sonner";
 
 export default function ReadingEngineEditor({ deckId, deck }) {
@@ -13,6 +13,27 @@ export default function ReadingEngineEditor({ deckId, deck }) {
   const [loading, setLoading] = useState(true);
   const [editingCategory, setEditingCategory] = useState(null);
   const [isAiGenerating, setIsAiGenerating] = useState(false);
+  const [showPasteConfig, setShowPasteConfig] = useState(false);
+  const [pasteConfigText, setPasteConfigText] = useState("");
+
+  const handlePasteConfig = async () => {
+    try {
+      const json = JSON.parse(pasteConfigText);
+      if (!json.question_categories && !json.cosmic_symbols) {
+        throw new Error("Missing required fields (question_categories or cosmic_symbols)");
+      }
+      setLoading(true);
+      await base44.entities.Deck.update(deckId, { engine_config: json });
+      toast.success("Engine configuration updated successfully!");
+      setShowPasteConfig(false);
+      setPasteConfigText("");
+    } catch(err) {
+      console.error(err);
+      toast.error("Invalid Engine Config JSON.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const loadCategories = async () => {
     try {
@@ -363,7 +384,10 @@ Return a JSON matching the requested schema.`;
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end gap-3">
+      <div className="flex justify-end gap-3 flex-wrap">
+        <Button variant="outline" onClick={() => setShowPasteConfig(!showPasteConfig)} className="border-purple-500/30 text-purple-200 hover:bg-purple-500/20">
+          <FileJson className="w-4 h-4 mr-2" /> Paste JSON
+        </Button>
         <div className="relative">
           <input 
             type="file" 
@@ -373,13 +397,36 @@ Return a JSON matching the requested schema.`;
             title="Upload Custom Engine Config JSON"
           />
           <Button variant="outline" className="border-purple-500/30 text-purple-200 hover:bg-purple-500/20">
-            <UploadCloud className="w-4 h-4 mr-2" /> Upload Engine Config
+            <UploadCloud className="w-4 h-4 mr-2" /> Upload JSON
           </Button>
         </div>
         <Button onClick={handleAddNew} className="bg-purple-600 hover:bg-purple-700 text-white">
           <Plus className="w-4 h-4 mr-2" /> New Category
         </Button>
       </div>
+
+      {showPasteConfig && (
+        <div className="bg-black/30 border border-purple-500/30 rounded-xl p-4 space-y-3">
+          <div className="flex justify-between items-center">
+            <Label className="text-white/80">Paste Engine Config JSON</Label>
+            <Button variant="ghost" size="icon" onClick={() => setShowPasteConfig(false)} className="text-white/50 hover:text-white h-6 w-6">
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
+          <Textarea 
+            value={pasteConfigText}
+            onChange={(e) => setPasteConfigText(e.target.value)}
+            placeholder='{"question_categories": [...], "cosmic_symbols": {...}}'
+            className="font-mono text-xs bg-black/40 border-white/10 text-white h-48"
+          />
+          <div className="flex justify-end">
+            <Button onClick={handlePasteConfig} disabled={!pasteConfigText.trim() || loading} className="bg-purple-600 hover:bg-purple-700 text-white">
+              {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Check className="w-4 h-4 mr-2" />}
+              Save JSON Config
+            </Button>
+          </div>
+        </div>
+      )}
 
       <div className="grid gap-4 md:grid-cols-2">
         {categories.map(cat => (
