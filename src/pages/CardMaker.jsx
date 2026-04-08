@@ -16,6 +16,11 @@ export default function CardMaker() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedUrl, setUploadedUrl] = useState("");
   const [cardMeaning, setCardMeaning] = useState("");
+  const [cardSubtitle, setCardSubtitle] = useState("");
+  const [cardNumber, setCardNumber] = useState("");
+  const [uprightMeaning, setUprightMeaning] = useState("");
+  const [reversedMeaning, setReversedMeaning] = useState("");
+  const [keywords, setKeywords] = useState("");
   const [isSuggesting, setIsSuggesting] = useState(false);
   const canvasRef = useRef(null);
 
@@ -66,13 +71,17 @@ export default function CardMaker() {
       const deckContext = selectedDeck ? `The deck theme is "${selectedDeck.name}". Category: ${selectedDeck.category}. Description: ${selectedDeck.description || "N/A"}.` : "No specific deck theme, make it a general mystical oracle card.";
       
       const res = await base44.integrations.Core.InvokeLLM({
-        prompt: `Analyze this image. Suggest a suitable oracle/tarot card name and a meaningful interpretation/meaning. ${deckContext}`,
+        prompt: `Analyze this image. Suggest a suitable oracle/tarot card name and meaningful interpretations. ${deckContext}`,
         file_urls: [file_url],
         response_json_schema: {
           type: "object",
           properties: {
             name: { type: "string" },
-            meaning: { type: "string" }
+            subtitle: { type: "string" },
+            meaning: { type: "string" },
+            upright_meaning: { type: "string" },
+            reversed_meaning: { type: "string" },
+            keywords: { type: "array", items: { type: "string" } }
           },
           required: ["name", "meaning"]
         }
@@ -81,7 +90,11 @@ export default function CardMaker() {
       const parsed = typeof res === "string" ? JSON.parse(res) : res;
       if (parsed && parsed.name) {
         setCardName(parsed.name);
+        setCardSubtitle(parsed.subtitle || "");
         setCardMeaning(parsed.meaning || "");
+        setUprightMeaning(parsed.upright_meaning || "");
+        setReversedMeaning(parsed.reversed_meaning || "");
+        setKeywords(parsed.keywords ? parsed.keywords.join(", ") : "");
       }
     } catch (e) {
       console.error(e);
@@ -216,18 +229,25 @@ export default function CardMaker() {
 
       // 3. Attach to card if selected
       if (selectedDeckId && selectedDeckId !== "none") {
+        const keywordsArray = keywords ? keywords.split(",").map(k => k.trim()).filter(Boolean) : undefined;
+        const updateData = {
+          image_url: file_url,
+          subtitle: cardSubtitle || undefined,
+          number: cardNumber !== "" ? Number(cardNumber) : undefined,
+          overall_meaning: cardMeaning || undefined,
+          upright_meaning: uprightMeaning || undefined,
+          reversed_meaning: reversedMeaning || undefined,
+          keywords: keywordsArray?.length > 0 ? keywordsArray : undefined
+        };
+        
         if (selectedCardId && selectedCardId !== "none" && selectedCardId !== "new") {
-          await base44.entities.Card.update(selectedCardId, { 
-            image_url: file_url,
-            overall_meaning: cardMeaning || undefined 
-          });
+          await base44.entities.Card.update(selectedCardId, updateData);
           alert("Image and meaning attached to card!");
         } else if (selectedCardId === "new") {
           await base44.entities.Card.create({
             deck_id: selectedDeckId,
             name: cardName,
-            image_url: file_url,
-            overall_meaning: cardMeaning || undefined
+            ...updateData
           });
           alert("New card created in deck!");
         }
@@ -288,24 +308,75 @@ export default function CardMaker() {
                     </Button>
                   </div>
                   
-                  <div>
-                    <Label className="text-white/70">Card Name</Label>
-                    <Input 
-                      value={cardName} 
-                      onChange={e => setCardName(e.target.value)} 
-                      className="bg-black/40 border-white/20 mt-1"
-                      placeholder="e.g. The Fool"
-                    />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-white/70">Card Name</Label>
+                      <Input 
+                        value={cardName} 
+                        onChange={e => setCardName(e.target.value)} 
+                        className="bg-black/40 border-white/20 mt-1"
+                        placeholder="e.g. The Fool"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-white/70">Subtitle</Label>
+                      <Input 
+                        value={cardSubtitle} 
+                        onChange={e => setCardSubtitle(e.target.value)} 
+                        className="bg-black/40 border-white/20 mt-1"
+                        placeholder="e.g. New Beginnings"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-white/70">Card Number</Label>
+                      <Input 
+                        type="number"
+                        value={cardNumber} 
+                        onChange={e => setCardNumber(e.target.value)} 
+                        className="bg-black/40 border-white/20 mt-1"
+                        placeholder="e.g. 0"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-white/70">Keywords (comma separated)</Label>
+                      <Input 
+                        value={keywords} 
+                        onChange={e => setKeywords(e.target.value)} 
+                        className="bg-black/40 border-white/20 mt-1"
+                        placeholder="e.g. journey, innocence"
+                      />
+                    </div>
                   </div>
 
                   <div>
-                    <Label className="text-white/70">Meaning (Optional)</Label>
+                    <Label className="text-white/70">Overall Meaning</Label>
                     <textarea 
                       value={cardMeaning} 
                       onChange={e => setCardMeaning(e.target.value)} 
                       className="flex min-h-[60px] w-full rounded-md border border-white/20 bg-black/40 px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-purple-500 disabled:cursor-not-allowed disabled:opacity-50 mt-1"
-                      placeholder="Card meaning..."
+                      placeholder="Overall card meaning..."
                     />
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-white/70">Upright Meaning</Label>
+                      <textarea 
+                        value={uprightMeaning} 
+                        onChange={e => setUprightMeaning(e.target.value)} 
+                        className="flex min-h-[60px] w-full rounded-md border border-white/20 bg-black/40 px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-purple-500 disabled:cursor-not-allowed disabled:opacity-50 mt-1"
+                        placeholder="Upright meaning..."
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-white/70">Reversed Meaning</Label>
+                      <textarea 
+                        value={reversedMeaning} 
+                        onChange={e => setReversedMeaning(e.target.value)} 
+                        className="flex min-h-[60px] w-full rounded-md border border-white/20 bg-black/40 px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-purple-500 disabled:cursor-not-allowed disabled:opacity-50 mt-1"
+                        placeholder="Reversed meaning..."
+                      />
+                    </div>
                   </div>
 
                   <div>
