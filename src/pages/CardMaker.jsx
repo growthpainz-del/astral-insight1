@@ -27,8 +27,9 @@ export default function CardMaker() {
     (async () => {
       const user = await base44.auth.me().catch(() => null);
       if (user?.email) {
-        const myDecks = await base44.entities.Deck.filter({ created_by: user.email });
-        setDecks(myDecks || []);
+        const allDecks = await base44.entities.Deck.list("-updated_date", 200);
+        const myDecks = (allDecks || []).filter(d => d.created_by?.toLowerCase() === user.email.toLowerCase());
+        setDecks(myDecks);
       }
     })();
   }, []);
@@ -261,7 +262,9 @@ export default function CardMaker() {
                         <SelectContent>
                           <SelectItem value="none">None</SelectItem>
                           {decks.map(d => (
-                            <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+                            <SelectItem key={d.id} value={d.id}>
+                              {d.name} {d.publish_status && d.publish_status !== "published" ? `(${d.publish_status})` : (!d.publish_status ? "(draft)" : "")}
+                            </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
