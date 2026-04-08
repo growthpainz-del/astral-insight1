@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Upload, Image as ImageIcon, Loader2, Sparkles, Download, ChevronLeft } from "lucide-react";
+import { Upload, Image as ImageIcon, Loader2, Sparkles, Wand2, Download, ChevronLeft } from "lucide-react";
 import { createPageUrl } from "@/utils";
 
 export default function CardMaker() {
@@ -22,6 +22,7 @@ export default function CardMaker() {
   const [reversedMeaning, setReversedMeaning] = useState("");
   const [keywords, setKeywords] = useState("");
   const [isSuggesting, setIsSuggesting] = useState(false);
+  const [isGeneratingDetails, setIsGeneratingDetails] = useState(false);
   const canvasRef = useRef(null);
 
   // For saving directly to a deck
@@ -101,6 +102,47 @@ export default function CardMaker() {
       alert("Failed to get AI suggestion.");
     } finally {
       setIsSuggesting(false);
+    }
+  };
+
+  const handleGenerateDetails = async () => {
+    setIsGeneratingDetails(true);
+    try {
+      const selectedDeck = decks.find(d => d.id === selectedDeckId);
+      const deckContext = selectedDeck ? `The deck theme is "${selectedDeck.name}". Category: ${selectedDeck.category}. Description: ${selectedDeck.description || "N/A"}.` : "No specific deck theme, make it a general mystical oracle card.";
+      
+      const prompt = `Write a deep, evocative, and meaningful interpretation for an oracle/tarot card.
+      Card Name: ${cardName || 'Unknown'}
+      Subtitle: ${cardSubtitle || 'None'}
+      Keywords: ${keywords || 'None'}
+      
+      ${deckContext}
+      `;
+
+      const res = await base44.integrations.Core.InvokeLLM({
+        prompt: prompt,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            overall_meaning: { type: "string", description: "Deep overall spiritual meaning of the card" },
+            upright_meaning: { type: "string", description: "What it means when drawn upright (actionable advice or insight)" },
+            reversed_meaning: { type: "string", description: "What it means when drawn reversed (blocked energy, shadow aspect, or internal reflection)" }
+          },
+          required: ["overall_meaning", "upright_meaning", "reversed_meaning"]
+        }
+      });
+      
+      const parsed = typeof res === "string" ? JSON.parse(res) : res;
+      if (parsed) {
+        if (parsed.overall_meaning) setCardMeaning(parsed.overall_meaning);
+        if (parsed.upright_meaning) setUprightMeaning(parsed.upright_meaning);
+        if (parsed.reversed_meaning) setReversedMeaning(parsed.reversed_meaning);
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Failed to generate details.");
+    } finally {
+      setIsGeneratingDetails(false);
     }
   };
 
@@ -349,7 +391,19 @@ export default function CardMaker() {
                   </div>
 
                   <div>
-                    <Label className="text-white/70">Overall Meaning</Label>
+                    <div className="flex items-center justify-between">
+                      <Label className="text-white/70">Overall Meaning</Label>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={handleGenerateDetails}
+                        disabled={isGeneratingDetails || !cardName}
+                        className="text-purple-300 hover:text-purple-100 hover:bg-purple-900/30 h-7 text-xs px-2"
+                      >
+                        {isGeneratingDetails ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Wand2 className="w-3 h-3 mr-1" />}
+                        AI Write Details
+                      </Button>
+                    </div>
                     <textarea 
                       value={cardMeaning} 
                       onChange={e => setCardMeaning(e.target.value)} 
