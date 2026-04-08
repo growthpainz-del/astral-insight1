@@ -174,15 +174,13 @@ export default function Dashboard() {
         }, 45000); // INCREASED to 45 seconds (was 30)
 
         // ENHANCED: Load decks with MORE retries and LONGER delays
-        const allDecks = await queueApiCall(
-          () => base44.entities.Deck.list("-updated_date", 500), 
-          8,     // INCREASED: 8 retries (was 5)
-          4000,  // INCREASED: 4s base delay (was 2s)
-          30000  // INCREASED: 30s timeout (was 15s default)
-        );
+        const [publicDecksRes, myDecksRes] = await Promise.all([
+          queueApiCall(() => base44.entities.Deck.filter({ is_public: true, publish_status: "published" }, "-updated_date", 100), 8, 4000, 30000),
+          currentUser ? queueApiCall(() => base44.entities.Deck.filter({ created_by: currentUser.email }, "-updated_date", 500), 8, 4000, 30000) : Promise.resolve([])
+        ]);
         
         if (cancelled) return;
-        console.log(`✅ Loaded ${allDecks?.length || 0} decks`);
+        console.log(`✅ Loaded decks`);
         
         // INCREASED: Longer delay between calls
         await new Promise(resolve => setTimeout(resolve, 1000)); // 1s (was 400ms)
@@ -198,31 +196,13 @@ export default function Dashboard() {
         if (cancelled) return;
         console.log(`✅ Loaded ${readings?.length || 0} readings`);
 
-        // Filter decks safely
-        const safeDecks = Array.isArray(allDecks) ? allDecks : [];
+        const safePublicDecks = Array.isArray(publicDecksRes) ? publicDecksRes : [];
+        const safeMyDecks = Array.isArray(myDecksRes) ? myDecksRes : [];
         
-        const publicDecksList = safeDecks.filter(d => 
-          d?.is_public && 
-          d?.publish_status === "published"
-        );
+        const publicDecksList = safePublicDecks;
         
-        // FIXED: Show ALL user's decks that aren't drafts
-        const myDecksList = currentUser 
-          ? safeDecks.filter(d => 
-              d?.created_by && 
-              d.created_by.toLowerCase() === currentUser.email?.toLowerCase() &&
-              d.publish_status === "published"
-            )
-          : [];
-
-        // FIXED: Only actual drafts and pending
-        const draftDecksList = currentUser
-          ? safeDecks.filter(d =>
-              d?.created_by &&
-              d.created_by.toLowerCase() === currentUser.email?.toLowerCase() &&
-              (d.publish_status === "draft" || d.publish_status === "pending_review" || d.publish_status === "rejected" || !d.publish_status)
-            )
-          : [];
+        const myDecksList = safeMyDecks.filter(d => d.publish_status === "published");
+        const draftDecksList = safeMyDecks.filter(d => d.publish_status === "draft" || d.publish_status === "pending_review" || d.publish_status === "rejected" || !d.publish_status);
 
 
 
