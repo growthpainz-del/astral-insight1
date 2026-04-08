@@ -72,6 +72,7 @@ import ImageUrlDiagnostics from "@/components/deck/ImageUrlDiagnostics";
 import CardRelationshipVisualizer from "@/components/deck/CardRelationshipVisualizer";
 import DeckInsightsAnalyzer from "@/components/deck/DeckInsightsAnalyzer";
 import PersonaFromInsights from "@/components/deck/PersonaFromInsights";
+import PrintReadyPDFExport from "@/components/deck/PrintReadyPDFExport";
 
 
 function ToolButton({ label, icon: Icon, onClick, className = "", asLink = false, to = "#" }) {
@@ -468,6 +469,7 @@ export default function DeckView() {
                     <Download className="w-4 h-4 mr-2" />
                     Export JSON
                   </Button>
+                  <PrintReadyPDFExport deck={deck} cards={cards} />
                 </div>
               </div>
             </div>
