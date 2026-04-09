@@ -315,18 +315,18 @@ export default function CardMaker() {
       setUploadedUrl(file_url);
 
       // 3. Attach to card if selected
+      const keywordsArray = keywords ? keywords.split(",").map(k => k.trim()).filter(Boolean) : undefined;
+      const updateData = {
+        image_url: file_url,
+        subtitle: cardSubtitle || undefined,
+        number: cardNumber !== "" ? Number(cardNumber) : undefined,
+        overall_meaning: cardMeaning || undefined,
+        upright_meaning: uprightMeaning || undefined,
+        reversed_meaning: reversedMeaning || undefined,
+        keywords: keywordsArray?.length > 0 ? keywordsArray : undefined
+      };
+      
       if (selectedDeckId && selectedDeckId !== "none") {
-        const keywordsArray = keywords ? keywords.split(",").map(k => k.trim()).filter(Boolean) : undefined;
-        const updateData = {
-          image_url: file_url,
-          subtitle: cardSubtitle || undefined,
-          number: cardNumber !== "" ? Number(cardNumber) : undefined,
-          overall_meaning: cardMeaning || undefined,
-          upright_meaning: uprightMeaning || undefined,
-          reversed_meaning: reversedMeaning || undefined,
-          keywords: keywordsArray?.length > 0 ? keywordsArray : undefined
-        };
-        
         if (selectedCardId && selectedCardId !== "none" && selectedCardId !== "new") {
           await base44.entities.Card.update(selectedCardId, updateData);
           alert("Image and meaning attached to card!");
@@ -338,6 +338,14 @@ export default function CardMaker() {
           });
           alert("New card created in deck!");
         }
+      } else {
+        // Save to Card Library (unassigned)
+        await base44.entities.Card.create({
+          deck_id: "unassigned",
+          name: cardName || "Untitled Card",
+          ...updateData
+        });
+        alert("Card saved to your Card Library!");
       }
 
     } catch (error) {
@@ -543,7 +551,7 @@ export default function CardMaker() {
 
                   {uploadedUrl && (
                     <div className="p-3 bg-green-900/20 border border-green-500/30 rounded-lg text-green-300 text-sm mt-4 text-center">
-                      Success! Image saved to your media library.
+                      Success! Card saved successfully.
                     </div>
                   )}
                 </div>

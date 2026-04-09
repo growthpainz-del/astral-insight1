@@ -27,7 +27,8 @@ import {
                     Sun,
                     Moon,
                     Laptop,
-                    Activity
+                    Activity,
+                    Library
                   } from "lucide-react";
 import {
         DropdownMenu,
@@ -352,6 +353,7 @@ export default function Layout({ children, currentPageName }) {
     { href: "CreateDeck", icon: Sprout, label: "Create Deck" },
     { href: "SpreadManager", icon: Layers, label: "Spreads" },
     { href: "PhotoUploader", icon: ImageIcon, label: "Photo Library" },
+    { href: "CardLibrary", icon: Library, label: "Card Library" },
     { href: "Persona", icon: Sparkles, label: "Persona" },
     { href: "AstralTest", icon: Activity, label: "Sensor Test" },
   ];

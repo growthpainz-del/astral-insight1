@@ -13,6 +13,7 @@ import SpiritWheel from '@/pages/SpiritWheel';
 import Pendulum from '@/pages/Pendulum';
 import PrivacyPolicy from '@/pages/PrivacyPolicy';
 import CardMaker from '@/pages/CardMaker';
+import CardLibrary from '@/pages/CardLibrary';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -69,6 +70,7 @@ const AuthenticatedApp = () => {
       <Route path="/Pendulum" element={<LayoutWrapper currentPageName="Pendulum"><Pendulum /></LayoutWrapper>} />
       <Route path="/PrivacyPolicy" element={<LayoutWrapper currentPageName="PrivacyPolicy"><PrivacyPolicy /></LayoutWrapper>} />
       <Route path="/CardMaker" element={<LayoutWrapper currentPageName="CardMaker"><CardMaker /></LayoutWrapper>} />
+      <Route path="/CardLibrary" element={<LayoutWrapper currentPageName="CardLibrary"><CardLibrary /></LayoutWrapper>} />
     </Routes>
   );
 };
