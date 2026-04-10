@@ -741,17 +741,48 @@ async function ensureCardsHavePrompts(dataObj, deckName) {
   return { ...dataObj, cards: result };
 }
 
-const CRESCENT_SKELETON = `[
-  {
-    "number": 1,
-    "title": "CARD TITLE",
-    "subtitle": "Overall theme or short description.",
-    "upright": "Upright meaning in 1-2 sentences.",
-    "reverse": "Reversed meaning in 1 sentence.",
-    "custom_notes": "Optional notes (e.g., linked hexagram).",
-    "keywords": ["tag1", "tag2", "tag3"]
-  }
-]`;
+const CRESCENT_SKELETON = `{
+  "deck_definition": {
+    "name": "My Deck Name",
+    "description": "Optional deck description",
+    "category": "oracle",
+    "author": "Your Name"
+  },
+  "card_definitions": [
+    {
+      "number": 1,
+      "name": "Card Name",
+      "subtitle": "Short tagline or subtitle",
+      "overall_meaning": "The general theme or overview of the card",
+      "upright_meaning": "Main upright interpretation",
+      "upright_insight": "Deeper psychological or spiritual insight",
+      "upright_action": "Advice or actionable steps",
+      "reversed_meaning": "Main reversed or shadow interpretation",
+      "reversed_insight": "Deeper shadow insight",
+      "reversed_action": "Advice for reversed state",
+      "keywords": ["keyword1", "keyword2", "keyword3"],
+      "element": "fire",
+      "ancient_wisdom": "Historical or esoteric connections",
+      "interaction": "How this card interacts with others",
+      "musician_quote": "An inspiring quote",
+      "facedown_meaning": "Meaning when drawn face down",
+      "custom_notes": "Private notes or instructions for the AI reading engine",
+      "image_url": "https://example.com/image.jpg",
+      "video_url": "https://example.com/video.mp4",
+      "frame_style": "classic_white",
+      "ai_image_prompt": "Prompt for AI image generation",
+      "ai_image_negative_prompt": "Negative prompt",
+      "ai_prompt_style": "Art style tags",
+      "custom_fields": {
+        "unique_aspect": {
+          "label": "Unique Aspect",
+          "value": "Some custom text",
+          "category": "other"
+        }
+      }
+    }
+  ]
+}`;
 
 
 const DEFAULT_ASPECT_RATIO = "9:16";
