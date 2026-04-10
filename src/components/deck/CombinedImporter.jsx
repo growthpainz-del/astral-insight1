@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -247,7 +246,7 @@ function extractCardsFromText(inputText) {
       if (salvagedItems) {
         obj = { cards: salvagedItems };
       } else {
-        const cardsMatch = t.match(/"cards"\s*:\s*(\[[\s\S]*?\])/);
+        const cardsMatch = t.match(/"cards"\s*:\s*(\[[\s\S]*?\])/) || t.match(/"card_definitions"\s*:\s*(\[[\s\S]*?\])/);
         const spreadsMatch = t.match(/"spreads"\s*:\s*(\[[\s\S]*?\])/);
         if (cardsMatch || spreadsMatch) {
           const salvage = {};
@@ -277,7 +276,9 @@ function extractCardsFromText(inputText) {
     rawParsedCards = obj;
   } else if (obj && Array.isArray(obj.cards)) {
     rawParsedCards = obj.cards;
-  } else if (obj && typeof obj === "object" && !obj.cards && !obj.spreads && Object.keys(obj).length > 0) {
+  } else if (obj && Array.isArray(obj.card_definitions)) {
+    rawParsedCards = obj.card_definitions;
+  } else if (obj && typeof obj === "object" && !obj.cards && !obj.spreads && !obj.card_definitions && Object.keys(obj).length > 0) {
     // If it's a single object that looks like a card (and not just a spreads wrapper)
     rawParsedCards = [obj];
   }
@@ -879,8 +880,8 @@ export default function CombinedImporter({ deckId, isOpen, onClose, onImportComp
       const globalCustom = [
         fullParsedObject?.persona ? `Persona: ${fullParsedObject.persona}` : null,
         fullParsedObject?.persona_prompt ? `Persona Prompt: ${fullParsedObject.persona_prompt}` : null,
-        fullParsedObject?.name ? `Deck: ${fullParsedObject.name}` : null,
-        fullParsedObject?.description ? `Description: ${fullParsedObject.description}` : null,
+        fullParsedObject?.name || fullParsedObject?.deck_definition?.name ? `Deck: ${fullParsedObject.name || fullParsedObject?.deck_definition?.name}` : null,
+        fullParsedObject?.description || fullParsedObject?.deck_definition?.description ? `Description: ${fullParsedObject.description || fullParsedObject?.deck_definition?.description}` : null,
         fullParsedObject?.notes ? `Notes: ${fullParsedObject.notes}` : null
       ].filter(Boolean).join("\n");
 
@@ -894,6 +895,7 @@ export default function CombinedImporter({ deckId, isOpen, onClose, onImportComp
       if (autoGeneratePrompts) {
         const deckNameHint =
           fullParsedObject?.deck?.name ||
+          fullParsedObject?.deck_definition?.name ||
           fullParsedObject?.name ||
           fullParsedObject?.deck_name ||
           deckName ||

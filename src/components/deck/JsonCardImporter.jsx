@@ -243,11 +243,19 @@ export default function JsonCardImporter({ deckId, onDone }) {
     setParsed([]);
     try {
       const data = JSON.parse(jsonText || "[]");
-      if (!Array.isArray(data)) {
-        setError("JSON must be an array of card objects.");
+      let cardArray = [];
+      if (Array.isArray(data)) {
+        cardArray = data;
+      } else if (data && Array.isArray(data.cards)) {
+        cardArray = data.cards;
+      } else if (data && Array.isArray(data.card_definitions)) {
+        cardArray = data.card_definitions;
+      } else {
+        setError("JSON must be an array of card objects, or have a 'cards' or 'card_definitions' array.");
         return;
       }
-      const cleaned = data
+      
+      const cleaned = cardArray
         .map((o) => (o && typeof o === "object" ? o : null))
         .filter(Boolean);
       if (cleaned.length === 0) {
