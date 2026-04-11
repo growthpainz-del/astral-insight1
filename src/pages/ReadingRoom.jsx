@@ -223,6 +223,12 @@ export default function ReadingRoom() {
         </h2>
         <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
           <QuickAction
+            label="Spirit Wheel"
+            icon={Sparkles}
+            to={createPageUrl("SpiritWheel")}
+            gradient="bg-gradient-to-br from-amber-700 to-orange-900"
+          />
+          <QuickAction
             label="Fusion Reading"
             icon={Combine}
             to={createPageUrl("FusionReading")}
