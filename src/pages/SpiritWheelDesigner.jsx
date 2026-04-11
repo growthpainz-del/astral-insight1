@@ -46,6 +46,18 @@ function RingEditor({ ringKey, segments, setSegments, deckCards }) {
 
   const addSegment = () => setSegments([...segments, { ...DEFAULT_SEGMENT }]);
 
+  const addAllCards = () => {
+    if (!deckCards || deckCards.length === 0) return;
+    const newSegments = deckCards.map(card => ({
+      label: card.name || "",
+      meaning: card.overall_meaning || card.upright_meaning || (card.keywords ? card.keywords.join(", ") : "") || card.name || "",
+      type: "card",
+      icon: card.spirit_wheel_icon_url || "",
+      card_id: card.id
+    }));
+    setSegments([...segments, ...newSegments]);
+  };
+
   const removeSegment = (i) => setSegments(segments.filter((_, idx) => idx !== i));
 
   const updateSegment = (i, field, value) => {
@@ -83,9 +95,16 @@ function RingEditor({ ringKey, segments, setSegments, deckCards }) {
           <h3 className="text-lg font-bold text-amber-300">{meta.label}</h3>
           <p className="text-xs text-amber-200/60">{meta.hint} — {segments.length} segments</p>
         </div>
-        <Button size="sm" onClick={addSegment} className="bg-amber-700 hover:bg-amber-600 text-white">
-          <Plus className="w-4 h-4 mr-1" /> Add Segment
-        </Button>
+        <div className="flex gap-2">
+          {deckCards && deckCards.length > 0 && (
+            <Button size="sm" variant="outline" onClick={addAllCards} className="border-amber-600/40 text-amber-300 hover:bg-amber-900/20">
+              <Sparkles className="w-4 h-4 mr-1" /> Add All Cards
+            </Button>
+          )}
+          <Button size="sm" onClick={addSegment} className="bg-amber-700 hover:bg-amber-600 text-white">
+            <Plus className="w-4 h-4 mr-1" /> Add Segment
+          </Button>
+        </div>
       </div>
 
       <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
