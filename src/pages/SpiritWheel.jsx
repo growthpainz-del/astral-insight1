@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Sparkles, RefreshCw, Eye, ChevronLeft, Save } from 'lucide-react';
+import { Sparkles, RefreshCw, Eye, ChevronLeft, Save, Plus } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -128,6 +128,7 @@ export default function SpiritWheel() {
   const [aiInterpretation, setAiInterpretation] = useState("");
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
 
   const handleSaveReading = async () => {
     setIsSaving(true);
@@ -281,6 +282,7 @@ export default function SpiritWheel() {
       try {
         const publicDecks = await base44.entities.Deck.filter({ is_public: true, publish_status: 'published' }, '-created_date', 100);
         const user = await base44.auth.me().catch(() => null);
+        setCurrentUser(user);
         let myDecks = [];
         let myWheels = [];
         let publicWheels = await base44.entities.SpiritWheelConfiguration.filter({ is_public: true }, '-created_date', 100);
@@ -542,11 +544,20 @@ export default function SpiritWheel() {
                 </SelectContent>
               </Select>
               
-              <Link to={createPageUrl("SpiritWheelDesigner")}>
-                <Button variant="outline" className="w-full bg-[#1c0f05] hover:bg-[#2d1b0d] border-[#5c3a21] text-amber-300 mb-4">
-                  <Sparkles className="w-4 h-4 mr-2" /> Open Wheel Designer
-                </Button>
-              </Link>
+              <div className="flex gap-2 mb-4">
+                <Link to={createPageUrl("SpiritWheelDesigner")} className="flex-1">
+                  <Button variant="outline" className="w-full bg-[#1c0f05] hover:bg-[#2d1b0d] border-[#5c3a21] text-amber-300">
+                    <Plus className="w-4 h-4 mr-2" /> New Wheel
+                  </Button>
+                </Link>
+                {selectedWheelId !== "default" && customWheels.find(w => w.id === selectedWheelId)?.created_by === currentUser?.email && (
+                  <Link to={`${createPageUrl("SpiritWheelDesigner")}?id=${selectedWheelId}`} className="flex-1">
+                    <Button variant="outline" className="w-full bg-[#1c0f05] hover:bg-[#2d1b0d] border-[#5c3a21] text-amber-300">
+                      <Sparkles className="w-4 h-4 mr-2" /> Edit Wheel
+                    </Button>
+                  </Link>
+                )}
+              </div>
 
               {selectedWheelId === "default" && (
                 <>

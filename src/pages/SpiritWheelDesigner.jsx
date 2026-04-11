@@ -342,6 +342,21 @@ export default function SpiritWheelDesigner() {
     base44.entities.Card.filter({ deck_id: deckId }).then(cards => setDeckCards(cards || []));
   }, [deckId]);
 
+  const handleDelete = async () => {
+    if (confirm("Are you sure you want to delete this wheel configuration?")) {
+      setIsSaving(true);
+      try {
+        await base44.entities.SpiritWheelConfiguration.delete(editId);
+        alert("Deleted successfully!");
+        navigate(createPageUrl("SpiritWheel"));
+      } catch (e) {
+        console.error(e);
+        alert("Failed to delete.");
+        setIsSaving(false);
+      }
+    }
+  };
+
   const handleSave = async () => {
     if (!name.trim()) { alert("Please give this wheel a name."); return; }
     setIsSaving(true);
@@ -440,6 +455,11 @@ export default function SpiritWheelDesigner() {
             <Button variant="outline" onClick={handleCopyJson} className="border-amber-600/40 text-amber-300 hover:bg-amber-900/20">
               <Copy className="w-4 h-4 mr-2" /> Copy JSON
             </Button>
+            {editId && (
+              <Button variant="outline" onClick={handleDelete} disabled={isSaving} className="border-red-600/40 text-red-400 hover:bg-red-900/20">
+                <Trash2 className="w-4 h-4 mr-2" /> Delete
+              </Button>
+            )}
             <Button onClick={handleSave} disabled={isSaving} className="bg-amber-600 hover:bg-amber-500 text-white">
               <Save className="w-4 h-4 mr-2" /> {isSaving ? "Saving..." : "Save"}
             </Button>
