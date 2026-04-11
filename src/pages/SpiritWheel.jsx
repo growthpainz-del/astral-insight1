@@ -130,6 +130,20 @@ const SEVEN_SISTERS_MODIFIERS = [
 
 const CATEGORIES = ["General", "Relationships", "Numbers", "Age", "Body Parts", "Colors", "Lost Items", "Height", "Time", "Astrology", "Emotions", "Profiler", "Seasons and Shapes", "Traveling", "Zapped", "X-Rated"];
 
+const isImageSymbol = (id) => {
+  if (typeof id !== 'string') return false;
+  const trimmed = id.trim();
+  return /^https?:\/\//i.test(trimmed) || /^data:image/i.test(trimmed) || /\.(png|jpe?g|gif|svg|webp)(\?.*)?$/i.test(trimmed);
+};
+
+const getImageUrl = (id) => {
+  let url = id.trim();
+  if (!/^https?:\/\//i.test(url) && !/^data:image/i.test(url)) {
+    url = 'https://' + url; // auto-prepend https if missing
+  }
+  return url;
+};
+
 export default function SpiritWheel() {
   const [category, setCategory] = useState("General");
   const [blankMode, setBlankMode] = useState(false);
@@ -143,20 +157,6 @@ export default function SpiritWheel() {
   const [currentUser, setCurrentUser] = useState(null);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [isCapturing, setIsCapturing] = useState(false);
-
-  const isImageSymbol = (id) => {
-    if (typeof id !== 'string') return false;
-    const trimmed = id.trim();
-    return /^https?:\/\//i.test(trimmed) || /^data:image/i.test(trimmed) || /\.(png|jpe?g|gif|svg|webp)(\?.*)?$/i.test(trimmed);
-  };
-  
-  const getImageUrl = (id) => {
-    let url = id.trim();
-    if (!/^https?:\/\//i.test(url) && !/^data:image/i.test(url)) {
-      url = 'https://' + url; // auto-prepend https if missing
-    }
-    return url;
-  };
 
   const handleDownloadImage = async () => {
     setIsCapturing(true);

@@ -88,23 +88,23 @@ const PRESET_SYMBOLS = [
   ...THEME_PACKS.chakras
 ];
 
+const isImageSymbol = (id) => {
+  if (typeof id !== 'string') return false;
+  const trimmed = id.trim();
+  return /^https?:\/\//i.test(trimmed) || /^data:image/i.test(trimmed) || /\.(png|jpe?g|gif|svg|webp)(\?.*)?$/i.test(trimmed);
+};
+
+const getImageUrl = (id) => {
+  let url = id.trim();
+  if (!/^https?:\/\//i.test(url) && !/^data:image/i.test(url)) {
+    url = 'https://' + url;
+  }
+  return url;
+};
+
 function RingEditor({ ringKey, segments, setSegments, deckCards }) {
   const meta = RING_LABELS[ringKey];
   const [isHarvesting, setIsHarvesting] = useState(false);
-
-  const isImageSymbol = (id) => {
-    if (typeof id !== 'string') return false;
-    const trimmed = id.trim();
-    return /^https?:\/\//i.test(trimmed) || /^data:image/i.test(trimmed) || /\.(png|jpe?g|gif|svg|webp)(\?.*)?$/i.test(trimmed);
-  };
-  
-  const getImageUrl = (id) => {
-    let url = id.trim();
-    if (!/^https?:\/\//i.test(url) && !/^data:image/i.test(url)) {
-      url = 'https://' + url;
-    }
-    return url;
-  };
 
   const addSegment = () => setSegments([...segments, { ...DEFAULT_SEGMENT }]);
 
