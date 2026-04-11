@@ -309,6 +309,18 @@ export default function SpiritWheelDesigner() {
   const [description, setDescription] = useState("");
   const [deckId, setDeckId] = useState("none");
   const [themeId, setThemeId] = useState("wood");
+  const [customTheme, setCustomTheme] = useState({
+    outerBg: "#e6b981", outerGrad: "#c48b53", outerBorder: "#2b1810",
+    middleBg: "#d4a373", middleGrad: "#b57a42", middleBorder: "#2b1810",
+    innerBg: "#b57a42", innerGrad: "#9c602d", innerBorder: "#2b1810",
+    hubBorder: "#2b1810", hubBg: "black",
+    textOuter: "#2b1810", textMiddle: "#2b1810", textInner: "#2b1810",
+    divider: "#2b1810", pin: "#e2e8f0",
+    textureUrl: "https://www.transparenttextures.com/patterns/wood-pattern.png",
+    pageBg: "#0f172a",
+    pageBgImage: "",
+    fontFamily: '"Comic Sans MS", "Chalkboard SE", "Comic Neue", sans-serif'
+  });
   const [isPublic, setIsPublic] = useState(false);
   const [publishStatus, setPublishStatus] = useState("published");
   const [outerRing, setOuterRing] = useState([]);
@@ -340,6 +352,7 @@ export default function SpiritWheelDesigner() {
             setDescription(config.description || "");
             setDeckId(config.deck_id || "none");
             setThemeId(config.theme_id || "wood");
+            if (config.custom_theme) setCustomTheme(config.custom_theme);
             setIsPublic(config.is_public || false);
             setPublishStatus(config.publish_status || "published");
             setOuterRing(config.outer_ring || []);
@@ -389,6 +402,7 @@ export default function SpiritWheelDesigner() {
         description,
         deck_id: deckId !== "none" ? deckId : null,
         theme_id: themeId,
+        custom_theme: customTheme,
         is_public: isPublic,
         publish_status: statusToSave,
         outer_ring: outerRing,
@@ -412,7 +426,7 @@ export default function SpiritWheelDesigner() {
   };
 
   const handleExportJson = () => {
-    const config = { name, description, deck_id: deckId !== "none" ? deckId : null, theme_id: themeId, is_public: isPublic, outer_ring: outerRing, middle_ring: middleRing, inner_ring: innerRing };
+    const config = { name, description, deck_id: deckId !== "none" ? deckId : null, theme_id: themeId, custom_theme: customTheme, is_public: isPublic, outer_ring: outerRing, middle_ring: middleRing, inner_ring: innerRing };
     const blob = new Blob([JSON.stringify(config, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -430,6 +444,7 @@ export default function SpiritWheelDesigner() {
       if (parsed.description) setDescription(parsed.description);
       if (parsed.deck_id) setDeckId(parsed.deck_id);
       if (parsed.theme_id) setThemeId(parsed.theme_id);
+      if (parsed.custom_theme) setCustomTheme(parsed.custom_theme);
       if (parsed.publish_status) setPublishStatus(parsed.publish_status);
       if (parsed.outer_ring) setOuterRing(parsed.outer_ring);
       if (parsed.middle_ring) setMiddleRing(parsed.middle_ring);
@@ -442,7 +457,7 @@ export default function SpiritWheelDesigner() {
   };
 
   const handleCopyJson = () => {
-    const config = { name, description, outer_ring: outerRing, middle_ring: middleRing, inner_ring: innerRing };
+    const config = { name, description, theme_id: themeId, custom_theme: customTheme, outer_ring: outerRing, middle_ring: middleRing, inner_ring: innerRing };
     navigator.clipboard.writeText(JSON.stringify(config, null, 2));
     alert("JSON copied to clipboard!");
   };
@@ -553,9 +568,62 @@ export default function SpiritWheelDesigner() {
                   <SelectItem value="neon">Cyber Neon</SelectItem>
                   <SelectItem value="parchment">Ancient Parchment</SelectItem>
                   <SelectItem value="stone_led">Stone + LED</SelectItem>
+                  <SelectItem value="custom">Custom Build...</SelectItem>
                 </SelectContent>
               </Select>
             </div>
+            {themeId === 'custom' && (
+              <div className="md:col-span-2 grid grid-cols-2 md:grid-cols-4 gap-4 mt-2 bg-black/30 p-4 rounded-lg border border-white/10">
+                <div>
+                  <Label className="text-amber-200/80 text-xs">Outer Ring</Label>
+                  <div className="flex gap-2 mt-1">
+                    <input type="color" value={customTheme.outerBg} onChange={e => setCustomTheme({...customTheme, outerBg: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" title="Background" />
+                    <input type="color" value={customTheme.outerGrad} onChange={e => setCustomTheme({...customTheme, outerGrad: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" title="Gradient" />
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-amber-200/80 text-xs">Middle Ring</Label>
+                  <div className="flex gap-2 mt-1">
+                    <input type="color" value={customTheme.middleBg} onChange={e => setCustomTheme({...customTheme, middleBg: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
+                    <input type="color" value={customTheme.middleGrad} onChange={e => setCustomTheme({...customTheme, middleGrad: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-amber-200/80 text-xs">Inner Ring</Label>
+                  <div className="flex gap-2 mt-1">
+                    <input type="color" value={customTheme.innerBg} onChange={e => setCustomTheme({...customTheme, innerBg: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
+                    <input type="color" value={customTheme.innerGrad} onChange={e => setCustomTheme({...customTheme, innerGrad: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-amber-200/80 text-xs">Text & Dots</Label>
+                  <div className="flex gap-2 mt-1">
+                    <input type="color" value={customTheme.textOuter} onChange={e => setCustomTheme({...customTheme, textOuter: e.target.value, textMiddle: e.target.value, textInner: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" title="Text Color" />
+                    <input type="color" value={customTheme.pin} onChange={e => setCustomTheme({...customTheme, pin: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" title="Pin Color" />
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-amber-200/80 text-xs">Borders</Label>
+                  <div className="flex gap-2 mt-1">
+                    <input type="color" value={customTheme.outerBorder} onChange={e => setCustomTheme({...customTheme, outerBorder: e.target.value, middleBorder: e.target.value, innerBorder: e.target.value, hubBorder: e.target.value, divider: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" title="Border Color" />
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-amber-200/80 text-xs">Page Bg Color</Label>
+                  <div className="flex gap-2 mt-1">
+                    <input type="color" value={customTheme.pageBg || "#0f172a"} onChange={e => setCustomTheme({...customTheme, pageBg: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" title="Page Background Color" />
+                  </div>
+                </div>
+                <div className="col-span-2">
+                  <Label className="text-amber-200/80 text-xs">Wheel Texture URL</Label>
+                  <Input value={customTheme.textureUrl} onChange={e => setCustomTheme({...customTheme, textureUrl: e.target.value})} placeholder="https://..." className="bg-black/40 border-white/10 mt-1 text-xs h-8" />
+                </div>
+                <div className="col-span-2">
+                  <Label className="text-amber-200/80 text-xs">Page Background Image URL</Label>
+                  <Input value={customTheme.pageBgImage || ""} onChange={e => setCustomTheme({...customTheme, pageBgImage: e.target.value})} placeholder="https://..." className="bg-black/40 border-white/10 mt-1 text-xs h-8" />
+                </div>
+              </div>
+            )}
             <div className="flex items-center gap-3 mt-6">
               <input type="checkbox" id="public-check" checked={isPublic} onChange={e => setIsPublic(e.target.checked)} className="accent-amber-500 w-4 h-4" />
               <Label htmlFor="public-check" className="text-amber-200/80 cursor-pointer">Make this wheel publicly available</Label>

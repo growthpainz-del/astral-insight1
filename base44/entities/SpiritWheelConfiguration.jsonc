@@ -138,6 +138,11 @@
       "type": "string",
       "default": "wood",
       "description": "Default visual theme for this wheel"
+    },
+    "custom_theme": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Custom visual theme properties"
     }
   },
   "required": [

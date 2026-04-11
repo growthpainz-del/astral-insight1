@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { Sparkles, RefreshCw, Eye, ChevronLeft, Save, Plus, ZoomIn, ZoomOut } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
@@ -170,6 +171,8 @@ export default function SpiritWheel() {
     textOuter: "#2b1810", textMiddle: "#2b1810", textInner: "#2b1810",
     divider: "#2b1810", pin: "#e2e8f0",
     textureUrl: "https://www.transparenttextures.com/patterns/wood-pattern.png",
+    pageBg: "#0f172a",
+    pageBgImage: "",
     fontFamily: '"Comic Sans MS", "Chalkboard SE", "Comic Neue", sans-serif'
   });
 
@@ -314,6 +317,7 @@ export default function SpiritWheel() {
       const w = customWheels.find(cw => cw.id === selectedWheelId);
       if (w?.theme_id) setThemeId(w.theme_id);
       if (w?.deck_id) setSelectedDeckId(w.deck_id);
+      if (w?.custom_theme) setCustomTheme(w.custom_theme);
     }
   }, [selectedWheelId, customWheels]);
 
@@ -449,7 +453,10 @@ export default function SpiritWheel() {
       className="min-h-screen text-amber-50 p-4 md:p-8 font-serif bg-blend-multiply overflow-x-hidden transition-colors duration-500"
       style={{ 
         backgroundColor: activeTheme.pageBg || '#0f172a',
-        backgroundImage: activeTheme.pageBg ? 'none' : `url('https://www.transparenttextures.com/patterns/wood-pattern.png')`
+        backgroundImage: activeTheme.pageBgImage ? `url('${activeTheme.pageBgImage}')` : (activeTheme.pageBg && !activeTheme.isTiles ? 'none' : `url('https://www.transparenttextures.com/patterns/wood-pattern.png')`),
+        backgroundSize: activeTheme.pageBgImage ? 'cover' : 'auto',
+        backgroundPosition: 'center',
+        backgroundRepeat: activeTheme.pageBgImage ? 'no-repeat' : 'repeat'
       }}
     >
       <style>{`
@@ -529,6 +536,20 @@ export default function SpiritWheel() {
                     <div className="flex gap-2 mt-1">
                       <input type="color" value={customTheme.outerBorder} onChange={e => setCustomTheme({...customTheme, outerBorder: e.target.value, middleBorder: e.target.value, innerBorder: e.target.value, hubBorder: e.target.value, divider: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
                     </div>
+                  </div>
+                  <div>
+                    <Label className="text-amber-200/80 text-xs">Page Background</Label>
+                    <div className="flex gap-2 mt-1">
+                      <input type="color" value={customTheme.pageBg || "#0f172a"} onChange={e => setCustomTheme({...customTheme, pageBg: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
+                    </div>
+                  </div>
+                  <div className="col-span-2">
+                    <Label className="text-amber-200/80 text-xs">Wheel Texture URL</Label>
+                    <Input value={customTheme.textureUrl} onChange={e => setCustomTheme({...customTheme, textureUrl: e.target.value})} className="bg-black/40 border-white/10 mt-1 text-xs h-8" />
+                  </div>
+                  <div className="col-span-2">
+                    <Label className="text-amber-200/80 text-xs">Page Background Image URL</Label>
+                    <Input value={customTheme.pageBgImage || ""} onChange={e => setCustomTheme({...customTheme, pageBgImage: e.target.value})} className="bg-black/40 border-white/10 mt-1 text-xs h-8" />
                   </div>
                 </div>
               )}
