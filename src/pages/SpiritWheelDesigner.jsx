@@ -166,13 +166,13 @@ function RingEditor({ ringKey, segments, setSegments, deckCards }) {
         </div>
         <div className="flex gap-2 flex-wrap justify-end">
           {segments.length > 0 && (
-            <Button size="sm" variant="outline" onClick={handleHarvestSymbols} disabled={isHarvesting} className="border-amber-600/40 text-amber-300 hover:bg-amber-900/20 h-8">
+            <Button size="sm" variant="outline" onClick={handleHarvestSymbols} disabled={isHarvesting} className="bg-slate-900 border-amber-600/40 text-amber-300 hover:bg-amber-900/40 hover:text-amber-200 h-8">
               {isHarvesting ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Sparkles className="w-4 h-4 mr-1" />}
               Harvest Symbols
             </Button>
           )}
           {deckCards && deckCards.length > 0 && (
-            <Button size="sm" variant="outline" onClick={addAllCards} className="border-amber-600/40 text-amber-300 hover:bg-amber-900/20 h-8">
+            <Button size="sm" variant="outline" onClick={addAllCards} className="bg-slate-900 border-amber-600/40 text-amber-300 hover:bg-amber-900/40 hover:text-amber-200 h-8">
               <Sparkles className="w-4 h-4 mr-1" /> Add All Cards
             </Button>
           )}
@@ -200,7 +200,7 @@ function RingEditor({ ringKey, segments, setSegments, deckCards }) {
               if (window.confirm("Are you sure you want to clear all segments in this ring?")) {
                 setSegments([]);
               }
-            }} className="border-red-600/40 text-red-400 hover:bg-red-900/20 h-8">
+            }} className="bg-slate-900 border-red-600/40 text-red-400 hover:bg-red-900/40 hover:text-red-200 h-8">
               <Trash2 className="w-4 h-4 mr-1" /> Clear All
             </Button>
           )}
@@ -472,21 +472,21 @@ export default function SpiritWheelDesigner() {
             <p className="text-sm text-amber-200/60">Build your custom oracle wheel — form-based with JSON import/export</p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setShowJsonPanel(!showJsonPanel)} className="border-amber-600/40 text-amber-300 hover:bg-amber-900/20">
+            <Button variant="outline" onClick={() => setShowJsonPanel(!showJsonPanel)} className="bg-slate-900 border-amber-600/40 text-amber-300 hover:bg-amber-900/40 hover:text-amber-200">
               <Upload className="w-4 h-4 mr-2" /> Import JSON
             </Button>
-            <Button variant="outline" onClick={handleExportJson} className="border-amber-600/40 text-amber-300 hover:bg-amber-900/20">
+            <Button variant="outline" onClick={handleExportJson} className="bg-slate-900 border-amber-600/40 text-amber-300 hover:bg-amber-900/40 hover:text-amber-200">
               <Download className="w-4 h-4 mr-2" /> Export JSON
             </Button>
-            <Button variant="outline" onClick={handleCopyJson} className="border-amber-600/40 text-amber-300 hover:bg-amber-900/20">
+            <Button variant="outline" onClick={handleCopyJson} className="bg-slate-900 border-amber-600/40 text-amber-300 hover:bg-amber-900/40 hover:text-amber-200">
               <Copy className="w-4 h-4 mr-2" /> Copy JSON
             </Button>
             {editId && (
-              <Button variant="outline" onClick={handleDelete} disabled={isSaving} className="border-red-600/40 text-red-400 hover:bg-red-900/20">
+              <Button variant="outline" onClick={handleDelete} disabled={isSaving} className="bg-slate-900 border-red-600/40 text-red-400 hover:bg-red-900/40 hover:text-red-200">
                 <Trash2 className="w-4 h-4 mr-2" /> Delete
               </Button>
             )}
-            <Button variant="outline" onClick={() => handleSave("draft")} disabled={isSaving} className="border-amber-600/40 text-amber-300 hover:bg-amber-900/20">
+            <Button variant="outline" onClick={() => handleSave("draft")} disabled={isSaving} className="bg-slate-900 border-amber-600/40 text-amber-300 hover:bg-amber-900/40 hover:text-amber-200">
               <Save className="w-4 h-4 mr-2" /> Save Draft
             </Button>
             <Button onClick={() => handleSave("published")} disabled={isSaving} className="bg-amber-600 hover:bg-amber-500 text-white">
@@ -570,7 +570,7 @@ export default function SpiritWheelDesigner() {
 
         {/* Bottom save */}
         <div className="flex justify-end gap-3 pb-8">
-          <Button variant="outline" onClick={() => handleSave("draft")} disabled={isSaving} className="border-amber-600/40 text-amber-300 hover:bg-amber-900/20 px-8 py-6 text-lg">
+          <Button variant="outline" onClick={() => handleSave("draft")} disabled={isSaving} className="bg-slate-900 border-amber-600/40 text-amber-300 hover:bg-amber-900/40 hover:text-amber-200 px-8 py-6 text-lg">
             <Save className="w-5 h-5 mr-2" /> Save Draft
           </Button>
           <Button onClick={() => handleSave("published")} disabled={isSaving} className="bg-amber-600 hover:bg-amber-500 text-white px-8 py-6 text-lg">
