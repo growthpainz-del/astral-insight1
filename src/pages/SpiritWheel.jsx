@@ -664,7 +664,7 @@ export default function SpiritWheel() {
                   Reveal Instant Reading
                 </Button>
 
-                <Link to={createPageUrl("AgentChat")} className="block mt-4">
+                <Link to={aiInterpretation ? `${createPageUrl("AgentChat")}?initialMessage=${encodeURIComponent(`I just did a Spirit Wheel reading. Here are the results:\n\n${aiInterpretation}\n\nCan you give me a deeper dive and further guidance?`)}` : createPageUrl("AgentChat")} className="block mt-4">
                   <Button className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 border border-purple-400/50 text-lg py-6 shadow-[0_0_15px_rgba(168,85,247,0.4)]">
                     <Sparkles className="w-5 h-5 mr-2 text-purple-200" />
                     Deep Dive with Oracle Chat (Premium)

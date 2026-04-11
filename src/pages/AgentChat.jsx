@@ -33,15 +33,28 @@ export default function AgentChat() {
         const initChat = async () => {
             setLoading(true);
             try {
-                const convos = await base44.agents.listConversations({ agent_name: agentName });
+                const searchParams = new URLSearchParams(window.location.search);
+                const initialMessage = searchParams.get("initialMessage");
+
                 let currentConv;
-                if (convos && convos.length > 0) {
-                    currentConv = convos[0];
-                } else {
+                if (initialMessage) {
                     currentConv = await base44.agents.createConversation({
                         agent_name: agentName,
                         metadata: { name: `Chat with ${agentName}` }
                     });
+                    await base44.agents.addMessage(currentConv, { role: "user", content: initialMessage });
+                    // Clear the parameter to avoid resending on refresh
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                } else {
+                    const convos = await base44.agents.listConversations({ agent_name: agentName });
+                    if (convos && convos.length > 0) {
+                        currentConv = convos[0];
+                    } else {
+                        currentConv = await base44.agents.createConversation({
+                            agent_name: agentName,
+                            metadata: { name: `Chat with ${agentName}` }
+                        });
+                    }
                 }
                 setConversation(currentConv);
                 setConversationId(currentConv.id);
