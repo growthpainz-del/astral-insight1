@@ -725,7 +725,9 @@ export default function SpiritWheel() {
                     <div className="text-sm text-amber-500/70 uppercase font-semibold mb-1 flex justify-between items-center">
                       <span>Outer Ring</span>
                       {isImageSymbol(wheelData.outer[selectedIndices.outer]?.id) ? (
-                        <img src={getImageUrl(wheelData.outer[selectedIndices.outer]?.id)} alt="symbol" className="w-8 h-8 object-contain filter drop-shadow-md rounded-full bg-white/90 p-1" />
+                        <div className="w-8 h-8 shrink-0 rounded-full bg-white/95 flex items-center justify-center shadow-sm p-1.5 overflow-hidden">
+                          <img src={getImageUrl(wheelData.outer[selectedIndices.outer]?.id)} alt="" className="w-full h-full object-contain filter" />
+                        </div>
                       ) : (
                         <span className="text-amber-300 bg-black/20 px-2 py-0.5 rounded">
                           {wheelData.outer[selectedIndices.outer]?.id || 'N/A'}
@@ -741,7 +743,9 @@ export default function SpiritWheel() {
                     <div className="text-sm text-amber-500/70 uppercase font-semibold mb-1 flex justify-between items-center">
                       <span>Middle Ring</span>
                       {isImageSymbol(wheelData.middle[selectedIndices.middle]?.id) ? (
-                        <img src={getImageUrl(wheelData.middle[selectedIndices.middle]?.id)} alt="symbol" className="w-8 h-8 object-contain filter drop-shadow-md rounded-full bg-white/90 p-1" />
+                        <div className="w-8 h-8 shrink-0 rounded-full bg-white/95 flex items-center justify-center shadow-sm p-1.5 overflow-hidden">
+                          <img src={getImageUrl(wheelData.middle[selectedIndices.middle]?.id)} alt="" className="w-full h-full object-contain filter" />
+                        </div>
                       ) : (
                         <span className="text-amber-300 bg-black/20 px-2 py-0.5 rounded">
                           {wheelData.middle[selectedIndices.middle]?.id || 'N/A'}
@@ -757,7 +761,9 @@ export default function SpiritWheel() {
                     <div className="text-sm text-amber-500/70 uppercase font-semibold mb-1 flex justify-between items-center">
                       <span>Inner Ring</span>
                       {isImageSymbol(wheelData.inner[selectedIndices.inner]?.id) ? (
-                        <img src={getImageUrl(wheelData.inner[selectedIndices.inner]?.id)} alt="symbol" className="w-8 h-8 object-contain filter drop-shadow-md rounded-full bg-white/90 p-1" />
+                        <div className="w-8 h-8 shrink-0 rounded-full bg-white/95 flex items-center justify-center shadow-sm p-1.5 overflow-hidden">
+                          <img src={getImageUrl(wheelData.inner[selectedIndices.inner]?.id)} alt="" className="w-full h-full object-contain filter" />
+                        </div>
                       ) : (
                         <span className="text-amber-300 bg-black/20 px-2 py-0.5 rounded">
                           {wheelData.inner[selectedIndices.inner]?.id || 'N/A'}
@@ -916,7 +922,9 @@ export default function SpiritWheel() {
                     }}
                   >
                     {isImageSymbol(item.id) ? (
-                      <img src={getImageUrl(item.id)} alt="symbol" className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 object-contain filter drop-shadow-md rounded-full bg-white/90 p-0.5 sm:p-1" />
+                      <div className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 shrink-0 rounded-full bg-white/95 flex items-center justify-center shadow-md p-1 sm:p-1.5 overflow-hidden">
+                        <img src={getImageUrl(item.id)} alt="" className="w-full h-full object-contain filter drop-shadow-sm" />
+                      </div>
                     ) : item.id}
                   </div>
                   {/* Segment dividers */}
@@ -969,7 +977,9 @@ export default function SpiritWheel() {
                     {['Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Black', 'White', 'Brown', 'LightBlue', 'Grey', 'Orange'].includes(item.id) ? (
                       <div className="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 lg:w-8 lg:h-8 rounded-full shadow-inner border border-black/30" style={{ backgroundColor: item.id === 'LightBlue' ? '#add8e6' : item.id.toLowerCase() }}></div>
                     ) : isImageSymbol(item.id) ? (
-                      <img src={getImageUrl(item.id)} alt="symbol" className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-16 lg:h-16 object-contain filter drop-shadow-md rounded-full bg-white/90 p-1" />
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-16 lg:h-16 shrink-0 rounded-full bg-white/95 flex items-center justify-center shadow-md p-1.5 sm:p-2 overflow-hidden">
+                        <img src={getImageUrl(item.id)} alt="" className="w-full h-full object-contain filter drop-shadow-sm" />
+                      </div>
                     ) : (
                       <span className={activeTheme.isTiles ? "text-[10px] md:text-sm" : ""}>{item.id}</span>
                     )}
@@ -1023,7 +1033,9 @@ export default function SpiritWheel() {
                     }}
                   >
                     {isImageSymbol(item.id) ? (
-                      <img src={getImageUrl(item.id)} alt="symbol" className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-24 lg:h-24 object-contain filter drop-shadow-md rounded-full bg-white/90 p-1 sm:p-1.5" />
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-24 lg:h-24 shrink-0 rounded-full bg-white/95 flex items-center justify-center shadow-md p-2 sm:p-2.5 overflow-hidden">
+                        <img src={getImageUrl(item.id)} alt="" className="w-full h-full object-contain filter drop-shadow-sm" />
+                      </div>
                     ) : item.id}
                   </div>
                   {/* Segment dividers */}
