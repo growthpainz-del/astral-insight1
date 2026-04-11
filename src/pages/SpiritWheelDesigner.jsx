@@ -249,7 +249,7 @@ function RingEditor({ ringKey, segments, setSegments, deckCards }) {
                     alt="icon" 
                     onError={(e) => { e.target.style.opacity = '0'; }}
                     onLoad={(e) => { e.target.style.opacity = '1'; }}
-                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 object-contain pointer-events-none rounded-full peer-focus:opacity-0 transition-opacity bg-white/90 p-0.5" 
+                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 object-contain pointer-events-none rounded-full peer-focus:opacity-0 transition-opacity" 
                   />
                 )}
               </div>
