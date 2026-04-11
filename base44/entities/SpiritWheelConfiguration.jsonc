@@ -125,6 +125,15 @@
       "default": false,
       "description": "Whether other users can use this configuration"
     },
+    "publish_status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "published"
+      ],
+      "default": "draft",
+      "description": "Whether the wheel is a draft or published"
+    },
     "theme_id": {
       "type": "string",
       "default": "wood",

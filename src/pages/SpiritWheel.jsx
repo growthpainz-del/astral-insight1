@@ -285,7 +285,8 @@ export default function SpiritWheel() {
         setCurrentUser(user);
         let myDecks = [];
         let myWheels = [];
-        let publicWheels = await base44.entities.SpiritWheelConfiguration.filter({ is_public: true }, '-created_date', 100);
+        let publicWheelsRes = await base44.entities.SpiritWheelConfiguration.filter({ is_public: true }, '-created_date', 100);
+        let publicWheels = (publicWheelsRes || []).filter(w => w.publish_status !== 'draft');
         
         if (user?.email) {
           const mine = await base44.entities.Deck.filter({ created_by: user.email }, '-updated_date', 100);
@@ -540,7 +541,7 @@ export default function SpiritWheel() {
                 <SelectContent className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 max-h-64 overflow-y-auto">
                   <SelectItem value="default">Default Spirit Wheel</SelectItem>
                   {customWheels.map(w => (
-                    <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>
+                    <SelectItem key={w.id} value={w.id}>{w.name} {w.publish_status === 'draft' ? '(Draft)' : ''}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>

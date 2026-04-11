@@ -289,6 +289,7 @@ export default function SpiritWheelDesigner() {
   const [deckId, setDeckId] = useState("none");
   const [themeId, setThemeId] = useState("wood");
   const [isPublic, setIsPublic] = useState(false);
+  const [publishStatus, setPublishStatus] = useState("published");
   const [outerRing, setOuterRing] = useState([]);
   const [middleRing, setMiddleRing] = useState([]);
   const [innerRing, setInnerRing] = useState([]);
@@ -319,6 +320,7 @@ export default function SpiritWheelDesigner() {
             setDeckId(config.deck_id || "none");
             setThemeId(config.theme_id || "wood");
             setIsPublic(config.is_public || false);
+            setPublishStatus(config.publish_status || "published");
             setOuterRing(config.outer_ring || []);
             setMiddleRing(config.middle_ring || []);
             setInnerRing(config.inner_ring || []);
@@ -357,7 +359,7 @@ export default function SpiritWheelDesigner() {
     }
   };
 
-  const handleSave = async () => {
+  const handleSave = async (statusToSave = publishStatus) => {
     if (!name.trim()) { alert("Please give this wheel a name."); return; }
     setIsSaving(true);
     try {
@@ -367,17 +369,19 @@ export default function SpiritWheelDesigner() {
         deck_id: deckId !== "none" ? deckId : null,
         theme_id: themeId,
         is_public: isPublic,
+        publish_status: statusToSave,
         outer_ring: outerRing,
         middle_ring: middleRing,
         inner_ring: innerRing,
       };
       if (editId) {
         await base44.entities.SpiritWheelConfiguration.update(editId, data);
+        setPublishStatus(statusToSave);
       } else {
         const created = await base44.entities.SpiritWheelConfiguration.create(data);
         navigate(`/SpiritWheelDesigner?id=${created.id}`);
       }
-      alert("Saved successfully!");
+      alert(`Saved successfully as ${statusToSave}!`);
     } catch (e) {
       console.error(e);
       alert("Failed to save.");
@@ -405,6 +409,7 @@ export default function SpiritWheelDesigner() {
       if (parsed.description) setDescription(parsed.description);
       if (parsed.deck_id) setDeckId(parsed.deck_id);
       if (parsed.theme_id) setThemeId(parsed.theme_id);
+      if (parsed.publish_status) setPublishStatus(parsed.publish_status);
       if (parsed.outer_ring) setOuterRing(parsed.outer_ring);
       if (parsed.middle_ring) setMiddleRing(parsed.middle_ring);
       if (parsed.inner_ring) setInnerRing(parsed.inner_ring);
@@ -460,8 +465,11 @@ export default function SpiritWheelDesigner() {
                 <Trash2 className="w-4 h-4 mr-2" /> Delete
               </Button>
             )}
-            <Button onClick={handleSave} disabled={isSaving} className="bg-amber-600 hover:bg-amber-500 text-white">
-              <Save className="w-4 h-4 mr-2" /> {isSaving ? "Saving..." : "Save"}
+            <Button variant="outline" onClick={() => handleSave("draft")} disabled={isSaving} className="border-amber-600/40 text-amber-300 hover:bg-amber-900/20">
+              <Save className="w-4 h-4 mr-2" /> Save Draft
+            </Button>
+            <Button onClick={() => handleSave("published")} disabled={isSaving} className="bg-amber-600 hover:bg-amber-500 text-white">
+              <Sparkles className="w-4 h-4 mr-2" /> Publish
             </Button>
           </div>
         </div>
@@ -540,9 +548,12 @@ export default function SpiritWheelDesigner() {
         <RingEditor ringKey="inner_ring" segments={innerRing} setSegments={setInnerRing} deckCards={deckCards} />
 
         {/* Bottom save */}
-        <div className="flex justify-end pb-8">
-          <Button onClick={handleSave} disabled={isSaving} className="bg-amber-600 hover:bg-amber-500 text-white px-8 py-6 text-lg">
-            <Save className="w-5 h-5 mr-2" /> {isSaving ? "Saving..." : "Save Wheel Configuration"}
+        <div className="flex justify-end gap-3 pb-8">
+          <Button variant="outline" onClick={() => handleSave("draft")} disabled={isSaving} className="border-amber-600/40 text-amber-300 hover:bg-amber-900/20 px-8 py-6 text-lg">
+            <Save className="w-5 h-5 mr-2" /> Save Draft
+          </Button>
+          <Button onClick={() => handleSave("published")} disabled={isSaving} className="bg-amber-600 hover:bg-amber-500 text-white px-8 py-6 text-lg">
+            <Sparkles className="w-5 h-5 mr-2" /> Publish Wheel
           </Button>
         </div>
       </div>
