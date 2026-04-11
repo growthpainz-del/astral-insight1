@@ -313,6 +313,7 @@ export default function SpiritWheel() {
     if (selectedWheelId !== "default") {
       const w = customWheels.find(cw => cw.id === selectedWheelId);
       if (w?.theme_id) setThemeId(w.theme_id);
+      if (w?.deck_id) setSelectedDeckId(w.deck_id);
     }
   }, [selectedWheelId, customWheels]);
 
@@ -573,21 +574,21 @@ export default function SpiritWheel() {
                       {CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                     </SelectContent>
                   </Select>
-
-                  <Label className="text-amber-200 mb-2 block font-semibold text-lg">Accompanying Deck (Optional)</Label>
-                  <Select value={selectedDeckId} onValueChange={setSelectedDeckId}>
-                    <SelectTrigger className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 h-12 text-lg">
-                      <SelectValue placeholder="None" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 max-h-64 overflow-y-auto">
-                      <SelectItem value="none">None</SelectItem>
-                      {decks.map(d => (
-                        <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
                 </>
               )}
+
+              <Label className="text-amber-200 mb-2 block font-semibold text-lg">Accompanying Deck (Optional)</Label>
+              <Select value={selectedDeckId} onValueChange={setSelectedDeckId}>
+                <SelectTrigger className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 h-12 text-lg mb-4">
+                  <SelectValue placeholder="None" />
+                </SelectTrigger>
+                <SelectContent className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 max-h-64 overflow-y-auto">
+                  <SelectItem value="none">None</SelectItem>
+                  {decks.map(d => (
+                    <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="flex items-center justify-between p-4 bg-[#2d1b0d]/50 rounded-lg border border-[#5c3a21]">
