@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Sparkles, RefreshCw, Eye, ChevronLeft, Save, Plus } from 'lucide-react';
+import { Sparkles, RefreshCw, Eye, ChevronLeft, Save, Plus, ZoomIn, ZoomOut } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -129,6 +129,7 @@ export default function SpiritWheel() {
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+  const [zoomLevel, setZoomLevel] = useState(1);
 
   const handleSaveReading = async () => {
     setIsSaving(true);
@@ -718,20 +719,38 @@ export default function SpiritWheel() {
         </div>
 
         {/* Right Column: The Visual Wheel */}
-        <div className="flex-1 flex items-start lg:items-center justify-center p-2 lg:p-8 relative min-h-[350px] lg:min-h-[600px] order-1 lg:order-2 overflow-visible">
-          <motion.div 
-            className="relative w-[340px] h-[340px] sm:w-[450px] sm:h-[450px] md:w-[600px] md:h-[600px] lg:w-[700px] lg:h-[700px] xl:w-[850px] xl:h-[850px] shrink-0 mt-6 lg:mt-0 cursor-pointer"
-            onClick={() => !isSpinning && spinWheel()}
-            onPanEnd={(e, info) => {
-              const velocity = Math.max(Math.abs(info.velocity.x), Math.abs(info.velocity.y));
-              if (velocity > 200 && !isSpinning) {
-                spinWheel();
-              }
-            }}
-            whileTap={{ scale: 0.98 }}
-            style={{ touchAction: "pan-y" }}
+        <div className="flex-1 flex items-start lg:items-center justify-center p-2 lg:p-8 relative min-h-[350px] lg:min-h-[600px] order-1 lg:order-2 overflow-hidden lg:overflow-visible">
+          
+          {/* Zoom Controls */}
+          <div className="absolute top-4 right-4 z-50 flex flex-col gap-2 bg-black/50 p-1.5 rounded-lg border border-[#8b5a2b] shadow-lg backdrop-blur-sm">
+            <Button size="icon" variant="ghost" onClick={() => setZoomLevel(z => Math.min(z + 0.25, 3))} className="text-amber-300 hover:text-amber-100 hover:bg-[#8b5a2b]/50 h-8 w-8">
+              <ZoomIn className="w-5 h-5" />
+            </Button>
+            <Button size="icon" variant="ghost" onClick={() => setZoomLevel(1)} className="text-amber-300 hover:text-amber-100 hover:bg-[#8b5a2b]/50 h-8 w-8 text-[10px] font-bold">
+              {Math.round(zoomLevel * 100)}%
+            </Button>
+            <Button size="icon" variant="ghost" onClick={() => setZoomLevel(z => Math.max(z - 0.25, 0.25))} className="text-amber-300 hover:text-amber-100 hover:bg-[#8b5a2b]/50 h-8 w-8">
+              <ZoomOut className="w-5 h-5" />
+            </Button>
+          </div>
+
+          <div 
+            className="relative w-[340px] h-[340px] sm:w-[450px] sm:h-[450px] md:w-[600px] md:h-[600px] lg:w-[700px] lg:h-[700px] xl:w-[850px] xl:h-[850px] shrink-0 mt-6 lg:mt-0 transition-transform duration-300 origin-center"
+            style={{ transform: `scale(${zoomLevel})` }}
           >
-            {/* Pointer / Indicator at top */}
+            <motion.div 
+              className="absolute inset-0 cursor-pointer"
+              onClick={() => !isSpinning && spinWheel()}
+              onPanEnd={(e, info) => {
+                const velocity = Math.max(Math.abs(info.velocity.x), Math.abs(info.velocity.y));
+                if (velocity > 200 && !isSpinning) {
+                  spinWheel();
+                }
+              }}
+              whileTap={{ scale: 0.98 }}
+              style={{ touchAction: "pan-y" }}
+            >
+              {/* Pointer / Indicator at top */}
             <div className="absolute top-[-35px] md:top-[-45px] lg:top-[-55px] left-1/2 -translate-x-1/2 z-50 drop-shadow-[0_4px_12px_rgba(245,158,11,0.8)]">
               <svg className="w-10 h-12 md:w-14 md:h-16 lg:w-16 lg:h-20" viewBox="0 0 40 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M20 48L0 0H40L20 48Z" fill="url(#pointer-gradient)" />
@@ -922,6 +941,7 @@ export default function SpiritWheel() {
               )}
             </div>
           </motion.div>
+          </div>
         </div>
       </div>
       <AudioOrb 
