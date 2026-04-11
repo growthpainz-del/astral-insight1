@@ -128,6 +128,17 @@ const SEVEN_SISTERS_MODIFIERS = [
   { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/91325776e_C924B138-EE3C-4992-A912-B0D1598F9C16.png", label: "Merope's Echo", meaning: "The missing voice still whispers wisdom. Listen for the subtle return; integration awaits. Keywords: return, integration, quiet wisdom, wholeness." }
 ];
 
+const SPIRITUAL_EMOTICONS_MODIFIERS = [
+  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/fda52ec6b_emojiscomsymbol_-crescent-with-faint-echoing-ripples-turning-into-roots-meaning_-listen-to-inner-or-ancestral-guidance.png", label: "Grounded Moon", meaning: "Instant grounding + presence." },
+  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/22eaff712_emojiscom1-inner-eye-symbol_-crescent-framing-a-simple-open-eye-with-soft-root-like-lashes-meaning_-trust-intuition-and-inner-sight.png", label: "Inner Eye", meaning: "Trust intuition and inner sight." },
+  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/729121d96_emojiscomsymbol_-crescent-with-a-leaf-breaking-free-from-tangled-roots-meaning_-let-go-of-what-no-longer-serves.png", label: "Shadow Release", meaning: "Let go of what no longer serves." },
+  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/537236bca_emojiscomheart-root-symbol_-crescent-cradling-a-small-heart-with-roots-growing-from-its-base-meaning_-love-anchored-in-self.png", label: "Heart Root", meaning: "Love anchored in self." },
+  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/66b02a03f_emojiscomsymbol_-crescent-turning-into-gentle-flowing-water_leaf-veins-meaning_-move-with-natural-cycles.png", label: "Flow Crescent", meaning: "Move with natural cycles." },
+  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/848709e7a_emojiscomspark-seed-symbol_-tiny-glowing-spark-inside-a-crescent-with-sprouting-leaves-meaning_-creative-or-spiritual-ignition.png", label: "Spark Seed", meaning: "Creative or spiritual ignition." },
+  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/94fcbd8a4_emojiscom8-balance-wings-symbol_-two-symmetrical-crescents-forming-open-wings-with-central-root-meaning_-harmony-between-light-and-shadow.png", label: "Balance Wings", meaning: "Harmony between light and shadow." },
+  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/5819cb5c0_emojiscom10-ascension-flame-symbol_-crescent-rising-with-a-small-flame-merging-into-upward-leaves-meaning_-spiritual-growth-and-elevation.png", label: "Ascension Flame", meaning: "Spiritual growth and elevation." }
+];
+
 const CATEGORIES = ["General", "Relationships", "Numbers", "Age", "Body Parts", "Colors", "Lost Items", "Height", "Time", "Astrology", "Emotions", "Profiler", "Seasons and Shapes", "Traveling", "Zapped", "X-Rated"];
 
 const isImageSymbol = (id) => {
@@ -331,7 +342,7 @@ export default function SpiritWheel() {
     return {
       outer,
       middle: WHEEL_MIDDLE,
-      inner: selectedWheelId === "default" && selectedDeckId !== "none" ? SEVEN_SISTERS_MODIFIERS : WHEEL_INNER
+      inner: selectedWheelId === "default" && selectedDeckId !== "none" ? [...SEVEN_SISTERS_MODIFIERS, ...SPIRITUAL_EMOTICONS_MODIFIERS] : WHEEL_INNER
     };
   }, [deckCards, selectedDeckId, selectedWheelId, customWheels]);
 

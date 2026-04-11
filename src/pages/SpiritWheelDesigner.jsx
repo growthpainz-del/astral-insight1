@@ -67,6 +67,16 @@ const THEME_PACKS = {
     { label: "Neptune", meaning: "Dreams, illusion, spirituality", type: "symbol", icon: "♆", card_id: "" },
     { label: "Pluto", meaning: "Transformation, power, rebirth", type: "symbol", icon: "♇", card_id: "" }
   ],
+  spiritual_emoticons: [
+    { label: "Grounded Moon", meaning: "Instant grounding + presence.", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/fda52ec6b_emojiscomsymbol_-crescent-with-faint-echoing-ripples-turning-into-roots-meaning_-listen-to-inner-or-ancestral-guidance.png", card_id: "" },
+    { label: "Inner Eye", meaning: "Trust intuition and inner sight.", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/22eaff712_emojiscom1-inner-eye-symbol_-crescent-framing-a-simple-open-eye-with-soft-root-like-lashes-meaning_-trust-intuition-and-inner-sight.png", card_id: "" },
+    { label: "Shadow Release", meaning: "Let go of what no longer serves.", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/729121d96_emojiscomsymbol_-crescent-with-a-leaf-breaking-free-from-tangled-roots-meaning_-let-go-of-what-no-longer-serves.png", card_id: "" },
+    { label: "Heart Root", meaning: "Love anchored in self.", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/537236bca_emojiscomheart-root-symbol_-crescent-cradling-a-small-heart-with-roots-growing-from-its-base-meaning_-love-anchored-in-self.png", card_id: "" },
+    { label: "Flow Crescent", meaning: "Move with natural cycles.", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/66b02a03f_emojiscomsymbol_-crescent-turning-into-gentle-flowing-water_leaf-veins-meaning_-move-with-natural-cycles.png", card_id: "" },
+    { label: "Spark Seed", meaning: "Creative or spiritual ignition.", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/848709e7a_emojiscomspark-seed-symbol_-tiny-glowing-spark-inside-a-crescent-with-sprouting-leaves-meaning_-creative-or-spiritual-ignition.png", card_id: "" },
+    { label: "Balance Wings", meaning: "Harmony between light and shadow.", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/94fcbd8a4_emojiscom8-balance-wings-symbol_-two-symmetrical-crescents-forming-open-wings-with-central-root-meaning_-harmony-between-light-and-shadow.png", card_id: "" },
+    { label: "Ascension Flame", meaning: "Spiritual growth and elevation.", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/5819cb5c0_emojiscom10-ascension-flame-symbol_-crescent-rising-with-a-small-flame-merging-into-upward-leaves-meaning_-spiritual-growth-and-elevation.png", card_id: "" }
+  ],
   chakras: [
     { label: "Root", meaning: "Survival, grounding, security", type: "symbol", icon: "🔴", card_id: "" },
     { label: "Sacral", meaning: "Emotions, creativity, sexuality", type: "symbol", icon: "🟠", card_id: "" },
@@ -95,7 +105,8 @@ const PRESET_SYMBOLS = [
   ...THEME_PACKS.zodiac,
   ...THEME_PACKS.planets,
   ...THEME_PACKS.chakras,
-  ...THEME_PACKS.seven_sisters
+  ...THEME_PACKS.seven_sisters,
+  ...THEME_PACKS.spiritual_emoticons
 ];
 
 const isImageSymbol = (id) => {
@@ -220,6 +231,7 @@ function RingEditor({ ringKey, segments, setSegments, deckCards }) {
               <SelectItem value="planets">Planets</SelectItem>
               <SelectItem value="chakras">Chakras</SelectItem>
               <SelectItem value="seven_sisters">7 Sisters</SelectItem>
+              <SelectItem value="spiritual_emoticons">Spiritual Emoticons</SelectItem>
             </SelectContent>
           </Select>
           <Button size="sm" onClick={addSegment} className="bg-amber-700 hover:bg-amber-600 text-white h-8">
