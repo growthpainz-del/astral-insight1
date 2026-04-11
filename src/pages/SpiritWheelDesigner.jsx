@@ -307,7 +307,11 @@ function RingEditor({ ringKey, segments, setSegments, deckCards }) {
                     title={p.meaning}
                     className="text-lg hover:scale-125 transition-transform"
                   >
-                    {p.icon}
+                    {isImageSymbol(p.icon) ? (
+                      <img src={getImageUrl(p.icon)} className="w-6 h-6 object-contain filter drop-shadow-md rounded-full bg-white/10" alt={p.label} />
+                    ) : (
+                      p.icon
+                    )}
                   </button>
                 ))}
               </div>
