@@ -195,6 +195,15 @@ function RingEditor({ ringKey, segments, setSegments, deckCards }) {
           <Button size="sm" onClick={addSegment} className="bg-amber-700 hover:bg-amber-600 text-white h-8">
             <Plus className="w-4 h-4 mr-1" /> Add Custom
           </Button>
+          {segments.length > 0 && (
+            <Button size="sm" variant="outline" onClick={() => {
+              if (window.confirm("Are you sure you want to clear all segments in this ring?")) {
+                setSegments([]);
+              }
+            }} className="border-red-600/40 text-red-400 hover:bg-red-900/20 h-8">
+              <Trash2 className="w-4 h-4 mr-1" /> Clear All
+            </Button>
+          )}
         </div>
       </div>
 
