@@ -92,6 +92,20 @@ function RingEditor({ ringKey, segments, setSegments, deckCards }) {
   const meta = RING_LABELS[ringKey];
   const [isHarvesting, setIsHarvesting] = useState(false);
 
+  const isImageSymbol = (id) => {
+    if (typeof id !== 'string') return false;
+    const trimmed = id.trim();
+    return /^https?:\/\//i.test(trimmed) || /^data:image/i.test(trimmed) || /\.(png|jpe?g|gif|svg|webp)(\?.*)?$/i.test(trimmed);
+  };
+  
+  const getImageUrl = (id) => {
+    let url = id.trim();
+    if (!/^https?:\/\//i.test(url) && !/^data:image/i.test(url)) {
+      url = 'https://' + url;
+    }
+    return url;
+  };
+
   const addSegment = () => setSegments([...segments, { ...DEFAULT_SEGMENT }]);
 
   const handleHarvestSymbols = async () => {
@@ -226,11 +240,11 @@ function RingEditor({ ringKey, segments, setSegments, deckCards }) {
                   onChange={e => updateSegment(i, "icon", e.target.value)}
                   placeholder="Icon"
                   title={typeof seg.icon === 'string' ? seg.icon : ""}
-                  className={`w-full bg-black/40 border-white/10 peer transition-all ${typeof seg.icon === 'string' && (seg.icon.trim().startsWith('http') || seg.icon.trim().startsWith('data:image')) ? 'text-transparent text-center focus:text-white focus:text-[10px] focus:text-left px-1' : 'text-center text-lg'}`}
+                  className={`w-full bg-black/40 border-white/10 peer transition-all ${isImageSymbol(seg.icon) ? 'text-transparent text-center focus:text-white focus:text-[10px] focus:text-left px-1' : 'text-center text-lg'}`}
                 />
-                {typeof seg.icon === 'string' && (seg.icon.trim().startsWith('http') || seg.icon.trim().startsWith('data:image')) && (
+                {isImageSymbol(seg.icon) && (
                   <img 
-                    src={seg.icon.trim()} 
+                    src={getImageUrl(seg.icon)} 
                     alt="icon" 
                     onError={(e) => { e.target.style.opacity = '0'; }}
                     onLoad={(e) => { e.target.style.opacity = '1'; }}

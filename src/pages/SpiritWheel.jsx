@@ -144,6 +144,20 @@ export default function SpiritWheel() {
   const [zoomLevel, setZoomLevel] = useState(1);
   const [isCapturing, setIsCapturing] = useState(false);
 
+  const isImageSymbol = (id) => {
+    if (typeof id !== 'string') return false;
+    const trimmed = id.trim();
+    return /^https?:\/\//i.test(trimmed) || /^data:image/i.test(trimmed) || /\.(png|jpe?g|gif|svg|webp)(\?.*)?$/i.test(trimmed);
+  };
+  
+  const getImageUrl = (id) => {
+    let url = id.trim();
+    if (!/^https?:\/\//i.test(url) && !/^data:image/i.test(url)) {
+      url = 'https://' + url; // auto-prepend https if missing
+    }
+    return url;
+  };
+
   const handleDownloadImage = async () => {
     setIsCapturing(true);
     setTimeout(async () => {
@@ -707,9 +721,15 @@ export default function SpiritWheel() {
               <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 {wheelData.outer.length > 0 && (
                   <div className="p-4 bg-[#1c0f05] rounded-lg border border-[#5c3a21]">
-                    <div className="text-sm text-amber-500/70 uppercase font-semibold mb-1 flex justify-between">
+                    <div className="text-sm text-amber-500/70 uppercase font-semibold mb-1 flex justify-between items-center">
                       <span>Outer Ring</span>
-                      <span className="text-amber-300">[{typeof wheelData.outer[selectedIndices.outer]?.id === 'string' && wheelData.outer[selectedIndices.outer]?.id.trim().startsWith('http') ? 'Image Symbol' : (wheelData.outer[selectedIndices.outer]?.id || 'N/A')}]</span>
+                      {isImageSymbol(wheelData.outer[selectedIndices.outer]?.id) ? (
+                        <img src={getImageUrl(wheelData.outer[selectedIndices.outer]?.id)} alt="symbol" className="w-8 h-8 object-contain filter drop-shadow-md rounded-full bg-black/20 p-1" />
+                      ) : (
+                        <span className="text-amber-300 bg-black/20 px-2 py-0.5 rounded">
+                          {wheelData.outer[selectedIndices.outer]?.id || 'N/A'}
+                        </span>
+                      )}
                     </div>
                     <div className="text-xl text-amber-50">{getSegmentText('outer', selectedIndices.outer)}</div>
                   </div>
@@ -717,9 +737,15 @@ export default function SpiritWheel() {
                 
                 {wheelData.middle.length > 0 && (
                   <div className="p-4 bg-[#1c0f05] rounded-lg border border-[#5c3a21]">
-                    <div className="text-sm text-amber-500/70 uppercase font-semibold mb-1 flex justify-between">
+                    <div className="text-sm text-amber-500/70 uppercase font-semibold mb-1 flex justify-between items-center">
                       <span>Middle Ring</span>
-                      <span className="text-amber-300">[{typeof wheelData.middle[selectedIndices.middle]?.id === 'string' && wheelData.middle[selectedIndices.middle]?.id.trim().startsWith('http') ? 'Image Symbol' : (wheelData.middle[selectedIndices.middle]?.id || 'N/A')}]</span>
+                      {isImageSymbol(wheelData.middle[selectedIndices.middle]?.id) ? (
+                        <img src={getImageUrl(wheelData.middle[selectedIndices.middle]?.id)} alt="symbol" className="w-8 h-8 object-contain filter drop-shadow-md rounded-full bg-black/20 p-1" />
+                      ) : (
+                        <span className="text-amber-300 bg-black/20 px-2 py-0.5 rounded">
+                          {wheelData.middle[selectedIndices.middle]?.id || 'N/A'}
+                        </span>
+                      )}
                     </div>
                     <div className="text-xl text-amber-50">{getSegmentText('middle', selectedIndices.middle)}</div>
                   </div>
@@ -727,9 +753,15 @@ export default function SpiritWheel() {
                 
                 {wheelData.inner.length > 0 && (
                   <div className="p-4 bg-[#1c0f05] rounded-lg border border-[#5c3a21]">
-                    <div className="text-sm text-amber-500/70 uppercase font-semibold mb-1 flex justify-between">
+                    <div className="text-sm text-amber-500/70 uppercase font-semibold mb-1 flex justify-between items-center">
                       <span>Inner Ring</span>
-                      <span className="text-amber-300">[{typeof wheelData.inner[selectedIndices.inner]?.id === 'string' && wheelData.inner[selectedIndices.inner]?.id.trim().startsWith('http') ? 'Image Symbol' : (wheelData.inner[selectedIndices.inner]?.id || 'N/A')}]</span>
+                      {isImageSymbol(wheelData.inner[selectedIndices.inner]?.id) ? (
+                        <img src={getImageUrl(wheelData.inner[selectedIndices.inner]?.id)} alt="symbol" className="w-8 h-8 object-contain filter drop-shadow-md rounded-full bg-black/20 p-1" />
+                      ) : (
+                        <span className="text-amber-300 bg-black/20 px-2 py-0.5 rounded">
+                          {wheelData.inner[selectedIndices.inner]?.id || 'N/A'}
+                        </span>
+                      )}
                     </div>
                     <div className="text-xl text-amber-50">{getSegmentText('inner', selectedIndices.inner)}</div>
                   </div>
@@ -882,8 +914,8 @@ export default function SpiritWheel() {
                       fontSize: activeTheme.isTiles ? '0.75em' : undefined
                     }}
                   >
-                    {typeof item.id === 'string' && (item.id.trim().startsWith('http') || item.id.trim().startsWith('data:image')) ? (
-                      <img src={item.id.trim()} alt="symbol" className="w-4 h-4 sm:w-5 sm:h-5 md:w-8 md:h-8 lg:w-10 lg:h-10 object-contain filter drop-shadow-md rounded-full" />
+                    {isImageSymbol(item.id) ? (
+                      <img src={getImageUrl(item.id)} alt="symbol" className="w-4 h-4 sm:w-5 sm:h-5 md:w-8 md:h-8 lg:w-10 lg:h-10 object-contain filter drop-shadow-md rounded-full" />
                     ) : item.id}
                   </div>
                   {/* Segment dividers */}
@@ -935,8 +967,8 @@ export default function SpiritWheel() {
                   >
                     {['Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Black', 'White', 'Brown', 'LightBlue', 'Grey', 'Orange'].includes(item.id) ? (
                       <div className="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 lg:w-8 lg:h-8 rounded-full shadow-inner border border-black/30" style={{ backgroundColor: item.id === 'LightBlue' ? '#add8e6' : item.id.toLowerCase() }}></div>
-                    ) : typeof item.id === 'string' && (item.id.trim().startsWith('http') || item.id.trim().startsWith('data:image')) ? (
-                      <img src={item.id.trim()} alt="symbol" className="w-4 h-4 sm:w-6 sm:h-6 md:w-10 md:h-10 lg:w-14 lg:h-14 object-contain filter drop-shadow-md rounded-full" />
+                    ) : isImageSymbol(item.id) ? (
+                      <img src={getImageUrl(item.id)} alt="symbol" className="w-4 h-4 sm:w-6 sm:h-6 md:w-10 md:h-10 lg:w-14 lg:h-14 object-contain filter drop-shadow-md rounded-full" />
                     ) : (
                       <span className={activeTheme.isTiles ? "text-[10px] md:text-sm" : ""}>{item.id}</span>
                     )}
@@ -989,8 +1021,8 @@ export default function SpiritWheel() {
                       fontSize: activeTheme.isTiles ? '1.2em' : undefined
                     }}
                   >
-                    {typeof item.id === 'string' && (item.id.trim().startsWith('http') || item.id.trim().startsWith('data:image')) ? (
-                      <img src={item.id.trim()} alt="symbol" className="w-8 h-8 sm:w-10 sm:h-10 md:w-16 md:h-16 lg:w-20 lg:h-20 object-contain filter drop-shadow-md rounded-full" />
+                    {isImageSymbol(item.id) ? (
+                      <img src={getImageUrl(item.id)} alt="symbol" className="w-8 h-8 sm:w-10 sm:h-10 md:w-16 md:h-16 lg:w-20 lg:h-20 object-contain filter drop-shadow-md rounded-full" />
                     ) : item.id}
                   </div>
                   {/* Segment dividers */}
