@@ -5,11 +5,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Sparkles, RefreshCw, Eye, ChevronLeft, Save, Plus, ZoomIn, ZoomOut } from 'lucide-react';
+import { Sparkles, RefreshCw, Eye, ChevronLeft, Save, Plus, ZoomIn, ZoomOut, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import AudioOrb from "@/components/reading/AudioOrb";
+import html2canvas from 'html2canvas';
 
 // 50 Cards of the Rooted Crescent Oracle Deck
 const ROOTED_CARDS_DATA = [
@@ -131,6 +132,34 @@ export default function SpiritWheel() {
   const [isSaving, setIsSaving] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [zoomLevel, setZoomLevel] = useState(1);
+  const [isCapturing, setIsCapturing] = useState(false);
+
+  const handleDownloadImage = async () => {
+    setIsCapturing(true);
+    setTimeout(async () => {
+      try {
+        const element = document.getElementById("spirit-wheel-capture-area");
+        if (!element) return;
+        
+        const canvas = await html2canvas(element, {
+          scale: 2, // High resolution
+          useCORS: true,
+          backgroundColor: activeTheme.pageBg || '#0f172a',
+        });
+        
+        const dataUrl = canvas.toDataURL("image/png");
+        const link = document.createElement("a");
+        link.download = `spirit-wheel-${new Date().getTime()}.png`;
+        link.href = dataUrl;
+        link.click();
+      } catch (err) {
+        console.error("Failed to capture image", err);
+        alert("Failed to capture image");
+      } finally {
+        setIsCapturing(false);
+      }
+    }, 100);
+  };
 
   const handleSaveReading = async () => {
     setIsSaving(true);
@@ -450,6 +479,7 @@ export default function SpiritWheel() {
 
   return (
     <div 
+      id="spirit-wheel-capture-area"
       className="min-h-screen text-amber-50 p-4 md:p-8 font-serif bg-blend-multiply overflow-x-hidden transition-colors duration-500"
       style={{ 
         backgroundColor: activeTheme.pageBg || '#0f172a',
@@ -465,18 +495,31 @@ export default function SpiritWheel() {
           100% { transform: translateX(-50%) scale(1.3); }
         }
       `}</style>
-      <div className="max-w-[100rem] mx-auto mb-6">
+      <div className="max-w-[100rem] mx-auto mb-6 flex justify-between items-center">
         <div className="flex items-center gap-4">
-          <Link to={createPageUrl("Dashboard")}>
-            <Button variant="ghost" className="text-amber-200 hover:text-amber-100 hover:bg-amber-900/50 pl-2 pr-4">
-              <ChevronLeft className="w-6 h-6 mr-1" />
-              <span className="hidden sm:inline font-semibold">Dashboard</span>
-            </Button>
-          </Link>
+          <div data-html2canvas-ignore="true">
+            <Link to={createPageUrl("Dashboard")}>
+              <Button variant="ghost" className="text-amber-200 hover:text-amber-100 hover:bg-amber-900/50 pl-2 pr-4">
+                <ChevronLeft className="w-6 h-6 mr-1" />
+                <span className="hidden sm:inline font-semibold">Dashboard</span>
+              </Button>
+            </Link>
+          </div>
           <div>
             <h1 className="text-3xl md:text-4xl font-bold text-amber-500 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">Spirit Wheel</h1>
             <p className="text-sm md:text-base text-amber-200/80">Astro Insights Digital Reading Room</p>
           </div>
+        </div>
+
+        <div data-html2canvas-ignore="true">
+          <Button 
+            onClick={handleDownloadImage}
+            disabled={isCapturing}
+            className="bg-amber-600 hover:bg-amber-500 text-white font-bold"
+          >
+            {isCapturing ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> : <Download className="w-4 h-4 mr-2" />}
+            <span className="hidden sm:inline">Download Image</span>
+          </Button>
         </div>
       </div>
 
@@ -701,32 +744,36 @@ export default function SpiritWheel() {
                   </div>
                 )}
                 
-                <Button onClick={getInterpretation} disabled={isAiLoading} className="w-full mt-6 bg-[#3b2313] hover:bg-[#4a2c18] border border-[#8b5a2b] text-lg py-6">
-                  {isAiLoading ? <RefreshCw className="w-5 h-5 mr-2 animate-spin text-amber-400" /> : <Eye className="w-5 h-5 mr-2 text-amber-400" />}
-                  Reveal Instant Reading
-                </Button>
-
-                <Link to={aiInterpretation ? `${createPageUrl("AgentChat")}?initialMessage=${encodeURIComponent(`I just did a Spirit Wheel reading. Here are the results:\n\n${aiInterpretation}\n\nPlease acknowledge receipt of this reading and ask me exactly this question: "Would you like to discuss your spiritual reading further?" Do not provide a deep dive interpretation yet until I answer.`)}` : createPageUrl("AgentChat")} className="block mt-4">
-                  <Button className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 border border-purple-400/50 text-lg py-6 shadow-[0_0_15px_rgba(168,85,247,0.4)]">
-                    <Sparkles className="w-5 h-5 mr-2 text-purple-200" />
-                    Deep Dive with Oracle Chat (Premium)
+                <div data-html2canvas-ignore="true">
+                  <Button onClick={getInterpretation} disabled={isAiLoading} className="w-full mt-6 bg-[#3b2313] hover:bg-[#4a2c18] border border-[#8b5a2b] text-lg py-6">
+                    {isAiLoading ? <RefreshCw className="w-5 h-5 mr-2 animate-spin text-amber-400" /> : <Eye className="w-5 h-5 mr-2 text-amber-400" />}
+                    Reveal Instant Reading
                   </Button>
-                </Link>
+
+                  <Link to={aiInterpretation ? `${createPageUrl("AgentChat")}?initialMessage=${encodeURIComponent(`I just did a Spirit Wheel reading. Here are the results:\n\n${aiInterpretation}\n\nPlease acknowledge receipt of this reading and ask me exactly this question: "Would you like to discuss your spiritual reading further?" Do not provide a deep dive interpretation yet until I answer.`)}` : createPageUrl("AgentChat")} className="block mt-4">
+                    <Button className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 border border-purple-400/50 text-lg py-6 shadow-[0_0_15px_rgba(168,85,247,0.4)]">
+                      <Sparkles className="w-5 h-5 mr-2 text-purple-200" />
+                      Deep Dive with Oracle Chat (Premium)
+                    </Button>
+                  </Link>
+                </div>
 
                 {aiInterpretation && (
                   <div className="mt-6 p-5 bg-[#0a0502] rounded-lg border border-[#8b5a2b] whitespace-pre-wrap text-base text-amber-100 leading-relaxed shadow-inner relative">
                     <div className="flex justify-between items-center mb-2">
                       <div className="text-amber-500 text-sm font-bold uppercase">Oracle Interpretation</div>
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        onClick={handleSaveReading}
-                        disabled={isSaving}
-                        className="bg-[#3b2313] hover:bg-[#4a2c18] border-[#8b5a2b] text-amber-400 h-8"
-                      >
-                        <Save className="w-4 h-4 mr-2" />
-                        {isSaving ? "Saving..." : "Save Reading"}
-                      </Button>
+                      <div data-html2canvas-ignore="true">
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          onClick={handleSaveReading}
+                          disabled={isSaving}
+                          className="bg-[#3b2313] hover:bg-[#4a2c18] border-[#8b5a2b] text-amber-400 h-8"
+                        >
+                          <Save className="w-4 h-4 mr-2" />
+                          {isSaving ? "Saving..." : "Save Reading"}
+                        </Button>
+                      </div>
                     </div>
                     {aiInterpretation}
                   </div>
@@ -744,7 +791,7 @@ export default function SpiritWheel() {
         <div className="flex-1 flex items-start lg:items-center justify-center p-2 lg:p-8 relative min-h-[350px] lg:min-h-[600px] order-1 lg:order-2 overflow-hidden lg:overflow-visible">
           
           {/* Zoom Controls */}
-          <div className="absolute top-4 right-4 z-50 flex flex-col gap-2 bg-black/50 p-1.5 rounded-lg border border-[#8b5a2b] shadow-lg backdrop-blur-sm">
+          <div data-html2canvas-ignore="true" className="absolute top-4 right-4 z-50 flex flex-col gap-2 bg-black/50 p-1.5 rounded-lg border border-[#8b5a2b] shadow-lg backdrop-blur-sm">
             <Button size="icon" variant="ghost" onClick={() => setZoomLevel(z => Math.min(z + 0.25, 3))} className="text-amber-300 hover:text-amber-100 hover:bg-[#8b5a2b]/50 h-8 w-8">
               <ZoomIn className="w-5 h-5" />
             </Button>
@@ -966,11 +1013,13 @@ export default function SpiritWheel() {
           </div>
         </div>
       </div>
-      <AudioOrb 
-        textToSpeak={aiInterpretation} 
-        autoPlay={!!aiInterpretation} 
-        variant="player"
-      />
+      <div data-html2canvas-ignore="true">
+        <AudioOrb 
+          textToSpeak={aiInterpretation} 
+          autoPlay={!!aiInterpretation} 
+          variant="player"
+        />
+      </div>
       <div className="max-w-4xl mx-auto mt-12 text-center text-xs text-amber-200/50 pb-8">
         Disclaimer: The guidance provided is for entertainment purposes only and does not constitute professional advice. Client logins are secured and data can be deleted at any time.
       </div>
