@@ -341,13 +341,13 @@ export default function SpiritWheel() {
       setDrawnCard(null);
     }
     
-    const outerLen = wheelData.outer.length;
-    const middleLen = wheelData.middle.length;
-    const innerLen = wheelData.inner.length;
+    const outerLen = Math.max(1, wheelData.outer.length);
+    const middleLen = Math.max(1, wheelData.middle.length);
+    const innerLen = Math.max(1, wheelData.inner.length);
 
-    const newOuter = rotations.outer + 360 * 3 + Math.floor(Math.random() * outerLen) * (360 / outerLen);
-    const newMiddle = rotations.middle - 360 * 3 - Math.floor(Math.random() * middleLen) * (360 / middleLen);
-    const newInner = rotations.inner + 360 * 4 + Math.floor(Math.random() * innerLen) * (360 / innerLen);
+    const newOuter = rotations.outer + 360 * 3 + (wheelData.outer.length > 0 ? Math.floor(Math.random() * wheelData.outer.length) * (360 / wheelData.outer.length) : 0);
+    const newMiddle = rotations.middle - 360 * 3 - (wheelData.middle.length > 0 ? Math.floor(Math.random() * wheelData.middle.length) * (360 / wheelData.middle.length) : 0);
+    const newInner = rotations.inner + 360 * 4 + (wheelData.inner.length > 0 ? Math.floor(Math.random() * wheelData.inner.length) * (360 / wheelData.inner.length) : 0);
 
     setRotations({ outer: newOuter, middle: newMiddle, inner: newInner });
 
@@ -369,9 +369,9 @@ export default function SpiritWheel() {
       if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate([30, 50, 30]); // Final reveal vibration
       setIsSpinning(false);
       setSelectedIndices({
-        outer: (outerLen - Math.round((newOuter % 360) / (360 / outerLen))) % outerLen,
-        middle: Math.round((Math.abs(newMiddle) % 360) / (360 / middleLen)) % middleLen, // reverse direction
-        inner: (innerLen - Math.round((newInner % 360) / (360 / innerLen))) % innerLen
+        outer: wheelData.outer.length > 0 ? (wheelData.outer.length - Math.round((newOuter % 360) / (360 / wheelData.outer.length))) % wheelData.outer.length : 0,
+        middle: wheelData.middle.length > 0 ? Math.round((Math.abs(newMiddle) % 360) / (360 / wheelData.middle.length)) % wheelData.middle.length : 0,
+        inner: wheelData.inner.length > 0 ? (wheelData.inner.length - Math.round((newInner % 360) / (360 / wheelData.inner.length))) % wheelData.inner.length : 0
       });
       if (!blankMode) {
         setIsRevealed(true);
@@ -382,10 +382,10 @@ export default function SpiritWheel() {
   const getSegmentText = (ring, index) => {
     if (ring === 'outer') {
       const item = wheelData.outer[index];
-      return item.name || item.id;
+      return item?.name || item?.id || "";
     }
-    if (ring === 'middle') return wheelData.middle[index].meaning;
-    if (ring === 'inner') return wheelData.inner[index].meaning;
+    if (ring === 'middle') return wheelData.middle[index]?.meaning || "";
+    if (ring === 'inner') return wheelData.inner[index]?.meaning || "";
     return "";
   };
 
@@ -396,9 +396,9 @@ export default function SpiritWheel() {
   const getInterpretation = async () => {
     setIsAiLoading(true);
     try {
-      const outerItem = wheelData.outer[selectedIndices.outer];
-      const middleItem = wheelData.middle[selectedIndices.middle];
-      const innerItem = wheelData.inner[selectedIndices.inner];
+      const outerItem = wheelData.outer[selectedIndices.outer] || {};
+      const middleItem = wheelData.middle[selectedIndices.middle] || {};
+      const innerItem = wheelData.inner[selectedIndices.inner] || {};
 
       let cardName = "";
       if (drawnCard) {
@@ -406,7 +406,7 @@ export default function SpiritWheel() {
       }
 
       // Database-driven reading based on combinations (Bypasses AI)
-      const coreTheme = outerItem.general ? outerItem.general.split(":")[0] : outerItem.name;
+      const coreTheme = outerItem.general ? outerItem.general.split(":")[0] : (outerItem.name || "Unknown theme");
       const timingModifier = middleItem.meaning || middleItem.general || "Unknown modifier";
       const actionGuidance = innerItem.meaning || innerItem.general || "Unknown guidance";
       
@@ -616,29 +616,35 @@ export default function SpiritWheel() {
               </div>
             ) : isRevealed ? (
               <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="p-4 bg-[#1c0f05] rounded-lg border border-[#5c3a21]">
-                  <div className="text-sm text-amber-500/70 uppercase font-semibold mb-1 flex justify-between">
-                    <span>Outer Ring</span>
-                    <span className="text-amber-300">[{wheelData.outer[selectedIndices.outer].id}]</span>
+                {wheelData.outer.length > 0 && (
+                  <div className="p-4 bg-[#1c0f05] rounded-lg border border-[#5c3a21]">
+                    <div className="text-sm text-amber-500/70 uppercase font-semibold mb-1 flex justify-between">
+                      <span>Outer Ring</span>
+                      <span className="text-amber-300">[{wheelData.outer[selectedIndices.outer]?.id || 'N/A'}]</span>
+                    </div>
+                    <div className="text-xl text-amber-50">{getSegmentText('outer', selectedIndices.outer)}</div>
                   </div>
-                  <div className="text-xl text-amber-50">{getSegmentText('outer', selectedIndices.outer)}</div>
-                </div>
+                )}
                 
-                <div className="p-4 bg-[#1c0f05] rounded-lg border border-[#5c3a21]">
-                  <div className="text-sm text-amber-500/70 uppercase font-semibold mb-1 flex justify-between">
-                    <span>Middle Ring</span>
-                    <span className="text-amber-300">[{wheelData.middle[selectedIndices.middle].id}]</span>
+                {wheelData.middle.length > 0 && (
+                  <div className="p-4 bg-[#1c0f05] rounded-lg border border-[#5c3a21]">
+                    <div className="text-sm text-amber-500/70 uppercase font-semibold mb-1 flex justify-between">
+                      <span>Middle Ring</span>
+                      <span className="text-amber-300">[{wheelData.middle[selectedIndices.middle]?.id || 'N/A'}]</span>
+                    </div>
+                    <div className="text-xl text-amber-50">{getSegmentText('middle', selectedIndices.middle)}</div>
                   </div>
-                  <div className="text-xl text-amber-50">{getSegmentText('middle', selectedIndices.middle)}</div>
-                </div>
+                )}
                 
-                <div className="p-4 bg-[#1c0f05] rounded-lg border border-[#5c3a21]">
-                  <div className="text-sm text-amber-500/70 uppercase font-semibold mb-1 flex justify-between">
-                    <span>Inner Ring</span>
-                    <span className="text-amber-300">[{wheelData.inner[selectedIndices.inner].id}]</span>
+                {wheelData.inner.length > 0 && (
+                  <div className="p-4 bg-[#1c0f05] rounded-lg border border-[#5c3a21]">
+                    <div className="text-sm text-amber-500/70 uppercase font-semibold mb-1 flex justify-between">
+                      <span>Inner Ring</span>
+                      <span className="text-amber-300">[{wheelData.inner[selectedIndices.inner]?.id || 'N/A'}]</span>
+                    </div>
+                    <div className="text-xl text-amber-50">{getSegmentText('inner', selectedIndices.inner)}</div>
                   </div>
-                  <div className="text-xl text-amber-50">{getSegmentText('inner', selectedIndices.inner)}</div>
-                </div>
+                )}
                 
                 {drawnCard && (
                   <div className="p-4 bg-[#1c0f05] rounded-lg border border-[#5c3a21] flex flex-col md:flex-row gap-4 items-center md:items-start animate-in fade-in slide-in-from-bottom-4 duration-700">
