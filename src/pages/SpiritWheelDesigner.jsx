@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -116,6 +116,7 @@ const getImageUrl = (id) => {
 function RingEditor({ ringKey, segments, setSegments, deckCards }) {
   const meta = RING_LABELS[ringKey];
   const [isHarvesting, setIsHarvesting] = useState(false);
+  const [themePackSelectKey, setThemePackSelectKey] = useState(Date.now());
 
   const addSegment = () => setSegments([...segments, { ...DEFAULT_SEGMENT }]);
 
@@ -201,9 +202,12 @@ function RingEditor({ ringKey, segments, setSegments, deckCards }) {
               <Sparkles className="w-4 h-4 mr-1" /> Add All Cards
             </Button>
           )}
-          <Select onValueChange={(v) => {
-            if(v && THEME_PACKS[v]) setSegments([...segments, ...THEME_PACKS[v]]);
-          }} value="">
+          <Select key={themePackSelectKey} onValueChange={(v) => {
+            if(v && THEME_PACKS[v]) {
+              setSegments([...segments, ...THEME_PACKS[v]]);
+              setTimeout(() => setThemePackSelectKey(Date.now()), 10);
+            }
+          }}>
             <SelectTrigger className="w-40 bg-amber-900/40 hover:bg-amber-800/60 border-amber-600/40 text-amber-100 h-8 text-xs focus:ring-0">
               <SelectValue placeholder="Add Theme Pack..." />
             </SelectTrigger>
@@ -332,7 +336,8 @@ function RingEditor({ ringKey, segments, setSegments, deckCards }) {
 
 export default function SpiritWheelDesigner() {
   const navigate = useNavigate();
-  const urlParams = new URLSearchParams(window.location.search);
+  const location = useLocation();
+  const urlParams = new URLSearchParams(location.search);
   const editId = urlParams.get("id");
 
   const [name, setName] = useState("");
@@ -426,6 +431,13 @@ export default function SpiritWheelDesigner() {
   const handleSave = async (statusToSave = publishStatus) => {
     if (!name.trim()) { alert("Please give this wheel a name."); return; }
     setIsSaving(true);
+
+    const cleanSegments = (ring) => ring.map(s => ({
+      ...s,
+      label: s.label || "Untitled",
+      meaning: s.meaning || "No meaning provided"
+    }));
+
     try {
       const data = {
         name,
@@ -435,9 +447,9 @@ export default function SpiritWheelDesigner() {
         custom_theme: customTheme,
         is_public: isPublic,
         publish_status: statusToSave,
-        outer_ring: outerRing,
-        middle_ring: middleRing,
-        inner_ring: innerRing,
+        outer_ring: cleanSegments(outerRing),
+        middle_ring: cleanSegments(middleRing),
+        inner_ring: cleanSegments(innerRing),
       };
       if (editId) {
         await base44.entities.SpiritWheelConfiguration.update(editId, data);
@@ -449,7 +461,7 @@ export default function SpiritWheelDesigner() {
       alert(`Saved successfully as ${statusToSave}!`);
     } catch (e) {
       console.error(e);
-      alert("Failed to save.");
+      alert(`Failed to save: ${e.message}`);
     } finally {
       setIsSaving(false);
     }
@@ -511,9 +523,16 @@ export default function SpiritWheelDesigner() {
             </Button>
           </Link>
           <div className="flex-1">
-            <h1 className="text-2xl md:text-3xl font-bold text-amber-400 flex items-center gap-2">
-              <Sparkles className="w-6 h-6" /> Spirit Wheel Designer
-            </h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl md:text-3xl font-bold text-amber-400 flex items-center gap-2">
+                <Sparkles className="w-6 h-6" /> Spirit Wheel Designer
+              </h1>
+              {editId && (
+                <span className={`px-2 py-1 text-xs font-bold uppercase rounded ${publishStatus === 'published' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40' : 'bg-amber-500/20 text-amber-400 border border-amber-500/40'}`}>
+                  {publishStatus}
+                </span>
+              )}
+            </div>
             <p className="text-sm text-amber-200/60">Build your custom oracle wheel — form-based with JSON import/export</p>
           </div>
           <div className="flex gap-2">

@@ -343,13 +343,13 @@ export default function SpiritWheel() {
         setCurrentUser(user);
         let myDecks = [];
         let myWheels = [];
-        let publicWheelsRes = await base44.entities.SpiritWheelConfiguration.filter({ is_public: true }, '-created_date', 100);
+        let publicWheelsRes = await base44.entities.SpiritWheelConfiguration.filter({ is_public: true }, '-updated_date', 100);
         let publicWheels = (publicWheelsRes || []).filter(w => w.publish_status !== 'draft');
         
         if (user?.email) {
           const mine = await base44.entities.Deck.filter({ created_by: user.email }, '-updated_date', 100);
           myDecks = Array.isArray(mine) ? mine.filter(d => d.publish_status !== 'draft' && d.publish_status !== 'pending_review') : [];
-          myWheels = await base44.entities.SpiritWheelConfiguration.filter({ created_by: user.email }, '-created_date', 100) || [];
+          myWheels = await base44.entities.SpiritWheelConfiguration.filter({ created_by: user.email }, '-updated_date', 100) || [];
         }
         
         const allDecksMap = new Map();
