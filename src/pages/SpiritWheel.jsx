@@ -920,7 +920,7 @@ export default function SpiritWheel() {
                     ) : item.id}
                   </div>
                   {/* Segment dividers */}
-                  {!activeTheme.isTiles && <div className="absolute top-0 -translate-x-1/2 w-[3px] h-full" style={{ transform: `rotate(${angle / 2}deg)`, backgroundColor: activeTheme.divider, opacity: 0.8 }}></div>}
+                  {!activeTheme.isTiles && <div className="absolute top-0 -translate-x-1/2 w-[1px] h-full" style={{ transform: `rotate(${angle / 2}deg)`, backgroundColor: activeTheme.divider, opacity: 0.25 }}></div>}
                   {/* Silver Pins */}
                   {!activeTheme.isTiles && <div className="absolute top-[2px] -translate-x-1/2 w-[3px] h-[3px] sm:w-1 sm:h-1 md:w-1.5 md:h-1.5 rounded-full shadow-sm border border-black/30 z-10" style={{ transform: `rotate(${angle / 2}deg)`, backgroundColor: activeTheme.pin }}></div>}
                 </div>
@@ -975,7 +975,7 @@ export default function SpiritWheel() {
                     )}
                   </div>
                   {/* Segment dividers */}
-                  {!activeTheme.isTiles && <div className="absolute top-0 -translate-x-1/2 w-[3px] h-full" style={{ transform: `rotate(${angle / 2}deg)`, backgroundColor: activeTheme.divider, opacity: 0.8 }}></div>}
+                  {!activeTheme.isTiles && <div className="absolute top-0 -translate-x-1/2 w-[1px] h-full" style={{ transform: `rotate(${angle / 2}deg)`, backgroundColor: activeTheme.divider, opacity: 0.25 }}></div>}
                   {/* Silver Pins */}
                   {!activeTheme.isTiles && <div className="absolute top-[2px] -translate-x-1/2 w-[3px] h-[3px] sm:w-1 sm:h-1 md:w-1.5 md:h-1.5 rounded-full shadow-sm border border-black/30 z-10" style={{ transform: `rotate(${angle / 2}deg)`, backgroundColor: activeTheme.pin }}></div>}
                 </div>
@@ -1027,7 +1027,7 @@ export default function SpiritWheel() {
                     ) : item.id}
                   </div>
                   {/* Segment dividers */}
-                  {!activeTheme.isTiles && <div className="absolute top-0 -translate-x-1/2 w-[3px] h-full" style={{ transform: `rotate(${angle / 2}deg)`, backgroundColor: activeTheme.divider, opacity: 0.8 }}></div>}
+                  {!activeTheme.isTiles && <div className="absolute top-0 -translate-x-1/2 w-[1px] h-full" style={{ transform: `rotate(${angle / 2}deg)`, backgroundColor: activeTheme.divider, opacity: 0.25 }}></div>}
                   {/* Silver Pins */}
                   {!activeTheme.isTiles && <div className="absolute top-[2px] -translate-x-1/2 w-[3px] h-[3px] sm:w-1 sm:h-1 md:w-1.5 md:h-1.5 rounded-full shadow-sm border border-black/30 z-10" style={{ transform: `rotate(${angle / 2}deg)`, backgroundColor: activeTheme.pin }}></div>}
                 </div>
