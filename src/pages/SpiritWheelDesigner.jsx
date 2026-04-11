@@ -18,27 +18,74 @@ const RING_LABELS = {
   inner_ring: { label: "Inner Ring", color: "yellow", hint: "Action guidance, yes/no, directional symbols" },
 };
 
+const THEME_PACKS = {
+  yes_no: [
+    { label: "Yes", meaning: "Yes — the answer is affirmative", type: "symbol", icon: "✅", card_id: "" },
+    { label: "No", meaning: "No — the answer is negative", type: "symbol", icon: "❌", card_id: "" },
+    { label: "Maybe", meaning: "Unclear, ask again later", type: "symbol", icon: "🤷", card_id: "" }
+  ],
+  elements: [
+    { label: "Fire", meaning: "Passion and transformation", type: "symbol", icon: "🔥", card_id: "" },
+    { label: "Air", meaning: "Thought, communication, movement", type: "symbol", icon: "💨", card_id: "" },
+    { label: "Water", meaning: "Emotion, intuition, flow", type: "symbol", icon: "🌊", card_id: "" },
+    { label: "Earth", meaning: "Stability, grounding, manifestation", type: "symbol", icon: "🌍", card_id: "" }
+  ],
+  timing: [
+    { label: "Soon", meaning: "It will happen soon", type: "symbol", icon: "⏳", card_id: "" },
+    { label: "Patience", meaning: "It will take time", type: "symbol", icon: "🕰️", card_id: "" },
+    { label: "Now", meaning: "Immediate action required", type: "symbol", icon: "🚀", card_id: "" }
+  ],
+  directions: [
+    { label: "North", meaning: "Look North / move forward", type: "symbol", icon: "⬆️", card_id: "" },
+    { label: "South", meaning: "Look South / retreat inward", type: "symbol", icon: "⬇️", card_id: "" },
+    { label: "East", meaning: "New beginnings, the rising sun", type: "symbol", icon: "➡️", card_id: "" },
+    { label: "West", meaning: "Endings, reflection, the setting sun", type: "symbol", icon: "⬅️", card_id: "" }
+  ],
+  zodiac: [
+    { label: "Aries", meaning: "Bold, pioneering, courageous", type: "symbol", icon: "♈", card_id: "" },
+    { label: "Taurus", meaning: "Steadfast, grounded, reliable", type: "symbol", icon: "♉", card_id: "" },
+    { label: "Gemini", meaning: "Versatile, expressive, curious", type: "symbol", icon: "♊", card_id: "" },
+    { label: "Cancer", meaning: "Intuitive, protective, nurturing", type: "symbol", icon: "♋", card_id: "" },
+    { label: "Leo", meaning: "Dramatic, generous, proud", type: "symbol", icon: "♌", card_id: "" },
+    { label: "Virgo", meaning: "Practical, analytical, humble", type: "symbol", icon: "♍", card_id: "" },
+    { label: "Libra", meaning: "Diplomatic, harmonious, fair", type: "symbol", icon: "♎", card_id: "" },
+    { label: "Scorpio", meaning: "Intense, transformative, passionate", type: "symbol", icon: "♏", card_id: "" },
+    { label: "Sagittarius", meaning: "Adventurous, optimistic, free", type: "symbol", icon: "♐", card_id: "" },
+    { label: "Capricorn", meaning: "Ambitious, disciplined, responsible", type: "symbol", icon: "♑", card_id: "" },
+    { label: "Aquarius", meaning: "Innovative, progressive, humanitarian", type: "symbol", icon: "♒", card_id: "" },
+    { label: "Pisces", meaning: "Compassionate, artistic, empathetic", type: "symbol", icon: "♓", card_id: "" }
+  ],
+  planets: [
+    { label: "Sun", meaning: "Ego, vitality, consciousness", type: "symbol", icon: "☀️", card_id: "" },
+    { label: "Moon", meaning: "Emotions, instincts, habits", type: "symbol", icon: "🌙", card_id: "" },
+    { label: "Mercury", meaning: "Communication, intellect, reason", type: "symbol", icon: "☿", card_id: "" },
+    { label: "Venus", meaning: "Love, beauty, harmony", type: "symbol", icon: "♀", card_id: "" },
+    { label: "Mars", meaning: "Action, desire, aggression", type: "symbol", icon: "♂", card_id: "" },
+    { label: "Jupiter", meaning: "Expansion, luck, philosophy", type: "symbol", icon: "♃", card_id: "" },
+    { label: "Saturn", meaning: "Restriction, discipline, structure", type: "symbol", icon: "♄", card_id: "" },
+    { label: "Uranus", meaning: "Innovation, rebellion, unpredictability", type: "symbol", icon: "♅", card_id: "" },
+    { label: "Neptune", meaning: "Dreams, illusion, spirituality", type: "symbol", icon: "♆", card_id: "" },
+    { label: "Pluto", meaning: "Transformation, power, rebirth", type: "symbol", icon: "♇", card_id: "" }
+  ],
+  chakras: [
+    { label: "Root", meaning: "Survival, grounding, security", type: "symbol", icon: "🔴", card_id: "" },
+    { label: "Sacral", meaning: "Emotions, creativity, sexuality", type: "symbol", icon: "🟠", card_id: "" },
+    { label: "Solar Plexus", meaning: "Willpower, confidence, identity", type: "symbol", icon: "🟡", card_id: "" },
+    { label: "Heart", meaning: "Love, compassion, connection", type: "symbol", icon: "🟢", card_id: "" },
+    { label: "Throat", meaning: "Communication, truth, expression", type: "symbol", icon: "🔵", card_id: "" },
+    { label: "Third Eye", meaning: "Intuition, imagination, wisdom", type: "symbol", icon: "🟣", card_id: "" },
+    { label: "Crown", meaning: "Spirituality, connection to divine", type: "symbol", icon: "⚪", card_id: "" }
+  ]
+};
+
 const PRESET_SYMBOLS = [
-  { icon: "✅", label: "Yes", meaning: "Yes — the answer is affirmative" },
-  { icon: "❌", label: "No", meaning: "No — the answer is negative" },
-  { icon: "❤️", label: "Love", meaning: "Love / heart connection" },
-  { icon: "💰", label: "Money", meaning: "Financial flow and abundance" },
-  { icon: "⏳", label: "Time", meaning: "Patience — timing is important" },
-  { icon: "🔥", label: "Fire", meaning: "Passion and transformation" },
-  { icon: "💨", label: "Air", meaning: "Thought, communication, movement" },
-  { icon: "🌊", label: "Water", meaning: "Emotion, intuition, flow" },
-  { icon: "🌍", label: "Earth", meaning: "Stability, grounding, manifestation" },
-  { icon: "⬆️", label: "North", meaning: "Look North / move forward" },
-  { icon: "⬇️", label: "South", meaning: "Look South / retreat inward" },
-  { icon: "➡️", label: "East", meaning: "New beginnings, the rising sun" },
-  { icon: "⬅️", label: "West", meaning: "Endings, reflection, the setting sun" },
-  { icon: "☀️", label: "Sun", meaning: "Clarity, vitality, conscious energy" },
-  { icon: "🌙", label: "Moon", meaning: "Intuition, cycles, the unconscious" },
-  { icon: "⭐", label: "Star", meaning: "Hope, guidance, your unique spark" },
-  { icon: "🔮", label: "Vision", meaning: "Psychic sight, hidden knowledge" },
-  { icon: "🤝", label: "Together", meaning: "Partnership and collaboration" },
-  { icon: "🚪", label: "Door", meaning: "A path or option available" },
-  { icon: "🔓", label: "Unlocked", meaning: "Obstacles removed, path is clear" },
+  ...THEME_PACKS.yes_no,
+  ...THEME_PACKS.elements,
+  ...THEME_PACKS.timing,
+  ...THEME_PACKS.directions,
+  ...THEME_PACKS.zodiac,
+  ...THEME_PACKS.planets,
+  ...THEME_PACKS.chakras
 ];
 
 function RingEditor({ ringKey, segments, setSegments, deckCards }) {
@@ -119,18 +166,34 @@ function RingEditor({ ringKey, segments, setSegments, deckCards }) {
         </div>
         <div className="flex gap-2 flex-wrap justify-end">
           {segments.length > 0 && (
-            <Button size="sm" variant="outline" onClick={handleHarvestSymbols} disabled={isHarvesting} className="border-amber-600/40 text-amber-300 hover:bg-amber-900/20">
+            <Button size="sm" variant="outline" onClick={handleHarvestSymbols} disabled={isHarvesting} className="border-amber-600/40 text-amber-300 hover:bg-amber-900/20 h-8">
               {isHarvesting ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Sparkles className="w-4 h-4 mr-1" />}
               Harvest Symbols
             </Button>
           )}
           {deckCards && deckCards.length > 0 && (
-            <Button size="sm" variant="outline" onClick={addAllCards} className="border-amber-600/40 text-amber-300 hover:bg-amber-900/20">
+            <Button size="sm" variant="outline" onClick={addAllCards} className="border-amber-600/40 text-amber-300 hover:bg-amber-900/20 h-8">
               <Sparkles className="w-4 h-4 mr-1" /> Add All Cards
             </Button>
           )}
-          <Button size="sm" onClick={addSegment} className="bg-amber-700 hover:bg-amber-600 text-white">
-            <Plus className="w-4 h-4 mr-1" /> Add Segment
+          <Select onValueChange={(v) => {
+            if(v && THEME_PACKS[v]) setSegments([...segments, ...THEME_PACKS[v]]);
+          }} value="">
+            <SelectTrigger className="w-40 bg-amber-900/40 hover:bg-amber-800/60 border-amber-600/40 text-amber-100 h-8 text-xs focus:ring-0">
+              <SelectValue placeholder="Add Theme Pack..." />
+            </SelectTrigger>
+            <SelectContent className="bg-slate-900 border-slate-700 text-white">
+              <SelectItem value="yes_no">Yes / No / Maybe</SelectItem>
+              <SelectItem value="elements">Elements</SelectItem>
+              <SelectItem value="timing">Timing</SelectItem>
+              <SelectItem value="directions">Directions</SelectItem>
+              <SelectItem value="zodiac">Zodiac Signs</SelectItem>
+              <SelectItem value="planets">Planets</SelectItem>
+              <SelectItem value="chakras">Chakras</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button size="sm" onClick={addSegment} className="bg-amber-700 hover:bg-amber-600 text-white h-8">
+            <Plus className="w-4 h-4 mr-1" /> Add Custom
           </Button>
         </div>
       </div>
