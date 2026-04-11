@@ -131,15 +131,16 @@ const SEVEN_SISTERS_MODIFIERS = [
 const CATEGORIES = ["General", "Relationships", "Numbers", "Age", "Body Parts", "Colors", "Lost Items", "Height", "Time", "Astrology", "Emotions", "Profiler", "Seasons and Shapes", "Traveling", "Zapped", "X-Rated"];
 
 const isImageSymbol = (id) => {
-  if (typeof id !== 'string') return false;
-  const trimmed = id.trim();
-  return /^https?:\/\//i.test(trimmed) || /^data:image/i.test(trimmed) || /\.(png|jpe?g|gif|svg|webp)(\?.*)?$/i.test(trimmed);
+  if (!id || typeof id !== 'string') return false;
+  const s = id.trim().toLowerCase();
+  return s.startsWith('http') || s.startsWith('data:image') || /\.(png|jpe?g|gif|svg|webp)(\?.*)?$/.test(s);
 };
 
 const getImageUrl = (id) => {
-  let url = id.trim();
-  if (!/^https?:\/\//i.test(url) && !/^data:image/i.test(url)) {
-    url = 'https://' + url; // auto-prepend https if missing
+  if (!id) return '';
+  let url = id.trim().replace(/^['"]+|['"]+$/g, '');
+  if (!url.startsWith('http') && !url.startsWith('data:image')) {
+    url = 'https://' + url;
   }
   return url;
 };
@@ -915,7 +916,7 @@ export default function SpiritWheel() {
                     }}
                   >
                     {isImageSymbol(item.id) ? (
-                      <img src={getImageUrl(item.id)} alt="symbol" className="w-4 h-4 sm:w-5 sm:h-5 md:w-8 md:h-8 lg:w-10 lg:h-10 object-contain filter drop-shadow-md rounded-full" />
+                      <img src={getImageUrl(item.id)} alt="symbol" className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 object-contain filter drop-shadow-md rounded-full bg-white/90 p-0.5" />
                     ) : item.id}
                   </div>
                   {/* Segment dividers */}
@@ -968,7 +969,7 @@ export default function SpiritWheel() {
                     {['Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Black', 'White', 'Brown', 'LightBlue', 'Grey', 'Orange'].includes(item.id) ? (
                       <div className="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 lg:w-8 lg:h-8 rounded-full shadow-inner border border-black/30" style={{ backgroundColor: item.id === 'LightBlue' ? '#add8e6' : item.id.toLowerCase() }}></div>
                     ) : isImageSymbol(item.id) ? (
-                      <img src={getImageUrl(item.id)} alt="symbol" className="w-4 h-4 sm:w-6 sm:h-6 md:w-10 md:h-10 lg:w-14 lg:h-14 object-contain filter drop-shadow-md rounded-full" />
+                      <img src={getImageUrl(item.id)} alt="symbol" className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-16 lg:h-16 object-contain filter drop-shadow-md rounded-full bg-white/90 p-1" />
                     ) : (
                       <span className={activeTheme.isTiles ? "text-[10px] md:text-sm" : ""}>{item.id}</span>
                     )}
@@ -1022,7 +1023,7 @@ export default function SpiritWheel() {
                     }}
                   >
                     {isImageSymbol(item.id) ? (
-                      <img src={getImageUrl(item.id)} alt="symbol" className="w-8 h-8 sm:w-10 sm:h-10 md:w-16 md:h-16 lg:w-20 lg:h-20 object-contain filter drop-shadow-md rounded-full" />
+                      <img src={getImageUrl(item.id)} alt="symbol" className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-24 lg:h-24 object-contain filter drop-shadow-md rounded-full bg-white/90 p-1.5" />
                     ) : item.id}
                   </div>
                   {/* Segment dividers */}

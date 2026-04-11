@@ -89,14 +89,15 @@ const PRESET_SYMBOLS = [
 ];
 
 const isImageSymbol = (id) => {
-  if (typeof id !== 'string') return false;
-  const trimmed = id.trim();
-  return /^https?:\/\//i.test(trimmed) || /^data:image/i.test(trimmed) || /\.(png|jpe?g|gif|svg|webp)(\?.*)?$/i.test(trimmed);
+  if (!id || typeof id !== 'string') return false;
+  const s = id.trim().toLowerCase();
+  return s.startsWith('http') || s.startsWith('data:image') || /\.(png|jpe?g|gif|svg|webp)(\?.*)?$/.test(s);
 };
 
 const getImageUrl = (id) => {
-  let url = id.trim();
-  if (!/^https?:\/\//i.test(url) && !/^data:image/i.test(url)) {
+  if (!id) return '';
+  let url = id.trim().replace(/^['"]+|['"]+$/g, '');
+  if (!url.startsWith('http') && !url.startsWith('data:image')) {
     url = 'https://' + url;
   }
   return url;
@@ -248,7 +249,7 @@ function RingEditor({ ringKey, segments, setSegments, deckCards }) {
                     alt="icon" 
                     onError={(e) => { e.target.style.opacity = '0'; }}
                     onLoad={(e) => { e.target.style.opacity = '1'; }}
-                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 object-contain pointer-events-none rounded-full peer-focus:opacity-0 transition-opacity" 
+                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 object-contain pointer-events-none rounded-full peer-focus:opacity-0 transition-opacity bg-white/90 p-0.5" 
                   />
                 )}
               </div>
