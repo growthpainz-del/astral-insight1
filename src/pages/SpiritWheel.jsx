@@ -458,8 +458,9 @@ export default function SpiritWheel() {
       <div className="max-w-[100rem] mx-auto mb-6">
         <div className="flex items-center gap-4">
           <Link to={createPageUrl("Dashboard")}>
-            <Button variant="ghost" size="icon" className="text-amber-200 hover:text-amber-100 hover:bg-amber-900/50">
-              <ChevronLeft className="w-6 h-6" />
+            <Button variant="ghost" className="text-amber-200 hover:text-amber-100 hover:bg-amber-900/50 pl-2 pr-4">
+              <ChevronLeft className="w-6 h-6 mr-1" />
+              <span className="hidden sm:inline font-semibold">Dashboard</span>
             </Button>
           </Link>
           <div>
