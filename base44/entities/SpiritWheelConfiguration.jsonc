@@ -1,0 +1,140 @@
+{
+  "name": "SpiritWheelConfiguration",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name of this custom wheel configuration"
+    },
+    "description": {
+      "type": "string",
+      "description": "What this wheel is for (e.g. Love Reading, Career Guidance)"
+    },
+    "deck_id": {
+      "type": "string",
+      "description": "Optional: primary deck to source card options from"
+    },
+    "outer_ring": {
+      "type": "array",
+      "description": "Segments for the outer ring",
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "description": "Display label (short, shown on wheel)"
+          },
+          "meaning": {
+            "type": "string",
+            "description": "Full meaning revealed after spin"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "card",
+              "symbol",
+              "custom"
+            ],
+            "default": "custom"
+          },
+          "card_id": {
+            "type": "string",
+            "description": "If type=card, the card ID"
+          },
+          "icon": {
+            "type": "string",
+            "description": "Emoji or short symbol to show on wheel"
+          }
+        },
+        "required": [
+          "label",
+          "meaning"
+        ]
+      }
+    },
+    "middle_ring": {
+      "type": "array",
+      "description": "Segments for the middle ring",
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "meaning": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "card",
+              "symbol",
+              "custom"
+            ],
+            "default": "symbol"
+          },
+          "card_id": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "meaning"
+        ]
+      }
+    },
+    "inner_ring": {
+      "type": "array",
+      "description": "Segments for the inner ring",
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "meaning": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "card",
+              "symbol",
+              "custom"
+            ],
+            "default": "symbol"
+          },
+          "card_id": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "meaning"
+        ]
+      }
+    },
+    "is_public": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether other users can use this configuration"
+    },
+    "theme_id": {
+      "type": "string",
+      "default": "wood",
+      "description": "Default visual theme for this wheel"
+    }
+  },
+  "required": [
+    "name",
+    "outer_ring",
+    "middle_ring",
+    "inner_ring"
+  ]
+}

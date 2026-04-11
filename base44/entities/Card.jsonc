@@ -18,6 +18,10 @@
       "type": "string",
       "description": "URL to the card image"
     },
+    "spirit_wheel_icon_url": {
+      "type": "string",
+      "description": "URL to a dedicated black-and-white icon for use on the Spirit Wheel outer ring"
+    },
     "video_url": {
       "type": "string",
       "description": "URL to a short animated video clip or audio file for the card"

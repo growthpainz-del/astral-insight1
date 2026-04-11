@@ -10,6 +10,7 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import SpiritWheel from '@/pages/SpiritWheel';
+import SpiritWheelDesigner from '@/pages/SpiritWheelDesigner';
 import Pendulum from '@/pages/Pendulum';
 import PrivacyPolicy from '@/pages/PrivacyPolicy';
 import CardMaker from '@/pages/CardMaker';
@@ -67,6 +68,7 @@ const AuthenticatedApp = () => {
       ))}
       <Route path="*" element={<PageNotFound />} />
       <Route path="/SpiritWheel" element={<LayoutWrapper currentPageName="SpiritWheel"><SpiritWheel /></LayoutWrapper>} />
+      <Route path="/SpiritWheelDesigner" element={<LayoutWrapper currentPageName="SpiritWheelDesigner"><SpiritWheelDesigner /></LayoutWrapper>} />
       <Route path="/Pendulum" element={<LayoutWrapper currentPageName="Pendulum"><Pendulum /></LayoutWrapper>} />
       <Route path="/PrivacyPolicy" element={<LayoutWrapper currentPageName="PrivacyPolicy"><PrivacyPolicy /></LayoutWrapper>} />
       <Route path="/CardMaker" element={<LayoutWrapper currentPageName="CardMaker"><CardMaker /></LayoutWrapper>} />

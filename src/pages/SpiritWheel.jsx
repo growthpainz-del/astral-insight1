@@ -156,6 +156,9 @@ export default function SpiritWheel() {
     }
   };
 
+  const [customWheels, setCustomWheels] = useState([]);
+  const [selectedWheelId, setSelectedWheelId] = useState("default");
+
   const [themeId, setThemeId] = useState("wood");
   const [customTheme, setCustomTheme] = useState({
     outerBg: "#e6b981", outerGrad: "#c48b53", outerBorder: "#2b1810",
@@ -241,6 +244,17 @@ export default function SpiritWheel() {
   const [drawnCard, setDrawnCard] = useState(null);
 
   const wheelData = React.useMemo(() => {
+    if (selectedWheelId !== "default") {
+      const w = customWheels.find(cw => cw.id === selectedWheelId);
+      if (w) {
+        return {
+          outer: (w.outer_ring || []).map(r => ({ id: r.icon || r.label, name: r.label, general: `${r.label}: ${r.meaning}` })),
+          middle: (w.middle_ring || []).map(r => ({ id: r.icon || r.label, name: r.label, meaning: r.meaning, general: `${r.label}: ${r.meaning}` })),
+          inner: (w.inner_ring || []).map(r => ({ id: r.icon || r.label, name: r.label, meaning: r.meaning, general: `${r.label}: ${r.meaning}` }))
+        };
+      }
+    }
+
     let outer = ROOTED_CARDS_DATA.map(c => ({
       id: c.id,
       name: c.name,
@@ -260,7 +274,7 @@ export default function SpiritWheel() {
       middle: WHEEL_MIDDLE,
       inner: WHEEL_INNER
     };
-  }, [deckCards, selectedDeckId]);
+  }, [deckCards, selectedDeckId, selectedWheelId, customWheels]);
 
   useEffect(() => {
     const fetchDecks = async () => {
@@ -268,20 +282,35 @@ export default function SpiritWheel() {
         const publicDecks = await base44.entities.Deck.filter({ is_public: true, publish_status: 'published' }, '-created_date', 100);
         const user = await base44.auth.me().catch(() => null);
         let myDecks = [];
+        let myWheels = [];
+        let publicWheels = await base44.entities.SpiritWheelConfiguration.filter({ is_public: true }, '-created_date', 100);
+        
         if (user?.email) {
           const mine = await base44.entities.Deck.filter({ created_by: user.email }, '-updated_date', 100);
           myDecks = Array.isArray(mine) ? mine.filter(d => d.publish_status !== 'draft' && d.publish_status !== 'pending_review') : [];
+          myWheels = await base44.entities.SpiritWheelConfiguration.filter({ created_by: user.email }, '-created_date', 100) || [];
         }
         
         const allDecksMap = new Map();
         [...(publicDecks || []), ...myDecks].forEach(d => allDecksMap.set(d.id, d));
         setDecks(Array.from(allDecksMap.values()));
+
+        const allWheelsMap = new Map();
+        [...(publicWheels || []), ...(myWheels || [])].forEach(w => allWheelsMap.set(w.id, w));
+        setCustomWheels(Array.from(allWheelsMap.values()));
       } catch (e) {
-        console.error("Failed to load decks", e);
+        console.error("Failed to load data", e);
       }
     };
     fetchDecks();
   }, []);
+
+  useEffect(() => {
+    if (selectedWheelId !== "default") {
+      const w = customWheels.find(cw => cw.id === selectedWheelId);
+      if (w?.theme_id) setThemeId(w.theme_id);
+    }
+  }, [selectedWheelId, customWheels]);
 
   useEffect(() => {
     if (!selectedDeckId || selectedDeckId === "none") {
@@ -377,20 +406,26 @@ export default function SpiritWheel() {
       }
 
       // Database-driven reading based on combinations (Bypasses AI)
-      const coreTheme = outerItem.general.split(":")[0] || outerItem.id;
-      const timingModifier = middleItem.meaning;
-      const actionGuidance = innerItem.meaning;
+      const coreTheme = outerItem.general ? outerItem.general.split(":")[0] : outerItem.name;
+      const timingModifier = middleItem.meaning || middleItem.general || "Unknown modifier";
+      const actionGuidance = innerItem.meaning || innerItem.general || "Unknown guidance";
       
-      let staticReading = `Your reading focuses on ${category}. The core theme is ${coreTheme}. `;
+      const categoryName = selectedWheelId === "default" ? category : customWheels.find(w => w.id === selectedWheelId)?.name || "Custom Reading";
+      
+      let staticReading = `Your reading focuses on ${categoryName}. The core theme is ${coreTheme}. `;
+      
+      if (outerItem.meaning || outerItem.general?.includes(":")) {
+        staticReading += `\n(${outerItem.meaning || outerItem.general.split(":")[1]?.trim()}) \n\n`;
+      }
       
       staticReading += `Your modifier indicates "${timingModifier}", suggesting the context of your situation. `;
       staticReading += `Your action guidance is "${actionGuidance}". `;
       
-      if (drawnCard) {
+      if (drawnCard && selectedWheelId === "default") {
         staticReading += `\nThe ${cardName} card has revealed itself: ${drawnCard.overall_meaning || drawnCard.upright_meaning || "Embrace its mystical energy."} `;
       }
       
-      staticReading += `\n\nReflect on how ${actionGuidance.toLowerCase()} can be integrated with ${coreTheme} regarding ${category.toLowerCase()}.`;
+      staticReading += `\n\nReflect on how ${actionGuidance.toLowerCase()} can be integrated with ${coreTheme}.`;
       
       // Wait a short moment to simulate fetching
       await new Promise(resolve => setTimeout(resolve, 800));
@@ -494,28 +529,51 @@ export default function SpiritWheel() {
             </div>
 
             <div>
-              <Label className="text-amber-200 mb-2 block font-semibold text-lg">Category-Shift Logic</Label>
-              <Select value={category} onValueChange={setCategory}>
+              <Label className="text-amber-200 mb-2 block font-semibold text-lg">Custom Wheel Configuration</Label>
+              <Select value={selectedWheelId} onValueChange={setSelectedWheelId}>
                 <SelectTrigger className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 h-12 text-lg mb-4">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100">
-                  {CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                </SelectContent>
-              </Select>
-
-              <Label className="text-amber-200 mb-2 block font-semibold text-lg">Accompanying Deck (Optional)</Label>
-              <Select value={selectedDeckId} onValueChange={setSelectedDeckId}>
-                <SelectTrigger className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 h-12 text-lg">
-                  <SelectValue placeholder="None" />
-                </SelectTrigger>
                 <SelectContent className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 max-h-64 overflow-y-auto">
-                  <SelectItem value="none">None</SelectItem>
-                  {decks.map(d => (
-                    <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+                  <SelectItem value="default">Default Spirit Wheel</SelectItem>
+                  {customWheels.map(w => (
+                    <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+              
+              <Link to={createPageUrl("SpiritWheelDesigner")}>
+                <Button variant="outline" className="w-full bg-[#1c0f05] hover:bg-[#2d1b0d] border-[#5c3a21] text-amber-300 mb-4">
+                  <Sparkles className="w-4 h-4 mr-2" /> Open Wheel Designer
+                </Button>
+              </Link>
+
+              {selectedWheelId === "default" && (
+                <>
+                  <Label className="text-amber-200 mb-2 block font-semibold text-lg">Category-Shift Logic</Label>
+                  <Select value={category} onValueChange={setCategory}>
+                    <SelectTrigger className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 h-12 text-lg mb-4">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100">
+                      {CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+
+                  <Label className="text-amber-200 mb-2 block font-semibold text-lg">Accompanying Deck (Optional)</Label>
+                  <Select value={selectedDeckId} onValueChange={setSelectedDeckId}>
+                    <SelectTrigger className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 h-12 text-lg">
+                      <SelectValue placeholder="None" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 max-h-64 overflow-y-auto">
+                      <SelectItem value="none">None</SelectItem>
+                      {decks.map(d => (
+                        <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </>
+              )}
             </div>
 
             <div className="flex items-center justify-between p-4 bg-[#2d1b0d]/50 rounded-lg border border-[#5c3a21]">
