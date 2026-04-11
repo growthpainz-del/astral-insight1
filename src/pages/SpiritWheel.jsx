@@ -248,9 +248,9 @@ export default function SpiritWheel() {
       const w = customWheels.find(cw => cw.id === selectedWheelId);
       if (w) {
         return {
-          outer: (w.outer_ring || []).map(r => ({ id: r.icon || r.label, name: r.label, general: `${r.label}: ${r.meaning}` })),
-          middle: (w.middle_ring || []).map(r => ({ id: r.icon || r.label, name: r.label, meaning: r.meaning, general: `${r.label}: ${r.meaning}` })),
-          inner: (w.inner_ring || []).map(r => ({ id: r.icon || r.label, name: r.label, meaning: r.meaning, general: `${r.label}: ${r.meaning}` }))
+          outer: (w.outer_ring || []).map((r, i) => ({ id: r.icon || String(i + 1), name: r.label, general: `${r.label}: ${r.meaning}` })),
+          middle: (w.middle_ring || []).map((r, i) => ({ id: r.icon || String(i + 1), name: r.label, meaning: r.meaning, general: `${r.label}: ${r.meaning}` })),
+          inner: (w.inner_ring || []).map((r, i) => ({ id: r.icon || String(i + 1), name: r.label, meaning: r.meaning, general: `${r.label}: ${r.meaning}` }))
         };
       }
     }
@@ -263,7 +263,7 @@ export default function SpiritWheel() {
 
     if (selectedDeckId !== "none" && deckCards.length > 0) {
       outer = deckCards.map((c, i) => ({
-        id: c.number != null ? String(c.number) : String(i + 1),
+        id: c.spirit_wheel_icon_url || (c.number != null ? String(c.number) : String(i + 1)),
         name: c.name,
         general: `${c.name}: ${c.overall_meaning || c.upright_meaning || (c.keywords ? c.keywords.join(', ') : "Mystical energy")}`
       }));
@@ -453,7 +453,7 @@ export default function SpiritWheel() {
           100% { transform: translateX(-50%) scale(1.3); }
         }
       `}</style>
-      <div className="max-w-6xl mx-auto mb-6">
+      <div className="max-w-[100rem] mx-auto mb-6">
         <div className="flex items-center gap-4">
           <Link to={createPageUrl("Dashboard")}>
             <Button variant="ghost" size="icon" className="text-amber-200 hover:text-amber-100 hover:bg-amber-900/50">
@@ -467,10 +467,10 @@ export default function SpiritWheel() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-8">
+      <div className="max-w-[100rem] mx-auto flex flex-col lg:flex-row gap-8">
         
         {/* Left Column: Controls & Display */}
-        <div className="flex-1 space-y-6 z-10 order-2 lg:order-1">
+        <div className="flex-1 w-full max-w-2xl mx-auto lg:mx-0 space-y-6 z-10 order-2 lg:order-1">
           <div className="bg-slate-900/90 p-4 md:p-6 rounded-xl border border-[#8b5a2b] shadow-[0_4px_20px_rgba(0,0,0,0.5)] space-y-5">
             <div>
               <Label className="text-amber-200 mb-2 block font-semibold text-lg">Wheel Design Theme</Label>
@@ -701,7 +701,7 @@ export default function SpiritWheel() {
         {/* Right Column: The Visual Wheel */}
         <div className="flex-1 flex items-start lg:items-center justify-center p-2 lg:p-8 relative min-h-[350px] lg:min-h-[600px] order-1 lg:order-2 overflow-visible">
           <motion.div 
-            className="relative w-[300px] h-[300px] sm:w-[350px] sm:h-[350px] md:w-[450px] md:h-[450px] lg:w-[500px] lg:h-[500px] shrink-0 mt-6 lg:mt-0 cursor-pointer"
+            className="relative w-[340px] h-[340px] sm:w-[450px] sm:h-[450px] md:w-[600px] md:h-[600px] lg:w-[700px] lg:h-[700px] xl:w-[850px] xl:h-[850px] shrink-0 mt-6 lg:mt-0 cursor-pointer"
             onClick={() => !isSpinning && spinWheel()}
             onPanEnd={(e, info) => {
               const velocity = Math.max(Math.abs(info.velocity.x), Math.abs(info.velocity.y));
@@ -713,8 +713,8 @@ export default function SpiritWheel() {
             style={{ touchAction: "pan-y" }}
           >
             {/* Pointer / Indicator at top */}
-            <div className="absolute top-[-35px] left-1/2 -translate-x-1/2 z-50 drop-shadow-[0_4px_12px_rgba(245,158,11,0.8)]">
-              <svg width="40" height="48" viewBox="0 0 40 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <div className="absolute top-[-35px] md:top-[-45px] lg:top-[-55px] left-1/2 -translate-x-1/2 z-50 drop-shadow-[0_4px_12px_rgba(245,158,11,0.8)]">
+              <svg className="w-10 h-12 md:w-14 md:h-16 lg:w-16 lg:h-20" viewBox="0 0 40 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M20 48L0 0H40L20 48Z" fill="url(#pointer-gradient)" />
                 <defs>
                   <linearGradient id="pointer-gradient" x1="20" y1="0" x2="20" y2="48" gradientUnits="userSpaceOnUse">
@@ -750,7 +750,7 @@ export default function SpiritWheel() {
                     className={`absolute -translate-x-1/2 flex items-center justify-center font-bold whitespace-nowrap transition-all duration-300 ${
                       activeTheme.isTiles 
                         ? 'w-[22px] h-[22px] sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full border-2 top-[-11px] sm:top-[-16px] md:top-[-20px]' 
-                        : 'top-1.5 sm:top-2 md:top-3 text-xs md:text-sm lg:text-base'
+                        : 'top-2 sm:top-3 md:top-4 lg:top-5 text-sm md:text-xl lg:text-2xl xl:text-3xl'
                     }`} 
                     style={{ 
                       color: activeTheme.textOuter,
@@ -765,7 +765,9 @@ export default function SpiritWheel() {
                       fontSize: activeTheme.isTiles ? '0.75em' : undefined
                     }}
                   >
-                    {item.id}
+                    {item.id?.startsWith('http') ? (
+                      <img src={item.id} alt="symbol" className="w-4 h-4 sm:w-5 sm:h-5 md:w-8 md:h-8 lg:w-10 lg:h-10 object-contain filter drop-shadow-md rounded-full" />
+                    ) : item.id}
                   </div>
                   {/* Segment dividers */}
                   {!activeTheme.isTiles && <div className="absolute top-0 -translate-x-1/2 w-[3px] h-full" style={{ transform: `rotate(${angle / 2}deg)`, backgroundColor: activeTheme.divider, opacity: 0.8 }}></div>}
@@ -800,7 +802,7 @@ export default function SpiritWheel() {
                     className={`absolute -translate-x-1/2 flex items-center justify-center font-bold whitespace-nowrap transition-all duration-300 ${
                       activeTheme.isTiles 
                         ? 'w-[24px] h-[24px] sm:w-9 sm:h-9 md:w-12 md:h-12 rounded-full border-2 top-[-12px] sm:top-[-18px] md:top-[-24px]' 
-                        : 'top-1.5 sm:top-2 md:top-3 text-[9px] md:text-sm lg:text-base'
+                        : 'top-2 sm:top-3 md:top-4 lg:top-5 text-base md:text-2xl lg:text-3xl xl:text-4xl'
                     }`} 
                     style={{ 
                       color: activeTheme.textMiddle,
@@ -815,7 +817,9 @@ export default function SpiritWheel() {
                     }}
                   >
                     {['Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Black', 'White', 'Brown', 'LightBlue', 'Grey', 'Orange'].includes(item.id) ? (
-                      <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 lg:w-5 lg:h-5 rounded-full shadow-inner border border-black/30" style={{ backgroundColor: item.id === 'LightBlue' ? '#add8e6' : item.id.toLowerCase() }}></div>
+                      <div className="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 lg:w-8 lg:h-8 rounded-full shadow-inner border border-black/30" style={{ backgroundColor: item.id === 'LightBlue' ? '#add8e6' : item.id.toLowerCase() }}></div>
+                    ) : item.id?.startsWith('http') ? (
+                      <img src={item.id} alt="symbol" className="w-4 h-4 sm:w-6 sm:h-6 md:w-10 md:h-10 lg:w-14 lg:h-14 object-contain filter drop-shadow-md rounded-full" />
                     ) : (
                       <span className={activeTheme.isTiles ? "text-[10px] md:text-sm" : ""}>{item.id}</span>
                     )}
@@ -853,7 +857,7 @@ export default function SpiritWheel() {
                     className={`absolute -translate-x-1/2 flex items-center justify-center font-bold whitespace-nowrap transition-all duration-300 ${
                       activeTheme.isTiles 
                         ? 'w-[28px] h-[28px] sm:w-11 sm:h-11 md:w-[60px] md:h-[60px] rounded-full border-2 top-[-14px] sm:top-[-22px] md:top-[-30px]' 
-                        : 'top-1.5 sm:top-2 md:top-4 text-[10px] sm:text-xs md:text-lg lg:text-xl'
+                        : 'top-2 sm:top-3 md:top-5 lg:top-8 text-lg md:text-3xl lg:text-4xl xl:text-5xl'
                     }`} 
                     style={{ 
                       color: activeTheme.textInner,
@@ -868,7 +872,9 @@ export default function SpiritWheel() {
                       fontSize: activeTheme.isTiles ? '1.2em' : undefined
                     }}
                   >
-                    {item.id}
+                    {item.id?.startsWith('http') ? (
+                      <img src={item.id} alt="symbol" className="w-8 h-8 sm:w-10 sm:h-10 md:w-16 md:h-16 lg:w-20 lg:h-20 object-contain filter drop-shadow-md rounded-full" />
+                    ) : item.id}
                   </div>
                   {/* Segment dividers */}
                   {!activeTheme.isTiles && <div className="absolute top-0 -translate-x-1/2 w-[3px] h-full" style={{ transform: `rotate(${angle / 2}deg)`, backgroundColor: activeTheme.divider, opacity: 0.8 }}></div>}
