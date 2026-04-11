@@ -225,10 +225,17 @@ function RingEditor({ ringKey, segments, setSegments, deckCards }) {
                   value={seg.icon}
                   onChange={e => updateSegment(i, "icon", e.target.value)}
                   placeholder="Icon"
-                  className={`w-full bg-black/40 border-white/10 text-center ${typeof seg.icon === 'string' && (seg.icon.trim().startsWith('http') || seg.icon.trim().startsWith('data:image')) ? 'text-transparent' : 'text-lg'}`}
+                  title={typeof seg.icon === 'string' ? seg.icon : ""}
+                  className={`w-full bg-black/40 border-white/10 peer transition-all ${typeof seg.icon === 'string' && (seg.icon.trim().startsWith('http') || seg.icon.trim().startsWith('data:image')) ? 'text-transparent text-center focus:text-white focus:text-[10px] focus:text-left px-1' : 'text-center text-lg'}`}
                 />
                 {typeof seg.icon === 'string' && (seg.icon.trim().startsWith('http') || seg.icon.trim().startsWith('data:image')) && (
-                  <img src={seg.icon.trim()} alt="icon" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 object-contain pointer-events-none rounded-full" />
+                  <img 
+                    src={seg.icon.trim()} 
+                    alt="icon" 
+                    onError={(e) => { e.target.style.opacity = '0'; }}
+                    onLoad={(e) => { e.target.style.opacity = '1'; }}
+                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 object-contain pointer-events-none rounded-full peer-focus:opacity-0 transition-opacity" 
+                  />
                 )}
               </div>
               <Input
