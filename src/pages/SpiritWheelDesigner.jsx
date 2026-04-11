@@ -211,12 +211,17 @@ function RingEditor({ ringKey, segments, setSegments, deckCards }) {
           >
             <div className="flex items-center gap-2">
               <span className="text-white/40 text-xs w-5 shrink-0">#{i + 1}</span>
-              <Input
-                value={seg.icon}
-                onChange={e => updateSegment(i, "icon", e.target.value)}
-                placeholder="Icon/Emoji"
-                className="w-20 bg-black/40 border-white/10 text-center text-lg"
-              />
+              <div className="relative w-20 shrink-0">
+                <Input
+                  value={seg.icon}
+                  onChange={e => updateSegment(i, "icon", e.target.value)}
+                  placeholder="Icon"
+                  className={`w-full bg-black/40 border-white/10 text-center ${typeof seg.icon === 'string' && (seg.icon.trim().startsWith('http') || seg.icon.trim().startsWith('data:image')) ? 'text-transparent' : 'text-lg'}`}
+                />
+                {typeof seg.icon === 'string' && (seg.icon.trim().startsWith('http') || seg.icon.trim().startsWith('data:image')) && (
+                  <img src={seg.icon.trim()} alt="icon" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 object-contain pointer-events-none rounded-full" />
+                )}
+              </div>
               <Input
                 value={seg.label}
                 onChange={e => updateSegment(i, "label", e.target.value)}
