@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ChevronLeft, Plus, Trash2, Download, Upload, Save, Copy, Sparkles } from "lucide-react";
+import { ChevronLeft, Plus, Trash2, Download, Upload, Save, Copy, Sparkles, Loader2 } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import { motion } from "framer-motion";
 
@@ -43,8 +43,30 @@ const PRESET_SYMBOLS = [
 
 function RingEditor({ ringKey, segments, setSegments, deckCards }) {
   const meta = RING_LABELS[ringKey];
+  const [isHarvesting, setIsHarvesting] = useState(false);
 
   const addSegment = () => setSegments([...segments, { ...DEFAULT_SEGMENT }]);
+
+  const handleHarvestSymbols = async () => {
+    if (segments.length === 0) return;
+    setIsHarvesting(true);
+    try {
+      const items = segments.map(s => ({ label: s.label, meaning: s.meaning }));
+      const res = await base44.functions.invoke("harvestSymbols", { items });
+      if (res.data && res.data.emojis) {
+        const updated = segments.map((seg, i) => ({
+          ...seg,
+          icon: seg.icon || res.data.emojis[i] || "✨"
+        }));
+        setSegments(updated);
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Failed to harvest symbols.");
+    } finally {
+      setIsHarvesting(false);
+    }
+  };
 
   const addAllCards = () => {
     if (!deckCards || deckCards.length === 0) return;
@@ -95,7 +117,13 @@ function RingEditor({ ringKey, segments, setSegments, deckCards }) {
           <h3 className="text-lg font-bold text-amber-300">{meta.label}</h3>
           <p className="text-xs text-amber-200/60">{meta.hint} — {segments.length} segments</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap justify-end">
+          {segments.length > 0 && (
+            <Button size="sm" variant="outline" onClick={handleHarvestSymbols} disabled={isHarvesting} className="border-amber-600/40 text-amber-300 hover:bg-amber-900/20">
+              {isHarvesting ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Sparkles className="w-4 h-4 mr-1" />}
+              Harvest Symbols
+            </Button>
+          )}
           {deckCards && deckCards.length > 0 && (
             <Button size="sm" variant="outline" onClick={addAllCards} className="border-amber-600/40 text-amber-300 hover:bg-amber-900/20">
               <Sparkles className="w-4 h-4 mr-1" /> Add All Cards
