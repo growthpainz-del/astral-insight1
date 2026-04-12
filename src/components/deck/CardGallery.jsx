@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card as CardEntity } from "@/entities/Card"; // Updated import
@@ -8,9 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import FramedCardImage from "./FramedCardImage";
 import { logError } from '@/components/utils/errorHandler';
-import { Search, Grid3x3, List, ChevronLeft, ChevronRight, Image as ImageIcon, X } from "lucide-react"; // Updated lucide imports
-import { ScrollArea } from "@/components/ui/scroll-area"; // New import
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"; // New imports
+import { Search, Grid3x3, List, ChevronLeft, ChevronRight, Image as ImageIcon, X, Pencil } from "lucide-react"; 
+import { ScrollArea } from "@/components/ui/scroll-area"; 
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"; 
+import { base44 } from "@/api/base44Client";
+import CardEditor from "@/components/deck/CardEditor";
 
 export default function CardGallery({ deckId }) {
   const [cards, setCards] = React.useState([]);
@@ -22,7 +23,15 @@ export default function CardGallery({ deckId }) {
   const [loading, setLoading] = React.useState(true);
   const [imageErrors, setImageErrors] = React.useState(new Set());
   const [deck, setDeck] = React.useState(null);
+  const [currentUser, setCurrentUser] = React.useState(null);
+  const [editingCard, setEditingCard] = React.useState(null);
   const cardsPerPage = viewMode === "grid" ? 12 : 20;
+
+  React.useEffect(() => {
+    base44.auth.me().then(setCurrentUser).catch(() => {});
+  }, []);
+
+  const isOwner = deck && currentUser && deck.created_by?.toLowerCase() === currentUser.email?.toLowerCase();
 
   React.useEffect(() => {
     if (!deckId) return;
@@ -231,10 +240,26 @@ export default function CardGallery({ deckId }) {
             <DialogTitle className="text-2xl font-bold text-white">
               {selectedCard?.name || "Card Details"}
             </DialogTitle>
-            <Button variant="ghost" size="icon" onClick={() => setSelectedCard(null)} className="text-white/60 hover:text-white">
-              <X className="h-5 w-5" />
-              <span className="sr-only">Close</span>
-            </Button>
+            <div className="flex items-center gap-2">
+              {isOwner && (
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="text-purple-300 border-purple-500/30 hover:bg-purple-500/20"
+                  onClick={() => {
+                    setEditingCard(selectedCard);
+                    setSelectedCard(null);
+                  }}
+                >
+                  <Pencil className="w-4 h-4 mr-2" />
+                  Edit
+                </Button>
+              )}
+              <Button variant="ghost" size="icon" onClick={() => setSelectedCard(null)} className="text-white/60 hover:text-white">
+                <X className="h-5 w-5" />
+                <span className="sr-only">Close</span>
+              </Button>
+            </div>
           </DialogHeader>
 
           <ScrollArea className="flex-grow pr-4 -mr-4">
@@ -298,6 +323,22 @@ export default function CardGallery({ deckId }) {
           </ScrollArea>
         </DialogContent>
       </Dialog>
+
+      {editingCard && (
+        <CardEditor
+          card={editingCard}
+          deckId={deckId}
+          isOpen={!!editingCard}
+          onClose={() => setEditingCard(null)}
+          onSave={(updatedCard) => {
+            const newCards = cards.map(c => c.id === updatedCard.id ? updatedCard : c);
+            setCards(newCards);
+            setFilteredCards(prev => prev.map(c => c.id === updatedCard.id ? updatedCard : c));
+            setEditingCard(null);
+            setSelectedCard(updatedCard); // Re-open details with updated info
+          }}
+        />
+      )}
     </div>
   );
 }
