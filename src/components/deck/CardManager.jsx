@@ -229,7 +229,7 @@ export default function CardManager({ deckId, cards: initialCards, onUpdate }) {
                       <img
                         src={card.image_url}
                         alt={card.name}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-contain p-1"
                       />
                     ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center text-white/40">
@@ -317,7 +317,7 @@ export default function CardManager({ deckId, cards: initialCards, onUpdate }) {
                 >
                   <div className="w-16 h-24 rounded overflow-hidden bg-black/40 flex-shrink-0 relative">
                     {card.image_url ? (
-                      <img src={card.image_url} alt={card.name} className="w-full h-full object-cover" />
+                      <img src={card.image_url} alt={card.name} className="w-full h-full object-contain p-1" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-white/40">
                         <ImageIcon className="w-6 h-6" />

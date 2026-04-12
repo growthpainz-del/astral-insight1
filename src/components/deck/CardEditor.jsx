@@ -488,7 +488,7 @@ export default function CardEditor({ deckId, card, isOpen, onClose, onSave }) {
                       <img 
                         src={form.image_url} 
                         alt="Card preview" 
-                        className="w-full h-48 object-cover rounded-lg border-2 border-cyan-500/40 shadow-xl" 
+                        className="w-full h-48 object-contain bg-black/40 rounded-lg border-2 border-cyan-500/40 shadow-xl p-2" 
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-lg flex items-end p-3 opacity-0 group-hover:opacity-100 transition-opacity">
                         <p className="text-white text-sm font-medium">Current Card Image</p>
