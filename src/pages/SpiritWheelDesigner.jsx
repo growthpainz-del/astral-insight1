@@ -113,12 +113,12 @@ const THEME_PACKS = {
     { icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/91325776e_C924B138-EE3C-4992-A912-B0D1598F9C16.png", label: "Merope's Echo", meaning: "The missing voice still whispers wisdom. Listen for the subtle return; integration awaits. Keywords: return, integration, quiet wisdom, wholeness.", type: "symbol", card_id: "" }
   ],
   animal_spirits: [
-    { label: "Bear", meaning: "strength, courage, healing", type: "symbol", icon: "🐻", card_id: "" },
-    { label: "Wolf", meaning: "loyalty, community, wisdom", type: "symbol", icon: "🐺", card_id: "" },
-    { label: "Eagle", meaning: "vision, spiritual messenger, freedom", type: "symbol", icon: "🦅", card_id: "" },
-    { label: "Buffalo", meaning: "abundance, gratitude, sacred life", type: "symbol", icon: "🦬", card_id: "" },
-    { label: "Owl", meaning: "wisdom, intuition, seeing the unseen", type: "symbol", icon: "🦉", card_id: "" },
-    { label: "Deer", meaning: "gentleness, grace, renewal", type: "symbol", icon: "🦌", card_id: "" }
+    { label: "Bear", meaning: "strength, courage, healing", type: "symbol", icon: "https://gemini.google.com/share/31baacdbb913", card_id: "" },
+    { label: "Wolf", meaning: "loyalty, community, wisdom", type: "symbol", icon: "https://gemini.google.com/share/138c5511d65a", card_id: "" },
+    { label: "Eagle", meaning: "vision, spiritual messenger, freedom", type: "symbol", icon: "https://gemini.google.com/share/db0ad51abef1", card_id: "" },
+    { label: "Buffalo", meaning: "abundance, gratitude, sacred life", type: "symbol", icon: "https://gemini.google.com/share/640fc8f107a4", card_id: "" },
+    { label: "Owl", meaning: "wisdom, intuition, seeing the unseen", type: "symbol", icon: "https://gemini.google.com/share/cba98827d695", card_id: "" },
+    { label: "Deer", meaning: "gentleness, grace, renewal", type: "symbol", icon: "https://gemini.google.com/share/48ee423b425b", card_id: "" }
   ]
 };
 

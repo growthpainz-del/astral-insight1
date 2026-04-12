@@ -158,12 +158,12 @@ const MOON_EMBLEMS_MODIFIERS = [
 ];
 
 const ANIMAL_SPIRITS_MODIFIERS = [
-  { id: "🐻", label: "Bear", meaning: "strength, courage, healing" },
-  { id: "🐺", label: "Wolf", meaning: "loyalty, community, wisdom" },
-  { id: "🦅", label: "Eagle", meaning: "vision, spiritual messenger, freedom" },
-  { id: "🦬", label: "Buffalo", meaning: "abundance, gratitude, sacred life" },
-  { id: "🦉", label: "Owl", meaning: "wisdom, intuition, seeing the unseen" },
-  { id: "🦌", label: "Deer", meaning: "gentleness, grace, renewal" }
+  { id: "https://gemini.google.com/share/31baacdbb913", label: "Bear", meaning: "strength, courage, healing" },
+  { id: "https://gemini.google.com/share/138c5511d65a", label: "Wolf", meaning: "loyalty, community, wisdom" },
+  { id: "https://gemini.google.com/share/db0ad51abef1", label: "Eagle", meaning: "vision, spiritual messenger, freedom" },
+  { id: "https://gemini.google.com/share/640fc8f107a4", label: "Buffalo", meaning: "abundance, gratitude, sacred life" },
+  { id: "https://gemini.google.com/share/cba98827d695", label: "Owl", meaning: "wisdom, intuition, seeing the unseen" },
+  { id: "https://gemini.google.com/share/48ee423b425b", label: "Deer", meaning: "gentleness, grace, renewal" }
 ];
 
 const CATEGORIES = ["General", "Relationships", "Numbers", "Age", "Body Parts", "Colors", "Lost Items", "Height", "Time", "Astrology", "Emotions", "Profiler", "Seasons and Shapes", "Traveling", "Zapped", "X-Rated"];
