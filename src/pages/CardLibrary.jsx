@@ -6,12 +6,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Loader2, Library, Trash2, Sparkles } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import { queueApiCall } from "@/components/utils/apiQueue";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 export default function CardLibrary() {
   const [cards, setCards] = useState([]);
   const [decks, setDecks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [movingCardId, setMovingCardId] = useState(null);
+  const [expandedCard, setExpandedCard] = useState(null);
 
   useEffect(() => {
     loadData();
@@ -89,57 +91,76 @@ export default function CardLibrary() {
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="flex flex-col gap-3">
             {cards.map(card => (
-              <div key={card.id} className="bg-slate-900 border border-white/10 rounded-xl overflow-hidden flex flex-col group shadow-lg">
-                <div className="aspect-[2/3] w-full bg-black/50 relative border-b border-white/10">
+              <div key={card.id} className="bg-slate-900 border border-white/10 rounded-xl p-3 flex flex-col sm:flex-row gap-4 items-center group shadow-sm transition-all hover:bg-slate-800">
+                <div 
+                  className="w-16 h-24 sm:w-20 sm:h-28 shrink-0 bg-black/50 rounded-md border border-white/10 overflow-hidden cursor-pointer hover:border-purple-500/50 transition-colors flex items-center justify-center relative"
+                  onClick={() => setExpandedCard(card)}
+                  title="Click to expand"
+                >
                   {card.image_url ? (
-                    <img src={card.image_url} alt={card.name} className="w-full h-full object-contain p-2" />
+                    <>
+                      <img src={card.image_url} alt={card.name} className="w-full h-full object-cover" loading="lazy" />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <Sparkles className="w-4 h-4 text-white/80" />
+                      </div>
+                    </>
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-white/20">No Image</div>
+                    <div className="text-[10px] text-white/20 text-center">No Image</div>
                   )}
                 </div>
-                <div className="p-4 flex-1 flex flex-col">
-                  <h3 className="font-bold text-lg leading-tight truncate text-purple-100">{card.name}</h3>
-                  {card.subtitle && <p className="text-purple-300 text-xs mt-1 truncate">{card.subtitle}</p>}
+                
+                <div className="flex-1 min-w-0 flex flex-col items-center sm:items-start text-center sm:text-left w-full">
+                  <h3 className="font-bold text-base sm:text-lg leading-tight truncate text-purple-100 w-full">{card.name || "Untitled"}</h3>
+                  {card.subtitle && <p className="text-purple-300 text-xs mt-0.5 truncate w-full">{card.subtitle}</p>}
                   
                   {card.overall_meaning && (
-                    <p className="text-white/60 text-xs mt-2 line-clamp-3 flex-1 italic">
+                    <p className="text-white/60 text-xs mt-1.5 line-clamp-2 italic w-full">
                       "{card.overall_meaning}"
                     </p>
                   )}
+                </div>
 
-                  <div className="mt-4 space-y-2 pt-3 border-t border-white/10">
-                    <Select 
-                      onValueChange={(val) => handleMoveToDeck(card.id, val)}
-                      disabled={movingCardId === card.id}
-                    >
-                      <SelectTrigger className="w-full bg-black/40 border-white/20 h-8 text-xs">
-                        <SelectValue placeholder="Move to Deck..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {decks.map(d => (
-                          <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                <div className="flex flex-row sm:flex-col gap-2 w-full sm:w-48 shrink-0 mt-2 sm:mt-0">
+                  <Select 
+                    onValueChange={(val) => handleMoveToDeck(card.id, val)}
+                    disabled={movingCardId === card.id}
+                  >
+                    <SelectTrigger className="w-full bg-black/40 border-white/20 h-8 text-xs">
+                      <SelectValue placeholder="Move to Deck..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {decks.map(d => (
+                        <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
 
-                    <Button 
-                      variant="destructive" 
-                      size="sm" 
-                      className="w-full h-8 text-xs bg-red-950/50 hover:bg-red-900/80 border border-red-900/50"
-                      onClick={() => handleDelete(card.id)}
-                      disabled={movingCardId === card.id}
-                    >
-                      {movingCardId === card.id ? <Loader2 className="w-3 h-3 mr-2 animate-spin" /> : <Trash2 className="w-3 h-3 mr-2" />} 
-                      Delete Draft
-                    </Button>
-                  </div>
+                  <Button 
+                    variant="destructive" 
+                    size="sm" 
+                    className="w-full h-8 text-xs bg-red-950/50 hover:bg-red-900/80 border border-red-900/50"
+                    onClick={() => handleDelete(card.id)}
+                    disabled={movingCardId === card.id}
+                  >
+                    {movingCardId === card.id ? <Loader2 className="w-3 h-3 mr-2 animate-spin" /> : <Trash2 className="w-3 h-3 mr-2" />} 
+                    Delete
+                  </Button>
                 </div>
               </div>
             ))}
           </div>
         )}
+
+        <Dialog open={!!expandedCard} onOpenChange={(open) => !open && setExpandedCard(null)}>
+          <DialogContent className="max-w-sm sm:max-w-md md:max-w-xl bg-slate-950 border-white/10 p-1 overflow-hidden flex flex-col items-center justify-center">
+            <DialogTitle className="sr-only">View Card</DialogTitle>
+            {expandedCard?.image_url && (
+              <img src={expandedCard.image_url} alt={expandedCard.name} className="w-full max-h-[85vh] object-contain rounded-md" />
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
