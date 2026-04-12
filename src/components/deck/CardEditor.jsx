@@ -108,7 +108,7 @@ export default function CardEditor({ deckId, card, isOpen, onClose, onSave }) {
   const [saving, setSaving] = React.useState(false);
   const [showAI, setShowAI] = React.useState(false);
   const [isUploadingImage, setIsUploadingImage] = React.useState(false);
-  const [showLibrary, setShowLibrary] = React.useState(false);
+  const [libraryTargetField, setLibraryTargetField] = React.useState(null);
 
   const [form, setForm] = React.useState({
     name: "",
@@ -372,12 +372,23 @@ export default function CardEditor({ deckId, card, isOpen, onClose, onSave }) {
               </h3>
               <div className="bg-slate-800/50 border border-white/10 rounded-lg p-4">
                 <Label className="text-sm text-white/80 mb-2 block">Choose an icon or enter a custom symbol/URL for the Spirit Wheel</Label>
-                <Input
-                  value={form.spirit_wheel_icon_url}
-                  onChange={(e) => update({ spirit_wheel_icon_url: e.target.value })}
-                  className="bg-slate-800 border-slate-700 text-white focus:border-amber-500 transition-colors mb-3"
-                  placeholder="Emoji, symbol, or image URL..."
-                />
+                <div className="flex gap-2 mb-3">
+                  <Input
+                    value={form.spirit_wheel_icon_url}
+                    onChange={(e) => update({ spirit_wheel_icon_url: e.target.value })}
+                    className="flex-1 bg-slate-800 border-slate-700 text-white focus:border-amber-500 transition-colors"
+                    placeholder="Emoji, symbol, or image URL..."
+                  />
+                  <Button 
+                    type="button"
+                    variant="outline" 
+                    className="border-amber-500/60 text-amber-300 hover:bg-amber-500/20 transition-all shrink-0"
+                    onClick={() => setLibraryTargetField('spirit_wheel_icon_url')}
+                  >
+                    <ImageIcon className="w-4 h-4 mr-2" />
+                    Gallery
+                  </Button>
+                </div>
                 <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto p-2 bg-slate-900/50 rounded-md border border-slate-700">
                   {PRESET_SYMBOLS.map((p, idx) => (
                     <button
@@ -458,7 +469,7 @@ export default function CardEditor({ deckId, card, isOpen, onClose, onSave }) {
                         type="button"
                         variant="outline"
                         className="flex-1 min-w-[140px] border-2 border-emerald-500/60 text-emerald-300 hover:bg-emerald-500/20 hover:border-emerald-400 font-semibold transition-all"
-                        onClick={() => setShowLibrary(true)}
+                        onClick={() => setLibraryTargetField('image_url')}
                         title="Choose from previously uploaded images"
                       >
                         <ImageIcon className="w-4 h-4 mr-2" />
@@ -646,12 +657,14 @@ export default function CardEditor({ deckId, card, isOpen, onClose, onSave }) {
         onApplied={generatedApplied}
       />
       <PhotoLibraryPicker
-        isOpen={showLibrary}
-        onClose={() => setShowLibrary(false)}
+        isOpen={!!libraryTargetField}
+        onClose={() => setLibraryTargetField(null)}
         deckId={deckId}
         onSelect={(url) => {
-          update({ image_url: url });
-          setShowLibrary(false);
+          if (libraryTargetField) {
+            update({ [libraryTargetField]: url });
+          }
+          setLibraryTargetField(null);
         }}
       />
 
