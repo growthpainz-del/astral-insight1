@@ -113,7 +113,7 @@ const THEME_PACKS = {
     { icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/91325776e_C924B138-EE3C-4992-A912-B0D1598F9C16.png", label: "Merope's Echo", meaning: "The missing voice still whispers wisdom. Listen for the subtle return; integration awaits. Keywords: return, integration, quiet wisdom, wholeness.", type: "symbol", card_id: "" }
   ],
   animal_spirits: [
-    { label: "Bear", meaning: "strength, courage, healing", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/78c993325_5A7852AA-312E-46A0-BFA3-D8FD001550F2.png", card_id: "" },
+    { label: "Bear", meaning: "strength, courage, healing", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/4b5e817e8_5E5C0F6F-C063-42EF-A81D-13620A8794F8.png", card_id: "" },
     { label: "Wolf", meaning: "loyalty, community, wisdom", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/f9166d16a_4872CE13-DAF7-4DB3-B49C-550EF9313D11.png", card_id: "" },
     { label: "Eagle", meaning: "vision, spiritual messenger, freedom", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/1313d2e5a_EEB98506-2E8A-4DC4-9718-014B240314E3.png", card_id: "" },
     { label: "Buffalo", meaning: "abundance, gratitude, sacred life", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/8b8aa86aa_IMG_8508.png", card_id: "" },
