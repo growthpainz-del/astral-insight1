@@ -41,7 +41,7 @@ function DeckCard({ deck }) {
   };
 
   return (
-    <div className="group relative bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 overflow-hidden hover:border-purple-400/40 transition-all">
+    <div className="group relative bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 overflow-hidden hover:border-purple-400/40 transition-all h-full flex flex-col">
       {/* Cover Image */}
       <div className="relative aspect-[2/3] bg-gradient-to-br from-purple-900/40 to-slate-900/40">
         {deck.cover_image ? (
@@ -245,7 +245,7 @@ export default function Studio() {
             <div className="relative">
               <div className="flex gap-6 overflow-x-auto pb-2 px-1 snap-x snap-mandatory">
                 {draftDecks.map(deck => (
-                  <div key={deck.id} className="snap-start min-w-[180px] sm:min-w-[220px] md:min-w-[240px]">
+                  <div key={deck.id} className="snap-start w-[180px] sm:w-[220px] md:w-[240px] flex-shrink-0">
                     <DeckCard deck={deck} />
                   </div>
                 ))}
@@ -264,7 +264,7 @@ export default function Studio() {
             <div className="relative">
               <div className="flex gap-6 overflow-x-auto pb-2 px-1 snap-x snap-mandatory">
                 {publishedDecks.map(deck => (
-                  <div key={deck.id} className="snap-start min-w-[180px] sm:min-w-[220px] md:min-w-[240px]">
+                  <div key={deck.id} className="snap-start w-[180px] sm:w-[220px] md:w-[240px] flex-shrink-0">
                     <DeckCard deck={deck} />
                   </div>
                 ))}
