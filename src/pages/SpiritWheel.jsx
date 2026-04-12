@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Sparkles, RefreshCw, Eye, ChevronLeft, Save, Plus, ZoomIn, ZoomOut, Download } from 'lucide-react';
+import { Sparkles, RefreshCw, Eye, ChevronLeft, Save, Plus, ZoomIn, ZoomOut, Download, Octagon, StopCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -187,9 +187,15 @@ export default function SpiritWheel() {
   const [category, setCategory] = useState("General");
   const [blankMode, setBlankMode] = useState(false);
   const [isRevealed, setIsRevealed] = useState(false);
-  const [isSpinning, setIsSpinning] = useState(false);
+  const [spinState, setSpinState] = useState("idle"); // idle, spinning, stopping
+  const [spinSpeed, setSpinSpeed] = useState(1);
+  const [spinDuration, setSpinDuration] = useState(5);
+  const spinStartTime = useRef(0);
+  const startRotations = useRef({ outer: 0, middle: 0, inner: 0 });
   const [rotations, setRotations] = useState({ outer: 0, middle: 0, inner: 0 });
   const [selectedIndices, setSelectedIndices] = useState({ outer: 0, middle: 0, inner: 0 });
+
+  const isSpinning = spinState !== "idle";
   const [aiInterpretation, setAiInterpretation] = useState("");
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -430,10 +436,12 @@ export default function SpiritWheel() {
   }, [selectedDeckId]);
 
   const spinWheel = () => {
-    if (isSpinning) return;
-    setIsSpinning(true);
+    if (spinState !== "idle") return;
+    setSpinState("spinning");
     setIsRevealed(false);
     setAiInterpretation("");
+    spinStartTime.current = Date.now();
+    startRotations.current = rotations;
     
     if (selectedDeckId !== "none" && deckCards.length > 0) {
       const randomCard = deckCards[Math.floor(Math.random() * deckCards.length)];
@@ -441,43 +449,70 @@ export default function SpiritWheel() {
     } else {
       setDrawnCard(null);
     }
-    
-    const outerLen = Math.max(1, wheelData.outer.length);
-    const middleLen = Math.max(1, wheelData.middle.length);
-    const innerLen = Math.max(1, wheelData.inner.length);
 
-    const newOuter = rotations.outer + 360 * 3 + (wheelData.outer.length > 0 ? Math.floor(Math.random() * wheelData.outer.length) * (360 / wheelData.outer.length) : 0);
-    const newMiddle = rotations.middle - 360 * 3 - (wheelData.middle.length > 0 ? Math.floor(Math.random() * wheelData.middle.length) * (360 / wheelData.middle.length) : 0);
-    const newInner = rotations.inner + 360 * 4 + (wheelData.inner.length > 0 ? Math.floor(Math.random() * wheelData.inner.length) * (360 / wheelData.inner.length) : 0);
+    const degreesPerSecondOuter = 270 * spinSpeed;
+    const degreesPerSecondMiddle = -270 * spinSpeed;
+    const degreesPerSecondInner = 360 * spinSpeed;
 
-    setRotations({ outer: newOuter, middle: newMiddle, inner: newInner });
+    setRotations({
+      outer: rotations.outer + degreesPerSecondOuter * 10000,
+      middle: rotations.middle + degreesPerSecondMiddle * 10000,
+      inner: rotations.inner + degreesPerSecondInner * 10000,
+    });
 
-    // Haptic feedback simulation (slowing down ticking feel)
-    if (typeof navigator !== 'undefined' && navigator.vibrate) {
-      try {
-        const pattern = [];
-        let delay = 30;
-        for (let i = 0; i < 28; i++) {
-          pattern.push(15); // short vibration (tick)
-          pattern.push(delay); // pause
-          delay += 10; // increase pause to simulate slowing down
-        }
-        navigator.vibrate(pattern);
-      } catch (e) {}
+    if (spinDuration !== "continuous") {
+      window.spinTimeout = setTimeout(() => {
+        stopSpin(degreesPerSecondOuter, degreesPerSecondMiddle, degreesPerSecondInner);
+      }, spinDuration * 1000);
     }
+  };
 
-    setTimeout(() => {
-      if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate([30, 50, 30]); // Final reveal vibration
-      setIsSpinning(false);
-      setSelectedIndices({
-        outer: wheelData.outer.length > 0 ? (wheelData.outer.length - Math.round((newOuter % 360) / (360 / wheelData.outer.length))) % wheelData.outer.length : 0,
-        middle: wheelData.middle.length > 0 ? Math.round((Math.abs(newMiddle) % 360) / (360 / wheelData.middle.length)) % wheelData.middle.length : 0,
-        inner: wheelData.inner.length > 0 ? (wheelData.inner.length - Math.round((newInner % 360) / (360 / wheelData.inner.length))) % wheelData.inner.length : 0
-      });
-      if (!blankMode) {
-        setIsRevealed(true);
+  const stopSpin = (degOuter = 270 * spinSpeed, degMiddle = -270 * spinSpeed, degInner = 360 * spinSpeed) => {
+    setSpinState(prev => {
+      if (prev !== "spinning") return prev;
+      
+      clearTimeout(window.spinTimeout);
+      
+      const elapsed = (Date.now() - spinStartTime.current) / 1000;
+      const currentOuter = startRotations.current.outer + degOuter * elapsed;
+      const currentMiddle = startRotations.current.middle + degMiddle * elapsed;
+      const currentInner = startRotations.current.inner + degInner * elapsed;
+
+      const newOuter = currentOuter + Math.sign(degOuter) * 360 * 1.5 + (wheelData.outer.length > 0 ? Math.floor(Math.random() * wheelData.outer.length) * (360 / wheelData.outer.length) : 0);
+      const newMiddle = currentMiddle + Math.sign(degMiddle) * 360 * 1.5 - (wheelData.middle.length > 0 ? Math.floor(Math.random() * wheelData.middle.length) * (360 / wheelData.middle.length) : 0);
+      const newInner = currentInner + Math.sign(degInner) * 360 * 1.5 + (wheelData.inner.length > 0 ? Math.floor(Math.random() * wheelData.inner.length) * (360 / wheelData.inner.length) : 0);
+
+      setRotations({ outer: newOuter, middle: newMiddle, inner: newInner });
+
+      if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        try {
+          const pattern = [];
+          let delay = 30;
+          for (let i = 0; i < 28; i++) {
+            pattern.push(15);
+            pattern.push(delay);
+            delay += 10;
+          }
+          navigator.vibrate(pattern);
+        } catch (e) {}
       }
-    }, 4000);
+
+      setTimeout(() => {
+        if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate([30, 50, 30]);
+        setSpinState("idle");
+        setSelectedIndices({
+          outer: wheelData.outer.length > 0 ? (wheelData.outer.length - Math.round((newOuter % 360) / (360 / wheelData.outer.length))) % wheelData.outer.length : 0,
+          middle: wheelData.middle.length > 0 ? Math.round((Math.abs(newMiddle) % 360) / (360 / wheelData.middle.length)) % wheelData.middle.length : 0,
+          inner: wheelData.inner.length > 0 ? (wheelData.inner.length - Math.round((newInner % 360) / (360 / wheelData.inner.length))) % wheelData.inner.length : 0
+        });
+        if (!blankMode) {
+          // Force a micro-delay to let React apply selectedIndices before revealing
+          setTimeout(() => setIsRevealed(true), 50);
+        }
+      }, 3500);
+      
+      return "stopping";
+    });
   };
 
   const getSegmentText = (ring, index) => {
@@ -726,15 +761,58 @@ export default function SpiritWheel() {
               <Switch checked={blankMode} onCheckedChange={setBlankMode} className="data-[state=checked]:bg-amber-600" />
             </div>
 
-            <div className="space-y-2">
-              <Button 
-                onClick={spinWheel} 
-                disabled={isSpinning}
-                className="w-full bg-[#8b5a2b] hover:bg-[#a66d35] text-amber-50 py-8 text-xl shadow-[inset_0_0_10px_rgba(0,0,0,0.5),0_4px_15px_rgba(0,0,0,0.4)] border border-[#a66d35] active:scale-95 transition-transform"
-              >
-                {isSpinning ? <RefreshCw className="animate-spin w-6 h-6 mr-3" /> : <Sparkles className="w-6 h-6 mr-3" />}
-                {isSpinning ? "Channeling the Spirits..." : "Spin the Wheel"}
-              </Button>
+            <div className="space-y-4">
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <Label className="text-amber-200/80 text-xs">Spin Speed</Label>
+                  <Select value={spinSpeed.toString()} onValueChange={(v) => setSpinSpeed(parseFloat(v))} disabled={spinState !== "idle"}>
+                    <SelectTrigger className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 h-10">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100">
+                      <SelectItem value="0.5">Slow</SelectItem>
+                      <SelectItem value="1">Normal</SelectItem>
+                      <SelectItem value="2">Fast</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex-1">
+                  <Label className="text-amber-200/80 text-xs">Duration</Label>
+                  <Select value={spinDuration.toString()} onValueChange={(v) => setSpinDuration(v === "continuous" ? "continuous" : parseInt(v))} disabled={spinState !== "idle"}>
+                    <SelectTrigger className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 h-10">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100">
+                      <SelectItem value="3">3 seconds</SelectItem>
+                      <SelectItem value="5">5 seconds</SelectItem>
+                      <SelectItem value="10">10 seconds</SelectItem>
+                      <SelectItem value="continuous">Continuous</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {spinState === "idle" ? (
+                <Button 
+                  onClick={spinWheel} 
+                  className="w-full bg-[#8b5a2b] hover:bg-[#a66d35] text-amber-50 py-8 text-xl shadow-[inset_0_0_10px_rgba(0,0,0,0.5),0_4px_15px_rgba(0,0,0,0.4)] border border-[#a66d35] active:scale-95 transition-transform"
+                >
+                  <Sparkles className="w-6 h-6 mr-3" />
+                  Spin the Wheel
+                </Button>
+              ) : (
+                <Button 
+                  onClick={() => stopSpin()} 
+                  disabled={spinState === "stopping"}
+                  className="w-full bg-red-900 hover:bg-red-800 text-red-50 py-8 text-xl shadow-[inset_0_0_10px_rgba(0,0,0,0.5),0_4px_15px_rgba(0,0,0,0.4)] border border-red-700 active:scale-95 transition-transform"
+                >
+                  {spinState === "stopping" ? (
+                    <><RefreshCw className="animate-spin w-6 h-6 mr-3" /> Halting Spirits...</>
+                  ) : (
+                    <><Octagon className="w-6 h-6 mr-3" /> Stop Wheel</>
+                  )}
+                </Button>
+              )}
               <div className="text-center text-amber-200/50 text-sm italic pt-2">
                 👆 Or tap / swipe the wheel directly to spin
               </div>
@@ -930,7 +1008,7 @@ export default function SpiritWheel() {
                 backgroundBlendMode: 'multiply',
               }}
               animate={{ rotate: rotations.outer }}
-              transition={{ duration: 4.5, type: "tween", ease: "circOut" }}
+              transition={spinState === "spinning" ? { duration: 10000, ease: "linear" } : { duration: 3.5, type: "tween", ease: "circOut" }}
             >
               {wheelData.outer.map((item, i) => {
                 const angle = 360 / wheelData.outer.length;
@@ -984,7 +1062,7 @@ export default function SpiritWheel() {
                 backgroundBlendMode: 'multiply',
               }}
               animate={{ rotate: rotations.middle }}
-              transition={{ duration: 4.2, type: "tween", ease: "circOut" }}
+              transition={spinState === "spinning" ? { duration: 10000, ease: "linear" } : { duration: 3.5, type: "tween", ease: "circOut" }}
             >
               {wheelData.middle.map((item, i) => {
                 const angle = 360 / wheelData.middle.length;
@@ -1041,7 +1119,7 @@ export default function SpiritWheel() {
                 backgroundBlendMode: 'multiply',
               }}
               animate={{ rotate: rotations.inner }}
-              transition={{ duration: 3.8, type: "tween", ease: "circOut" }}
+              transition={spinState === "spinning" ? { duration: 10000, ease: "linear" } : { duration: 3.5, type: "tween", ease: "circOut" }}
             >
               {wheelData.inner.map((item, i) => {
                 const angle = 360 / wheelData.inner.length;
