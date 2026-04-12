@@ -117,7 +117,7 @@ const THEME_PACKS = {
     { label: "Wolf", meaning: "loyalty, community, wisdom", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/f9166d16a_4872CE13-DAF7-4DB3-B49C-550EF9313D11.png", card_id: "" },
     { label: "Eagle", meaning: "vision, spiritual messenger, freedom", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/1313d2e5a_EEB98506-2E8A-4DC4-9718-014B240314E3.png", card_id: "" },
     { label: "Buffalo", meaning: "abundance, gratitude, sacred life", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/dcf97cc36_C736DB82-E6FB-4D19-89B5-A2EFB8678D87.png", card_id: "" },
-    { label: "Owl", meaning: "wisdom, intuition, seeing the unseen", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/b4eb09e4b_IMG_8507.png", card_id: "" },
+    { label: "Owl", meaning: "wisdom, intuition, seeing the unseen", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/6b8c8d2fa_B47D7EAA-5DB6-4144-B5D9-04F527CAD0BE.png", card_id: "" },
     { label: "Deer", meaning: "gentleness, grace, renewal", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/5986da740_5D416A3A-09D1-4E52-AA69-2C761DFBD8ED.png", card_id: "" }
   ]
 };
