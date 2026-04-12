@@ -111,6 +111,14 @@ const THEME_PACKS = {
     { icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/20d73f158_1387F872-F65F-4474-B013-E85675780EFE.png", label: "Celaeno's Veil", meaning: "What is hidden holds power. Embrace the unknown; mystery teaches. Keywords: shadow, mystery, hidden truth, depth.", type: "symbol", card_id: "" },
     { icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/cb94d92f2_FB6DDABB-8BD8-4659-9B0B-E96D754A7AF0.png", label: "Sterope's Flame", meaning: "Inspiration strikes like starfire. Creative lightning — capture it now. Keywords: inspiration, creativity, fire, suddenness.", type: "symbol", card_id: "" },
     { icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/91325776e_C924B138-EE3C-4992-A912-B0D1598F9C16.png", label: "Merope's Echo", meaning: "The missing voice still whispers wisdom. Listen for the subtle return; integration awaits. Keywords: return, integration, quiet wisdom, wholeness.", type: "symbol", card_id: "" }
+  ],
+  animal_spirits: [
+    { label: "Bear", meaning: "strength, courage, healing", type: "symbol", icon: "🐻", card_id: "" },
+    { label: "Wolf", meaning: "loyalty, community, wisdom", type: "symbol", icon: "🐺", card_id: "" },
+    { label: "Eagle", meaning: "vision, spiritual messenger, freedom", type: "symbol", icon: "🦅", card_id: "" },
+    { label: "Buffalo", meaning: "abundance, gratitude, sacred life", type: "symbol", icon: "🦬", card_id: "" },
+    { label: "Owl", meaning: "wisdom, intuition, seeing the unseen", type: "symbol", icon: "🦉", card_id: "" },
+    { label: "Deer", meaning: "gentleness, grace, renewal", type: "symbol", icon: "🦌", card_id: "" }
   ]
 };
 
@@ -124,7 +132,8 @@ const PRESET_SYMBOLS = [
   ...THEME_PACKS.chakras,
   ...THEME_PACKS.seven_sisters,
   ...THEME_PACKS.spiritual_emoticons,
-  ...THEME_PACKS.moon_emblems
+  ...THEME_PACKS.moon_emblems,
+  ...THEME_PACKS.animal_spirits
 ];
 
 const isImageSymbol = (id) => {
@@ -251,6 +260,7 @@ function RingEditor({ ringKey, segments, setSegments, deckCards }) {
               <SelectItem value="seven_sisters">7 Sisters</SelectItem>
               <SelectItem value="spiritual_emoticons">Spiritual Emoticons</SelectItem>
               <SelectItem value="moon_emblems">Moon Emblems</SelectItem>
+              <SelectItem value="animal_spirits">Animal Spirits</SelectItem>
             </SelectContent>
           </Select>
           <Button size="sm" onClick={addSegment} className="bg-amber-700 hover:bg-amber-600 text-white h-8">

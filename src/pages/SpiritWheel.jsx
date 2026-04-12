@@ -157,6 +157,15 @@ const MOON_EMBLEMS_MODIFIERS = [
   { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/d5b1347eb_emojiscom8-moon--drop-symbol_-crescent-moon-with-a-single-water-drop-falling-from-its-curve-meaning_-emotional-release-cleansing-or-divine-tears.png", label: "Moon & Drop", meaning: "Emotional release, cleansing, or divine tears." }
 ];
 
+const ANIMAL_SPIRITS_MODIFIERS = [
+  { id: "🐻", label: "Bear", meaning: "strength, courage, healing" },
+  { id: "🐺", label: "Wolf", meaning: "loyalty, community, wisdom" },
+  { id: "🦅", label: "Eagle", meaning: "vision, spiritual messenger, freedom" },
+  { id: "🦬", label: "Buffalo", meaning: "abundance, gratitude, sacred life" },
+  { id: "🦉", label: "Owl", meaning: "wisdom, intuition, seeing the unseen" },
+  { id: "🦌", label: "Deer", meaning: "gentleness, grace, renewal" }
+];
+
 const CATEGORIES = ["General", "Relationships", "Numbers", "Age", "Body Parts", "Colors", "Lost Items", "Height", "Time", "Astrology", "Emotions", "Profiler", "Seasons and Shapes", "Traveling", "Zapped", "X-Rated"];
 
 const isImageSymbol = (id) => {
@@ -360,7 +369,7 @@ export default function SpiritWheel() {
     return {
       outer,
       middle: WHEEL_MIDDLE,
-      inner: selectedWheelId === "default" && selectedDeckId !== "none" ? [...SEVEN_SISTERS_MODIFIERS, ...SPIRITUAL_EMOTICONS_MODIFIERS, ...MOON_EMBLEMS_MODIFIERS] : WHEEL_INNER
+      inner: selectedWheelId === "default" && selectedDeckId !== "none" ? [...SEVEN_SISTERS_MODIFIERS, ...SPIRITUAL_EMOTICONS_MODIFIERS, ...MOON_EMBLEMS_MODIFIERS, ...ANIMAL_SPIRITS_MODIFIERS] : WHEEL_INNER
     };
   }, [deckCards, selectedDeckId, selectedWheelId, customWheels]);
 
