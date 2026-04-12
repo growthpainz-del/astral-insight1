@@ -158,12 +158,12 @@ const MOON_EMBLEMS_MODIFIERS = [
 ];
 
 const ANIMAL_SPIRITS_MODIFIERS = [
-  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/dc1093588_IMG_8501.png", label: "Bear", meaning: "strength, courage, healing" },
-  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/c90f4789a_IMG_8500.png", label: "Wolf", meaning: "loyalty, community, wisdom" },
-  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/4bed11e77_IMG_8496.jpg", label: "Eagle", meaning: "vision, spiritual messenger, freedom" },
-  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/c704a44cc_IMG_8499.png", label: "Buffalo", meaning: "abundance, gratitude, sacred life" },
-  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/fa510fd82_IMG_8502.png", label: "Owl", meaning: "wisdom, intuition, seeing the unseen" },
-  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/cdb9c937f_Gemini_Generated_Image_62ryp962ryp962ry.png", label: "Deer", meaning: "gentleness, grace, renewal" }
+  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/78c993325_5A7852AA-312E-46A0-BFA3-D8FD001550F2.png", label: "Bear", meaning: "strength, courage, healing" },
+  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/f9166d16a_4872CE13-DAF7-4DB3-B49C-550EF9313D11.png", label: "Wolf", meaning: "loyalty, community, wisdom" },
+  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/1313d2e5a_EEB98506-2E8A-4DC4-9718-014B240314E3.png", label: "Eagle", meaning: "vision, spiritual messenger, freedom" },
+  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/8b8aa86aa_IMG_8508.png", label: "Buffalo", meaning: "abundance, gratitude, sacred life" },
+  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/b4eb09e4b_IMG_8507.png", label: "Owl", meaning: "wisdom, intuition, seeing the unseen" },
+  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/5986da740_5D416A3A-09D1-4E52-AA69-2C761DFBD8ED.png", label: "Deer", meaning: "gentleness, grace, renewal" }
 ];
 
 const CATEGORIES = ["General", "Relationships", "Numbers", "Age", "Body Parts", "Colors", "Lost Items", "Height", "Time", "Astrology", "Emotions", "Profiler", "Seasons and Shapes", "Traveling", "Zapped", "X-Rated"];
@@ -764,7 +764,7 @@ export default function SpiritWheel() {
                       <span>Outer Ring</span>
                       {isImageSymbol(wheelData.outer[selectedIndices.outer]?.id) ? (
                         <div className="w-10 h-10 shrink-0 flex items-center justify-center overflow-hidden">
-                          <img src={getImageUrl(wheelData.outer[selectedIndices.outer]?.id)} alt="" className="w-full h-full object-contain mix-blend-screen filter drop-shadow-md" />
+                          <img src={getImageUrl(wheelData.outer[selectedIndices.outer]?.id)} alt="" className="w-full h-full object-contain mix-blend-screen filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]" />
                         </div>
                       ) : (
                         <span className="text-amber-300 bg-black/20 px-2 py-0.5 rounded">
@@ -782,7 +782,7 @@ export default function SpiritWheel() {
                       <span>Middle Ring</span>
                       {isImageSymbol(wheelData.middle[selectedIndices.middle]?.id) ? (
                         <div className="w-10 h-10 shrink-0 flex items-center justify-center overflow-hidden">
-                          <img src={getImageUrl(wheelData.middle[selectedIndices.middle]?.id)} alt="" className="w-full h-full object-contain mix-blend-screen filter drop-shadow-md" />
+                          <img src={getImageUrl(wheelData.middle[selectedIndices.middle]?.id)} alt="" className="w-full h-full object-contain mix-blend-screen filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]" />
                         </div>
                       ) : (
                         <span className="text-amber-300 bg-black/20 px-2 py-0.5 rounded">
@@ -800,7 +800,7 @@ export default function SpiritWheel() {
                       <span>Inner Ring</span>
                       {isImageSymbol(wheelData.inner[selectedIndices.inner]?.id) ? (
                         <div className="w-10 h-10 shrink-0 flex items-center justify-center overflow-hidden">
-                          <img src={getImageUrl(wheelData.inner[selectedIndices.inner]?.id)} alt="" className="w-full h-full object-contain mix-blend-screen filter drop-shadow-md" />
+                          <img src={getImageUrl(wheelData.inner[selectedIndices.inner]?.id)} alt="" className="w-full h-full object-contain mix-blend-screen filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]" />
                         </div>
                       ) : (
                         <span className="text-amber-300 bg-black/20 px-2 py-0.5 rounded">
@@ -961,7 +961,7 @@ export default function SpiritWheel() {
                   >
                     {isImageSymbol(item.id) ? (
                       <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-16 lg:h-16 shrink-0 flex items-center justify-center overflow-hidden">
-                        <img src={getImageUrl(item.id)} alt="" className="w-full h-full object-contain mix-blend-screen filter drop-shadow-sm" />
+                        <img src={getImageUrl(item.id)} alt="" className="w-full h-full object-contain mix-blend-screen filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)]" />
                       </div>
                     ) : item.id}
                   </div>
@@ -1016,7 +1016,7 @@ export default function SpiritWheel() {
                       <div className="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 lg:w-8 lg:h-8 rounded-full shadow-inner border border-black/30" style={{ backgroundColor: item.id === 'LightBlue' ? '#add8e6' : item.id.toLowerCase() }}></div>
                     ) : isImageSymbol(item.id) ? (
                       <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 shrink-0 flex items-center justify-center overflow-hidden">
-                        <img src={getImageUrl(item.id)} alt="" className="w-full h-full object-contain mix-blend-screen filter drop-shadow-sm" />
+                        <img src={getImageUrl(item.id)} alt="" className="w-full h-full object-contain mix-blend-screen filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)]" />
                       </div>
                     ) : (
                       <span className={activeTheme.isTiles ? "text-[10px] md:text-sm" : ""}>{item.id}</span>
@@ -1072,7 +1072,7 @@ export default function SpiritWheel() {
                   >
                     {isImageSymbol(item.id) ? (
                       <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-28 lg:h-28 shrink-0 flex items-center justify-center overflow-hidden">
-                        <img src={getImageUrl(item.id)} alt="" className="w-full h-full object-contain mix-blend-screen filter drop-shadow-sm" />
+                        <img src={getImageUrl(item.id)} alt="" className="w-full h-full object-contain mix-blend-screen filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)]" />
                       </div>
                     ) : item.id}
                   </div>
