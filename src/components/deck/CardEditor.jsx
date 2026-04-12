@@ -482,16 +482,18 @@ export default function CardEditor({ deckId, card, isOpen, onClose, onSave }) {
                 
                 {/* Image Preview */}
                 {form.image_url && (
-                  <div className="mt-4 relative group">
-                    <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-600 to-blue-600 rounded-lg opacity-50 group-hover:opacity-75 blur transition-opacity"></div>
-                    <div className="relative">
-                      <img 
-                        src={form.image_url} 
-                        alt="Card preview" 
-                        className="w-full h-48 object-contain bg-black/40 rounded-lg border-2 border-cyan-500/40 shadow-xl p-2" 
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-lg flex items-end p-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <p className="text-white text-sm font-medium">Current Card Image</p>
+                  <div className="mt-4 flex justify-center">
+                    <div className="relative group inline-block">
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-600 to-blue-600 rounded-lg opacity-50 group-hover:opacity-75 blur transition-opacity"></div>
+                      <div className="relative">
+                        <img 
+                          src={form.image_url} 
+                          alt="Card preview" 
+                          className="h-48 w-auto min-w-[120px] max-w-[200px] object-contain bg-black/40 rounded-lg border-2 border-cyan-500/40 shadow-xl p-1" 
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-lg flex items-end p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <p className="text-white text-xs font-medium">Card Image</p>
+                        </div>
                       </div>
                     </div>
                   </div>
