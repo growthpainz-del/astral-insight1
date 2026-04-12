@@ -129,14 +129,32 @@ const SEVEN_SISTERS_MODIFIERS = [
 ];
 
 const SPIRITUAL_EMOTICONS_MODIFIERS = [
-  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/fda52ec6b_emojiscomsymbol_-crescent-with-faint-echoing-ripples-turning-into-roots-meaning_-listen-to-inner-or-ancestral-guidance.png", label: "Grounded Moon", meaning: "Instant grounding + presence." },
-  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/22eaff712_emojiscom1-inner-eye-symbol_-crescent-framing-a-simple-open-eye-with-soft-root-like-lashes-meaning_-trust-intuition-and-inner-sight.png", label: "Inner Eye", meaning: "Trust intuition and inner sight." },
-  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/729121d96_emojiscomsymbol_-crescent-with-a-leaf-breaking-free-from-tangled-roots-meaning_-let-go-of-what-no-longer-serves.png", label: "Shadow Release", meaning: "Let go of what no longer serves." },
+  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/fda52ec6b_emojiscomsymbol_-crescent-with-faint-echoing-ripples-turning-into-roots-meaning_-listen-to-inner-or-ancestral-guidance.png", label: "Grounded Moon", meaning: "Instant grounding and presence." },
+  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/38c1faf8f_emojiscom1-inner-eye-symbol_-crescent-framing-a-simple-open-eye-with-soft-root-like-lashes-meaning_-trust-intuition-and-inner-sight.png", label: "Inner Eye", meaning: "Trust intuition and inner sight." },
+  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/cc4ec511c_emojiscomsymbol_-crescent-with-a-leaf-breaking-free-from-tangled-roots-meaning_-let-go-of-what-no-longer-serves.png", label: "Shadow Release", meaning: "Let go of what no longer serves." },
   { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/537236bca_emojiscomheart-root-symbol_-crescent-cradling-a-small-heart-with-roots-growing-from-its-base-meaning_-love-anchored-in-self.png", label: "Heart Root", meaning: "Love anchored in self." },
-  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/66b02a03f_emojiscomsymbol_-crescent-turning-into-gentle-flowing-water_leaf-veins-meaning_-move-with-natural-cycles.png", label: "Flow Crescent", meaning: "Move with natural cycles." },
-  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/848709e7a_emojiscomspark-seed-symbol_-tiny-glowing-spark-inside-a-crescent-with-sprouting-leaves-meaning_-creative-or-spiritual-ignition.png", label: "Spark Seed", meaning: "Creative or spiritual ignition." },
-  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/94fcbd8a4_emojiscom8-balance-wings-symbol_-two-symmetrical-crescents-forming-open-wings-with-central-root-meaning_-harmony-between-light-and-shadow.png", label: "Balance Wings", meaning: "Harmony between light and shadow." },
-  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/5819cb5c0_emojiscom10-ascension-flame-symbol_-crescent-rising-with-a-small-flame-merging-into-upward-leaves-meaning_-spiritual-growth-and-elevation.png", label: "Ascension Flame", meaning: "Spiritual growth and elevation." }
+  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/fa6e4de90_emojiscomsymbol_-crescent-turning-into-gentle-flowing-water_leaf-veins-meaning_-move-with-natural-cycles.png", label: "Flow Crescent", meaning: "Move with natural cycles." },
+  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/4fe466777_emojiscomspark-seed-symbol_-tiny-glowing-spark-inside-a-crescent-with-sprouting-leaves-meaning_-creative-or-spiritual-ignition.png", label: "Spark Seed", meaning: "Creative or spiritual ignition." },
+  { id: "✨", label: "Veil Lift", meaning: "Gentle revelation and clarity." },
+  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/773fddf77_emojiscom8-balance-wings-symbol_-two-symmetrical-crescents-forming-open-wings-with-central-root-meaning_-harmony-between-light-and-shadow.png", label: "Balance Wings", meaning: "Harmony between light and shadow." },
+  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/0773b3cdd_emojiscomsymbol_-crescent-with-faint-echoing-ripples-turning-into-roots-meaning_-listen-to-inner-or-ancestral-guidance.png", label: "Wisdom Echo", meaning: "Listen to inner or ancestral guidance." },
+  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/de13c89f0_emojiscom10-ascension-flame-symbol_-crescent-rising-with-a-small-flame-merging-into-upward-leaves-meaning_-spiritual-growth-and-elevation.png", label: "Ascension Flame", meaning: "Spiritual growth and elevation." }
+];
+
+const MOON_EMBLEMS_MODIFIERS = [
+  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/79456c147_emojiscommoon--bloom-symbol_-crescent-moon-with-delicate-vines-and-leaves-growing-upward-from-its-base-gently-wrapping-around-the-curve-meaning_-deep-reconnection-with-natures-cycles-and-living-wisdom.png", label: "Moon & Bloom", meaning: "Deep reconnection with nature's cycles and living wisdom." },
+  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/fe23fac12_emojiscommoon-chakra-symbol_-crescent-moon-with-a-vertical-column-of-7-small-glowing-dots-the-chakras-aligned-perfectly-down-its-center-softly-radiating-outward.png", label: "Moon Chakra", meaning: "Energy alignment and chakra activation." },
+  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/e7a4d3c6d_emojiscommoon--third-eye-symbol_-crescent-moon-with-a-single-glowing-eye-centered-in-the-curve-framed-by-a-subtle-lotus-like-mandala-of-leaves-and-roots.png", label: "Moon & Third Eye", meaning: "Intuition, spiritual vision, and inner sight." },
+  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/8ec22eb41_emojiscommoon--balance-symbol_-two-symmetrical-crescents-facing-each-other-like-open-wings-with-a-single-vertical-line-of-energy-running-down-the-center-connecting-them.png", label: "Moon & Balance", meaning: "Harmony between opposites and inner equilibrium." },
+  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/02859be58_emojiscom1-moon--flame-symbol_-crescent-moon-with-a-small-flame-rising-from-its-curve-meaning_-passionate-intuition-or-creative-fire.png", label: "Moon & Flame", meaning: "Passionate intuition and creative spiritual fire." },
+  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/a1041b66f_emojiscom2-moon--feather-symbol_-crescent-moon-with-a-single-feather-gently-resting-inside-its-curve-meaning_-lightness-messages-or-spiritual-surrender.png", label: "Moon & Feather", meaning: "Lightness, spiritual messages, and surrender." },
+  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/6a3be91fd_emojiscom3-moon--spiral-symbol_-crescent-moon-with-a-tight-spiral-growing-from-its-base-like-a-shell-meaning_-inner-journey-cycles-and-unfolding-wisdom.png", label: "Moon & Spiral", meaning: "Inner journey, cycles, and unfolding wisdom." },
+  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/d3c8c8191_emojiscom4-moon--lotus-symbol_-crescent-moon-with-a-lotus-flower-blooming-from-its-lower-curve-meaning_-spiritual-awakening-and-rising-above-challenges.png", label: "Moon & Lotus", meaning: "Spiritual awakening and rising above challenges." },
+  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/7ac2566d5_emojiscom5-moon--hand-symbol_-crescent-moon-cradled-by-an-open-palm-from-below-meaning_-divine-support-receiving-or-surrender.png", label: "Moon & Hand", meaning: "Divine support, receiving, and surrender." },
+  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/baa05bcd9_emojiscom6-moon--butterfly-symbol_-crescent-moon-with-butterfly-wings-emerging-from-its-sides-meaning_-transformation-and-soul-evolution.png", label: "Moon & Butterfly", meaning: "Transformation and soul evolution." },
+  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/eab249185_emojiscom9-moon--key-symbol_-crescent-moon-with-an-ornate-key-hanging-from-its-inner-curve-meaning_-unlocking-hidden-knowledge-or-soul-purpose.png", label: "Moon & Key", meaning: "Unlocking hidden knowledge or soul purpose." },
+  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/546cc87f8_emojiscom7-moon--antlers-symbol_-crescent-moon-with-elegant-antlers-branching-upward-from-its-tips-meaning_-wild-instinct-protection-and-natural-power.png", label: "Moon & Antlers", meaning: "Wild instinct, protection, and natural power." },
+  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/d5b1347eb_emojiscom8-moon--drop-symbol_-crescent-moon-with-a-single-water-drop-falling-from-its-curve-meaning_-emotional-release-cleansing-or-divine-tears.png", label: "Moon & Drop", meaning: "Emotional release, cleansing, or divine tears." }
 ];
 
 const CATEGORIES = ["General", "Relationships", "Numbers", "Age", "Body Parts", "Colors", "Lost Items", "Height", "Time", "Astrology", "Emotions", "Profiler", "Seasons and Shapes", "Traveling", "Zapped", "X-Rated"];
@@ -342,7 +360,7 @@ export default function SpiritWheel() {
     return {
       outer,
       middle: WHEEL_MIDDLE,
-      inner: selectedWheelId === "default" && selectedDeckId !== "none" ? [...SEVEN_SISTERS_MODIFIERS, ...SPIRITUAL_EMOTICONS_MODIFIERS] : WHEEL_INNER
+      inner: selectedWheelId === "default" && selectedDeckId !== "none" ? [...SEVEN_SISTERS_MODIFIERS, ...SPIRITUAL_EMOTICONS_MODIFIERS, ...MOON_EMBLEMS_MODIFIERS] : WHEEL_INNER
     };
   }, [deckCards, selectedDeckId, selectedWheelId, customWheels]);
 
