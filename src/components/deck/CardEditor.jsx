@@ -20,6 +20,55 @@ import "@/components/deck/_cardUpdatePatch";
 
 const ELEMENTS = ["air", "fire", "water", "earth", "spirit", "none"];
 
+const PRESET_SYMBOLS = [
+  { icon: "✨", label: "Sparkles" },
+  { icon: "🔥", label: "Fire" },
+  { icon: "💨", label: "Air" },
+  { icon: "🌊", label: "Water" },
+  { icon: "🌍", label: "Earth" },
+  { icon: "☀️", label: "Sun" },
+  { icon: "🌙", label: "Moon" },
+  { icon: "🌟", label: "Star" },
+  { icon: "♈", label: "Aries" },
+  { icon: "♉", label: "Taurus" },
+  { icon: "♊", label: "Gemini" },
+  { icon: "♋", label: "Cancer" },
+  { icon: "♌", label: "Leo" },
+  { icon: "♍", label: "Virgo" },
+  { icon: "♎", label: "Libra" },
+  { icon: "♏", label: "Scorpio" },
+  { icon: "♐", label: "Sagittarius" },
+  { icon: "♑", label: "Capricorn" },
+  { icon: "♒", label: "Aquarius" },
+  { icon: "♓", label: "Pisces" },
+  { icon: "❤️", label: "Heart" },
+  { icon: "👁️", label: "Eye" },
+  { icon: "⏳", label: "Hourglass" },
+  { icon: "🛡️", label: "Shield" },
+  { icon: "🗝️", label: "Key" },
+  { icon: "⚔️", label: "Swords" },
+  { icon: "🏆", label: "Cup" },
+  { icon: "🪙", label: "Coin" },
+  { icon: "🌿", label: "Leaf" },
+  { icon: "🦋", label: "Butterfly" },
+  { icon: "🦉", label: "Owl" },
+  { icon: "🐺", label: "Wolf" },
+  { icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/dd1c9186e_D0009B98-FAD8-4CC4-BADF-A7DC8D7178F3.png", label: "Dragon" },
+  { icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/6ae050f51_C3C1871F-D9A3-42AB-AAE1-915196101169.png", label: "Rooted Heart" },
+  { icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/03b87e7d6_526B0A26-D804-4C5C-B5A7-4C76D815ABD9.png", label: "Arrow Circle" },
+  { icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/b386bf4cf_AC082A3F-8854-4DD6-BB68-AA607E096D32.png", label: "Flame Circle" },
+  { icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/88ee8ec8d_32DB718D-EFA1-4827-8AEC-6AB91A8BF329.png", label: "Tree Roots" },
+  { icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/3bd854cd9_6381CF9C-029F-4D2C-84BA-81168C947FE3.png", label: "Lightning" },
+  { icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/a28758f63_8501F496-2B70-4F65-B2BA-FAFEA987F484.png", label: "Water Drops" },
+  { icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/d7e717c9b_3F39BC02-39E5-47A7-AC4D-3DD487C9C369.png", label: "Comet" }
+];
+
+const isImageSymbol = (id) => {
+  if (!id || typeof id !== 'string') return false;
+  const s = id.trim().toLowerCase();
+  return s.startsWith('http') || s.startsWith('data:image') || /\.(png|jpe?g|gif|svg|webp)(\?.*)?$/.test(s);
+};
+
 function ChipInput({ value = [], onChange, placeholder = "Add keyword and press Enter" }) {
   const [draft, setDraft] = React.useState("");
   const add = () => {
@@ -82,6 +131,7 @@ export default function CardEditor({ deckId, card, isOpen, onClose, onSave }) {
     custom: "",
     video_url: "",
     frame_style: "none",
+    spirit_wheel_icon_url: "",
   });
 
   React.useEffect(() => {
@@ -108,6 +158,7 @@ export default function CardEditor({ deckId, card, isOpen, onClose, onSave }) {
       custom: c.custom || "",
       video_url: c.video_url || "",
       frame_style: c.frame_style || "none",
+      spirit_wheel_icon_url: c.spirit_wheel_icon_url || "",
     });
   }, [isOpen, card?.id]);
 
@@ -136,6 +187,7 @@ export default function CardEditor({ deckId, card, isOpen, onClose, onSave }) {
         musician_quote: form.musician_quote || "",
         facedown_meaning: form.facedown_meaning || "",
         custom: form.custom || "",
+        spirit_wheel_icon_url: form.spirit_wheel_icon_url || "",
       };
       if (form.number !== "" && form.number !== null && form.number !== undefined) {
         const n = parseInt(form.number, 10);
@@ -309,6 +361,40 @@ export default function CardEditor({ deckId, card, isOpen, onClose, onSave }) {
                     </span>
                   </div>
                 )}
+              </div>
+            </div>
+
+            {/* Spirit Wheel Icon Section */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-amber-300 flex items-center gap-2">
+                <Sparkles className="w-5 h-5" />
+                Spirit Wheel Icon
+              </h3>
+              <div className="bg-slate-800/50 border border-white/10 rounded-lg p-4">
+                <Label className="text-sm text-white/80 mb-2 block">Choose an icon or enter a custom symbol/URL for the Spirit Wheel</Label>
+                <Input
+                  value={form.spirit_wheel_icon_url}
+                  onChange={(e) => update({ spirit_wheel_icon_url: e.target.value })}
+                  className="bg-slate-800 border-slate-700 text-white focus:border-amber-500 transition-colors mb-3"
+                  placeholder="Emoji, symbol, or image URL..."
+                />
+                <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto p-2 bg-slate-900/50 rounded-md border border-slate-700">
+                  {PRESET_SYMBOLS.map((p, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => update({ spirit_wheel_icon_url: p.icon })}
+                      className={`w-10 h-10 flex items-center justify-center rounded-lg text-xl hover:bg-slate-700 transition-all ${form.spirit_wheel_icon_url === p.icon ? 'bg-amber-600 shadow-[0_0_10px_rgba(245,158,11,0.5)]' : 'bg-slate-800 border border-slate-700'}`}
+                      title={p.label}
+                    >
+                      {isImageSymbol(p.icon) ? (
+                        <img src={p.icon} alt={p.label} className="w-6 h-6 object-contain mix-blend-screen filter drop-shadow-md" />
+                      ) : (
+                        p.icon
+                      )}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
