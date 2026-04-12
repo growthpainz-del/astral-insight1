@@ -158,12 +158,12 @@ const MOON_EMBLEMS_MODIFIERS = [
 ];
 
 const ANIMAL_SPIRITS_MODIFIERS = [
-  { id: "https://gemini.google.com/share/31baacdbb913", label: "Bear", meaning: "strength, courage, healing" },
-  { id: "https://gemini.google.com/share/138c5511d65a", label: "Wolf", meaning: "loyalty, community, wisdom" },
-  { id: "https://gemini.google.com/share/db0ad51abef1", label: "Eagle", meaning: "vision, spiritual messenger, freedom" },
-  { id: "https://gemini.google.com/share/640fc8f107a4", label: "Buffalo", meaning: "abundance, gratitude, sacred life" },
-  { id: "https://gemini.google.com/share/cba98827d695", label: "Owl", meaning: "wisdom, intuition, seeing the unseen" },
-  { id: "https://gemini.google.com/share/48ee423b425b", label: "Deer", meaning: "gentleness, grace, renewal" }
+  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/dc1093588_IMG_8501.png", label: "Bear", meaning: "strength, courage, healing" },
+  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/c90f4789a_IMG_8500.png", label: "Wolf", meaning: "loyalty, community, wisdom" },
+  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/4bed11e77_IMG_8496.jpg", label: "Eagle", meaning: "vision, spiritual messenger, freedom" },
+  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/c704a44cc_IMG_8499.png", label: "Buffalo", meaning: "abundance, gratitude, sacred life" },
+  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/fa510fd82_IMG_8502.png", label: "Owl", meaning: "wisdom, intuition, seeing the unseen" },
+  { id: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/cdb9c937f_Gemini_Generated_Image_62ryp962ryp962ry.png", label: "Deer", meaning: "gentleness, grace, renewal" }
 ];
 
 const CATEGORIES = ["General", "Relationships", "Numbers", "Age", "Body Parts", "Colors", "Lost Items", "Height", "Time", "Astrology", "Emotions", "Profiler", "Seasons and Shapes", "Traveling", "Zapped", "X-Rated"];
