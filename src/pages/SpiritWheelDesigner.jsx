@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ChevronLeft, Plus, Trash2, Download, Upload, Save, Copy, Sparkles, Loader2, Search } from "lucide-react";
+import { ChevronLeft, Plus, Trash2, Download, Upload, Save, Copy, Sparkles, Loader2, Search, Image as ImageIcon } from "lucide-react";
+import PhotoLibraryPicker from "@/components/media/PhotoLibraryPicker";
 import { createPageUrl } from "@/utils";
 import { motion } from "framer-motion";
 
@@ -192,7 +193,7 @@ const getImageUrl = (id) => {
   return url;
 };
 
-function RingEditor({ ringKey, segments, setSegments, deckCards }) {
+function RingEditor({ ringKey, segments, setSegments, deckCards, onOpenGallery }) {
   const meta = RING_LABELS[ringKey];
   const [isHarvesting, setIsHarvesting] = useState(false);
   const [themePackSelectKey, setThemePackSelectKey] = useState(Date.now());
@@ -361,23 +362,28 @@ function RingEditor({ ringKey, segments, setSegments, deckCards }) {
           >
             <div className="flex items-center gap-2">
               <span className="text-white/40 text-xs w-5 shrink-0">#{i + 1}</span>
-              <div className="relative w-20 shrink-0">
-                <Input
-                  value={seg.icon}
-                  onChange={e => updateSegment(i, "icon", e.target.value)}
-                  placeholder="Icon"
-                  title={typeof seg.icon === 'string' ? seg.icon : ""}
-                  className={`w-full bg-black/40 border-white/10 peer transition-all ${isImageSymbol(seg.icon) ? 'text-transparent text-center focus:text-white focus:text-[10px] focus:text-left px-1' : 'text-center text-lg'}`}
-                />
-                {isImageSymbol(seg.icon) && (
-                  <img 
-                    src={getImageUrl(seg.icon)} 
-                    alt="icon" 
-                    onError={(e) => { e.target.style.opacity = '0'; }}
-                    onLoad={(e) => { e.target.style.opacity = '1'; }}
-                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 object-contain pointer-events-none mix-blend-screen peer-focus:opacity-0 transition-opacity" 
+              <div className="flex gap-1 items-center shrink-0">
+                <div className="relative w-20 shrink-0">
+                  <Input
+                    value={seg.icon}
+                    onChange={e => updateSegment(i, "icon", e.target.value)}
+                    placeholder="Icon"
+                    title={typeof seg.icon === 'string' ? seg.icon : ""}
+                    className={`w-full bg-black/40 border-white/10 peer transition-all ${isImageSymbol(seg.icon) ? 'text-transparent text-center focus:text-white focus:text-[10px] focus:text-left px-1' : 'text-center text-lg'}`}
                   />
-                )}
+                  {isImageSymbol(seg.icon) && (
+                    <img 
+                      src={getImageUrl(seg.icon)} 
+                      alt="icon" 
+                      onError={(e) => { e.target.style.opacity = '0'; }}
+                      onLoad={(e) => { e.target.style.opacity = '1'; }}
+                      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 object-contain pointer-events-none mix-blend-screen peer-focus:opacity-0 transition-opacity" 
+                    />
+                  )}
+                </div>
+                <Button size="icon" variant="ghost" onClick={() => onOpenGallery && onOpenGallery(i)} className="w-7 h-9 text-amber-400 hover:text-amber-300 hover:bg-white/10 shrink-0" title="Open Gallery">
+                  <ImageIcon className="w-4 h-4" />
+                </Button>
               </div>
               <Input
                 value={seg.label}
@@ -480,6 +486,7 @@ export default function SpiritWheelDesigner() {
   const [jsonImportText, setJsonImportText] = useState("");
   const [showJsonPanel, setShowJsonPanel] = useState(false);
   const [jsonError, setJsonError] = useState("");
+  const [libraryTargetField, setLibraryTargetField] = useState(null);
 
   useEffect(() => {
     const load = async () => {
@@ -777,11 +784,21 @@ export default function SpiritWheelDesigner() {
                 </div>
                 <div className="col-span-2">
                   <Label className="text-amber-200/80 text-xs">Wheel Texture URL</Label>
-                  <Input value={customTheme.textureUrl} onChange={e => setCustomTheme({...customTheme, textureUrl: e.target.value})} placeholder="https://..." className="bg-black/40 border-white/10 mt-1 text-xs h-8" />
+                  <div className="flex gap-2 mt-1">
+                    <Input value={customTheme.textureUrl} onChange={e => setCustomTheme({...customTheme, textureUrl: e.target.value})} placeholder="https://..." className="bg-black/40 border-white/10 text-xs h-8 flex-1" />
+                    <Button type="button" variant="outline" className="border-amber-500/60 text-amber-300 hover:bg-amber-500/20 shrink-0 h-8 text-xs" onClick={() => setLibraryTargetField('textureUrl')}>
+                      <ImageIcon className="w-3 h-3 mr-1" /> Gallery
+                    </Button>
+                  </div>
                 </div>
                 <div className="col-span-2">
                   <Label className="text-amber-200/80 text-xs">Page Background Image URL</Label>
-                  <Input value={customTheme.pageBgImage || ""} onChange={e => setCustomTheme({...customTheme, pageBgImage: e.target.value})} placeholder="https://..." className="bg-black/40 border-white/10 mt-1 text-xs h-8" />
+                  <div className="flex gap-2 mt-1">
+                    <Input value={customTheme.pageBgImage || ""} onChange={e => setCustomTheme({...customTheme, pageBgImage: e.target.value})} placeholder="https://..." className="bg-black/40 border-white/10 text-xs h-8 flex-1" />
+                    <Button type="button" variant="outline" className="border-amber-500/60 text-amber-300 hover:bg-amber-500/20 shrink-0 h-8 text-xs" onClick={() => setLibraryTargetField('pageBgImage')}>
+                      <ImageIcon className="w-3 h-3 mr-1" /> Gallery
+                    </Button>
+                  </div>
                 </div>
               </div>
             )}
@@ -793,9 +810,9 @@ export default function SpiritWheelDesigner() {
         </div>
 
         {/* Ring Editors */}
-        <RingEditor ringKey="outer_ring" segments={outerRing} setSegments={setOuterRing} deckCards={deckCards} />
-        <RingEditor ringKey="middle_ring" segments={middleRing} setSegments={setMiddleRing} deckCards={deckCards} />
-        <RingEditor ringKey="inner_ring" segments={innerRing} setSegments={setInnerRing} deckCards={deckCards} />
+        <RingEditor ringKey="outer_ring" segments={outerRing} setSegments={setOuterRing} deckCards={deckCards} onOpenGallery={(idx) => setLibraryTargetField({ring: 'outer_ring', index: idx})} />
+        <RingEditor ringKey="middle_ring" segments={middleRing} setSegments={setMiddleRing} deckCards={deckCards} onOpenGallery={(idx) => setLibraryTargetField({ring: 'middle_ring', index: idx})} />
+        <RingEditor ringKey="inner_ring" segments={innerRing} setSegments={setInnerRing} deckCards={deckCards} onOpenGallery={(idx) => setLibraryTargetField({ring: 'inner_ring', index: idx})} />
 
         {/* Bottom save */}
         <div className="flex justify-end gap-3 pb-8">
@@ -807,6 +824,33 @@ export default function SpiritWheelDesigner() {
           </Button>
         </div>
       </div>
+
+      <PhotoLibraryPicker
+        isOpen={!!libraryTargetField}
+        onClose={() => setLibraryTargetField(null)}
+        deckId={deckId !== "none" ? deckId : null}
+        onSelect={(url) => {
+          if (!libraryTargetField) return;
+          if (libraryTargetField === 'textureUrl') {
+            setCustomTheme(prev => ({...prev, textureUrl: url}));
+          } else if (libraryTargetField === 'pageBgImage') {
+            setCustomTheme(prev => ({...prev, pageBgImage: url}));
+          } else if (libraryTargetField.ring === 'outer_ring') {
+            const updated = [...outerRing];
+            updated[libraryTargetField.index].icon = url;
+            setOuterRing(updated);
+          } else if (libraryTargetField.ring === 'middle_ring') {
+            const updated = [...middleRing];
+            updated[libraryTargetField.index].icon = url;
+            setMiddleRing(updated);
+          } else if (libraryTargetField.ring === 'inner_ring') {
+            const updated = [...innerRing];
+            updated[libraryTargetField.index].icon = url;
+            setInnerRing(updated);
+          }
+          setLibraryTargetField(null);
+        }}
+      />
     </div>
   );
 }
