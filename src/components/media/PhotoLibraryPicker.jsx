@@ -271,7 +271,7 @@ export default function PhotoLibraryPicker({ isOpen, onClose, onSelect, deckId }
             <div className="text-white/60 text-sm">No images found. Try uploading some first.</div>
           ) : (
             <>
-              <ScrollArea className="max-h-[60vh] rounded border border-white/10">
+              <div className="max-h-[60vh] overflow-y-auto rounded border border-white/10">
                 <div className="grid gap-3 p-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
                   {visibleItems.map((it, idx) => {
                     const thumb = it.thumbnail_url || it.file_url;
@@ -325,7 +325,7 @@ export default function PhotoLibraryPicker({ isOpen, onClose, onSelect, deckId }
                     );
                   })}
                 </div>
-              </ScrollArea>
+              </div>
               {visibleCount < filtered.length && (
                 <div className="flex justify-center mt-3">
                   <Button variant="outline" className="border-white/20 text-white hover:bg-white/10" onClick={() => setVisibleCount((c) => c + 24)}>

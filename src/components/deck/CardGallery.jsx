@@ -263,7 +263,7 @@ export default function CardGallery({ deckId }) {
             </div>
           </DialogHeader>
 
-          <ScrollArea className="flex-grow pr-4 -mr-4">
+          <div className="flex-grow overflow-y-auto pr-4 -mr-4">
             <div className="space-y-4 pt-0">
               <div className="flex items-start gap-4">
                 <div className="w-32 h-48 flex-shrink-0 rounded-lg overflow-hidden bg-white/5">
@@ -330,7 +330,7 @@ export default function CardGallery({ deckId }) {
                 </div>
               )}
             </div>
-          </ScrollArea>
+          </div>
         </DialogContent>
       </Dialog>
 

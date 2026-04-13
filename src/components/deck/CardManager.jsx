@@ -202,9 +202,9 @@ export default function CardManager({ deckId, cards: initialCards, onUpdate }) {
         </p>
       </div>
 
-      <ScrollArea className="h-[600px]">
+      <div className="h-[600px] overflow-y-auto custom-scrollbar pr-4">
         {viewMode === "grid" ? (
-          <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4 pr-4">
+          <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
             {filteredCards.map((card) => {
               const isDraggingOver = dragOverCardId === card.id;
               const isUploading = uploadingCardIds.has(card.id);
@@ -360,7 +360,7 @@ export default function CardManager({ deckId, cards: initialCards, onUpdate }) {
             })}
           </div>
         )}
-      </ScrollArea>
+      </div>
 
       {showEditor && editingCard && (
         <CardEditor
