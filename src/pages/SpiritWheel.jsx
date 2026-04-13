@@ -760,63 +760,6 @@ export default function SpiritWheel() {
               </div>
               <Switch checked={blankMode} onCheckedChange={setBlankMode} className="data-[state=checked]:bg-amber-600" />
             </div>
-
-            <div className="space-y-4">
-              <div className="flex gap-2">
-                <div className="flex-1">
-                  <Label className="text-amber-200/80 text-xs">Spin Speed</Label>
-                  <Select value={spinSpeed.toString()} onValueChange={(v) => setSpinSpeed(parseFloat(v))} disabled={spinState !== "idle"}>
-                    <SelectTrigger className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 h-10">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100">
-                      <SelectItem value="0.5">Slow</SelectItem>
-                      <SelectItem value="1">Normal</SelectItem>
-                      <SelectItem value="2">Fast</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="flex-1">
-                  <Label className="text-amber-200/80 text-xs">Duration</Label>
-                  <Select value={spinDuration.toString()} onValueChange={(v) => setSpinDuration(v === "continuous" ? "continuous" : parseInt(v))} disabled={spinState !== "idle"}>
-                    <SelectTrigger className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 h-10">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100">
-                      <SelectItem value="3">3 seconds</SelectItem>
-                      <SelectItem value="5">5 seconds</SelectItem>
-                      <SelectItem value="10">10 seconds</SelectItem>
-                      <SelectItem value="continuous">Continuous</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              {spinState === "idle" ? (
-                <Button 
-                  onClick={spinWheel} 
-                  className="w-full bg-[#8b5a2b] hover:bg-[#a66d35] text-amber-50 py-8 text-xl shadow-[inset_0_0_10px_rgba(0,0,0,0.5),0_4px_15px_rgba(0,0,0,0.4)] border border-[#a66d35] active:scale-95 transition-transform"
-                >
-                  <Sparkles className="w-6 h-6 mr-3" />
-                  Spin the Wheel
-                </Button>
-              ) : (
-                <Button 
-                  onClick={() => stopSpin()} 
-                  disabled={spinState === "stopping"}
-                  className="w-full bg-red-900 hover:bg-red-800 text-red-50 py-8 text-xl shadow-[inset_0_0_10px_rgba(0,0,0,0.5),0_4px_15px_rgba(0,0,0,0.4)] border border-red-700 active:scale-95 transition-transform"
-                >
-                  {spinState === "stopping" ? (
-                    <><RefreshCw className="animate-spin w-6 h-6 mr-3" /> Halting Spirits...</>
-                  ) : (
-                    <><Octagon className="w-6 h-6 mr-3" /> Stop Wheel</>
-                  )}
-                </Button>
-              )}
-              <div className="text-center text-amber-200/50 text-sm italic pt-2">
-                👆 Or tap / swipe the wheel directly to spin
-              </div>
-            </div>
           </div>
 
           {/* Results Area */}
@@ -953,7 +896,7 @@ export default function SpiritWheel() {
         </div>
 
         {/* Right Column: The Visual Wheel */}
-        <div className="flex-1 flex items-start lg:items-center justify-center p-2 lg:p-8 relative min-h-[350px] lg:min-h-[600px] order-1 lg:order-2 overflow-hidden lg:overflow-visible">
+        <div className="flex-1 flex flex-col items-center justify-start lg:justify-center p-2 lg:p-8 relative min-h-[350px] lg:min-h-[600px] order-1 lg:order-2 overflow-hidden lg:overflow-visible">
           
           {/* Zoom Controls */}
           <div data-html2canvas-ignore="true" className="absolute top-4 right-4 z-50 flex flex-col gap-2 bg-black/50 p-1.5 rounded-lg border border-[#8b5a2b] shadow-lg backdrop-blur-sm">
@@ -1181,6 +1124,64 @@ export default function SpiritWheel() {
               )}
             </div>
           </motion.div>
+          </div>
+
+          {/* Spin controls underneath the wheel */}
+          <div className="w-full max-w-md mt-12 space-y-4 z-20 relative px-4">
+            <div className="flex gap-2">
+              <div className="flex-1">
+                <Label className="text-amber-200/80 text-xs">Spin Speed</Label>
+                <Select value={spinSpeed.toString()} onValueChange={(v) => setSpinSpeed(parseFloat(v))} disabled={spinState !== "idle"}>
+                  <SelectTrigger className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 h-10">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100">
+                    <SelectItem value="0.5">Slow</SelectItem>
+                    <SelectItem value="1">Normal</SelectItem>
+                    <SelectItem value="2">Fast</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex-1">
+                <Label className="text-amber-200/80 text-xs">Duration</Label>
+                <Select value={spinDuration.toString()} onValueChange={(v) => setSpinDuration(v === "continuous" ? "continuous" : parseInt(v))} disabled={spinState !== "idle"}>
+                  <SelectTrigger className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 h-10">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100">
+                    <SelectItem value="3">3 seconds</SelectItem>
+                    <SelectItem value="5">5 seconds</SelectItem>
+                    <SelectItem value="10">10 seconds</SelectItem>
+                    <SelectItem value="continuous">Continuous</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {spinState === "idle" ? (
+              <Button 
+                onClick={spinWheel} 
+                className="w-full bg-[#8b5a2b] hover:bg-[#a66d35] text-amber-50 py-8 text-xl shadow-[inset_0_0_10px_rgba(0,0,0,0.5),0_4px_15px_rgba(0,0,0,0.4)] border border-[#a66d35] active:scale-95 transition-transform"
+              >
+                <Sparkles className="w-6 h-6 mr-3" />
+                Spin the Wheel
+              </Button>
+            ) : (
+              <Button 
+                onClick={() => stopSpin()} 
+                disabled={spinState === "stopping"}
+                className="w-full bg-red-900 hover:bg-red-800 text-red-50 py-8 text-xl shadow-[inset_0_0_10px_rgba(0,0,0,0.5),0_4px_15px_rgba(0,0,0,0.4)] border border-red-700 active:scale-95 transition-transform"
+              >
+                {spinState === "stopping" ? (
+                  <><RefreshCw className="animate-spin w-6 h-6 mr-3" /> Halting Spirits...</>
+                ) : (
+                  <><Octagon className="w-6 h-6 mr-3" /> Stop Wheel</>
+                )}
+              </Button>
+            )}
+            <div className="text-center text-amber-200/50 text-sm italic pt-2">
+              👆 Or tap / swipe the wheel directly to spin
+            </div>
           </div>
         </div>
       </div>
