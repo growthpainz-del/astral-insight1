@@ -42,7 +42,8 @@ export default function CardManager({ deckId, cards: initialCards, onUpdate }) {
     const search = searchTerm.toLowerCase();
     return (
       card.name?.toLowerCase().includes(search) ||
-      card.number?.toString().includes(search)
+      card.number?.toString().includes(search) ||
+      card.spirit_wheel_icon_url?.toLowerCase().includes(search)
     );
   });
 
@@ -165,7 +166,7 @@ export default function CardManager({ deckId, cards: initialCards, onUpdate }) {
           <Input
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search cards by name or number..."
+            placeholder="Search cards by name, number, or outer ring symbol..."
             className="pl-10 bg-black/40 border-white/20 text-white"
           />
         </div>

@@ -69,7 +69,8 @@ export default function CardGallery({ deckId }) {
         ? c.keywords.join(" ").toLowerCase()
         : "";
       const overall = (c.overall_meaning || "").toLowerCase();
-      return name.includes(query) || keywords.includes(query) || overall.includes(query);
+      const symbol = (c.spirit_wheel_icon_url || "").toLowerCase();
+      return name.includes(query) || keywords.includes(query) || overall.includes(query) || symbol.includes(query);
     });
     setFilteredCards(filtered);
     setCurrentPage(1);
@@ -102,7 +103,7 @@ export default function CardGallery({ deckId }) {
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by name, keywords, or meaning..."
+            placeholder="Search by name, keywords, meaning, or outer ring symbol..."
             className="pl-10 bg-white/10 border-white/20 text-white"
           />
         </div>
