@@ -285,6 +285,15 @@ export default function CardGallery({ deckId }) {
                     {selectedCard?.number && (
                       <Badge className="bg-purple-600">{selectedCard.number}</Badge>
                     )}
+                    {selectedCard?.spirit_wheel_icon_url && (
+                      <div className="flex items-center justify-center w-8 h-8 rounded-md bg-white/5 border border-white/10" title="Symbol">
+                        {(typeof selectedCard.spirit_wheel_icon_url === 'string' && (selectedCard.spirit_wheel_icon_url.startsWith('http') || selectedCard.spirit_wheel_icon_url.startsWith('data:image') || /\.(png|jpe?g|gif|svg|webp)(\?.*)?$/.test(selectedCard.spirit_wheel_icon_url.toLowerCase()))) ? (
+                          <img src={selectedCard.spirit_wheel_icon_url} alt="Symbol" className="w-5 h-5 object-contain mix-blend-screen filter drop-shadow-md" />
+                        ) : (
+                          <span className="text-lg">{selectedCard.spirit_wheel_icon_url}</span>
+                        )}
+                      </div>
+                    )}
                     {/* The card name is now handled by DialogTitle, so the h2 here is removed for brevity */}
                   </div>
                   {selectedCard?.keywords && selectedCard.keywords.length > 0 && (

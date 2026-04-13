@@ -69,7 +69,18 @@ export default function CardDetailsModal({ open, onClose, card, position }) {
               className="w-12 h-16 rounded-md object-cover shadow-md border border-white/20 flex-shrink-0"
             />
           )}
-          <h2 className="text-xl md:text-2xl font-bold text-white pr-8">{name || "Card"}</h2>
+          <h2 className="text-xl md:text-2xl font-bold text-white pr-8 flex items-center gap-3">
+            {name || "Card"}
+            {card?.spirit_wheel_icon_url && (
+              <span className="inline-flex items-center justify-center w-8 h-8 rounded-md bg-black/30 border border-white/10 shrink-0" title="Symbol">
+                {(typeof card.spirit_wheel_icon_url === 'string' && (card.spirit_wheel_icon_url.startsWith('http') || card.spirit_wheel_icon_url.startsWith('data:image') || /\.(png|jpe?g|gif|svg|webp)(\?.*)?$/.test(card.spirit_wheel_icon_url.toLowerCase()))) ? (
+                  <img src={card.spirit_wheel_icon_url} alt="Symbol" className="w-5 h-5 object-contain mix-blend-screen filter drop-shadow-md" />
+                ) : (
+                  <span className="text-lg leading-none">{card.spirit_wheel_icon_url}</span>
+                )}
+              </span>
+            )}
+          </h2>
         </div>
       </div>
 
