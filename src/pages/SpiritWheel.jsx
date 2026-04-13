@@ -955,6 +955,7 @@ export default function SpiritWheel() {
             >
               {wheelData.outer.map((item, i) => {
                 const angle = 360 / wheelData.outer.length;
+                const isCrowded = wheelData.outer.length > 25;
                 return (
                 <div 
                   key={i} 
@@ -965,7 +966,7 @@ export default function SpiritWheel() {
                     className={`absolute -translate-x-1/2 flex items-center justify-center font-bold whitespace-nowrap transition-all duration-300 ${
                       activeTheme.isTiles 
                         ? 'w-[22px] h-[22px] sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full border-2 top-[-11px] sm:top-[-16px] md:top-[-20px]' 
-                        : 'top-2 sm:top-3 md:top-4 lg:top-5 text-sm md:text-xl lg:text-2xl xl:text-3xl'
+                        : (isCrowded && i % 2 === 1 ? 'top-6 sm:top-8 md:top-10 lg:top-12' : 'top-1 sm:top-2 md:top-3 lg:top-4') + ' text-sm md:text-xl lg:text-2xl xl:text-3xl'
                     }`} 
                     style={{ 
                       color: activeTheme.textOuter,
@@ -981,7 +982,7 @@ export default function SpiritWheel() {
                     }}
                   >
                     {isImageSymbol(item.id) ? (
-                      <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-16 lg:h-16 shrink-0 flex items-center justify-center overflow-hidden">
+                      <div className={`shrink-0 flex items-center justify-center overflow-hidden ${isCrowded ? 'w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12' : 'w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-16 lg:h-16'}`}>
                         <img src={getImageUrl(item.id)} alt="" className="w-full h-full object-contain mix-blend-screen filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)]" />
                       </div>
                     ) : item.id}
