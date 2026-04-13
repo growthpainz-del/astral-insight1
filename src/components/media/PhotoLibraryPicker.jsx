@@ -221,16 +221,26 @@ export default function PhotoLibraryPicker({ isOpen, onClose, onSelect, deckId }
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl bg-slate-900 text-white border border-purple-500/30">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <ImageIcon className="w-5 h-5 text-purple-300" />
-            Photo Library
-            {deckId ? <Badge className="ml-2 bg-white/10 text-white border-purple-500/30">Deck-scoped</Badge> : null}
-          </DialogTitle>
+        <DialogHeader className="relative pr-8">
+          <div className="flex items-center justify-between">
+            <DialogTitle className="flex items-center gap-2">
+              <ImageIcon className="w-5 h-5 text-purple-300" />
+              Photo Library
+              {deckId ? <Badge className="ml-2 bg-white/10 text-white border-purple-500/30">Deck-scoped</Badge> : null}
+            </DialogTitle>
+          </div>
           <p className="text-sm text-purple-300 mt-2 flex items-center gap-2">
             <Move className="w-4 h-4" />
             💡 Drag images directly onto card placeholders to assign them!
           </p>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={onClose} 
+            className="absolute top-0 right-0 border-white/20 text-white hover:bg-white/10"
+          >
+            Cancel
+          </Button>
         </DialogHeader>
 
         <div className="space-y-3">
