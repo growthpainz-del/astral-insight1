@@ -27,7 +27,33 @@ export default function ReadingShareModal({
   const [generating, setGenerating] = useState(false);
   const [emailForm, setEmailForm] = useState({ to: "", message: "" });
   const [sending, setSending] = useState(false);
+  const [shareLayout, setShareLayout] = useState("mystic");
+  const [aiCaption, setAiCaption] = useState("");
+  const [generatingCaption, setGeneratingCaption] = useState(false);
   const cardContainerRef = useRef(null);
+
+  const bgColors = {
+    mystic: "from-indigo-950 to-purple-950",
+    obsidian: "from-slate-900 to-black",
+    dawn: "from-rose-900 to-orange-900",
+    forest: "from-emerald-950 to-teal-950"
+  };
+
+  const generateAiCaption = async () => {
+    setGeneratingCaption(true);
+    try {
+      const cardsStr = drawnCards.map(c => c.name).join(", ");
+      const promptText = `Write a short, engaging, and inspiring social media caption for a tarot/oracle reading. Spread: ${spreadName}. Deck: ${deckName}. Cards drawn: ${cardsStr}. Include relevant emojis and a few hashtags.`;
+      const res = await base44.integrations.Core.InvokeLLM({
+        prompt: promptText
+      });
+      setAiCaption(res);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setGeneratingCaption(false);
+    }
+  };
 
   // Generate shareable link
   const generateShareLink = async () => {
@@ -140,7 +166,7 @@ export default function ReadingShareModal({
     setGenerating(true);
     try {
       const canvas = await html2canvas(cardContainerRef.current, {
-        backgroundColor: "#1e1b4b",
+        backgroundColor: null,
         scale: 2
       });
 
@@ -330,9 +356,26 @@ export default function ReadingShareModal({
                 Export your reading as an image to share anywhere
               </p>
 
+              <div className="flex gap-2 mb-4">
+                {Object.keys(bgColors).map(key => (
+                  <Button
+                    key={key}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShareLayout(key)}
+                    className={`capitalize ${shareLayout === key ? 'border-pink-500 text-pink-400 bg-pink-500/10' : 'border-white/20 text-white/70 hover:text-white'}`}
+                  >
+                    {key}
+                  </Button>
+                ))}
+              </div>
+
               {/* Preview of what will be exported */}
-              <div ref={cardContainerRef} className="bg-gradient-to-br from-indigo-950 to-purple-950 rounded-lg p-6 mb-4">
-                <h3 className="text-xl font-bold text-white mb-2">
+              <div ref={cardContainerRef} className={`bg-gradient-to-br ${bgColors[shareLayout]} rounded-lg p-6 mb-4 relative overflow-hidden border border-white/10`}>
+                <div className="absolute top-0 right-0 p-4 opacity-20 pointer-events-none">
+                  <Sparkles className="w-24 h-24 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2 relative z-10">
                   {reading?.title || "My Reading"}
                 </h3>
                 <p className="text-purple-300 text-sm mb-4">
@@ -358,6 +401,28 @@ export default function ReadingShareModal({
                 </div>
               </div>
 
+              <div className="mb-4">
+                <div className="flex items-center justify-between mb-2">
+                  <Label className="text-white/80">Social Media Caption</Label>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={generateAiCaption}
+                    disabled={generatingCaption}
+                    className="text-pink-400 hover:text-pink-300 h-6 px-2 text-xs"
+                  >
+                    {generatingCaption ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Sparkles className="w-3 h-3 mr-1" />}
+                    Generate with AI
+                  </Button>
+                </div>
+                <Textarea
+                  value={aiCaption}
+                  onChange={(e) => setAiCaption(e.target.value)}
+                  placeholder="Click 'Generate with AI' to create a captivating caption..."
+                  className="bg-slate-800 border-white/20 text-white min-h-[80px] text-sm"
+                />
+              </div>
+
               <div className="flex gap-2">
                 <Button
                   onClick={exportAsImage}
@@ -375,6 +440,16 @@ export default function ReadingShareModal({
                       Download Image
                     </>
                   )}
+                </Button>
+                <Button
+                  onClick={() => {
+                    if (aiCaption) navigator.clipboard.writeText(aiCaption);
+                    alert("Caption copied!");
+                  }}
+                  variant="outline"
+                  className="bg-slate-800 border-white/20 text-white"
+                >
+                  <Copy className="w-4 h-4" />
                 </Button>
               </div>
             </div>

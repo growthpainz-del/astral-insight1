@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,7 @@ import {
   RefreshCw,
   FileText,
   Bug, // NEW: Bug icon for debug panel
+  Share2,
 } from "lucide-react";
 
 // Import components
@@ -38,6 +39,7 @@ import DisablePullToRefresh from "@/components/common/DisablePullToRefresh";
 import ShuffleAnimation from "@/components/reading/ShuffleAnimation";
 import AudioOrb from "@/components/reading/AudioOrb";
 import StructuredReading from "@/components/reading/StructuredReading";
+import ReadingShareModal from "@/components/reading/ReadingShareModal";
 
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
@@ -218,6 +220,7 @@ export default function ReadingPage() {
   const [viewerCard, setViewerCard] = useState(null);
   const [showRelationshipsOverlay, setShowRelationshipsOverlay] = useState(false);
 const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
+const [showShareModal, setShowShareModal] = useState(false);
 
         // Mobile-safe: detect iOS and reduced motion to reduce heavy animations
         const isIOS = typeof navigator !== 'undefined' && (/iP(ad|hone|od)/i.test(navigator.userAgent) || (navigator.userAgent.includes('Mac') && typeof document !== 'undefined' && 'ontouchend' in document));
@@ -825,6 +828,15 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
                      Save Session
                    </Button>
                    <Button
+                     size="sm"
+                     variant="outline"
+                     onClick={() => setShowShareModal(true)}
+                     className="border-pink-500/40 text-pink-300 hover:bg-pink-500/10"
+                   >
+                     <Share2 className="w-4 h-4 mr-2" />
+                     Share
+                   </Button>
+                   <Button
                        size="sm"
                        variant="outline"
                        onClick={() => setShowRelationshipsOverlay(true)}
@@ -1065,6 +1077,19 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
         autoPlay={!!audioText} 
         variant="mat"
         onComplete={() => console.log('Audio orb playback complete')} 
+      />
+      <ReadingShareModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        reading={{
+          title: question ? `Reading: ${question}` : "My Reading",
+          deck_id: deck?.id,
+          interpretation: sessionNotes
+        }}
+        deckName={deck?.name}
+        spreadName={selectedSpread?.name}
+        drawnCards={drawnCards}
+        question={question}
       />
       </>
       );

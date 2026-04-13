@@ -5,12 +5,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Sparkles, RefreshCw, Eye, ChevronLeft, Save, Plus, ZoomIn, ZoomOut, Download, Octagon, StopCircle } from 'lucide-react';
+import { Sparkles, RefreshCw, Eye, ChevronLeft, Save, Plus, ZoomIn, ZoomOut, Download, Octagon, StopCircle, Share2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import AudioOrb from "@/components/reading/AudioOrb";
 import html2canvas from 'html2canvas';
+import ReadingShareModal from "@/components/reading/ReadingShareModal";
 
 // 50 Cards of the Rooted Crescent Oracle Deck
 const ROOTED_CARDS_DATA = [
@@ -206,6 +207,7 @@ export default function SpiritWheel() {
   const [currentUser, setCurrentUser] = useState(null);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [isCapturing, setIsCapturing] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   const handleDownloadImage = async () => {
     setIsCapturing(true);
@@ -881,7 +883,16 @@ export default function SpiritWheel() {
                   <div className="mt-6 p-5 bg-[#0a0502] rounded-lg border border-[#8b5a2b] whitespace-pre-wrap text-base text-amber-100 leading-relaxed shadow-inner relative">
                     <div className="flex justify-between items-center mb-2">
                       <div className="text-amber-500 text-sm font-bold uppercase">Oracle Interpretation</div>
-                      <div data-html2canvas-ignore="true">
+                      <div data-html2canvas-ignore="true" className="flex gap-2">
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          onClick={() => setShowShareModal(true)}
+                          className="bg-[#3b2313] hover:bg-[#4a2c18] border-[#8b5a2b] text-amber-400 h-8"
+                        >
+                          <Share2 className="w-4 h-4 mr-2" />
+                          Share
+                        </Button>
                         <Button 
                           size="sm" 
                           variant="outline" 
@@ -1154,21 +1165,7 @@ export default function SpiritWheel() {
               )}
             </div>
 
-            {/* Flannel / Soft Diffusion Overlay */}
-            {activeTheme.flannelOverlay && (
-              <div 
-                className="absolute inset-[-2%] rounded-full pointer-events-none z-[60] opacity-35 mix-blend-overlay" 
-                style={{ 
-                  backgroundImage: 'url("https://www.transparenttextures.com/patterns/woven-light.png")', 
-                  backgroundSize: '150px' 
-                }}
-              />
-            )}
-            {activeTheme.flannelOverlay && (
-              <div 
-                className="absolute inset-[-2%] rounded-full pointer-events-none z-[60] opacity-15 mix-blend-soft-light backdrop-blur-[0.5px]" 
-              />
-            )}
+
 
           </motion.div>
           </div>
@@ -1242,6 +1239,24 @@ export default function SpiritWheel() {
       <div className="max-w-4xl mx-auto mt-12 text-center text-xs text-amber-200/50 pb-8">
         Disclaimer: The guidance provided is for entertainment purposes only and does not constitute professional advice. Client logins are secured and data can be deleted at any time.
       </div>
+      
+      <ReadingShareModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        reading={{
+          title: `Spirit Wheel: ${category}`,
+          deck_id: selectedDeckId !== "none" ? selectedDeckId : "spirit_wheel",
+          interpretation: aiInterpretation
+        }}
+        deckName={selectedDeckId !== "none" && decks.find(d => d.id === selectedDeckId) ? decks.find(d => d.id === selectedDeckId).name : "Spirit Wheel"}
+        spreadName="Spirit Wheel Custom Reading"
+        drawnCards={drawnCard ? [{
+          id: drawnCard.id || "0",
+          position: "1",
+          name: drawnCard.name,
+          image_url: drawnCard.image_url
+        }] : []}
+      />
     </div>
   );
 }
