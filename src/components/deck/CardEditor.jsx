@@ -60,7 +60,11 @@ const PRESET_SYMBOLS = [
   { icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/88ee8ec8d_32DB718D-EFA1-4827-8AEC-6AB91A8BF329.png", label: "Tree Roots" },
   { icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/3bd854cd9_6381CF9C-029F-4D2C-84BA-81168C947FE3.png", label: "Lightning" },
   { icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/a28758f63_8501F496-2B70-4F65-B2BA-FAFEA987F484.png", label: "Water Drops" },
-  { icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/d7e717c9b_3F39BC02-39E5-47A7-AC4D-3DD487C9C369.png", label: "Comet" }
+  { icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/d7e717c9b_3F39BC02-39E5-47A7-AC4D-3DD487C9C369.png", label: "Comet" },
+  { icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/ecbdd2d58_25846904-F95B-423D-8E9D-8AE04265078D.png", label: "The Patient Feminine" },
+  { icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/2cac99471_EFF38B3A-F3E0-4611-93E1-E949278C22CE.png", label: "With Chains Unbound" },
+  { icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/b6d9980ac_B3AA33A1-5B09-4A8A-BDB1-8630A70EE9C1.png", label: "Nature's Whisper" },
+  { icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/93218ad8d_113EAF8F-46EF-4D0E-8BEE-505B08576E0F.png", label: "Back Road Whispers" }
 ];
 
 const isImageSymbol = (id) => {

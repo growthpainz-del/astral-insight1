@@ -119,6 +119,16 @@ const THEME_PACKS = {
     { label: "Buffalo", meaning: "abundance, gratitude, sacred life", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/dcf97cc36_C736DB82-E6FB-4D19-89B5-A2EFB8678D87.png", card_id: "" },
     { label: "Owl", meaning: "wisdom, intuition, seeing the unseen", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/6b8c8d2fa_B47D7EAA-5DB6-4144-B5D9-04F527CAD0BE.png", card_id: "" },
     { label: "Deer", meaning: "gentleness, grace, renewal", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/5986da740_5D416A3A-09D1-4E52-AA69-2C761DFBD8ED.png", card_id: "" }
+  ],
+  rooted_crescent: [
+    { label: "The Heart Full Foundress", meaning: "Nurture with love and strength for growth.", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/dd1c9186e_D0009B98-FAD8-4CC4-BADF-A7DC8D7178F3.png", card_id: "" },
+    { label: "Guardian of In-Essence", meaning: "Protect your inner joy and essence.", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/6ae050f51_C3C1871F-D9A3-42AB-AAE1-915196101169.png", card_id: "" },
+    { label: "The Sureline of Purpose", meaning: "Stand firm in purpose through introspection.", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/03b87e7d6_526B0A26-D804-4C5C-B5A7-4C76D815ABD9.png", card_id: "" },
+    { label: "Nis Puk's Whisper", meaning: "Playful wisdom guides subtly.", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/b386bf4cf_AC082A3F-8854-4DD6-BB68-AA607E096D32.png", card_id: "" },
+    { label: "The Patient Feminine", meaning: "Patience and grounded strength lead to growth.", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/ecbdd2d58_25846904-F95B-423D-8E9D-8AE04265078D.png", card_id: "" },
+    { label: "With Chains Unbound", meaning: "Break free from patterns for new paths.", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/2cac99471_EFF38B3A-F3E0-4611-93E1-E949278C22CE.png", card_id: "" },
+    { label: "Nature's Whisper", meaning: "Nature’s cycles guide wisdom and vitality.", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/b6d9980ac_B3AA33A1-5B09-4A8A-BDB1-8630A70EE9C1.png", card_id: "" },
+    { label: "Back Road Whispers", meaning: "Winding paths lead to wisdom through exploration.", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/93218ad8d_113EAF8F-46EF-4D0E-8BEE-505B08576E0F.png", card_id: "" }
   ]
 };
 
@@ -133,7 +143,8 @@ const PRESET_SYMBOLS = [
   ...THEME_PACKS.seven_sisters,
   ...THEME_PACKS.spiritual_emoticons,
   ...THEME_PACKS.moon_emblems,
-  ...THEME_PACKS.animal_spirits
+  ...THEME_PACKS.animal_spirits,
+  ...THEME_PACKS.rooted_crescent
 ];
 
 const isImageSymbol = (id) => {
@@ -261,6 +272,7 @@ function RingEditor({ ringKey, segments, setSegments, deckCards }) {
               <SelectItem value="spiritual_emoticons">Spiritual Emoticons</SelectItem>
               <SelectItem value="moon_emblems">Moon Emblems</SelectItem>
               <SelectItem value="animal_spirits">Animal Spirits</SelectItem>
+              <SelectItem value="rooted_crescent">Rooted Crescent</SelectItem>
             </SelectContent>
           </Select>
           <Button size="sm" onClick={addSegment} className="bg-amber-700 hover:bg-amber-600 text-white h-8">
