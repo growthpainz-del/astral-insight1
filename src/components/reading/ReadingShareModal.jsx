@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { 
   Share2, Link2, Mail, 
   Copy, Check, Download, Loader2, 
-  Facebook, Twitter, Linkedin, MessageCircle
+  Facebook, Twitter, Linkedin, MessageCircle, Sparkles
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import html2canvas from "html2canvas";
