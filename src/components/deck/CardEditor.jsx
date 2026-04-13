@@ -250,18 +250,29 @@ export default function CardEditor({ deckId, card, isOpen, onClose, onSave }) {
     <>
       <Dialog open={isOpen} onOpenChange={(open) => { if (!open && onClose) onClose(); }}>
         <DialogContent className="max-w-4xl bg-slate-900 text-white border border-purple-500/30">
-          <DialogHeader className="flex items-center justify-between border-b border-white/10 pb-4">
+          <DialogHeader className="flex items-center justify-between border-b border-white/10 pb-4 pr-8">
             <DialogTitle className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400">
               {card?.id ? "Edit Card" : "Create Card"}
             </DialogTitle>
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="Close"
-              className="text-white/70 hover:text-white p-2 rounded-lg hover:bg-white/10 transition-all"
-            >
-              <X className="w-5 h-5" />
-            </button>
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={handleSave}
+                disabled={saving || !form.name.trim()}
+                size="sm"
+                className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white font-semibold h-8"
+              >
+                {saving ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Save className="w-3 h-3 mr-1" />}
+                Save
+              </Button>
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Close"
+                className="text-white/70 hover:text-white p-1 rounded-lg hover:bg-white/10 transition-all"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
           </DialogHeader>
 
           <div className="space-y-6 max-h-[70vh] overflow-y-auto pr-2 custom-scrollbar">
