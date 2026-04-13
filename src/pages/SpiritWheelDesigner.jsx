@@ -362,28 +362,36 @@ function RingEditor({ ringKey, segments, setSegments, deckCards, onOpenGallery }
           >
             <div className="flex items-center gap-2">
               <span className="text-white/40 text-xs w-5 shrink-0">#{i + 1}</span>
-              <div className="flex gap-1 items-center shrink-0">
-                <div className="relative w-20 shrink-0">
-                  <Input
-                    value={seg.icon}
-                    onChange={e => updateSegment(i, "icon", e.target.value)}
-                    placeholder="Icon"
-                    title={typeof seg.icon === 'string' ? seg.icon : ""}
-                    className={`w-full bg-black/40 border-white/10 peer transition-all ${isImageSymbol(seg.icon) ? 'text-transparent text-center focus:text-white focus:text-[10px] focus:text-left px-1' : 'text-center text-lg'}`}
-                  />
-                  {isImageSymbol(seg.icon) && (
-                    <img 
-                      src={getImageUrl(seg.icon)} 
-                      alt="icon" 
-                      onError={(e) => { e.target.style.opacity = '0'; }}
-                      onLoad={(e) => { e.target.style.opacity = '1'; }}
-                      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 object-contain pointer-events-none mix-blend-screen peer-focus:opacity-0 transition-opacity" 
+              <div className="flex flex-col gap-1 shrink-0 w-28">
+                <div className="flex gap-1 items-center w-full">
+                  <div className="relative flex-1 shrink-0">
+                    <Input
+                      value={seg.icon}
+                      onChange={e => updateSegment(i, "icon", e.target.value)}
+                      placeholder="Icon"
+                      title={typeof seg.icon === 'string' ? seg.icon : ""}
+                      className={`w-full bg-black/40 border-white/10 peer transition-all h-8 ${isImageSymbol(seg.icon) ? 'text-transparent text-center focus:text-white focus:text-[10px] focus:text-left px-1' : 'text-center text-lg'}`}
                     />
-                  )}
+                    {isImageSymbol(seg.icon) && (
+                      <img 
+                        src={getImageUrl(seg.icon)} 
+                        alt="icon" 
+                        onError={(e) => { e.target.style.opacity = '0'; }}
+                        onLoad={(e) => { e.target.style.opacity = '1'; }}
+                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 object-contain pointer-events-none mix-blend-screen peer-focus:opacity-0 transition-opacity" 
+                      />
+                    )}
+                  </div>
+                  <Button size="icon" variant="ghost" onClick={() => onOpenGallery && onOpenGallery(i, 'icon')} className="w-7 h-8 text-amber-400 hover:text-amber-300 hover:bg-white/10 shrink-0" title="Icon Gallery">
+                    <ImageIcon className="w-4 h-4" />
+                  </Button>
                 </div>
-                <Button size="icon" variant="ghost" onClick={() => onOpenGallery && onOpenGallery(i)} className="w-7 h-9 text-amber-400 hover:text-amber-300 hover:bg-white/10 shrink-0" title="Open Gallery">
-                  <ImageIcon className="w-4 h-4" />
-                </Button>
+                <div className="flex gap-1 items-center w-full">
+                   <Input value={seg.bgImage || ""} onChange={e => updateSegment(i, "bgImage", e.target.value)} placeholder="Bg Texture URL" className="flex-1 text-[10px] h-6 px-1 bg-black/40 border-white/10" />
+                   <Button size="icon" variant="ghost" onClick={() => onOpenGallery && onOpenGallery(i, 'bgImage')} className="w-7 h-6 text-amber-400 hover:text-amber-300 hover:bg-white/10 shrink-0" title="Section Background Gallery">
+                     <ImageIcon className="w-3 h-3" />
+                   </Button>
+                </div>
               </div>
               <Input
                 value={seg.label}
@@ -773,7 +781,19 @@ export default function SpiritWheelDesigner() {
                 <div>
                   <Label className="text-amber-200/80 text-xs">Borders</Label>
                   <div className="flex gap-2 mt-1">
-                    <input type="color" value={customTheme.outerBorder} onChange={e => setCustomTheme({...customTheme, outerBorder: e.target.value, middleBorder: e.target.value, innerBorder: e.target.value, hubBorder: e.target.value, divider: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" title="Border Color" />
+                    <input type="color" value={customTheme.outerBorder} onChange={e => setCustomTheme({...customTheme, outerBorder: e.target.value, middleBorder: e.target.value, innerBorder: e.target.value, hubBorder: e.target.value, divider: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer shrink-0" title="Border Color" />
+                    <Input type="number" min="0" max="20" value={customTheme.borderThickness ?? 6} onChange={e => setCustomTheme({...customTheme, borderThickness: Number(e.target.value)})} className="w-16 bg-black/40 border-white/10 text-xs h-8" title="Thickness (px)" />
+                    <Select value={customTheme.borderStyle || "solid"} onValueChange={v => setCustomTheme({...customTheme, borderStyle: v})}>
+                      <SelectTrigger className="bg-black/40 border-white/10 text-xs h-8 flex-1">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-slate-900 border-slate-700 text-white">
+                        <SelectItem value="solid">Solid</SelectItem>
+                        <SelectItem value="dashed">Dashed</SelectItem>
+                        <SelectItem value="dotted">Dotted</SelectItem>
+                        <SelectItem value="double">Double</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
                 <div>
@@ -810,9 +830,9 @@ export default function SpiritWheelDesigner() {
         </div>
 
         {/* Ring Editors */}
-        <RingEditor ringKey="outer_ring" segments={outerRing} setSegments={setOuterRing} deckCards={deckCards} onOpenGallery={(idx) => setLibraryTargetField({ring: 'outer_ring', index: idx})} />
-        <RingEditor ringKey="middle_ring" segments={middleRing} setSegments={setMiddleRing} deckCards={deckCards} onOpenGallery={(idx) => setLibraryTargetField({ring: 'middle_ring', index: idx})} />
-        <RingEditor ringKey="inner_ring" segments={innerRing} setSegments={setInnerRing} deckCards={deckCards} onOpenGallery={(idx) => setLibraryTargetField({ring: 'inner_ring', index: idx})} />
+        <RingEditor ringKey="outer_ring" segments={outerRing} setSegments={setOuterRing} deckCards={deckCards} onOpenGallery={(idx, field = 'icon') => setLibraryTargetField({ring: 'outer_ring', index: idx, field})} />
+        <RingEditor ringKey="middle_ring" segments={middleRing} setSegments={setMiddleRing} deckCards={deckCards} onOpenGallery={(idx, field = 'icon') => setLibraryTargetField({ring: 'middle_ring', index: idx, field})} />
+        <RingEditor ringKey="inner_ring" segments={innerRing} setSegments={setInnerRing} deckCards={deckCards} onOpenGallery={(idx, field = 'icon') => setLibraryTargetField({ring: 'inner_ring', index: idx, field})} />
 
         {/* Bottom save */}
         <div className="flex justify-end gap-3 pb-8">
@@ -835,18 +855,21 @@ export default function SpiritWheelDesigner() {
             setCustomTheme(prev => ({...prev, textureUrl: url}));
           } else if (libraryTargetField === 'pageBgImage') {
             setCustomTheme(prev => ({...prev, pageBgImage: url}));
-          } else if (libraryTargetField.ring === 'outer_ring') {
-            const updated = [...outerRing];
-            updated[libraryTargetField.index].icon = url;
-            setOuterRing(updated);
-          } else if (libraryTargetField.ring === 'middle_ring') {
-            const updated = [...middleRing];
-            updated[libraryTargetField.index].icon = url;
-            setMiddleRing(updated);
-          } else if (libraryTargetField.ring === 'inner_ring') {
-            const updated = [...innerRing];
-            updated[libraryTargetField.index].icon = url;
-            setInnerRing(updated);
+          } else if (libraryTargetField.ring) {
+            const fieldName = libraryTargetField.field || 'icon';
+            if (libraryTargetField.ring === 'outer_ring') {
+              const updated = [...outerRing];
+              updated[libraryTargetField.index][fieldName] = url;
+              setOuterRing(updated);
+            } else if (libraryTargetField.ring === 'middle_ring') {
+              const updated = [...middleRing];
+              updated[libraryTargetField.index][fieldName] = url;
+              setMiddleRing(updated);
+            } else if (libraryTargetField.ring === 'inner_ring') {
+              const updated = [...innerRing];
+              updated[libraryTargetField.index][fieldName] = url;
+              setInnerRing(updated);
+            }
           }
           setLibraryTargetField(null);
         }}

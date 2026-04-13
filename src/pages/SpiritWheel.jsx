@@ -933,7 +933,7 @@ export default function SpiritWheel() {
             >
               {/* Pointer / Indicator at top */}
             <div className="absolute top-[-35px] md:top-[-45px] lg:top-[-55px] left-1/2 -translate-x-1/2 z-50 drop-shadow-[0_4px_12px_rgba(245,158,11,0.8)]">
-              <svg className="w-10 h-12 md:w-14 md:h-16 lg:w-16 lg:h-20" viewBox="0 0 40 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg className="w-10 h-12 md:w-14 md:h-16 lg:w-16 lg:h-20 relative z-10" viewBox="0 0 40 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M20 48L0 0H40L20 48Z" fill="url(#pointer-gradient)" />
                 <defs>
                   <linearGradient id="pointer-gradient" x1="20" y1="0" x2="20" y2="48" gradientUnits="userSpaceOnUse">
@@ -942,14 +942,19 @@ export default function SpiritWheel() {
                   </linearGradient>
                 </defs>
               </svg>
+              {/* Dynamic Glow Zone for symbols passing underneath */}
+              <div className="absolute top-[40px] md:top-[50px] left-1/2 -translate-x-1/2 w-16 h-16 md:w-20 md:h-20 bg-amber-400/30 blur-xl rounded-full mix-blend-screen pointer-events-none" />
+              <div className="absolute top-[40px] md:top-[50px] left-1/2 -translate-x-1/2 w-8 h-8 md:w-10 md:h-10 bg-white/20 blur-md rounded-full mix-blend-screen pointer-events-none" />
             </div>
 
             {/* Outer Ring */}
             <motion.div 
-              className={`absolute inset-0 rounded-full ${activeTheme.isTiles ? 'shadow-[0_0_80px_rgba(0,255,204,0.3)]' : 'border-[6px] overflow-hidden shadow-[inset_0_0_30px_rgba(0,0,0,0.4),0_15px_35px_rgba(0,0,0,0.6)]'}`}
+              className={`absolute inset-0 rounded-full ${activeTheme.isTiles ? 'shadow-[0_0_80px_rgba(0,255,204,0.3)]' : 'overflow-hidden shadow-[inset_0_0_30px_rgba(0,0,0,0.4),0_15px_35px_rgba(0,0,0,0.6)]'}`}
               style={activeTheme.isTiles ? {
                 backgroundColor: 'transparent'
               } : {
+                borderWidth: `${activeTheme.borderThickness ?? 6}px`,
+                borderStyle: activeTheme.borderStyle || 'solid',
                 borderColor: activeTheme.outerBorder,
                 background: `url("${activeTheme.textureUrl}"), radial-gradient(circle, ${activeTheme.outerBg} 0%, ${activeTheme.outerGrad} 100%)`,
                 backgroundBlendMode: 'multiply',
@@ -968,19 +973,22 @@ export default function SpiritWheel() {
                 >
                   <div 
                     className={`absolute -translate-x-1/2 flex items-center justify-center font-bold whitespace-nowrap transition-all duration-300 ${
-                      activeTheme.isTiles 
-                        ? 'w-[22px] h-[22px] sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full border-2 top-[-11px] sm:top-[-16px] md:top-[-20px]' 
+                      activeTheme.isTiles || item.bgImage
+                        ? 'w-[28px] h-[28px] sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full border-2 top-[-14px] sm:top-[-20px] md:top-[-24px] shadow-lg' 
                         : (isCrowded && i % 2 === 1 ? 'top-6 sm:top-8 md:top-10 lg:top-12' : 'top-1 sm:top-2 md:top-3 lg:top-4') + ' text-sm md:text-xl lg:text-2xl xl:text-3xl'
                     }`} 
                     style={{ 
                       color: activeTheme.textOuter,
-                      backgroundColor: activeTheme.isTiles ? activeTheme.outerBg : 'transparent',
-                      borderColor: activeTheme.isTiles ? (i === selectedIndices.outer && !isSpinning ? activeTheme.ledColor : activeTheme.outerBorder) : 'transparent',
-                      boxShadow: activeTheme.isTiles && i === selectedIndices.outer && !isSpinning ? `0 0 15px ${activeTheme.ledColor}, inset 0 0 8px ${activeTheme.ledColor}` : 'none',
+                      backgroundColor: activeTheme.isTiles ? activeTheme.outerBg : (item.bgImage ? 'rgba(0,0,0,0.5)' : 'transparent'),
+                      backgroundImage: item.bgImage ? `url("${item.bgImage}")` : 'none',
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      borderColor: activeTheme.isTiles || item.bgImage ? (i === selectedIndices.outer && !isSpinning ? (activeTheme.ledColor || '#f59e0b') : activeTheme.outerBorder) : 'transparent',
+                      boxShadow: (activeTheme.isTiles || item.bgImage) && i === selectedIndices.outer && !isSpinning ? `0 0 15px ${activeTheme.ledColor || '#f59e0b'}, inset 0 0 8px ${activeTheme.ledColor || '#f59e0b'}` : 'none',
                       opacity: blankMode && !isRevealed ? 0 : 1, 
-                      textShadow: !activeTheme.isTiles && (themeId === 'wood' || themeId === 'parchment') ? '0.5px 0.5px 0 rgba(255,255,255,0.4)' : (!activeTheme.isTiles ? '0 0 5px currentColor' : 'none'),
+                      textShadow: (!activeTheme.isTiles && !item.bgImage) && (themeId === 'wood' || themeId === 'parchment') ? '0.5px 0.5px 0 rgba(255,255,255,0.4)' : (!activeTheme.isTiles && !item.bgImage ? '0 0 5px currentColor' : 'none'),
                       fontFamily: activeTheme.fontFamily,
-                      animation: isSpinning && activeTheme.isTiles ? `stoneBounce 0.3s ease-in-out infinite alternate` : 'none',
+                      animation: isSpinning && (activeTheme.isTiles || item.bgImage) ? `stoneBounce 0.3s ease-in-out infinite alternate` : 'none',
                       animationDelay: `${i * 0.05}s`,
                       fontSize: activeTheme.isTiles ? '0.75em' : undefined
                     }}
@@ -1001,10 +1009,12 @@ export default function SpiritWheel() {
 
             {/* Middle Ring */}
             <motion.div 
-              className={`absolute inset-[14%] rounded-full ${activeTheme.isTiles ? '' : 'border-[5px] overflow-hidden shadow-[inset_0_0_20px_rgba(0,0,0,0.4)]'}`}
+              className={`absolute inset-[14%] rounded-full ${activeTheme.isTiles ? '' : 'overflow-hidden shadow-[inset_0_0_20px_rgba(0,0,0,0.4)]'}`}
               style={activeTheme.isTiles ? {
                 backgroundColor: 'transparent'
               } : {
+                borderWidth: `${Math.max(1, (activeTheme.borderThickness ?? 6) - 1)}px`,
+                borderStyle: activeTheme.borderStyle || 'solid',
                 borderColor: activeTheme.middleBorder,
                 background: `url("${activeTheme.textureUrl}"), radial-gradient(circle, ${activeTheme.middleBg} 0%, ${activeTheme.middleGrad} 100%)`,
                 backgroundBlendMode: 'multiply',
@@ -1022,19 +1032,22 @@ export default function SpiritWheel() {
                 >
                   <div 
                     className={`absolute -translate-x-1/2 flex items-center justify-center font-bold whitespace-nowrap transition-all duration-300 ${
-                      activeTheme.isTiles 
-                        ? 'w-[24px] h-[24px] sm:w-9 sm:h-9 md:w-12 md:h-12 rounded-full border-2 top-[-12px] sm:top-[-18px] md:top-[-24px]' 
+                      activeTheme.isTiles || item.bgImage
+                        ? 'w-[24px] h-[24px] sm:w-9 sm:h-9 md:w-12 md:h-12 rounded-full border-2 top-[-12px] sm:top-[-18px] md:top-[-24px] shadow-lg' 
                         : 'top-2 sm:top-3 md:top-4 lg:top-5 text-base md:text-2xl lg:text-3xl xl:text-4xl'
                     }`} 
                     style={{ 
                       color: activeTheme.textMiddle,
-                      backgroundColor: activeTheme.isTiles ? activeTheme.middleBg : 'transparent',
-                      borderColor: activeTheme.isTiles ? (i === selectedIndices.middle && !isSpinning ? activeTheme.ledColor : activeTheme.middleBorder) : 'transparent',
-                      boxShadow: activeTheme.isTiles && i === selectedIndices.middle && !isSpinning ? `0 0 15px ${activeTheme.ledColor}, inset 0 0 8px ${activeTheme.ledColor}` : 'none',
+                      backgroundColor: activeTheme.isTiles ? activeTheme.middleBg : (item.bgImage ? 'rgba(0,0,0,0.5)' : 'transparent'),
+                      backgroundImage: item.bgImage ? `url("${item.bgImage}")` : 'none',
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      borderColor: activeTheme.isTiles || item.bgImage ? (i === selectedIndices.middle && !isSpinning ? (activeTheme.ledColor || '#f59e0b') : activeTheme.middleBorder) : 'transparent',
+                      boxShadow: (activeTheme.isTiles || item.bgImage) && i === selectedIndices.middle && !isSpinning ? `0 0 15px ${activeTheme.ledColor || '#f59e0b'}, inset 0 0 8px ${activeTheme.ledColor || '#f59e0b'}` : 'none',
                       opacity: blankMode && !isRevealed ? 0 : 1, 
-                      textShadow: !activeTheme.isTiles && (themeId === 'wood' || themeId === 'parchment') ? '0.5px 0.5px 0 rgba(255,255,255,0.4)' : (!activeTheme.isTiles ? '0 0 5px currentColor' : 'none'),
+                      textShadow: (!activeTheme.isTiles && !item.bgImage) && (themeId === 'wood' || themeId === 'parchment') ? '0.5px 0.5px 0 rgba(255,255,255,0.4)' : (!activeTheme.isTiles && !item.bgImage ? '0 0 5px currentColor' : 'none'),
                       fontFamily: activeTheme.fontFamily,
-                      animation: isSpinning && activeTheme.isTiles ? `stoneBounce 0.35s ease-in-out infinite alternate` : 'none',
+                      animation: isSpinning && (activeTheme.isTiles || item.bgImage) ? `stoneBounce 0.35s ease-in-out infinite alternate` : 'none',
                       animationDelay: `${i * 0.05}s`
                     }}
                   >
@@ -1058,10 +1071,12 @@ export default function SpiritWheel() {
 
             {/* Inner Ring */}
             <motion.div 
-              className={`absolute inset-[30%] rounded-full ${activeTheme.isTiles ? '' : 'border-[4px] overflow-hidden shadow-[inset_0_0_15px_rgba(0,0,0,0.5)]'}`}
+              className={`absolute inset-[30%] rounded-full ${activeTheme.isTiles ? '' : 'overflow-hidden shadow-[inset_0_0_15px_rgba(0,0,0,0.5)]'}`}
               style={activeTheme.isTiles ? {
                 backgroundColor: 'transparent'
               } : {
+                borderWidth: `${Math.max(1, (activeTheme.borderThickness ?? 6) - 2)}px`,
+                borderStyle: activeTheme.borderStyle || 'solid',
                 borderColor: activeTheme.innerBorder,
                 background: `url("${activeTheme.textureUrl}"), radial-gradient(circle, ${activeTheme.innerBg} 0%, ${activeTheme.innerGrad} 100%)`,
                 backgroundBlendMode: 'multiply',
@@ -1079,19 +1094,22 @@ export default function SpiritWheel() {
                 >
                   <div 
                     className={`absolute -translate-x-1/2 flex items-center justify-center font-bold whitespace-nowrap transition-all duration-300 ${
-                      activeTheme.isTiles 
-                        ? 'w-[28px] h-[28px] sm:w-11 sm:h-11 md:w-[60px] md:h-[60px] rounded-full border-2 top-[-14px] sm:top-[-22px] md:top-[-30px]' 
+                      activeTheme.isTiles || item.bgImage
+                        ? 'w-[28px] h-[28px] sm:w-11 sm:h-11 md:w-[60px] md:h-[60px] rounded-full border-2 top-[-14px] sm:top-[-22px] md:top-[-30px] shadow-lg' 
                         : 'top-2 sm:top-3 md:top-5 lg:top-8 text-lg md:text-3xl lg:text-4xl xl:text-5xl'
                     }`} 
                     style={{ 
                       color: activeTheme.textInner,
-                      backgroundColor: activeTheme.isTiles ? activeTheme.innerBg : 'transparent',
-                      borderColor: activeTheme.isTiles ? (i === selectedIndices.inner && !isSpinning ? activeTheme.ledColor : activeTheme.innerBorder) : 'transparent',
-                      boxShadow: activeTheme.isTiles && i === selectedIndices.inner && !isSpinning ? `0 0 15px ${activeTheme.ledColor}, inset 0 0 8px ${activeTheme.ledColor}` : 'none',
+                      backgroundColor: activeTheme.isTiles ? activeTheme.innerBg : (item.bgImage ? 'rgba(0,0,0,0.5)' : 'transparent'),
+                      backgroundImage: item.bgImage ? `url("${item.bgImage}")` : 'none',
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      borderColor: activeTheme.isTiles || item.bgImage ? (i === selectedIndices.inner && !isSpinning ? (activeTheme.ledColor || '#f59e0b') : activeTheme.innerBorder) : 'transparent',
+                      boxShadow: (activeTheme.isTiles || item.bgImage) && i === selectedIndices.inner && !isSpinning ? `0 0 15px ${activeTheme.ledColor || '#f59e0b'}, inset 0 0 8px ${activeTheme.ledColor || '#f59e0b'}` : 'none',
                       opacity: blankMode && !isRevealed ? 0 : 1, 
-                      textShadow: !activeTheme.isTiles && (themeId === 'wood' || themeId === 'parchment') ? '0.5px 0.5px 0 rgba(255,255,255,0.4)' : (!activeTheme.isTiles ? '0 0 5px currentColor' : 'none'),
+                      textShadow: (!activeTheme.isTiles && !item.bgImage) && (themeId === 'wood' || themeId === 'parchment') ? '0.5px 0.5px 0 rgba(255,255,255,0.4)' : (!activeTheme.isTiles && !item.bgImage ? '0 0 5px currentColor' : 'none'),
                       fontFamily: activeTheme.fontFamily,
-                      animation: isSpinning && activeTheme.isTiles ? `stoneBounce 0.4s ease-in-out infinite alternate` : 'none',
+                      animation: isSpinning && (activeTheme.isTiles || item.bgImage) ? `stoneBounce 0.4s ease-in-out infinite alternate` : 'none',
                       animationDelay: `${i * 0.05}s`,
                       fontSize: activeTheme.isTiles ? '1.2em' : undefined
                     }}
