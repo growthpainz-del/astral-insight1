@@ -985,7 +985,7 @@ export default function SpiritWheel() {
                       <div className={`shrink-0 flex items-center justify-center overflow-hidden ${isCrowded ? 'w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12' : 'w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-16 lg:h-16'}`}>
                         <img src={getImageUrl(item.id)} alt="" className="w-full h-full object-contain mix-blend-screen filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)]" />
                       </div>
-                    ) : item.id}
+                    ) : (/^\d+$/.test(String(item.id)) ? null : item.id)}
                   </div>
                   {/* Segment dividers */}
                   {/* <div className="absolute top-0 -translate-x-1/2 w-[1px] h-full" style={{ transform: `rotate(${angle / 2}deg)`, backgroundColor: activeTheme.divider, opacity: 0.25 }}></div> */}
