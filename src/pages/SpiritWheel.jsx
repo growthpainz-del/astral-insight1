@@ -596,6 +596,13 @@ export default function SpiritWheel() {
           0% { transform: translateX(-50%) scale(1); }
           100% { transform: translateX(-50%) scale(1.3); }
         }
+        @keyframes strobeFlicker {
+          0%, 100% { opacity: 1; filter: brightness(1); }
+          50% { opacity: 0.8; filter: brightness(0.8); }
+        }
+        .stroboscopic-spin {
+          animation: strobeFlicker 0.08s infinite linear !important;
+        }
       `}</style>
       <div className="max-w-[100rem] mx-auto mb-6 flex justify-between items-center">
         <div className="flex items-center gap-4">
@@ -920,7 +927,7 @@ export default function SpiritWheel() {
             style={{ transform: `scale(${zoomLevel})` }}
           >
             <motion.div 
-              className="absolute inset-0 cursor-pointer"
+              className={`absolute inset-0 cursor-pointer ${isSpinning && activeTheme.stroboscopic ? 'stroboscopic-spin' : ''}`}
               onClick={() => !isSpinning && spinWheel()}
               onPanEnd={(e, info) => {
                 const velocity = Math.max(Math.abs(info.velocity.x), Math.abs(info.velocity.y));
@@ -1146,6 +1153,23 @@ export default function SpiritWheel() {
                 />
               )}
             </div>
+
+            {/* Flannel / Soft Diffusion Overlay */}
+            {activeTheme.flannelOverlay && (
+              <div 
+                className="absolute inset-[-2%] rounded-full pointer-events-none z-[60] opacity-35 mix-blend-overlay" 
+                style={{ 
+                  backgroundImage: 'url("https://www.transparenttextures.com/patterns/woven-light.png")', 
+                  backgroundSize: '150px' 
+                }}
+              />
+            )}
+            {activeTheme.flannelOverlay && (
+              <div 
+                className="absolute inset-[-2%] rounded-full pointer-events-none z-[60] opacity-15 mix-blend-soft-light backdrop-blur-[0.5px]" 
+              />
+            )}
+
           </motion.div>
           </div>
 

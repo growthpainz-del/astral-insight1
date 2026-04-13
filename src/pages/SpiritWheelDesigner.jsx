@@ -820,6 +820,19 @@ export default function SpiritWheelDesigner() {
                     </Button>
                   </div>
                 </div>
+                <div className="col-span-2 md:col-span-4 mt-2">
+                  <Label className="text-amber-200/80 text-xs block mb-2">Advanced Optical Effects</Label>
+                  <div className="flex flex-wrap gap-4">
+                    <label className="flex items-center gap-2 text-xs text-amber-200/80 bg-black/40 px-3 py-2 rounded-lg border border-white/10 cursor-pointer hover:bg-white/5 transition-colors">
+                      <input type="checkbox" checked={customTheme.flannelOverlay || false} onChange={e => setCustomTheme({...customTheme, flannelOverlay: e.target.checked})} className="accent-amber-500 w-4 h-4" />
+                      Flannel Overlay (Tactile Fabric Diffusion)
+                    </label>
+                    <label className="flex items-center gap-2 text-xs text-amber-200/80 bg-black/40 px-3 py-2 rounded-lg border border-white/10 cursor-pointer hover:bg-white/5 transition-colors">
+                      <input type="checkbox" checked={customTheme.stroboscopic || false} onChange={e => setCustomTheme({...customTheme, stroboscopic: e.target.checked})} className="accent-amber-500 w-4 h-4" />
+                      Stroboscopic Mode (Persistence of Vision Flicker)
+                    </label>
+                  </div>
+                </div>
               </div>
             )}
             <div className="flex items-center gap-3 mt-6">
