@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ChevronLeft, Plus, Trash2, Download, Upload, Save, Copy, Sparkles, Loader2 } from "lucide-react";
+import { ChevronLeft, Plus, Trash2, Download, Upload, Save, Copy, Sparkles, Loader2, Search } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import { motion } from "framer-motion";
 
@@ -166,6 +166,7 @@ function RingEditor({ ringKey, segments, setSegments, deckCards }) {
   const meta = RING_LABELS[ringKey];
   const [isHarvesting, setIsHarvesting] = useState(false);
   const [themePackSelectKey, setThemePackSelectKey] = useState(Date.now());
+  const [searchQuery, setSearchQuery] = useState("");
 
   const addSegment = () => setSegments([...segments, { ...DEFAULT_SEGMENT }]);
 
@@ -232,6 +233,16 @@ function RingEditor({ ringKey, segments, setSegments, deckCards }) {
     yellow: "border-yellow-500/40 bg-yellow-950/20",
   };
 
+  const filteredSegments = segments.map((seg, i) => ({ ...seg, originalIndex: i })).filter((seg) => {
+    if (!searchQuery) return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      (seg.label || "").toLowerCase().includes(q) ||
+      (seg.meaning || "").toLowerCase().includes(q) ||
+      (seg.icon || "").toLowerCase().includes(q)
+    );
+  });
+
   return (
     <div className={`rounded-xl border p-5 space-y-4 ${colorMap[meta.color]}`}>
       <div className="flex items-center justify-between">
@@ -290,13 +301,30 @@ function RingEditor({ ringKey, segments, setSegments, deckCards }) {
         </div>
       </div>
 
+      {segments.length > 0 && (
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-amber-200/50" />
+          <Input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder={`Search ${segments.length} segments by name, symbol or meaning...`}
+            className="pl-9 bg-black/40 border-amber-500/20 text-sm text-amber-100 focus:border-amber-500/50"
+          />
+        </div>
+      )}
+
       <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
         {segments.length === 0 && (
           <div className="text-center text-amber-200/40 py-8 italic">No segments yet. Add one or import JSON.</div>
         )}
-        {segments.map((seg, i) => (
+        {filteredSegments.length === 0 && segments.length > 0 && (
+          <div className="text-center text-amber-200/40 py-8 italic">No segments match your search.</div>
+        )}
+        {filteredSegments.map((seg) => {
+          const i = seg.originalIndex;
+          return (
           <motion.div
-            key={i}
+            key={seg.originalIndex}
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             className="bg-black/30 rounded-lg p-3 space-y-2 border border-white/5"
@@ -381,7 +409,8 @@ function RingEditor({ ringKey, segments, setSegments, deckCards }) {
               className="bg-black/40 border-white/10 text-sm"
             />
           </motion.div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
