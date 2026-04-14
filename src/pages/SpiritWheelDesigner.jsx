@@ -11,6 +11,7 @@ import PhotoLibraryPicker from "@/components/media/PhotoLibraryPicker";
 import { createPageUrl } from "@/utils";
 import { motion } from "framer-motion";
 import { getThumbnailUrl } from "@/lib/utils";
+import { Switch } from "@/components/ui/switch";
 
 const DEFAULT_SEGMENT = { label: "", meaning: "", type: "custom", icon: "", card_id: "" };
 
@@ -545,7 +546,7 @@ export default function SpiritWheelDesigner() {
   const [showJsonPanel, setShowJsonPanel] = useState(false);
   const [jsonError, setJsonError] = useState("");
   const [libraryTargetField, setLibraryTargetField] = useState(null);
-  const [autoSaveEnabled, setAutoSaveEnabled] = useState(false);
+  const [editingMode, setEditingMode] = useState(true);
 
   useEffect(() => {
     const load = async () => {
@@ -654,21 +655,12 @@ export default function SpiritWheelDesigner() {
   };
 
   useEffect(() => {
-    if (!autoSaveEnabled || !editId || isLoading) return;
+    if (!editingMode || !editId || isLoading) return;
     const timeoutId = setTimeout(() => {
       handleSave("draft", true);
     }, 2000);
     return () => clearTimeout(timeoutId);
-  }, [name, description, deckId, themeId, customTheme, isPublic, outerRing, middleRing, innerRing, autoSaveEnabled]);
-
-  const handlePreview = async () => {
-    if (!editId) {
-      alert("Please save the wheel first to preview it.");
-      return;
-    }
-    await handleSave("draft", true);
-    window.open(`${createPageUrl("SpiritWheel")}?id=${editId}`, '_blank');
-  };
+  }, [name, description, deckId, themeId, customTheme, isPublic, outerRing, middleRing, innerRing, editingMode]);
 
   const handleExportJson = () => {
     const config = { name, description, deck_id: deckId !== "none" ? deckId : null, theme_id: themeId, custom_theme: customTheme, is_public: isPublic, outer_ring: outerRing, middle_ring: middleRing, inner_ring: innerRing };
@@ -738,32 +730,51 @@ export default function SpiritWheelDesigner() {
             </div>
             <p className="text-sm text-amber-200/60">Build your custom oracle wheel — form-based with JSON import/export</p>
           </div>
-          <div className="flex flex-wrap gap-2 justify-end">
-            <Button variant="outline" onClick={handlePreview} className="bg-slate-900 border-indigo-600/40 text-indigo-300 hover:bg-indigo-900/40 hover:text-indigo-200">
-              <Eye className="w-4 h-4 mr-2" /> Preview Wheel
-            </Button>
-            <Button variant="outline" onClick={() => setShowJsonPanel(!showJsonPanel)} className="bg-slate-900 border-amber-600/40 text-amber-300 hover:bg-amber-900/40 hover:text-amber-200">
-              <Upload className="w-4 h-4 mr-2" /> Import JSON
-            </Button>
-            <Button variant="outline" onClick={handleExportJson} className="bg-slate-900 border-amber-600/40 text-amber-300 hover:bg-amber-900/40 hover:text-amber-200">
-              <Download className="w-4 h-4 mr-2" /> Export JSON
-            </Button>
-            <Button variant="outline" onClick={handleCopyJson} className="bg-slate-900 border-amber-600/40 text-amber-300 hover:bg-amber-900/40 hover:text-amber-200">
-              <Copy className="w-4 h-4 mr-2" /> Copy JSON
-            </Button>
-            {editId && (
-              <Button variant="outline" onClick={handleDelete} disabled={isSaving} className="bg-slate-900 border-red-600/40 text-red-400 hover:bg-red-900/40 hover:text-red-200">
-                <Trash2 className="w-4 h-4 mr-2" /> Delete
-              </Button>
+          <div className="flex flex-wrap items-center gap-2 justify-end">
+            <div className="flex items-center gap-2 bg-slate-900 border border-white/10 px-3 py-1.5 rounded-md mr-2 shadow-inner">
+              <Label className="text-amber-200 text-sm font-semibold cursor-pointer" htmlFor="editing-mode-switch">Editing Mode</Label>
+              <Switch id="editing-mode-switch" checked={editingMode} onCheckedChange={(v) => {
+                if (!v && !editId) {
+                  alert("Please save the wheel first to preview it.");
+                  return;
+                }
+                setEditingMode(v);
+              }} className="data-[state=checked]:bg-amber-500" />
+            </div>
+
+            {editingMode && (
+              <>
+                <Button variant="outline" onClick={() => setShowJsonPanel(!showJsonPanel)} className="bg-slate-900 border-amber-600/40 text-amber-300 hover:bg-amber-900/40 hover:text-amber-200">
+                  <Upload className="w-4 h-4 mr-2" /> Import JSON
+                </Button>
+                <Button variant="outline" onClick={handleExportJson} className="bg-slate-900 border-amber-600/40 text-amber-300 hover:bg-amber-900/40 hover:text-amber-200">
+                  <Download className="w-4 h-4 mr-2" /> Export JSON
+                </Button>
+                <Button variant="outline" onClick={handleCopyJson} className="bg-slate-900 border-amber-600/40 text-amber-300 hover:bg-amber-900/40 hover:text-amber-200">
+                  <Copy className="w-4 h-4 mr-2" /> Copy JSON
+                </Button>
+                {editId && (
+                  <Button variant="outline" onClick={handleDelete} disabled={isSaving} className="bg-slate-900 border-red-600/40 text-red-400 hover:bg-red-900/40 hover:text-red-200">
+                    <Trash2 className="w-4 h-4 mr-2" /> Delete
+                  </Button>
+                )}
+                <Button variant="outline" onClick={() => handleSave("draft")} disabled={isSaving} className="bg-slate-900 border-amber-600/40 text-amber-300 hover:bg-amber-900/40 hover:text-amber-200">
+                  <Save className="w-4 h-4 mr-2" /> Save Draft
+                </Button>
+                <Button onClick={() => handleSave("published")} disabled={isSaving} className="bg-amber-600 hover:bg-amber-500 text-white">
+                  <Sparkles className="w-4 h-4 mr-2" /> Publish
+                </Button>
+              </>
             )}
-            <Button variant="outline" onClick={() => handleSave("draft")} disabled={isSaving} className="bg-slate-900 border-amber-600/40 text-amber-300 hover:bg-amber-900/40 hover:text-amber-200">
-              <Save className="w-4 h-4 mr-2" /> Save Draft
-            </Button>
-            <Button onClick={() => handleSave("published")} disabled={isSaving} className="bg-amber-600 hover:bg-amber-500 text-white">
-              <Sparkles className="w-4 h-4 mr-2" /> Publish
-            </Button>
           </div>
         </div>
+
+        {!editingMode ? (
+          <div className="bg-slate-900 border border-white/20 rounded-xl overflow-hidden shadow-2xl h-[85vh]">
+            <iframe src={`${createPageUrl("SpiritWheel")}?id=${editId}`} className="w-full h-full border-0" />
+          </div>
+        ) : (
+          <div className="space-y-6">
 
         {/* JSON Import Panel */}
         {showJsonPanel && (
@@ -964,9 +975,8 @@ export default function SpiritWheelDesigner() {
                 <input type="checkbox" id="public-check" checked={isPublic} onChange={e => setIsPublic(e.target.checked)} className="accent-amber-500 w-4 h-4" />
                 <Label htmlFor="public-check" className="text-amber-200/80 cursor-pointer">Make this wheel publicly available</Label>
               </div>
-              <div className="flex items-center gap-3">
-                <input type="checkbox" id="autosave-check" checked={autoSaveEnabled} onChange={e => setAutoSaveEnabled(e.target.checked)} className="accent-amber-500 w-4 h-4" />
-                <Label htmlFor="autosave-check" className="text-amber-200/80 cursor-pointer">Enable Auto-save (saves changes automatically as Draft)</Label>
+              <div className="text-amber-200/60 text-xs italic">
+                (Changes are saved automatically as a Draft while Editing Mode is on)
               </div>
             </div>
           </div>
@@ -986,6 +996,9 @@ export default function SpiritWheelDesigner() {
             <Sparkles className="w-5 h-5 mr-2" /> Publish Wheel
           </Button>
         </div>
+        
+        </div>
+      )}
       </div>
 
       <PhotoLibraryPicker
