@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { CARD_ASPECT_RATIO, calculateCardSize, calculateContainerHeight, getDesignerAspectRatio } from "@/components/utils/cardSizing";
 import { Move, Bug } from "lucide-react";
 import ScratchRevealCard from "@/components/reading/ScratchRevealCard";
+import { getThumbnailUrl } from "@/lib/utils";
 
 // FIXED: Larger card size for better visibility
 const DEFAULT_CARD_WIDTH = 140; // Increased for better card viewing
@@ -1103,7 +1104,7 @@ export default function SpreadLayout(props) {
 
                           {card.image_url ? (
                             <img
-                              src={card.image_url}
+                              src={getThumbnailUrl(card.image_url, 400)}
                               alt={card.name}
                               className={`w-full h-full object-contain ${(card.isReversed || card.is_reversed) ? 'rotate-180' : ''}`}
                               loading="lazy"
