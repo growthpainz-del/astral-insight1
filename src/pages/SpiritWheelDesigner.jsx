@@ -831,23 +831,41 @@ export default function SpiritWheelDesigner() {
               <div className="md:col-span-2 grid grid-cols-2 md:grid-cols-4 gap-4 mt-2 bg-black/30 p-4 rounded-lg border border-white/10">
                 <div>
                   <Label className="text-amber-200/80 text-xs">Outer Ring</Label>
-                  <div className="flex gap-2 mt-1">
+                  <div className="flex gap-2 mt-1 mb-1">
                     <input type="color" value={customTheme.outerBg} onChange={e => setCustomTheme({...customTheme, outerBg: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" title="Background" />
                     <input type="color" value={customTheme.outerGrad} onChange={e => setCustomTheme({...customTheme, outerGrad: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" title="Gradient" />
+                  </div>
+                  <div className="flex gap-1 items-center mt-1">
+                    <Input value={customTheme.outerTextureUrl ?? customTheme.textureUrl ?? ''} onChange={e => setCustomTheme({...customTheme, outerTextureUrl: e.target.value})} placeholder="Texture URL" className="bg-black/40 border-white/10 text-[10px] h-6 px-1 flex-1" />
+                    <Button type="button" variant="ghost" className="w-6 h-6 p-0 text-amber-400 hover:text-amber-300 hover:bg-white/10 shrink-0" onClick={() => setLibraryTargetField('outerTextureUrl')} title="Gallery">
+                      <ImageIcon className="w-3 h-3" />
+                    </Button>
                   </div>
                 </div>
                 <div>
                   <Label className="text-amber-200/80 text-xs">Middle Ring</Label>
-                  <div className="flex gap-2 mt-1">
+                  <div className="flex gap-2 mt-1 mb-1">
                     <input type="color" value={customTheme.middleBg} onChange={e => setCustomTheme({...customTheme, middleBg: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
                     <input type="color" value={customTheme.middleGrad} onChange={e => setCustomTheme({...customTheme, middleGrad: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
+                  </div>
+                  <div className="flex gap-1 items-center mt-1">
+                    <Input value={customTheme.middleTextureUrl ?? customTheme.textureUrl ?? ''} onChange={e => setCustomTheme({...customTheme, middleTextureUrl: e.target.value})} placeholder="Texture URL" className="bg-black/40 border-white/10 text-[10px] h-6 px-1 flex-1" />
+                    <Button type="button" variant="ghost" className="w-6 h-6 p-0 text-amber-400 hover:text-amber-300 hover:bg-white/10 shrink-0" onClick={() => setLibraryTargetField('middleTextureUrl')} title="Gallery">
+                      <ImageIcon className="w-3 h-3" />
+                    </Button>
                   </div>
                 </div>
                 <div>
                   <Label className="text-amber-200/80 text-xs">Inner Ring</Label>
-                  <div className="flex gap-2 mt-1">
+                  <div className="flex gap-2 mt-1 mb-1">
                     <input type="color" value={customTheme.innerBg} onChange={e => setCustomTheme({...customTheme, innerBg: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
                     <input type="color" value={customTheme.innerGrad} onChange={e => setCustomTheme({...customTheme, innerGrad: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
+                  </div>
+                  <div className="flex gap-1 items-center mt-1">
+                    <Input value={customTheme.innerTextureUrl ?? customTheme.textureUrl ?? ''} onChange={e => setCustomTheme({...customTheme, innerTextureUrl: e.target.value})} placeholder="Texture URL" className="bg-black/40 border-white/10 text-[10px] h-6 px-1 flex-1" />
+                    <Button type="button" variant="ghost" className="w-6 h-6 p-0 text-amber-400 hover:text-amber-300 hover:bg-white/10 shrink-0" onClick={() => setLibraryTargetField('innerTextureUrl')} title="Gallery">
+                      <ImageIcon className="w-3 h-3" />
+                    </Button>
                   </div>
                 </div>
                 <div>
