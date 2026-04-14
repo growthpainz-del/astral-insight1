@@ -10,6 +10,7 @@ import { ChevronLeft, Plus, Trash2, Download, Upload, Save, Copy, Sparkles, Load
 import PhotoLibraryPicker from "@/components/media/PhotoLibraryPicker";
 import { createPageUrl } from "@/utils";
 import { motion } from "framer-motion";
+import { getThumbnailUrl } from "@/lib/utils";
 
 const DEFAULT_SEGMENT = { label: "", meaning: "", type: "custom", icon: "", card_id: "" };
 
@@ -374,8 +375,9 @@ function RingEditor({ ringKey, segments, setSegments, deckCards, onOpenGallery }
                     />
                     {isImageSymbol(seg.icon) && (
                       <img 
-                        src={getImageUrl(seg.icon)} 
+                        src={getThumbnailUrl(getImageUrl(seg.icon), 100)} 
                         alt="icon" 
+                        loading="lazy"
                         onError={(e) => { e.target.style.opacity = '0'; }}
                         onLoad={(e) => { e.target.style.opacity = '1'; }}
                         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 object-contain pointer-events-none mix-blend-screen peer-focus:opacity-0 transition-opacity" 

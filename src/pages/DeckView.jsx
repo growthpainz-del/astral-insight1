@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { queueApiCall } from "@/components/utils/apiQueue";
 import { isNetworkError } from "@/components/utils/isNetworkError";
+import { getThumbnailUrl } from "@/lib/utils";
 import {
   Loader2,
   Play,
@@ -402,7 +403,7 @@ export default function DeckView() {
               <div>
                 <div className="relative rounded-xl overflow-hidden border border-white/10 bg-white/5">
                   {deck.cover_image ? (
-                    <img src={deck.cover_image} alt={deck.name} className="w-full h-auto object-cover" />
+                    <img src={getThumbnailUrl(deck.cover_image, 600)} alt={deck.name} className="w-full h-auto object-cover" loading="lazy" />
                   ) : (
                     <div className="aspect-[3/4] flex items-center justify-center text-white/60">
                       No cover image

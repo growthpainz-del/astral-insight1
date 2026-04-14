@@ -10,6 +10,7 @@ import { Card as CardEntity } from "@/entities/Card";
 import { Deck } from "@/entities/Deck";
 import { UploadFile } from "@/integrations/Core";
 import { Image as ImageIcon, Search, Check, Copy, Loader2, ExternalLink, Upload as UploadIcon, Maximize2, Move } from "lucide-react";
+import { getThumbnailUrl } from "@/lib/utils";
 
 export default function PhotoLibraryPicker({ isOpen, onClose, onSelect, deckId }) {
   const [items, setItems] = React.useState([]);
@@ -302,7 +303,7 @@ export default function PhotoLibraryPicker({ isOpen, onClose, onSelect, deckId }
                           title="Drag to assign to a card"
                         >
                           <img
-                            src={thumb}
+                            src={getThumbnailUrl(thumb, 300)}
                             alt={title}
                             loading="lazy"
                             className="w-full h-28 object-cover"

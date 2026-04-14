@@ -804,7 +804,7 @@ export default function SpiritWheel() {
                       <span>Outer Ring</span>
                       {isImageSymbol(wheelData.outer[selectedIndices.outer]?.id) ? (
                         <div className="w-10 h-10 shrink-0 flex items-center justify-center overflow-hidden">
-                          <img src={getImageUrl(wheelData.outer[selectedIndices.outer]?.id)} alt="" className="w-full h-full object-contain mix-blend-screen filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]" />
+                          <img src={getThumbnailUrl(getImageUrl(wheelData.outer[selectedIndices.outer]?.id), 400)} loading="lazy" alt="" className="w-full h-full object-contain mix-blend-screen filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]" />
                         </div>
                       ) : (
                         <span className="text-amber-300 bg-black/20 px-2 py-0.5 rounded">
@@ -822,7 +822,7 @@ export default function SpiritWheel() {
                       <span>Middle Ring</span>
                       {isImageSymbol(wheelData.middle[selectedIndices.middle]?.id) ? (
                         <div className="w-10 h-10 shrink-0 flex items-center justify-center overflow-hidden">
-                          <img src={getImageUrl(wheelData.middle[selectedIndices.middle]?.id)} alt="" className="w-full h-full object-contain mix-blend-screen filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]" />
+                          <img src={getThumbnailUrl(getImageUrl(wheelData.middle[selectedIndices.middle]?.id), 400)} loading="lazy" alt="" className="w-full h-full object-contain mix-blend-screen filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]" />
                         </div>
                       ) : (
                         <span className="text-amber-300 bg-black/20 px-2 py-0.5 rounded">
@@ -840,7 +840,7 @@ export default function SpiritWheel() {
                       <span>Inner Ring</span>
                       {isImageSymbol(wheelData.inner[selectedIndices.inner]?.id) ? (
                         <div className="w-10 h-10 shrink-0 flex items-center justify-center overflow-hidden">
-                          <img src={getImageUrl(wheelData.inner[selectedIndices.inner]?.id)} alt="" className="w-full h-full object-contain mix-blend-screen filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]" />
+                          <img src={getThumbnailUrl(getImageUrl(wheelData.inner[selectedIndices.inner]?.id), 400)} loading="lazy" alt="" className="w-full h-full object-contain mix-blend-screen filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]" />
                         </div>
                       ) : (
                         <span className="text-amber-300 bg-black/20 px-2 py-0.5 rounded">
@@ -856,7 +856,7 @@ export default function SpiritWheel() {
                   <div className="p-4 bg-[#1c0f05] rounded-lg border border-[#5c3a21] flex flex-col md:flex-row gap-4 items-center md:items-start animate-in fade-in slide-in-from-bottom-4 duration-700">
                     <div className="w-24 h-36 flex-shrink-0 rounded-md overflow-hidden border border-[#8b5a2b] bg-black shadow-[0_0_15px_rgba(245,158,11,0.2)]">
                       {drawnCard.image_url ? (
-                        <img src={drawnCard.image_url} alt={drawnCard.name} className="w-full h-full object-cover" />
+                        <img src={getThumbnailUrl(drawnCard.image_url, 400)} loading="lazy" alt={drawnCard.name} className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-amber-500/30 text-xs text-center p-2">No Image</div>
                       )}
@@ -1019,7 +1019,7 @@ export default function SpiritWheel() {
                   >
                     {isImageSymbol(item.id) ? (
                       <div className={`shrink-0 flex items-center justify-center overflow-hidden ${isCrowded ? 'w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12' : 'w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-16 lg:h-16'}`}>
-                        <img src={getImageUrl(item.id)} alt="" className="w-full h-full object-contain mix-blend-screen filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)]" />
+                        <img src={getThumbnailUrl(getImageUrl(item.id), 400)} loading="lazy" alt="" className="w-full h-full object-contain mix-blend-screen filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)]" />
                       </div>
                     ) : (/^\d+$/.test(String(item.id)) ? null : item.id)}
                   </div>
@@ -1079,7 +1079,7 @@ export default function SpiritWheel() {
                       <div className="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 lg:w-8 lg:h-8 rounded-full shadow-inner border border-black/30" style={{ backgroundColor: item.id === 'LightBlue' ? '#add8e6' : item.id.toLowerCase() }}></div>
                     ) : isImageSymbol(item.id) ? (
                       <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 shrink-0 flex items-center justify-center overflow-hidden">
-                        <img src={getImageUrl(item.id)} alt="" className="w-full h-full object-contain mix-blend-screen filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)]" />
+                        <img src={getThumbnailUrl(getImageUrl(item.id), 400)} loading="lazy" alt="" className="w-full h-full object-contain mix-blend-screen filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)]" />
                       </div>
                     ) : (
                       <span className={activeTheme.isTiles ? "text-[10px] md:text-sm" : ""}>{item.id}</span>
@@ -1140,7 +1140,7 @@ export default function SpiritWheel() {
                   >
                     {isImageSymbol(item.id) ? (
                       <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-28 lg:h-28 shrink-0 flex items-center justify-center overflow-hidden">
-                        <img src={getImageUrl(item.id)} alt="" className="w-full h-full object-contain mix-blend-screen filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)]" />
+                        <img src={getThumbnailUrl(getImageUrl(item.id), 400)} loading="lazy" alt="" className="w-full h-full object-contain mix-blend-screen filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)]" />
                       </div>
                     ) : item.id}
                   </div>

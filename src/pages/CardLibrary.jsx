@@ -7,6 +7,7 @@ import { Loader2, Library, Trash2, Sparkles } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import { queueApiCall } from "@/components/utils/apiQueue";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { getThumbnailUrl } from "@/lib/utils";
 
 export default function CardLibrary() {
   const [cards, setCards] = useState([]);
@@ -101,7 +102,7 @@ export default function CardLibrary() {
                 >
                   {card.image_url ? (
                     <>
-                      <img src={card.image_url} alt={card.name} className="w-full h-full object-cover" loading="lazy" />
+                      <img src={getThumbnailUrl(card.image_url, 400)} alt={card.name} className="w-full h-full object-cover" loading="lazy" />
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                         <Sparkles className="w-4 h-4 text-white/80" />
                       </div>

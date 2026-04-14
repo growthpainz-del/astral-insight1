@@ -12,6 +12,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"; 
 import { base44 } from "@/api/base44Client";
 import CardEditor from "@/components/deck/CardEditor";
+import { getThumbnailUrl } from "@/lib/utils";
 
 export default function CardGallery({ deckId }) {
   const [cards, setCards] = React.useState([]);
@@ -144,7 +145,7 @@ export default function CardGallery({ deckId }) {
                   <div className={`${deck?.name?.toLowerCase().includes('lie detector') ? 'aspect-[1/1]' : 'aspect-[2/3]'} rounded-lg overflow-hidden bg-white/5 border border-white/10 hover:border-purple-400/60 transition-all hover:scale-105`}>
                     {card.image_url && !imageErrors.has(card.image_url) ? (
                       <FramedCardImage
-                        src={card.image_url}
+                        src={getThumbnailUrl(card.image_url, 400)}
                         alt={card.name}
                         frameStyle={card.frame_style}
                         className="w-full h-full object-cover"
@@ -176,7 +177,7 @@ export default function CardGallery({ deckId }) {
                   <div className="w-16 h-24 flex-shrink-0 rounded overflow-hidden bg-white/5">
                     {card.image_url && !imageErrors.has(card.image_url) ? (
                       <FramedCardImage
-                        src={card.image_url}
+                        src={getThumbnailUrl(card.image_url, 400)}
                         alt={card.name}
                         frameStyle={card.frame_style}
                         className="w-full h-full object-cover"

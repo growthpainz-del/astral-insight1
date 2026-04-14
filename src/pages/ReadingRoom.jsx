@@ -5,6 +5,7 @@ import { Deck, Reading as ReadingEntity, Card } from "@/entities/all";
 import { Play, Clock, Sparkles, ChevronRight, Eye, Combine, Star, Heart, TrendingUp, Users, Wand2, RefreshCw } from "lucide-react";
 import { User } from "@/entities/User";
 import { Button } from "@/components/ui/button";
+import { getThumbnailUrl } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { queueApiCall } from "@/components/utils/apiQueue";
 import { motion, AnimatePresence } from "framer-motion";
@@ -18,8 +19,9 @@ function DeckCard({ deck, isOwned = false }) {
       <div className="relative flex-shrink-0 w-48 aspect-[2/3] rounded-lg overflow-hidden bg-gradient-to-br from-purple-900/40 to-slate-900/40 border border-white/10 hover:border-purple-400/60 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-purple-500/30">
         {deck.cover_image ? (
           <img
-            src={deck.cover_image}
+            src={getThumbnailUrl(deck.cover_image, 400)}
             alt={deck.name}
+            loading="lazy"
             className="w-full h-full object-cover"
           />
         ) : (
@@ -68,8 +70,9 @@ function ReadingCard({ reading, deck }) {
       <div className="relative flex-shrink-0 w-48 aspect-[2/3] rounded-lg overflow-hidden bg-gradient-to-br from-indigo-900/40 to-slate-900/40 border border-white/10 hover:border-indigo-400/60 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-indigo-500/30">
         {deck?.cover_image ? (
           <img
-            src={deck.cover_image}
+            src={getThumbnailUrl(deck.cover_image, 400)}
             alt={reading.title}
+            loading="lazy"
             className="w-full h-full object-cover opacity-70"
           />
         ) : (
