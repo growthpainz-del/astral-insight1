@@ -981,12 +981,25 @@ export default function SpiritWheel() {
                 borderWidth: `${activeTheme.borderThickness ?? 6}px`,
                 borderStyle: activeTheme.borderStyle || 'solid',
                 borderColor: activeTheme.outerBorder,
-                background: `url("${activeTheme.textureUrl}"), radial-gradient(circle, ${activeTheme.outerBg} 0%, ${activeTheme.outerGrad} 100%)`,
-                backgroundBlendMode: 'multiply',
               }}
               animate={{ rotate: rotations.outer }}
               transition={spinState === "spinning" ? { duration: 10000, ease: "linear" } : { duration: 3.5, type: "tween", ease: "circOut" }}
             >
+              {!activeTheme.isTiles && (
+                <div className="absolute inset-0 w-full h-full pointer-events-none rounded-full overflow-hidden" style={{ zIndex: 0 }}>
+                  {activeTheme.layerOrder === 'color_top' ? (
+                    <>
+                      <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.textureUrl}")` }} />
+                      <div className="absolute inset-0 w-full h-full" style={{ background: `radial-gradient(circle, ${activeTheme.outerBg} 0%, ${activeTheme.outerGrad} 100%)`, opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
+                    </>
+                  ) : (
+                    <>
+                      <div className="absolute inset-0 w-full h-full" style={{ background: `radial-gradient(circle, ${activeTheme.outerBg} 0%, ${activeTheme.outerGrad} 100%)` }} />
+                      <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.textureUrl}")`, opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
+                    </>
+                  )}
+                </div>
+              )}
               {wheelData.outer.map((item, i) => {
                 const angle = 360 / wheelData.outer.length;
                 const isCrowded = wheelData.outer.length > 25;
@@ -1041,12 +1054,25 @@ export default function SpiritWheel() {
                 borderWidth: `${Math.max(1, (activeTheme.borderThickness ?? 6) - 1)}px`,
                 borderStyle: activeTheme.borderStyle || 'solid',
                 borderColor: activeTheme.middleBorder,
-                background: `url("${activeTheme.textureUrl}"), radial-gradient(circle, ${activeTheme.middleBg} 0%, ${activeTheme.middleGrad} 100%)`,
-                backgroundBlendMode: 'multiply',
               }}
               animate={{ rotate: rotations.middle }}
               transition={spinState === "spinning" ? { duration: 10000, ease: "linear" } : { duration: 3.5, type: "tween", ease: "circOut" }}
             >
+              {!activeTheme.isTiles && (
+                <div className="absolute inset-0 w-full h-full pointer-events-none rounded-full overflow-hidden" style={{ zIndex: 0 }}>
+                  {activeTheme.layerOrder === 'color_top' ? (
+                    <>
+                      <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.textureUrl}")` }} />
+                      <div className="absolute inset-0 w-full h-full" style={{ background: `radial-gradient(circle, ${activeTheme.middleBg} 0%, ${activeTheme.middleGrad} 100%)`, opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
+                    </>
+                  ) : (
+                    <>
+                      <div className="absolute inset-0 w-full h-full" style={{ background: `radial-gradient(circle, ${activeTheme.middleBg} 0%, ${activeTheme.middleGrad} 100%)` }} />
+                      <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.textureUrl}")`, opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
+                    </>
+                  )}
+                </div>
+              )}
               {wheelData.middle.map((item, i) => {
                 const angle = 360 / wheelData.middle.length;
                 return (
@@ -1103,12 +1129,25 @@ export default function SpiritWheel() {
                 borderWidth: `${Math.max(1, (activeTheme.borderThickness ?? 6) - 2)}px`,
                 borderStyle: activeTheme.borderStyle || 'solid',
                 borderColor: activeTheme.innerBorder,
-                background: `url("${activeTheme.textureUrl}"), radial-gradient(circle, ${activeTheme.innerBg} 0%, ${activeTheme.innerGrad} 100%)`,
-                backgroundBlendMode: 'multiply',
               }}
               animate={{ rotate: rotations.inner }}
               transition={spinState === "spinning" ? { duration: 10000, ease: "linear" } : { duration: 3.5, type: "tween", ease: "circOut" }}
             >
+              {!activeTheme.isTiles && (
+                <div className="absolute inset-0 w-full h-full pointer-events-none rounded-full overflow-hidden" style={{ zIndex: 0 }}>
+                  {activeTheme.layerOrder === 'color_top' ? (
+                    <>
+                      <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.textureUrl}")` }} />
+                      <div className="absolute inset-0 w-full h-full" style={{ background: `radial-gradient(circle, ${activeTheme.innerBg} 0%, ${activeTheme.innerGrad} 100%)`, opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
+                    </>
+                  ) : (
+                    <>
+                      <div className="absolute inset-0 w-full h-full" style={{ background: `radial-gradient(circle, ${activeTheme.innerBg} 0%, ${activeTheme.innerGrad} 100%)` }} />
+                      <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.textureUrl}")`, opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
+                    </>
+                  )}
+                </div>
+              )}
               {wheelData.inner.map((item, i) => {
                 const angle = 360 / wheelData.inner.length;
                 return (

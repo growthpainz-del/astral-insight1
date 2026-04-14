@@ -862,6 +862,39 @@ export default function SpiritWheelDesigner() {
                   </div>
                 </div>
                 <div className="col-span-2">
+                  <Label className="text-amber-200/80 text-xs block mb-1">Layer & Blending Options</Label>
+                  <div className="flex gap-2">
+                    <Select value={customTheme.layerOrder || 'texture_top'} onValueChange={v => setCustomTheme({...customTheme, layerOrder: v})}>
+                      <SelectTrigger className="bg-black/40 border-white/10 text-xs h-8 flex-1" title="Layer Order">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-slate-900 border-slate-700 text-white">
+                        <SelectItem value="texture_top">Texture on Top</SelectItem>
+                        <SelectItem value="color_top">Color on Top</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <div className="flex items-center gap-2 bg-black/40 border border-white/10 rounded-md px-2 h-8">
+                      <span className="text-xs text-amber-200/60 whitespace-nowrap">Top Opacity:</span>
+                      <Input type="number" min="0" max="100" value={customTheme.topLayerOpacity !== undefined ? Math.round(customTheme.topLayerOpacity * 100) : 100} onChange={e => setCustomTheme({...customTheme, topLayerOpacity: Number(e.target.value)/100})} className="w-12 bg-transparent border-none text-xs h-6 p-0 text-center focus-visible:ring-0 outline-none" />
+                      <span className="text-xs text-amber-200/60">%</span>
+                    </div>
+                    <Select value={customTheme.blendMode || 'multiply'} onValueChange={v => setCustomTheme({...customTheme, blendMode: v})}>
+                      <SelectTrigger className="bg-black/40 border-white/10 text-xs h-8 flex-1" title="Blend Mode">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-slate-900 border-slate-700 text-white">
+                        <SelectItem value="normal">Normal</SelectItem>
+                        <SelectItem value="multiply">Multiply</SelectItem>
+                        <SelectItem value="overlay">Overlay</SelectItem>
+                        <SelectItem value="screen">Screen</SelectItem>
+                        <SelectItem value="soft-light">Soft Light</SelectItem>
+                        <SelectItem value="hard-light">Hard Light</SelectItem>
+                        <SelectItem value="color-burn">Color Burn</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="col-span-2">
                   <Label className="text-amber-200/80 text-xs">Page Background Image URL</Label>
                   <div className="flex gap-2 mt-1">
                     <Input value={customTheme.pageBgImage || ""} onChange={e => setCustomTheme({...customTheme, pageBgImage: e.target.value})} placeholder="https://..." className="bg-black/40 border-white/10 text-xs h-8 flex-1" />
