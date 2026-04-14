@@ -13,6 +13,7 @@ import AudioOrb from "@/components/reading/AudioOrb";
 import html2canvas from 'html2canvas';
 import ReadingShareModal from "@/components/reading/ReadingShareModal";
 import { queueApiCall } from "@/components/utils/apiQueue";
+import { getThumbnailUrl } from "@/lib/utils";
 
 // 50 Cards of the Rooted Crescent Oracle Deck
 const ROOTED_CARDS_DATA = [
