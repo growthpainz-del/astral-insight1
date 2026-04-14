@@ -12,6 +12,7 @@ import { createPageUrl } from '@/utils';
 import AudioOrb from "@/components/reading/AudioOrb";
 import html2canvas from 'html2canvas';
 import ReadingShareModal from "@/components/reading/ReadingShareModal";
+import { queueApiCall } from "@/components/utils/apiQueue";
 
 // 50 Cards of the Rooted Crescent Oracle Deck
 const ROOTED_CARDS_DATA = [
@@ -264,6 +265,7 @@ export default function SpiritWheel() {
   };
 
   const [customWheels, setCustomWheels] = useState([]);
+  console.log("customWheels state:", customWheels);
   const [selectedWheelId, setSelectedWheelId] = useState("default");
 
   const [themeId, setThemeId] = useState("wood");
@@ -388,18 +390,20 @@ export default function SpiritWheel() {
   useEffect(() => {
     const fetchDecks = async () => {
       try {
-        const publicDecks = await base44.entities.Deck.filter({ is_public: true, publish_status: 'published' }, '-created_date', 100);
-        const user = await base44.auth.me().catch(() => null);
+        const user = await queueApiCall(() => base44.auth.me(), 3, 1000, 10000).catch(() => null);
         setCurrentUser(user);
-        let myDecks = [];
-        let myWheels = [];
-        let publicWheelsRes = await base44.entities.SpiritWheelConfiguration.filter({ is_public: true }, '-updated_date', 100);
-        let publicWheels = (publicWheelsRes || []).filter(w => w.publish_status !== 'draft');
         
+        let allWheels = await queueApiCall(() => base44.entities.SpiritWheelConfiguration.list('-updated_date', 200), 3, 1000, 10000).catch(() => []);
+        allWheels = Array.isArray(allWheels) ? allWheels : [];
+        
+        let publicWheels = allWheels.filter(w => w.is_public && w.publish_status !== 'draft');
+        let myWheels = user?.email ? allWheels.filter(w => w.created_by?.toLowerCase() === user.email.toLowerCase()) : [];
+        
+        const publicDecks = await queueApiCall(() => base44.entities.Deck.filter({ is_public: true, publish_status: 'published' }, '-created_date', 100), 3, 1000, 10000).catch(() => []);
+        let myDecks = [];
         if (user?.email) {
-          const mine = await base44.entities.Deck.filter({ created_by: user.email }, '-updated_date', 100);
+          const mine = await queueApiCall(() => base44.entities.Deck.filter({ created_by: user.email }, '-updated_date', 100), 3, 1000, 10000).catch(() => []);
           myDecks = Array.isArray(mine) ? mine.filter(d => d.publish_status !== 'draft' && d.publish_status !== 'pending_review') : [];
-          myWheels = await base44.entities.SpiritWheelConfiguration.filter({ created_by: user.email }, '-updated_date', 100) || [];
         }
         
         const allDecksMap = new Map();
@@ -407,7 +411,7 @@ export default function SpiritWheel() {
         setDecks(Array.from(allDecksMap.values()));
 
         const allWheelsMap = new Map();
-        [...(publicWheels || []), ...(myWheels || [])].forEach(w => allWheelsMap.set(w.id, w));
+        [...publicWheels, ...myWheels].forEach(w => allWheelsMap.set(w.id, w));
         setCustomWheels(Array.from(allWheelsMap.values()));
       } catch (e) {
         console.error("Failed to load data", e);
