@@ -9,7 +9,7 @@ import { User } from "@/entities/User";
 import { Card as CardEntity } from "@/entities/Card";
 import { Deck } from "@/entities/Deck";
 import { UploadFile } from "@/integrations/Core";
-import { Image as ImageIcon, Search, Check, Copy, Loader2, ExternalLink, Upload as UploadIcon, Maximize2, Move } from "lucide-react";
+import { Image as ImageIcon, Search, Check, Copy, Loader2, ExternalLink, Upload as UploadIcon, Maximize2, Move, Edit2 } from "lucide-react";
 import { getThumbnailUrl } from "@/lib/utils";
 
 export default function PhotoLibraryPicker({ isOpen, onClose, onSelect, deckId }) {
@@ -28,6 +28,10 @@ export default function PhotoLibraryPicker({ isOpen, onClose, onSelect, deckId }
 
   // NEW: Drag state
   const [draggedImageUrl, setDraggedImageUrl] = React.useState(null);
+  
+  // NEW: Rename state
+  const [editingId, setEditingId] = React.useState(null);
+  const [editName, setEditName] = React.useState("");
 
   React.useEffect(() => {
     Deck.list("name", 200).then(setDecks).catch(() => setDecks([]));
@@ -219,6 +223,27 @@ export default function PhotoLibraryPicker({ isOpen, onClose, onSelect, deckId }
     setDraggedImageUrl(null);
   };
 
+  const handleRename = async (it, newName) => {
+    if (!newName.trim() || newName === it.file_name) {
+      setEditingId(null);
+      return;
+    }
+    try {
+      if (it._source === "card") {
+        const id = it.id.replace("card-", "");
+        await CardEntity.update(id, { name: newName });
+      } else {
+        await UploadAsset.update(it.id, { file_name: newName });
+      }
+      setItems(items.map(i => i.id === it.id ? { ...i, file_name: newName } : i));
+    } catch (e) {
+      console.error(e);
+      alert("Failed to rename");
+    } finally {
+      setEditingId(null);
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl bg-slate-900 text-white border border-purple-500/30">
@@ -328,8 +353,24 @@ export default function PhotoLibraryPicker({ isOpen, onClose, onSelect, deckId }
                           </div>
                         </div>
                         <div className="p-2 flex items-center justify-between gap-2">
-                          <div className="truncate text-xs text-white/80" title={title}>{title}</div>
-                          <div className="flex items-center gap-1">
+                          {editingId === (it.id || it.file_url) ? (
+                            <Input 
+                              autoFocus 
+                              value={editName} 
+                              onChange={(e) => setEditName(e.target.value)} 
+                              onBlur={() => handleRename(it, editName)}
+                              onKeyDown={(e) => { if (e.key === "Enter") handleRename(it, editName); if (e.key === "Escape") setEditingId(null); }}
+                              className="h-6 text-xs px-1 bg-black/40 border-white/20 flex-1" 
+                            />
+                          ) : (
+                            <div className="flex items-center gap-1 min-w-0 flex-1">
+                              <div className="truncate text-xs text-white/80 flex-1" title={title}>{title}</div>
+                              <Button size="icon" variant="ghost" className="h-4 w-4 shrink-0 text-white/40 hover:text-white" onClick={() => { setEditingId(it.id || it.file_url); setEditName(title); }} title="Rename">
+                                <Edit2 className="w-3 h-3" />
+                              </Button>
+                            </div>
+                          )}
+                          <div className="flex items-center gap-1 shrink-0">
                             <Button size="icon" variant="ghost" className="h-7 w-7 text-white/80 hover:text-white" onClick={() => copyUrl(it.file_url, idx)} title="Copy URL">
                               {copiedIdx === idx ? <Check className="w-4 h-4 text-emerald-300" /> : <Copy className="w-4 h-4" />}
                             </Button>

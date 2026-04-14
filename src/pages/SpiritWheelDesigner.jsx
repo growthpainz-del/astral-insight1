@@ -194,13 +194,37 @@ const getImageUrl = (id) => {
   return url;
 };
 
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+
 function RingEditor({ ringKey, segments, setSegments, deckCards, onOpenGallery }) {
   const meta = RING_LABELS[ringKey];
   const [isHarvesting, setIsHarvesting] = useState(false);
   const [themePackSelectKey, setThemePackSelectKey] = useState(Date.now());
   const [searchQuery, setSearchQuery] = useState("");
+  const [showBulkModal, setShowBulkModal] = useState(false);
+  const [bulkText, setBulkText] = useState("");
 
   const addSegment = () => setSegments([...segments, { ...DEFAULT_SEGMENT }]);
+
+  const handleBulkImport = () => {
+    if (!bulkText.trim()) return;
+    const lines = bulkText.split('\n');
+    const newSegments = [];
+    lines.forEach(l => {
+      if (!l.trim()) return;
+      const parts = l.split(/[\t|]/).map(p => p.trim());
+      const label = parts[0] || '';
+      const meaning = parts[1] || '';
+      const icon = parts[2] || '';
+      const type = icon && isImageSymbol(icon) ? "custom" : "symbol";
+      newSegments.push({ label, meaning, icon, type, card_id: "" });
+    });
+    if (newSegments.length > 0) {
+      setSegments([...segments, ...newSegments]);
+    }
+    setShowBulkModal(false);
+    setBulkText("");
+  };
 
   const handleHarvestSymbols = async () => {
     if (segments.length === 0) return;
@@ -318,9 +342,33 @@ function RingEditor({ ringKey, segments, setSegments, deckCards, onOpenGallery }
               <SelectItem value="rooted_crescent">Rooted Crescent</SelectItem>
             </SelectContent>
           </Select>
+          <Button size="sm" onClick={() => setShowBulkModal(true)} className="bg-amber-800 hover:bg-amber-700 text-white h-8">
+            Bulk Add
+          </Button>
           <Button size="sm" onClick={addSegment} className="bg-amber-700 hover:bg-amber-600 text-white h-8">
             <Plus className="w-4 h-4 mr-1" /> Add Custom
           </Button>
+
+          <Dialog open={showBulkModal} onOpenChange={setShowBulkModal}>
+            <DialogContent className="max-w-xl bg-slate-900 border-amber-600/30 text-amber-100">
+              <DialogHeader>
+                <DialogTitle>Bulk Add Segments</DialogTitle>
+              </DialogHeader>
+              <p className="text-sm text-amber-200/60">
+                Paste your segments below. Each line is a segment. Separate Label, Meaning, and Icon with a Tab or Pipe (|).
+              </p>
+              <Textarea 
+                value={bulkText} 
+                onChange={e => setBulkText(e.target.value)} 
+                placeholder="Label | Meaning | Icon URL or Emoji"
+                className="h-64 bg-black/40 border-amber-500/20 text-sm focus:border-amber-500/50"
+              />
+              <DialogFooter>
+                <Button variant="ghost" onClick={() => setShowBulkModal(false)} className="text-amber-200/60 hover:text-amber-200">Cancel</Button>
+                <Button onClick={handleBulkImport} className="bg-amber-600 hover:bg-amber-500 text-white">Import Segments</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
           {segments.length > 0 && (
             <Button size="sm" variant="outline" onClick={() => {
               if (window.confirm("Are you sure you want to clear all segments in this ring?")) {
