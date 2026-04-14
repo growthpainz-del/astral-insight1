@@ -141,14 +141,14 @@ const THEME_PACKS = {
   ],
   zodiac: [
     { label: "Aries", meaning: "Bold, pioneering, courageous", type: "symbol", icon: "♈", card_id: "" },
-    { label: "Taurus", meaning: "Steadfast, grounded, reliable", type: "symbol", icon: "♉", card_id: "" },
-    { label: "Gemini", meaning: "Versatile, expressive, curious", type: "symbol", icon: "♊", card_id: "" },
+    { label: "Taurus", meaning: "Steadfast, grounded, reliable", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/4d52d1f14_9429DD33-0047-4BDF-B23F-54A409E919FD.png", card_id: "" },
+    { label: "Gemini", meaning: "Versatile, expressive, curious", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/151313fcd_EFC72D88-7EBC-4239-A243-750472B6524E.png", card_id: "" },
     { label: "Cancer", meaning: "Intuitive, protective, nurturing", type: "symbol", icon: "♋", card_id: "" },
-    { label: "Leo", meaning: "Dramatic, generous, proud", type: "symbol", icon: "♌", card_id: "" },
-    { label: "Virgo", meaning: "Practical, analytical, humble", type: "symbol", icon: "♍", card_id: "" },
-    { label: "Libra", meaning: "Diplomatic, harmonious, fair", type: "symbol", icon: "♎", card_id: "" },
+    { label: "Leo", meaning: "Dramatic, generous, proud", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/12db56ab2_48A0535A-5B09-4A38-A40B-ED14A809342D.png", card_id: "" },
+    { label: "Virgo", meaning: "Practical, analytical, humble", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/d5aedc4ee_88C71941-9336-41B0-887C-576496C644E0.png", card_id: "" },
+    { label: "Libra", meaning: "Diplomatic, harmonious, fair", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/b3a4760f7_E4484D19-D7F1-45E3-82D5-916D6A474F27.png", card_id: "" },
     { label: "Scorpio", meaning: "Intense, transformative, passionate", type: "symbol", icon: "♏", card_id: "" },
-    { label: "Sagittarius", meaning: "Adventurous, optimistic, free", type: "symbol", icon: "♐", card_id: "" },
+    { label: "Sagittarius", meaning: "Adventurous, optimistic, free", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/b6272ceac_6FF9531A-5C77-4D99-B359-1C840EB8FD09.png", card_id: "" },
     { label: "Capricorn", meaning: "Ambitious, disciplined, responsible", type: "symbol", icon: "♑", card_id: "" },
     { label: "Aquarius", meaning: "Innovative, progressive, humanitarian", type: "symbol", icon: "♒", card_id: "" },
     { label: "Pisces", meaning: "Compassionate, artistic, empathetic", type: "symbol", icon: "♓", card_id: "" }
@@ -608,6 +608,7 @@ function RingEditor({ ringKey, segments, setSegments, deckCards, onOpenGallery }
 
 import { ROOTED_CARDS_DATA, WHEEL_MIDDLE, WHEEL_INNER, WHEEL_THEMES } from "./SpiritWheel";
 
+export { RingEditor };
 export default function SpiritWheelDesigner() {
   const navigate = useNavigate();
   const location = useLocation();
