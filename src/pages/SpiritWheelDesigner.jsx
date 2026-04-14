@@ -573,20 +573,21 @@ function RingEditor({ ringKey, segments, setSegments, deckCards, onOpenGallery }
               </Select>
             )}
 
-            {seg.type === "symbol" && (
-              <div className="flex flex-wrap gap-1">
+              {seg.type === "symbol" && (
+              <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto p-2 border border-white/5 rounded bg-black/20">
                 {PRESET_SYMBOLS.map(p => (
                   <button
                     key={p.icon}
                     onClick={() => applyPreset(i, p)}
-                    title={p.meaning}
-                    className="text-lg hover:scale-125 transition-transform"
+                    title={`${p.label}: ${p.meaning}`}
+                    className="flex flex-col items-center justify-start p-1 rounded hover:bg-white/10 transition-colors w-16 shrink-0"
                   >
                     {isImageSymbol(p.icon) ? (
-                      <img src={getImageUrl(p.icon)} className="w-8 h-8 object-contain filter drop-shadow-md bg-transparent rounded-full" alt={p.label} />
+                      <img src={getImageUrl(p.icon)} className="w-8 h-8 object-contain filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] bg-black/40 rounded-full border border-white/10" alt={p.label} />
                     ) : (
-                      p.icon
+                      <span className="text-2xl h-8 flex items-center">{p.icon}</span>
                     )}
+                    <span className="text-[10px] text-amber-200/70 text-center mt-1 w-full truncate leading-tight">{p.label}</span>
                   </button>
                 ))}
               </div>
@@ -609,6 +610,8 @@ function RingEditor({ ringKey, segments, setSegments, deckCards, onOpenGallery }
 import { ROOTED_CARDS_DATA, WHEEL_MIDDLE, WHEEL_INNER, WHEEL_THEMES } from "./SpiritWheel";
 
 export { RingEditor };
+
+
 export default function SpiritWheelDesigner() {
   const navigate = useNavigate();
   const location = useLocation();
