@@ -78,16 +78,16 @@ export default function HomePage() {
                   {spotlight.description && (
                     <p className="text-white/70 mt-1 text-sm md:text-base w-full line-clamp-3 sm:line-clamp-none">{spotlight.description}</p>
                   )}
-                  <div className="mt-4 flex flex-col sm:flex-row flex-wrap justify-center sm:justify-start gap-3 w-full">
+                  <div className="mt-4 flex flex-col sm:flex-row flex-wrap justify-center sm:justify-start items-center gap-4 w-full">
                     <Link to={createPageUrl(`Reading?deckId=${spotlight.id}`)} className="w-full sm:w-auto">
-                      <Button className="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white font-semibold">
+                      <Button className="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white font-semibold h-12 px-6">
                         Read with this deck
                       </Button>
                     </Link>
-                    <Link to={createPageUrl('SpiritWheelDesigner')} className="w-full sm:w-auto">
-                      <Button variant="outline" className="w-full sm:w-auto border-purple-500/50 hover:bg-purple-500/10 text-white font-semibold">
-                        <img src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/f1038adff_IMG_8673.png" alt="Spirit Wheel Studio" className="w-5 h-5 mr-2 rounded-full shadow-sm" />
-                        Spirit Wheel Studio
+                    <Link to={createPageUrl('SpiritWheelDesigner')} className="shrink-0">
+                      <Button variant="outline" className="w-24 h-24 flex flex-col items-center justify-center gap-2 border-purple-500/50 hover:bg-purple-500/10 text-white font-semibold p-2 transition-transform hover:scale-105">
+                        <img src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/f1038adff_IMG_8673.png" alt="Spirit Wheel Studio" className="w-8 h-8 rounded-full shadow-sm" />
+                        <span className="text-xs whitespace-normal leading-tight text-center">Spirit Wheel Studio</span>
                       </Button>
                     </Link>
                   </div>

@@ -48,14 +48,14 @@ export default function Account() {
             <>
               <div className="text-white/80">Signed in as</div>
               <div className="font-semibold">{me.full_name || me.email}</div>
-              <div className="mt-4 flex flex-wrap gap-3">
+              <div className="mt-4 flex flex-wrap items-center gap-4">
                 <Link to={createPageUrl('History')}>
-                  <Button variant="outline" className="border-white/20 text-white hover:bg-white/10">View Reading History</Button>
+                  <Button variant="outline" className="border-white/20 text-white hover:bg-white/10 h-12 px-6">View Reading History</Button>
                 </Link>
-                <Link to={createPageUrl('SpiritWheelDesigner')}>
-                  <Button variant="outline" className="border-white/20 text-white hover:bg-white/10">
-                    <img src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/3120782ec_IMG_8675.png" alt="Spirit Wheel Studio" className="w-5 h-5 mr-2 rounded-full" />
-                    Spirit Wheel Studio
+                <Link to={createPageUrl('SpiritWheelDesigner')} className="shrink-0">
+                  <Button variant="outline" className="w-24 h-24 flex flex-col items-center justify-center gap-2 border-white/20 text-white hover:bg-white/10 p-2 transition-transform hover:scale-105">
+                    <img src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/3120782ec_IMG_8675.png" alt="Spirit Wheel Studio" className="w-8 h-8 rounded-full" />
+                    <span className="text-xs whitespace-normal leading-tight text-center">Spirit Wheel Studio</span>
                   </Button>
                 </Link>
               </div>
