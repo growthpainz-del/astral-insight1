@@ -248,14 +248,8 @@ export default function SpiritWheel() {
       await base44.entities.Reading.create({
         title: `Spirit Wheel: ${category}`,
         spread_type: "custom",
-        deck_id: selectedDeckId !== "none" ? selectedDeckId : "spirit_wheel",
-        cards_drawn: drawnCard ? [{
-          card_id: drawnCard.id || "0",
-          position: "1",
-          is_reversed: false,
-          card_name: drawnCard.name,
-          image_url: drawnCard.image_url
-        }] : [],
+        deck_id: "spirit_wheel",
+        cards_drawn: [],
         interpretation: aiInterpretation,
         date: new Date().toISOString().split('T')[0],
         category: "Spirit Wheel"
@@ -353,10 +347,8 @@ export default function SpiritWheel() {
 
   const activeTheme = themeId === 'custom' ? customTheme : WHEEL_THEMES[themeId];
 
-  const [decks, setDecks] = useState([]);
-  const [selectedDeckId, setSelectedDeckId] = useState("none");
-  const [deckCards, setDeckCards] = useState([]);
-  const [drawnCard, setDrawnCard] = useState(null);
+
+
 
   const wheelData = React.useMemo(() => {
     if (selectedWheelId !== "default") {
@@ -376,20 +368,12 @@ export default function SpiritWheel() {
       general: `${c.name} (${c.symbol}): ${c.meaning}`
     }));
 
-    if (selectedDeckId !== "none" && deckCards.length > 0) {
-      outer = deckCards.map((c, i) => ({
-        id: c.spirit_wheel_icon_url || (c.number != null ? String(c.number) : String(i + 1)),
-        name: c.name,
-        general: `${c.name}: ${c.overall_meaning || c.upright_meaning || (c.keywords ? c.keywords.join(', ') : "Mystical energy")}`
-      }));
-    }
-
     return {
       outer,
       middle: WHEEL_MIDDLE,
-      inner: selectedWheelId === "default" && selectedDeckId !== "none" ? [...SEVEN_SISTERS_MODIFIERS, ...SPIRITUAL_EMOTICONS_MODIFIERS, ...MOON_EMBLEMS_MODIFIERS, ...ANIMAL_SPIRITS_MODIFIERS] : WHEEL_INNER
+      inner: WHEEL_INNER
     };
-  }, [deckCards, selectedDeckId, selectedWheelId, customWheels]);
+  }, [selectedWheelId, customWheels]);
 
   useEffect(() => {
     const fetchDecks = async () => {
@@ -405,16 +389,7 @@ export default function SpiritWheel() {
         const publicWheels = Array.isArray(publicWheelsRes) ? publicWheelsRes : [];
         const myWheels = Array.isArray(myWheelsRes) ? myWheelsRes : [];
         
-        const publicDecks = await queueApiCall(() => base44.entities.Deck.filter({ is_public: true, publish_status: 'published' }, '-created_date', 100), 3, 1000, 10000).catch(() => []);
-        let myDecks = [];
-        if (user?.email) {
-          const mine = await queueApiCall(() => base44.entities.Deck.filter({ created_by: user.email }, '-updated_date', 100), 3, 1000, 10000).catch(() => []);
-          myDecks = Array.isArray(mine) ? mine.filter(d => d.publish_status !== 'draft' && d.publish_status !== 'pending_review') : [];
-        }
-        
-        const allDecksMap = new Map();
-        [...(publicDecks || []), ...myDecks].forEach(d => allDecksMap.set(d.id, d));
-        setDecks(Array.from(allDecksMap.values()));
+
 
         const allWheelsMap = new Map();
         [...publicWheels, ...myWheels].forEach(w => allWheelsMap.set(w.id, w));
@@ -430,26 +405,9 @@ export default function SpiritWheel() {
     if (selectedWheelId !== "default") {
       const w = customWheels.find(cw => cw.id === selectedWheelId);
       if (w?.theme_id) setThemeId(w.theme_id);
-      if (w?.deck_id) setSelectedDeckId(w.deck_id);
       if (w?.custom_theme) setCustomTheme(w.custom_theme);
     }
   }, [selectedWheelId, customWheels]);
-
-  useEffect(() => {
-    if (!selectedDeckId || selectedDeckId === "none") {
-      setDeckCards([]);
-      return;
-    }
-    const fetchCards = async () => {
-      try {
-        const cards = await base44.entities.Card.filter({ deck_id: selectedDeckId });
-        setDeckCards(cards || []);
-      } catch (e) {
-        console.error("Failed to load cards", e);
-      }
-    };
-    fetchCards();
-  }, [selectedDeckId]);
 
   const spinWheel = () => {
     if (spinState !== "idle") return;
@@ -459,12 +417,7 @@ export default function SpiritWheel() {
     spinStartTime.current = Date.now();
     startRotations.current = rotations;
     
-    if (selectedDeckId !== "none" && deckCards.length > 0) {
-      const randomCard = deckCards[Math.floor(Math.random() * deckCards.length)];
-      setDrawnCard(randomCard);
-    } else {
-      setDrawnCard(null);
-    }
+
 
     const degreesPerSecondOuter = 270 * spinSpeed;
     const degreesPerSecondMiddle = -270 * spinSpeed;
@@ -552,11 +505,6 @@ export default function SpiritWheel() {
       const middleItem = wheelData.middle[selectedIndices.middle] || {};
       const innerItem = wheelData.inner[selectedIndices.inner] || {};
 
-      let cardName = "";
-      if (drawnCard) {
-        cardName = drawnCard.name;
-      }
-
       // Database-driven reading based on combinations (Bypasses AI)
       const coreTheme = outerItem.general ? outerItem.general.split(":")[0] : (outerItem.name || "Unknown theme");
       const timingModifier = middleItem.meaning || middleItem.general || "Unknown modifier";
@@ -572,10 +520,6 @@ export default function SpiritWheel() {
       
       staticReading += `Your modifier indicates "${timingModifier}", suggesting the context of your situation. `;
       staticReading += `Your action guidance is "${actionGuidance}". `;
-      
-      if (drawnCard && selectedWheelId === "default") {
-        staticReading += `\nThe ${cardName} card has revealed itself: ${drawnCard.overall_meaning || drawnCard.upright_meaning || "Embrace its mystical energy."} `;
-      }
       
       staticReading += `\n\nReflect on how ${actionGuidance.toLowerCase()} can be integrated with ${coreTheme}.`;
       
@@ -717,25 +661,6 @@ export default function SpiritWheel() {
                       )}
                     </div>
                     <div className="text-xl text-amber-50">{getSegmentText('inner', selectedIndices.inner)}</div>
-                  </div>
-                )}
-                
-                {drawnCard && (
-                  <div className="p-4 bg-[#1c0f05] rounded-lg border border-[#5c3a21] flex flex-col md:flex-row gap-4 items-center md:items-start animate-in fade-in slide-in-from-bottom-4 duration-700">
-                    <div className="w-24 h-36 flex-shrink-0 rounded-md overflow-hidden border border-[#8b5a2b] bg-black shadow-[0_0_15px_rgba(245,158,11,0.2)]">
-                      {drawnCard.image_url ? (
-                        <img src={getThumbnailUrl(drawnCard.image_url, 400)} loading="lazy" alt={drawnCard.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-amber-500/30 text-xs text-center p-2">No Image</div>
-                      )}
-                    </div>
-                    <div className="flex-1 text-center md:text-left">
-                      <div className="text-sm text-amber-500/70 uppercase font-semibold mb-1 flex justify-center md:justify-start">
-                        <span>Accompanying Card</span>
-                      </div>
-                      <div className="text-xl font-bold text-amber-400 mb-1">{drawnCard.name}</div>
-                      <div className="text-sm text-amber-100/80">{drawnCard.subtitle || drawnCard.overall_meaning || drawnCard.upright_meaning}</div>
-                    </div>
                   </div>
                 )}
                 
@@ -1252,13 +1177,13 @@ export default function SpiritWheel() {
             </div>
 
             <div>
-              <Label className="text-amber-200 mb-2 block font-semibold text-lg">Custom Wheel Configuration</Label>
+              <Label className="text-amber-200 mb-2 block font-semibold text-lg">Choose Wheel</Label>
               <Select value={selectedWheelId} onValueChange={setSelectedWheelId}>
                 <SelectTrigger className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 h-12 text-lg mb-4">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 max-h-64 overflow-y-auto">
-                  <SelectItem value="default">Default Spirit Wheel</SelectItem>
+                  <SelectItem value="default">Rooted Crescent Wheel</SelectItem>
                   {customWheels.map(w => (
                     <SelectItem key={w.id} value={w.id}>{w.name} {w.publish_status === 'draft' ? '(Draft)' : ''}</SelectItem>
                   ))}
@@ -1293,19 +1218,6 @@ export default function SpiritWheel() {
                   </Select>
                 </>
               )}
-
-              <Label className="text-amber-200 mb-2 block font-semibold text-lg">Accompanying Deck (Optional)</Label>
-              <Select value={selectedDeckId} onValueChange={setSelectedDeckId}>
-                <SelectTrigger className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 h-12 text-lg mb-4">
-                  <SelectValue placeholder="None" />
-                </SelectTrigger>
-                <SelectContent className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 max-h-64 overflow-y-auto">
-                  <SelectItem value="none">None</SelectItem>
-                  {decks.map(d => (
-                    <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
 
             <div className="flex items-center justify-between p-4 bg-[#2d1b0d]/50 rounded-lg border border-[#5c3a21]">
@@ -1334,17 +1246,12 @@ export default function SpiritWheel() {
         onClose={() => setShowShareModal(false)}
         reading={{
           title: `Spirit Wheel: ${category}`,
-          deck_id: selectedDeckId !== "none" ? selectedDeckId : "spirit_wheel",
+          deck_id: "spirit_wheel",
           interpretation: aiInterpretation
         }}
-        deckName={selectedDeckId !== "none" && decks.find(d => d.id === selectedDeckId) ? decks.find(d => d.id === selectedDeckId).name : "Spirit Wheel"}
-        spreadName="Spirit Wheel Custom Reading"
-        drawnCards={drawnCard ? [{
-          id: drawnCard.id || "0",
-          position: "1",
-          name: drawnCard.name,
-          image_url: drawnCard.image_url
-        }] : []}
+        deckName="Rooted Crescent Wheel"
+        spreadName="Spirit Wheel Reading"
+        drawnCards={[]}
       />
     </div>
   );
