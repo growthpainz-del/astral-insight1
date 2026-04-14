@@ -78,10 +78,16 @@ export default function HomePage() {
                   {spotlight.description && (
                     <p className="text-white/70 mt-1 text-sm md:text-base">{spotlight.description}</p>
                   )}
-                  <div className="mt-4">
+                  <div className="mt-4 flex flex-wrap gap-3">
                     <Link to={createPageUrl(`Reading?deckId=${spotlight.id}`)}>
                       <Button className="bg-purple-600 hover:bg-purple-700 text-white font-semibold">
                         Read with this deck
+                      </Button>
+                    </Link>
+                    <Link to={createPageUrl('SpiritWheelDesigner')}>
+                      <Button variant="outline" className="border-purple-500/50 hover:bg-purple-500/10 text-white font-semibold">
+                        <img src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/f1038adff_IMG_8673.png" alt="Spirit Wheel Studio" className="w-5 h-5 mr-2 rounded-full" />
+                        Spirit Wheel Studio
                       </Button>
                     </Link>
                   </div>
