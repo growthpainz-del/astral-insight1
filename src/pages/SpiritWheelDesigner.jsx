@@ -960,8 +960,11 @@ export default function SpiritWheelDesigner() {
                 </SelectContent>
               </Select>
             </div>
-            {themeId === 'custom' && (
-              <div className="md:col-span-2 grid grid-cols-2 md:grid-cols-4 gap-4 mt-2 bg-black/30 p-4 rounded-lg border border-white/10">
+              <div className="md:col-span-2 grid grid-cols-2 md:grid-cols-4 gap-4 mt-2 bg-black/30 p-4 rounded-lg border border-[#5c3a21]">
+                <div className="col-span-2 md:col-span-4 flex justify-between items-center mb-2 pb-2 border-b border-[#5c3a21]/50">
+                  <span className="text-amber-300 font-semibold text-sm">Theme Colors & Textures</span>
+                  <span className="text-xs text-amber-200/50 italic">Editing these will switch to Custom theme</span>
+                </div>
                 <div>
                   <Label className="text-amber-200/80 text-xs">Outer Ring</Label>
                   <div className="flex gap-2 mt-1 mb-1">
@@ -1091,7 +1094,6 @@ export default function SpiritWheelDesigner() {
                   </div>
                 </div>
               </div>
-            )}
             <div className="flex flex-col gap-3 mt-6">
               <div className="flex items-center gap-3">
                 <input type="checkbox" id="public-check" checked={isPublic} onChange={e => setIsPublic(e.target.checked)} className="accent-amber-500 w-4 h-4" />
