@@ -393,11 +393,13 @@ export default function SpiritWheel() {
         const user = await queueApiCall(() => base44.auth.me(), 3, 1000, 10000).catch(() => null);
         setCurrentUser(user);
         
-        let allWheels = await queueApiCall(() => base44.entities.SpiritWheelConfiguration.list('-updated_date', 200), 3, 1000, 10000).catch(() => []);
-        allWheels = Array.isArray(allWheels) ? allWheels : [];
+        const [publicWheelsRes, myWheelsRes] = await Promise.all([
+          queueApiCall(() => base44.entities.SpiritWheelConfiguration.filter({ is_public: true, publish_status: 'published' }, '-updated_date', 200), 3, 1000, 10000).catch(() => []),
+          user?.email ? queueApiCall(() => base44.entities.SpiritWheelConfiguration.filter({ created_by: user.email }, '-updated_date', 200), 3, 1000, 10000).catch(() => []) : Promise.resolve([])
+        ]);
         
-        let publicWheels = allWheels.filter(w => w.is_public && w.publish_status !== 'draft');
-        let myWheels = user?.email ? allWheels.filter(w => w.created_by?.toLowerCase() === user.email.toLowerCase()) : [];
+        const publicWheels = Array.isArray(publicWheelsRes) ? publicWheelsRes : [];
+        const myWheels = Array.isArray(myWheelsRes) ? myWheelsRes : [];
         
         const publicDecks = await queueApiCall(() => base44.entities.Deck.filter({ is_public: true, publish_status: 'published' }, '-created_date', 100), 3, 1000, 10000).catch(() => []);
         let myDecks = [];
