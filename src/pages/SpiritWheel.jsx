@@ -666,24 +666,27 @@ export default function SpiritWheel() {
                 <div className="grid grid-cols-2 gap-4 mb-4 bg-black/30 p-3 rounded-lg border border-[#5c3a21]">
                   <div>
                     <Label className="text-amber-200/80 text-xs">Outer Ring</Label>
-                    <div className="flex gap-2 mt-1">
+                    <div className="flex gap-2 mt-1 mb-1">
                       <input type="color" value={customTheme.outerBg} onChange={e => setCustomTheme({...customTheme, outerBg: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
                       <input type="color" value={customTheme.outerGrad} onChange={e => setCustomTheme({...customTheme, outerGrad: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
                     </div>
+                    <Input value={customTheme.outerTextureUrl ?? customTheme.textureUrl ?? ''} onChange={e => setCustomTheme({...customTheme, outerTextureUrl: e.target.value})} placeholder="Texture URL" className="bg-black/40 border-white/10 text-[10px] h-6 px-1" />
                   </div>
                   <div>
                     <Label className="text-amber-200/80 text-xs">Middle Ring</Label>
-                    <div className="flex gap-2 mt-1">
+                    <div className="flex gap-2 mt-1 mb-1">
                       <input type="color" value={customTheme.middleBg} onChange={e => setCustomTheme({...customTheme, middleBg: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
                       <input type="color" value={customTheme.middleGrad} onChange={e => setCustomTheme({...customTheme, middleGrad: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
                     </div>
+                    <Input value={customTheme.middleTextureUrl ?? customTheme.textureUrl ?? ''} onChange={e => setCustomTheme({...customTheme, middleTextureUrl: e.target.value})} placeholder="Texture URL" className="bg-black/40 border-white/10 text-[10px] h-6 px-1" />
                   </div>
                   <div>
                     <Label className="text-amber-200/80 text-xs">Inner Ring</Label>
-                    <div className="flex gap-2 mt-1">
+                    <div className="flex gap-2 mt-1 mb-1">
                       <input type="color" value={customTheme.innerBg} onChange={e => setCustomTheme({...customTheme, innerBg: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
                       <input type="color" value={customTheme.innerGrad} onChange={e => setCustomTheme({...customTheme, innerGrad: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
                     </div>
+                    <Input value={customTheme.innerTextureUrl ?? customTheme.textureUrl ?? ''} onChange={e => setCustomTheme({...customTheme, innerTextureUrl: e.target.value})} placeholder="Texture URL" className="bg-black/40 border-white/10 text-[10px] h-6 px-1" />
                   </div>
                   <div>
                     <Label className="text-amber-200/80 text-xs">Text & Dots</Label>
@@ -704,9 +707,42 @@ export default function SpiritWheel() {
                       <input type="color" value={customTheme.pageBg || "#0f172a"} onChange={e => setCustomTheme({...customTheme, pageBg: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
                     </div>
                   </div>
-                  <div className="col-span-2">
-                    <Label className="text-amber-200/80 text-xs">Wheel Texture URL</Label>
+                  <div className="col-span-2 hidden">
+                    <Label className="text-amber-200/80 text-xs">Global Texture URL</Label>
                     <Input value={customTheme.textureUrl} onChange={e => setCustomTheme({...customTheme, textureUrl: e.target.value})} className="bg-black/40 border-white/10 mt-1 text-xs h-8" />
+                  </div>
+                  <div className="col-span-2">
+                    <Label className="text-amber-200/80 text-xs block mb-1">Layer & Blending Options</Label>
+                    <div className="flex gap-2">
+                      <Select value={customTheme.layerOrder || 'texture_top'} onValueChange={v => setCustomTheme({...customTheme, layerOrder: v})}>
+                        <SelectTrigger className="bg-black/40 border-white/10 text-[10px] h-7 flex-1" title="Layer Order">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="bg-slate-900 border-slate-700 text-white">
+                          <SelectItem value="texture_top">Texture on Top</SelectItem>
+                          <SelectItem value="color_top">Color on Top</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <div className="flex items-center gap-1 bg-black/40 border border-white/10 rounded-md px-1 h-7">
+                        <span className="text-[10px] text-amber-200/60 whitespace-nowrap">Opacity:</span>
+                        <Input type="number" min="0" max="100" value={customTheme.topLayerOpacity !== undefined ? Math.round(customTheme.topLayerOpacity * 100) : 100} onChange={e => setCustomTheme({...customTheme, topLayerOpacity: Number(e.target.value)/100})} className="w-10 bg-transparent border-none text-[10px] h-5 p-0 text-center focus-visible:ring-0 outline-none" />
+                        <span className="text-[10px] text-amber-200/60">%</span>
+                      </div>
+                      <Select value={customTheme.blendMode || 'multiply'} onValueChange={v => setCustomTheme({...customTheme, blendMode: v})}>
+                        <SelectTrigger className="bg-black/40 border-white/10 text-[10px] h-7 flex-1" title="Blend Mode">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="bg-slate-900 border-slate-700 text-white">
+                          <SelectItem value="normal">Normal</SelectItem>
+                          <SelectItem value="multiply">Multiply</SelectItem>
+                          <SelectItem value="overlay">Overlay</SelectItem>
+                          <SelectItem value="screen">Screen</SelectItem>
+                          <SelectItem value="soft-light">Soft Light</SelectItem>
+                          <SelectItem value="hard-light">Hard Light</SelectItem>
+                          <SelectItem value="color-burn">Color Burn</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                   <div className="col-span-2">
                     <Label className="text-amber-200/80 text-xs">Page Background Image URL</Label>
@@ -989,13 +1025,13 @@ export default function SpiritWheel() {
                 <div className="absolute inset-0 w-full h-full pointer-events-none rounded-full overflow-hidden" style={{ zIndex: 0 }}>
                   {activeTheme.layerOrder === 'color_top' ? (
                     <>
-                      <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.textureUrl}")` }} />
+                      <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.outerTextureUrl ?? activeTheme.textureUrl}")` }} />
                       <div className="absolute inset-0 w-full h-full" style={{ background: `radial-gradient(circle, ${activeTheme.outerBg} 0%, ${activeTheme.outerGrad} 100%)`, opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
                     </>
                   ) : (
                     <>
                       <div className="absolute inset-0 w-full h-full" style={{ background: `radial-gradient(circle, ${activeTheme.outerBg} 0%, ${activeTheme.outerGrad} 100%)` }} />
-                      <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.textureUrl}")`, opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
+                      <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.outerTextureUrl ?? activeTheme.textureUrl}")`, opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
                     </>
                   )}
                 </div>
@@ -1062,13 +1098,13 @@ export default function SpiritWheel() {
                 <div className="absolute inset-0 w-full h-full pointer-events-none rounded-full overflow-hidden" style={{ zIndex: 0 }}>
                   {activeTheme.layerOrder === 'color_top' ? (
                     <>
-                      <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.textureUrl}")` }} />
+                      <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.middleTextureUrl ?? activeTheme.textureUrl}")` }} />
                       <div className="absolute inset-0 w-full h-full" style={{ background: `radial-gradient(circle, ${activeTheme.middleBg} 0%, ${activeTheme.middleGrad} 100%)`, opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
                     </>
                   ) : (
                     <>
                       <div className="absolute inset-0 w-full h-full" style={{ background: `radial-gradient(circle, ${activeTheme.middleBg} 0%, ${activeTheme.middleGrad} 100%)` }} />
-                      <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.textureUrl}")`, opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
+                      <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.middleTextureUrl ?? activeTheme.textureUrl}")`, opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
                     </>
                   )}
                 </div>
@@ -1137,13 +1173,13 @@ export default function SpiritWheel() {
                 <div className="absolute inset-0 w-full h-full pointer-events-none rounded-full overflow-hidden" style={{ zIndex: 0 }}>
                   {activeTheme.layerOrder === 'color_top' ? (
                     <>
-                      <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.textureUrl}")` }} />
+                      <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.innerTextureUrl ?? activeTheme.textureUrl}")` }} />
                       <div className="absolute inset-0 w-full h-full" style={{ background: `radial-gradient(circle, ${activeTheme.innerBg} 0%, ${activeTheme.innerGrad} 100%)`, opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
                     </>
                   ) : (
                     <>
                       <div className="absolute inset-0 w-full h-full" style={{ background: `radial-gradient(circle, ${activeTheme.innerBg} 0%, ${activeTheme.innerGrad} 100%)` }} />
-                      <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.textureUrl}")`, opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
+                      <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.innerTextureUrl ?? activeTheme.textureUrl}")`, opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
                     </>
                   )}
                 </div>

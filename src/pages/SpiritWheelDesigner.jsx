@@ -852,13 +852,10 @@ export default function SpiritWheelDesigner() {
                     <input type="color" value={customTheme.pageBg || "#0f172a"} onChange={e => setCustomTheme({...customTheme, pageBg: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" title="Page Background Color" />
                   </div>
                 </div>
-                <div className="col-span-2">
-                  <Label className="text-amber-200/80 text-xs">Wheel Texture URL</Label>
+                <div className="col-span-2 hidden">
+                  <Label className="text-amber-200/80 text-xs">Global Texture URL</Label>
                   <div className="flex gap-2 mt-1">
                     <Input value={customTheme.textureUrl} onChange={e => setCustomTheme({...customTheme, textureUrl: e.target.value})} placeholder="https://..." className="bg-black/40 border-white/10 text-xs h-8 flex-1" />
-                    <Button type="button" variant="outline" className="border-amber-500/60 text-amber-300 hover:bg-amber-500/20 shrink-0 h-8 text-xs" onClick={() => setLibraryTargetField('textureUrl')}>
-                      <ImageIcon className="w-3 h-3 mr-1" /> Gallery
-                    </Button>
                   </div>
                 </div>
                 <div className="col-span-2">
@@ -946,6 +943,12 @@ export default function SpiritWheelDesigner() {
           if (!libraryTargetField) return;
           if (libraryTargetField === 'textureUrl') {
             setCustomTheme(prev => ({...prev, textureUrl: url}));
+          } else if (libraryTargetField === 'outerTextureUrl') {
+            setCustomTheme(prev => ({...prev, outerTextureUrl: url}));
+          } else if (libraryTargetField === 'middleTextureUrl') {
+            setCustomTheme(prev => ({...prev, middleTextureUrl: url}));
+          } else if (libraryTargetField === 'innerTextureUrl') {
+            setCustomTheme(prev => ({...prev, innerTextureUrl: url}));
           } else if (libraryTargetField === 'pageBgImage') {
             setCustomTheme(prev => ({...prev, pageBgImage: url}));
           } else if (libraryTargetField.ring) {
