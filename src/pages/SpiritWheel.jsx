@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Sparkles, RefreshCw, Eye, ChevronLeft, Save, Plus, ZoomIn, ZoomOut, Download, Octagon, StopCircle, Share2 } from 'lucide-react';
+import { Sparkles, RefreshCw, Eye, ChevronLeft, Save, Plus, ZoomIn, ZoomOut, Download, Octagon, StopCircle, Share2, Copy } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -16,7 +16,7 @@ import { queueApiCall } from "@/components/utils/apiQueue";
 import { getThumbnailUrl } from "@/lib/utils";
 
 // 50 Cards of the Rooted Crescent Oracle Deck
-const ROOTED_CARDS_DATA = [
+export const ROOTED_CARDS_DATA = [
   { id: "1", name: "The Rooted Journey", symbol: "Minimalist tree root curling into a tight spiral circle.", meaning: "Grounded wisdom balances intuition and strength for growth." },
   { id: "2", name: "The Endless Storm", symbol: "Stylized swirling storm lines inside a sturdy circle.", meaning: "Resilience shines through challenges, finding wisdom in scars." },
   { id: "3", name: "Guardian of the Desert", symbol: "Simple saguaro cactus with three balanced arms.", meaning: "Thrive in adversity, balancing protection and nurturing." },
@@ -73,7 +73,7 @@ const ROOTED_CARDS_DATA = [
   { id: "54", name: "The Final Knot", symbol: "Celtic knot.", meaning: "Endings bring closure and tie loose threads." }
 ];
 
-const WHEEL_MIDDLE = [
+export const WHEEL_MIDDLE = [
     { id: "🍷", meaning: "Drink" },
     { id: "✈️", meaning: "Travel" },
     { id: "♂️", meaning: "Male" },
@@ -102,7 +102,7 @@ const WHEEL_MIDDLE = [
     { id: "Purple", meaning: "Intuition / psychic / spirit contact" }
 ];
 
-const WHEEL_INNER = [
+export const WHEEL_INNER = [
     { id: "🚪", meaning: "Option closed / path shut for now" },
     { id: "🔓", meaning: "Option open / path is clear" },
     { id: "❤️", meaning: "Love / heart connection" },
@@ -1213,10 +1213,16 @@ export default function SpiritWheel() {
                     <Plus className="w-4 h-4 mr-2" /> New Wheel
                   </Button>
                 </Link>
-                {selectedWheelId !== "default" && customWheels.find(w => w.id === selectedWheelId)?.created_by === currentUser?.email && (
+                {selectedWheelId !== "default" && customWheels.find(w => w.id === selectedWheelId)?.created_by === currentUser?.email ? (
                   <Link to={`${createPageUrl("SpiritWheelDesigner")}?id=${selectedWheelId}`} className="flex-1">
                     <Button variant="outline" className="w-full bg-[#1c0f05] hover:bg-[#2d1b0d] border-[#5c3a21] text-amber-300">
                       <Sparkles className="w-4 h-4 mr-2" /> Edit Wheel
+                    </Button>
+                  </Link>
+                ) : selectedWheelId === "default" && (
+                  <Link to={`${createPageUrl("SpiritWheelDesigner")}?clone=default`} className="flex-1">
+                    <Button variant="outline" className="w-full bg-[#1c0f05] hover:bg-[#2d1b0d] border-[#5c3a21] text-amber-300">
+                      <Copy className="w-4 h-4 mr-2" /> Clone to Edit
                     </Button>
                   </Link>
                 )}

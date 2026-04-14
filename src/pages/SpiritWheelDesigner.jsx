@@ -511,11 +511,14 @@ function RingEditor({ ringKey, segments, setSegments, deckCards, onOpenGallery }
   );
 }
 
+import { ROOTED_CARDS_DATA, WHEEL_MIDDLE, WHEEL_INNER } from "./SpiritWheel";
+
 export default function SpiritWheelDesigner() {
   const navigate = useNavigate();
   const location = useLocation();
   const urlParams = new URLSearchParams(location.search);
   const editId = urlParams.get("id");
+  const cloneId = urlParams.get("clone");
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -577,6 +580,28 @@ export default function SpiritWheelDesigner() {
               setDeckCards(cards || []);
             }
           }
+        } else if (cloneId === "default") {
+          setName("Custom Rooted Crescent Wheel");
+          setDescription("A personalized version of the Rooted Crescent Oracle Deck");
+          setThemeId("wood");
+          setOuterRing(ROOTED_CARDS_DATA.map(c => ({
+            label: c.name,
+            meaning: c.meaning,
+            icon: c.id,
+            type: "symbol"
+          })));
+          setMiddleRing(WHEEL_MIDDLE.map(c => ({
+            label: c.id,
+            meaning: c.meaning,
+            icon: c.id,
+            type: "symbol"
+          })));
+          setInnerRing(WHEEL_INNER.map(c => ({
+            label: c.id,
+            meaning: c.meaning,
+            icon: c.id,
+            type: "symbol"
+          })));
         }
       } catch (e) {
         console.error(e);
