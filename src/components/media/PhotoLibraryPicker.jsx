@@ -261,16 +261,25 @@ export default function PhotoLibraryPicker({ isOpen, onClose, onSelect, deckId }
               <input type="file" id="quick-upload-input" accept="image/*" multiple className="hidden" disabled={adding} onChange={(e) => handleQuickUpload(e.target.files)} />
             </label>
           </div>
-          <div className="flex flex-wrap items-center gap-4 text-xs text-white/80">
-            <label className="inline-flex items-center gap-2">
-              <input type="checkbox" className="accent-purple-500" checked={compress} onChange={(e) => setCompress(e.target.checked)} />
-              Upload smaller thumbnails (max 1024px)
-            </label>
-            <label className="inline-flex items-center gap-2">
-              <input type="checkbox" className="accent-purple-500" checked={alsoUploadOriginal} onChange={(e) => setAlsoUploadOriginal(e.target.checked)} />
-              Also upload original
-            </label>
-            {uploadError && <span className="text-red-300">{uploadError}</span>}
+          <div className="flex flex-wrap items-center justify-between gap-4 text-xs text-white/80">
+            <div className="flex flex-wrap items-center gap-4">
+              <label className="inline-flex items-center gap-2">
+                <input type="checkbox" className="accent-purple-500" checked={compress} onChange={(e) => setCompress(e.target.checked)} />
+                Smaller thumbnails
+              </label>
+              <label className="inline-flex items-center gap-2">
+                <input type="checkbox" className="accent-purple-500" checked={alsoUploadOriginal} onChange={(e) => setAlsoUploadOriginal(e.target.checked)} />
+                Also original
+              </label>
+              {uploadError && <span className="text-red-300">{uploadError}</span>}
+            </div>
+            
+            {/* Moved Load More button to the free space on the right of the checkboxes */}
+            {!loading && filtered.length > 0 && visibleCount < filtered.length && (
+               <Button size="sm" variant="outline" className="border-white/20 text-white hover:bg-white/10" onClick={() => setVisibleCount((c) => c + 24)}>
+                 Load More (Next Page)
+               </Button>
+            )}
           </div>
 
           {loading ? (
@@ -282,6 +291,11 @@ export default function PhotoLibraryPicker({ isOpen, onClose, onSelect, deckId }
             <div className="text-white/60 text-sm">No images found. Try uploading some first.</div>
           ) : (
             <>
+              <div className="flex justify-between items-center mb-2">
+                <div className="text-sm text-white/60">
+                  Showing {visibleItems.length} of {filtered.length} images
+                </div>
+              </div>
               <div className="max-h-[60vh] overflow-y-auto rounded border border-white/10">
                 <div className="grid gap-3 p-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
                   {visibleItems.map((it, idx) => {
