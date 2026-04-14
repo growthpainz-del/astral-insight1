@@ -901,8 +901,8 @@ export default function SpiritWheel() {
                   <div 
                     className={`absolute -translate-x-1/2 flex items-center justify-center font-bold whitespace-nowrap transition-all duration-300 ${
                       activeTheme.isTiles || item.bgImage
-                        ? 'w-[28px] h-[28px] sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full border-2 top-[-14px] sm:top-[-20px] md:top-[-24px] shadow-lg' 
-                        : (isCrowded && i % 2 === 1 ? 'top-6 sm:top-8 md:top-10 lg:top-12' : 'top-1 sm:top-2 md:top-3 lg:top-4') + ' text-sm md:text-xl lg:text-2xl xl:text-3xl'
+                        ? 'w-[36px] h-[36px] sm:w-12 sm:h-12 md:w-16 md:h-16 rounded-full border-2 top-[-18px] sm:top-[-24px] md:top-[-32px] shadow-lg' 
+                        : (isCrowded && i % 2 === 1 ? 'top-6 sm:top-8 md:top-10 lg:top-12' : 'top-1 sm:top-2 md:top-3 lg:top-4') + ' text-base md:text-2xl lg:text-3xl xl:text-4xl'
                     }`} 
                     style={{ 
                       color: activeTheme.textOuter,
@@ -921,7 +921,7 @@ export default function SpiritWheel() {
                     }}
                   >
                     {isImageSymbol(item.id) ? (
-                      <div className={`shrink-0 flex items-center justify-center overflow-hidden ${isCrowded ? 'w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12' : 'w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-16 lg:h-16'}`}>
+                      <div className={`shrink-0 flex items-center justify-center overflow-hidden ${isCrowded ? 'w-8 h-8 sm:w-10 sm:h-10 md:w-14 md:h-14 lg:w-16 lg:h-16' : 'w-10 h-10 sm:w-14 sm:h-14 md:w-20 md:h-20 lg:w-24 lg:h-24'}`}>
                         <img src={getThumbnailUrl(getImageUrl(item.id), 400)} loading="lazy" alt="" className="w-full h-full object-contain mix-blend-screen filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)]" />
                       </div>
                     ) : (/^\d+$/.test(String(item.id)) ? null : item.id)}
@@ -936,7 +936,7 @@ export default function SpiritWheel() {
 
             {/* Middle Ring */}
             <motion.div 
-              className={`absolute inset-[14%] rounded-full ${activeTheme.isTiles ? '' : 'overflow-hidden shadow-[inset_0_0_20px_rgba(0,0,0,0.4)]'}`}
+              className={`absolute inset-[18%] rounded-full ${activeTheme.isTiles ? '' : 'overflow-hidden shadow-[inset_0_0_20px_rgba(0,0,0,0.4)]'}`}
               style={activeTheme.isTiles ? {
                 backgroundColor: 'transparent'
               } : {
@@ -973,8 +973,8 @@ export default function SpiritWheel() {
                   <div 
                     className={`absolute -translate-x-1/2 flex items-center justify-center font-bold whitespace-nowrap transition-all duration-300 ${
                       activeTheme.isTiles || item.bgImage
-                        ? 'w-[24px] h-[24px] sm:w-9 sm:h-9 md:w-12 md:h-12 rounded-full border-2 top-[-12px] sm:top-[-18px] md:top-[-24px] shadow-lg' 
-                        : 'top-2 sm:top-3 md:top-4 lg:top-5 text-base md:text-2xl lg:text-3xl xl:text-4xl'
+                        ? 'w-[32px] h-[32px] sm:w-11 sm:h-11 md:w-14 md:h-14 rounded-full border-2 top-[-16px] sm:top-[-22px] md:top-[-28px] shadow-lg' 
+                        : 'top-2 sm:top-3 md:top-4 lg:top-5 text-lg md:text-3xl lg:text-4xl xl:text-5xl'
                     }`} 
                     style={{ 
                       color: activeTheme.textMiddle,
@@ -994,7 +994,7 @@ export default function SpiritWheel() {
                     {['Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Black', 'White', 'Brown', 'LightBlue', 'Grey', 'Orange'].includes(item.id) ? (
                       <div className="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 lg:w-8 lg:h-8 rounded-full shadow-inner border border-black/30" style={{ backgroundColor: item.id === 'LightBlue' ? '#add8e6' : item.id.toLowerCase() }}></div>
                     ) : isImageSymbol(item.id) ? (
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 shrink-0 flex items-center justify-center overflow-hidden">
+                      <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 shrink-0 flex items-center justify-center overflow-hidden">
                         <img src={getThumbnailUrl(getImageUrl(item.id), 400)} loading="lazy" alt="" className="w-full h-full object-contain mix-blend-screen filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)]" />
                       </div>
                     ) : (
@@ -1011,7 +1011,7 @@ export default function SpiritWheel() {
 
             {/* Inner Ring */}
             <motion.div 
-              className={`absolute inset-[30%] rounded-full ${activeTheme.isTiles ? '' : 'overflow-hidden shadow-[inset_0_0_15px_rgba(0,0,0,0.5)]'}`}
+              className={`absolute inset-[34%] rounded-full ${activeTheme.isTiles ? '' : 'overflow-hidden shadow-[inset_0_0_15px_rgba(0,0,0,0.5)]'}`}
               style={activeTheme.isTiles ? {
                 backgroundColor: 'transparent'
               } : {
@@ -1048,8 +1048,8 @@ export default function SpiritWheel() {
                   <div 
                     className={`absolute -translate-x-1/2 flex items-center justify-center font-bold whitespace-nowrap transition-all duration-300 ${
                       activeTheme.isTiles || item.bgImage
-                        ? 'w-[28px] h-[28px] sm:w-11 sm:h-11 md:w-[60px] md:h-[60px] rounded-full border-2 top-[-14px] sm:top-[-22px] md:top-[-30px] shadow-lg' 
-                        : 'top-2 sm:top-3 md:top-5 lg:top-8 text-lg md:text-3xl lg:text-4xl xl:text-5xl'
+                        ? 'w-[36px] h-[36px] sm:w-14 sm:h-14 md:w-[70px] md:h-[70px] rounded-full border-2 top-[-18px] sm:top-[-28px] md:top-[-35px] shadow-lg' 
+                        : 'top-2 sm:top-3 md:top-5 lg:top-8 text-xl md:text-4xl lg:text-5xl xl:text-6xl'
                     }`} 
                     style={{ 
                       color: activeTheme.textInner,
@@ -1068,7 +1068,7 @@ export default function SpiritWheel() {
                     }}
                   >
                     {isImageSymbol(item.id) ? (
-                      <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-28 lg:h-28 shrink-0 flex items-center justify-center overflow-hidden">
+                      <div className="w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-32 lg:h-32 shrink-0 flex items-center justify-center overflow-hidden">
                         <img src={getThumbnailUrl(getImageUrl(item.id), 400)} loading="lazy" alt="" className="w-full h-full object-contain mix-blend-screen filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)]" />
                       </div>
                     ) : item.id}
@@ -1083,7 +1083,7 @@ export default function SpiritWheel() {
             
             {/* Center Hub */}
             <div 
-              className={`absolute inset-[46%] sm:inset-[42%] md:inset-[43%] rounded-full ${activeTheme.isTiles ? 'border-[3px]' : 'border-[5px]'} shadow-[0_0_20px_rgba(0,0,0,0.8)] z-10 overflow-hidden flex items-center justify-center`}
+              className={`absolute inset-[48%] sm:inset-[46%] md:inset-[47%] rounded-full ${activeTheme.isTiles ? 'border-[3px]' : 'border-[5px]'} shadow-[0_0_20px_rgba(0,0,0,0.8)] z-10 overflow-hidden flex items-center justify-center`}
               style={{
                 borderColor: activeTheme.hubBorder,
                 backgroundColor: activeTheme.hubBg

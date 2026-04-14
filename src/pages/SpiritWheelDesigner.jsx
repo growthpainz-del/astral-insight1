@@ -73,7 +73,7 @@ function WheelThemePreview({ activeTheme }) {
 
       {/* Inner Ring */}
       <div 
-        className={`absolute inset-[36%] rounded-full ${activeTheme.isTiles ? '' : 'overflow-hidden shadow-[inset_0_0_8px_rgba(0,0,0,0.5)]'}`}
+        className={`absolute inset-[34%] rounded-full ${activeTheme.isTiles ? '' : 'overflow-hidden shadow-[inset_0_0_8px_rgba(0,0,0,0.5)]'}`}
         style={activeTheme.isTiles ? { backgroundColor: 'transparent' } : {
           borderWidth: `${Math.max(1, ((activeTheme.borderThickness ?? 6) / 2) - 1)}px`,
           borderStyle: activeTheme.borderStyle || 'solid',
@@ -99,7 +99,7 @@ function WheelThemePreview({ activeTheme }) {
 
       {/* Center Hub */}
       <div 
-        className={`absolute inset-[54%] rounded-full ${activeTheme.isTiles ? 'border-[2px]' : 'border-[3px]'} shadow-[0_0_10px_rgba(0,0,0,0.8)] z-10 overflow-hidden flex items-center justify-center`}
+        className={`absolute inset-[48%] rounded-full ${activeTheme.isTiles ? 'border-[2px]' : 'border-[3px]'} shadow-[0_0_10px_rgba(0,0,0,0.8)] z-10 overflow-hidden flex items-center justify-center`}
         style={{
           borderColor: activeTheme.hubBorder,
           backgroundColor: activeTheme.hubBg
