@@ -246,7 +246,7 @@ export default function PhotoLibraryPicker({ isOpen, onClose, onSelect, deckId }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl bg-slate-900 text-white border border-purple-500/30">
+      <DialogContent className="max-w-4xl bg-slate-900 text-white border border-purple-500/30 max-h-[90dvh] overflow-y-auto p-4 md:p-6">
         <DialogHeader className="relative pr-8">
           <div className="flex items-center justify-between">
             <DialogTitle className="flex items-center gap-2">

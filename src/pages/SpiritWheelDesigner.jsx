@@ -350,7 +350,7 @@ function RingEditor({ ringKey, segments, setSegments, deckCards, onOpenGallery }
           </Button>
 
           <Dialog open={showBulkModal} onOpenChange={setShowBulkModal}>
-            <DialogContent className="max-w-xl bg-slate-900 border-amber-600/30 text-amber-100">
+            <DialogContent className="max-w-xl bg-slate-900 border-amber-600/30 text-amber-100 max-h-[90dvh] overflow-y-auto p-4 md:p-6">
               <DialogHeader>
                 <DialogTitle>Bulk Add Segments</DialogTitle>
               </DialogHeader>
