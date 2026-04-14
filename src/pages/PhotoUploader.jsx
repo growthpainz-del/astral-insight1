@@ -12,6 +12,7 @@ import { Card as CardEntity } from "@/entities/Card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { CheckCircle2 } from "lucide-react";
+import { queueApiCall } from "@/components/utils/apiQueue";
 
 export default function PhotoUploader() {
   const [files, setFiles] = useState([]);
@@ -37,7 +38,7 @@ export default function PhotoUploader() {
     (async () => {
       try {
         setIsLoadingLibrary(true);
-        const assets = await UploadAsset.list("-created_date", 100);
+        const assets = await queueApiCall(() => UploadAsset.list("-created_date", 100), 3, 1000, 10000).catch(() => []);
         setLibrary(assets || []);
       } catch (err) {
         console.error(err);
@@ -90,11 +91,15 @@ export default function PhotoUploader() {
   // load decks once
   React.useEffect(() => {
     (async () => {
-      const all = await Deck.list("name", 200);
-      setDecks(all || []);
-      // If there's only one deck, pre-select it
-      if (all && all.length === 1) {
-        setSelectedDeckId(all[0].id);
+      try {
+        const all = await queueApiCall(() => Deck.list("name", 200), 3, 1000, 10000).catch(() => []);
+        setDecks(all || []);
+        // If there's only one deck, pre-select it
+        if (all && all.length === 1) {
+          setSelectedDeckId(all[0].id);
+        }
+      } catch (err) {
+        console.error(err);
       }
     })();
   }, []);

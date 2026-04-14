@@ -67,6 +67,11 @@ export const AuthProvider = ({ children }) => {
               message: appError.message
             });
           }
+        } else if (appError.status === 401 || appError.status === 403 || (appError.status === 422 && appError.message?.includes('Authentication required'))) {
+          setAuthError({
+            type: 'auth_required',
+            message: 'Authentication required'
+          });
         } else {
           setAuthError({
             type: 'unknown',
