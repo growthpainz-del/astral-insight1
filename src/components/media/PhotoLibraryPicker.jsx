@@ -56,10 +56,10 @@ export default function PhotoLibraryPicker({ isOpen, onClose, onSelect, deckId }
           canvas.height = h;
           const ctx = canvas.getContext("2d");
           ctx.drawImage(img, 0, 0, w, h);
+          const isPng = file.type === "image/png" || (file.name && file.name.toLowerCase().endsWith(".png"));
+          const mimeType = isPng ? "image/png" : "image/jpeg";
           canvas.toBlob((blob) => {
             if (!blob) return reject(new Error("Failed to compress image"));
-            const isPng = file.type === "image/png" || (file.name && file.name.toLowerCase().endsWith(".png"));
-            const mimeType = isPng ? "image/png" : "image/jpeg";
             const ext = isPng ? ".png" : ".jpg";
             const name = (file.name || "image").replace(/\.(png|jpg|jpeg|webp|gif)$/i, ext);
             const outFile = new File([blob], name, { type: mimeType });
