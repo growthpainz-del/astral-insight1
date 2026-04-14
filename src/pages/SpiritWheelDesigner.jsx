@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ChevronLeft, Plus, Trash2, Download, Upload, Save, Copy, Sparkles, Loader2, Search, Image as ImageIcon } from "lucide-react";
+import { ChevronLeft, Plus, Trash2, Download, Upload, Save, Copy, Sparkles, Loader2, Search, Image as ImageIcon, Eye } from "lucide-react";
 import PhotoLibraryPicker from "@/components/media/PhotoLibraryPicker";
 import { createPageUrl } from "@/utils";
 import { motion } from "framer-motion";
@@ -545,6 +545,7 @@ export default function SpiritWheelDesigner() {
   const [showJsonPanel, setShowJsonPanel] = useState(false);
   const [jsonError, setJsonError] = useState("");
   const [libraryTargetField, setLibraryTargetField] = useState(null);
+  const [autoSaveEnabled, setAutoSaveEnabled] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -605,9 +606,13 @@ export default function SpiritWheelDesigner() {
     }
   };
 
-  const handleSave = async (statusToSave = publishStatus) => {
-    if (!name.trim()) { alert("Please give this wheel a name."); return; }
-    setIsSaving(true);
+  const handleSave = async (statusToSave = publishStatus, silent = false) => {
+    if (!name.trim()) { 
+      if (!silent) alert("Please give this wheel a name."); 
+      return; 
+    }
+    
+    if (!silent) setIsSaving(true);
 
     const cleanSegments = (ring) => ring.map(s => ({
       ...s,
@@ -633,15 +638,36 @@ export default function SpiritWheelDesigner() {
         setPublishStatus(statusToSave);
       } else {
         const created = await base44.entities.SpiritWheelConfiguration.create(data);
-        navigate(`/SpiritWheelDesigner?id=${created.id}`);
+        if (!silent) {
+          navigate(`${createPageUrl("SpiritWheelDesigner")}?id=${created.id}`);
+        } else {
+          navigate(`${createPageUrl("SpiritWheelDesigner")}?id=${created.id}`, { replace: true });
+        }
       }
-      alert(`Saved successfully as ${statusToSave}!`);
+      if (!silent) alert(`Saved successfully as ${statusToSave}!`);
     } catch (e) {
       console.error(e);
-      alert(`Failed to save: ${e.message}`);
+      if (!silent) alert(`Failed to save: ${e.message}`);
     } finally {
-      setIsSaving(false);
+      if (!silent) setIsSaving(false);
     }
+  };
+
+  useEffect(() => {
+    if (!autoSaveEnabled || !editId || isLoading) return;
+    const timeoutId = setTimeout(() => {
+      handleSave("draft", true);
+    }, 2000);
+    return () => clearTimeout(timeoutId);
+  }, [name, description, deckId, themeId, customTheme, isPublic, outerRing, middleRing, innerRing, autoSaveEnabled]);
+
+  const handlePreview = async () => {
+    if (!editId) {
+      alert("Please save the wheel first to preview it.");
+      return;
+    }
+    await handleSave("draft", true);
+    window.open(`${createPageUrl("SpiritWheel")}?id=${editId}`, '_blank');
   };
 
   const handleExportJson = () => {
@@ -712,7 +738,10 @@ export default function SpiritWheelDesigner() {
             </div>
             <p className="text-sm text-amber-200/60">Build your custom oracle wheel — form-based with JSON import/export</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2 justify-end">
+            <Button variant="outline" onClick={handlePreview} className="bg-slate-900 border-indigo-600/40 text-indigo-300 hover:bg-indigo-900/40 hover:text-indigo-200">
+              <Eye className="w-4 h-4 mr-2" /> Preview Wheel
+            </Button>
             <Button variant="outline" onClick={() => setShowJsonPanel(!showJsonPanel)} className="bg-slate-900 border-amber-600/40 text-amber-300 hover:bg-amber-900/40 hover:text-amber-200">
               <Upload className="w-4 h-4 mr-2" /> Import JSON
             </Button>
@@ -912,9 +941,15 @@ export default function SpiritWheelDesigner() {
                 </div>
               </div>
             )}
-            <div className="flex items-center gap-3 mt-6">
-              <input type="checkbox" id="public-check" checked={isPublic} onChange={e => setIsPublic(e.target.checked)} className="accent-amber-500 w-4 h-4" />
-              <Label htmlFor="public-check" className="text-amber-200/80 cursor-pointer">Make this wheel publicly available</Label>
+            <div className="flex flex-col gap-3 mt-6">
+              <div className="flex items-center gap-3">
+                <input type="checkbox" id="public-check" checked={isPublic} onChange={e => setIsPublic(e.target.checked)} className="accent-amber-500 w-4 h-4" />
+                <Label htmlFor="public-check" className="text-amber-200/80 cursor-pointer">Make this wheel publicly available</Label>
+              </div>
+              <div className="flex items-center gap-3">
+                <input type="checkbox" id="autosave-check" checked={autoSaveEnabled} onChange={e => setAutoSaveEnabled(e.target.checked)} className="accent-amber-500 w-4 h-4" />
+                <Label htmlFor="autosave-check" className="text-amber-200/80 cursor-pointer">Enable Auto-save (saves changes automatically as Draft)</Label>
+              </div>
             </div>
           </div>
         </div>

@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Sparkles, RefreshCw, Eye, ChevronLeft, Save, Plus, ZoomIn, ZoomOut, Download, Octagon, StopCircle, Share2 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import AudioOrb from "@/components/reading/AudioOrb";
 import html2canvas from 'html2canvas';
@@ -191,6 +191,10 @@ const getImageUrl = (id) => {
 };
 
 export default function SpiritWheel() {
+  const location = useLocation();
+  const urlParams = new URLSearchParams(location.search);
+  const initialWheelId = urlParams.get("id");
+
   const [category, setCategory] = useState("General");
   const [blankMode, setBlankMode] = useState(false);
   const [isRevealed, setIsRevealed] = useState(false);
@@ -266,8 +270,7 @@ export default function SpiritWheel() {
   };
 
   const [customWheels, setCustomWheels] = useState([]);
-  console.log("customWheels state:", customWheels);
-  const [selectedWheelId, setSelectedWheelId] = useState("default");
+  const [selectedWheelId, setSelectedWheelId] = useState(initialWheelId || "default");
 
   const [themeId, setThemeId] = useState("wood");
   const [customTheme, setCustomTheme] = useState({
