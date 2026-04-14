@@ -96,7 +96,7 @@ export default function PhotoLibraryPicker({ isOpen, onClose, onSelect, deckId }
       } catch {
         allAssets = [];
       }
-      const assets = (mine && mine.length ? mine : allAssets) || [];
+      const assets = [...(mine || []), ...(allAssets || [])];
 
       let cards = [];
       if (deckId) {
@@ -107,6 +107,7 @@ export default function PhotoLibraryPicker({ isOpen, onClose, onSelect, deckId }
           cards = [];
         }
       }
+      
       const cardImageItems = (cards || [])
         .filter((c) => c.image_url)
         .map((c) => ({
@@ -119,8 +120,20 @@ export default function PhotoLibraryPicker({ isOpen, onClose, onSelect, deckId }
           _source: "card"
         }));
 
+      const cardIconItems = (cards || [])
+        .filter((c) => c.spirit_wheel_icon_url)
+        .map((c) => ({
+          id: `card-icon-${c.id}`,
+          file_url: c.spirit_wheel_icon_url,
+          thumbnail_url: c.spirit_wheel_icon_url,
+          file_name: c.name ? `${c.name} Icon.png` : "Card Icon",
+          mime_type: "image/png",
+          size: null,
+          _source: "card"
+        }));
+
       const byUrl = new Map();
-      [...assets, ...cardImageItems].forEach((it) => {
+      [...assets, ...cardImageItems, ...cardIconItems].forEach((it) => {
         const key = (it.file_url || "").trim();
         if (!key) return;
         if (!byUrl.has(key)) byUrl.set(key, it);
