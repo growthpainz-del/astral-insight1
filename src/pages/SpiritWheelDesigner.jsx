@@ -524,7 +524,7 @@ function RingEditor({ ringKey, segments, setSegments, deckCards, onOpenGallery }
                         loading="lazy"
                         onError={(e) => { e.target.style.opacity = '0'; }}
                         onLoad={(e) => { e.target.style.opacity = '1'; }}
-                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 object-contain pointer-events-none mix-blend-screen peer-focus:opacity-0 transition-opacity" 
+                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 object-contain pointer-events-none peer-focus:opacity-0 transition-opacity rounded-full" 
                       />
                     )}
                   </div>
@@ -583,7 +583,7 @@ function RingEditor({ ringKey, segments, setSegments, deckCards, onOpenGallery }
                     className="text-lg hover:scale-125 transition-transform"
                   >
                     {isImageSymbol(p.icon) ? (
-                      <img src={getImageUrl(p.icon)} className="w-8 h-8 object-contain mix-blend-screen filter drop-shadow-md bg-transparent" alt={p.label} />
+                      <img src={getImageUrl(p.icon)} className="w-8 h-8 object-contain filter drop-shadow-md bg-transparent rounded-full" alt={p.label} />
                     ) : (
                       p.icon
                     )}
