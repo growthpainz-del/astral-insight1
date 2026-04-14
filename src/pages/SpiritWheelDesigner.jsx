@@ -834,6 +834,7 @@ export default function SpiritWheelDesigner() {
                   <SelectItem value="neon">Cyber Neon</SelectItem>
                   <SelectItem value="parchment">Ancient Parchment</SelectItem>
                   <SelectItem value="stone_led">Stone + LED</SelectItem>
+                  <SelectItem value="metatron">Sacred Geometry</SelectItem>
                   <SelectItem value="custom">Custom Build...</SelectItem>
                 </SelectContent>
               </Select>

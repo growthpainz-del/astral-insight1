@@ -340,6 +340,22 @@ export default function SpiritWheel() {
       textureUrl: "https://www.transparenttextures.com/patterns/paper.png",
       fontFamily: 'serif'
     },
+    metatron: {
+      name: "Sacred Geometry",
+      outerBg: "#050505", outerGrad: "#1a1a1a", outerBorder: "#cba135",
+      middleBg: "#000000", middleGrad: "#0f0f0f", middleBorder: "#cba135",
+      innerBg: "#1a1a1a", innerGrad: "#050505", innerBorder: "#cba135",
+      hubBorder: "#cba135", hubBg: "#000000",
+      textOuter: "#cba135", textMiddle: "#cba135", textInner: "#cba135",
+      divider: "transparent", pin: "#cba135",
+      textureUrl: "https://www.transparenttextures.com/patterns/hexellence.png",
+      fontFamily: 'serif',
+      pageBg: "#000000",
+      pageBgImage: "https://www.transparenttextures.com/patterns/hexellence.png",
+      topLayerOpacity: 0.4,
+      blendMode: 'screen',
+      layerOrder: 'color_top'
+    },
     custom: {
       name: "Custom Build"
     }
@@ -1082,6 +1098,7 @@ export default function SpiritWheel() {
                   <SelectItem value="neon">Cyber Neon</SelectItem>
                   <SelectItem value="parchment">Ancient Parchment</SelectItem>
                   <SelectItem value="stone_led">Stone + LED</SelectItem>
+                  <SelectItem value="metatron">Sacred Geometry</SelectItem>
                   <SelectItem value="custom">Custom Build...</SelectItem>
                 </SelectContent>
               </Select>
