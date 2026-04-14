@@ -56,10 +56,10 @@ export default function PhotoLibraryPicker({ isOpen, onClose, onSelect, deckId }
           canvas.height = h;
           const ctx = canvas.getContext("2d");
           ctx.drawImage(img, 0, 0, w, h);
-          const isPng = file.type === "image/png" || (file.name && file.name.toLowerCase().endsWith(".png"));
-          const mimeType = isPng ? "image/png" : "image/jpeg";
           canvas.toBlob((blob) => {
             if (!blob) return reject(new Error("Failed to compress image"));
+            const isPng = file.type === "image/png" || (file.name && file.name.toLowerCase().endsWith(".png"));
+            const mimeType = isPng ? "image/png" : "image/jpeg";
             const ext = isPng ? ".png" : ".jpg";
             const name = (file.name || "image").replace(/\.(png|jpg|jpeg|webp|gif)$/i, ext);
             const outFile = new File([blob], name, { type: mimeType });
@@ -88,7 +88,7 @@ export default function PhotoLibraryPicker({ isOpen, onClose, onSelect, deckId }
       let mine = [];
       if (userEmail) {
         try {
-          mine = await UploadAsset.filter({ created_by: userEmail, ...(deckId ? { linked_deck_id: deckId } : {}) }, "-created_date", 200);
+          mine = await UploadAsset.filter({ created_by: userEmail }, "-created_date", 400);
         } catch {
           mine = [];
         }
@@ -268,7 +268,6 @@ export default function PhotoLibraryPicker({ isOpen, onClose, onSelect, deckId }
             <DialogTitle className="flex items-center gap-2">
               <ImageIcon className="w-5 h-5 text-purple-300" />
               Photo Library
-              {deckId ? <Badge className="ml-2 bg-white/10 text-white border-purple-500/30">Deck-scoped</Badge> : null}
             </DialogTitle>
           </div>
           <p className="text-sm text-purple-300 mt-2 flex items-center gap-2">
