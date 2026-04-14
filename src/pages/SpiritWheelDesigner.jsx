@@ -123,10 +123,10 @@ const THEME_PACKS = {
     { label: "Maybe", meaning: "Unclear, ask again later", type: "symbol", icon: "🤷", card_id: "" }
   ],
   elements: [
-    { label: "Fire", meaning: "Passion and transformation", type: "symbol", icon: "🔥", card_id: "" },
-    { label: "Air", meaning: "Thought, communication, movement", type: "symbol", icon: "💨", card_id: "" },
-    { label: "Water", meaning: "Emotion, intuition, flow", type: "symbol", icon: "🌊", card_id: "" },
-    { label: "Earth", meaning: "Stability, grounding, manifestation", type: "symbol", icon: "🌍", card_id: "" }
+    { label: "Fire", meaning: "Passion and transformation", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/387206563_7D2B93F5-A469-4B42-9102-60976B513E97.png", card_id: "" },
+    { label: "Air", meaning: "Thought, communication, movement", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/709d48740_2509E9F7-4BFD-4911-8542-6ADB93FCA886.png", card_id: "" },
+    { label: "Water", meaning: "Emotion, intuition, flow", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/350e3bb17_AFEA10A9-4EB5-45E5-AE7A-68C0740BADCD.png", card_id: "" },
+    { label: "Earth", meaning: "Stability, grounding, manifestation", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/edbc4dbc0_1E2F12D2-66A9-4F96-8F3E-B4A5FE85D7AF.png", card_id: "" }
   ],
   timing: [
     { label: "Soon", meaning: "It will happen soon", type: "symbol", icon: "⏳", card_id: "" },
