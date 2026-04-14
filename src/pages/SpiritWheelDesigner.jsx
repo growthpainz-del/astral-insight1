@@ -15,6 +15,101 @@ import { Switch } from "@/components/ui/switch";
 
 const DEFAULT_SEGMENT = { label: "", meaning: "", type: "custom", icon: "", card_id: "" };
 
+function WheelThemePreview({ activeTheme }) {
+  if (!activeTheme) return null;
+  return (
+    <div className="relative w-full aspect-square max-w-[200px] mx-auto my-4 pointer-events-none">
+      {/* Outer Ring */}
+      <div 
+        className={`absolute inset-0 rounded-full ${activeTheme.isTiles ? 'shadow-[0_0_20px_rgba(0,255,204,0.3)]' : 'overflow-hidden shadow-[inset_0_0_10px_rgba(0,0,0,0.4),0_5px_15px_rgba(0,0,0,0.6)]'}`}
+        style={activeTheme.isTiles ? { backgroundColor: 'transparent' } : {
+          borderWidth: `${(activeTheme.borderThickness ?? 6) / 2}px`,
+          borderStyle: activeTheme.borderStyle || 'solid',
+          borderColor: activeTheme.outerBorder,
+        }}
+      >
+        {!activeTheme.isTiles && (
+          <div className="absolute inset-0 w-full h-full pointer-events-none rounded-full overflow-hidden">
+            {activeTheme.layerOrder === 'color_top' ? (
+              <>
+                <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.outerTextureUrl ?? activeTheme.textureUrl}")`, backgroundSize: 'cover' }} />
+                <div className="absolute inset-0 w-full h-full" style={{ background: `radial-gradient(circle, ${activeTheme.outerBg} 0%, ${activeTheme.outerGrad} 100%)`, opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
+              </>
+            ) : (
+              <>
+                <div className="absolute inset-0 w-full h-full" style={{ background: `radial-gradient(circle, ${activeTheme.outerBg} 0%, ${activeTheme.outerGrad} 100%)` }} />
+                <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.outerTextureUrl ?? activeTheme.textureUrl}")`, backgroundSize: 'cover', opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
+              </>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Middle Ring */}
+      <div 
+        className={`absolute inset-[18%] rounded-full ${activeTheme.isTiles ? '' : 'overflow-hidden shadow-[inset_0_0_10px_rgba(0,0,0,0.4)]'}`}
+        style={activeTheme.isTiles ? { backgroundColor: 'transparent' } : {
+          borderWidth: `${Math.max(1, ((activeTheme.borderThickness ?? 6) / 2) - 0.5)}px`,
+          borderStyle: activeTheme.borderStyle || 'solid',
+          borderColor: activeTheme.middleBorder,
+        }}
+      >
+        {!activeTheme.isTiles && (
+          <div className="absolute inset-0 w-full h-full pointer-events-none rounded-full overflow-hidden">
+            {activeTheme.layerOrder === 'color_top' ? (
+              <>
+                <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.middleTextureUrl ?? activeTheme.textureUrl}")`, backgroundSize: 'cover' }} />
+                <div className="absolute inset-0 w-full h-full" style={{ background: `radial-gradient(circle, ${activeTheme.middleBg} 0%, ${activeTheme.middleGrad} 100%)`, opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
+              </>
+            ) : (
+              <>
+                <div className="absolute inset-0 w-full h-full" style={{ background: `radial-gradient(circle, ${activeTheme.middleBg} 0%, ${activeTheme.middleGrad} 100%)` }} />
+                <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.middleTextureUrl ?? activeTheme.textureUrl}")`, backgroundSize: 'cover', opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
+              </>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Inner Ring */}
+      <div 
+        className={`absolute inset-[36%] rounded-full ${activeTheme.isTiles ? '' : 'overflow-hidden shadow-[inset_0_0_8px_rgba(0,0,0,0.5)]'}`}
+        style={activeTheme.isTiles ? { backgroundColor: 'transparent' } : {
+          borderWidth: `${Math.max(1, ((activeTheme.borderThickness ?? 6) / 2) - 1)}px`,
+          borderStyle: activeTheme.borderStyle || 'solid',
+          borderColor: activeTheme.innerBorder,
+        }}
+      >
+        {!activeTheme.isTiles && (
+          <div className="absolute inset-0 w-full h-full pointer-events-none rounded-full overflow-hidden">
+            {activeTheme.layerOrder === 'color_top' ? (
+              <>
+                <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.innerTextureUrl ?? activeTheme.textureUrl}")`, backgroundSize: 'cover' }} />
+                <div className="absolute inset-0 w-full h-full" style={{ background: `radial-gradient(circle, ${activeTheme.innerBg} 0%, ${activeTheme.innerGrad} 100%)`, opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
+              </>
+            ) : (
+              <>
+                <div className="absolute inset-0 w-full h-full" style={{ background: `radial-gradient(circle, ${activeTheme.innerBg} 0%, ${activeTheme.innerGrad} 100%)` }} />
+                <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.innerTextureUrl ?? activeTheme.textureUrl}")`, backgroundSize: 'cover', opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
+              </>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Center Hub */}
+      <div 
+        className={`absolute inset-[54%] rounded-full ${activeTheme.isTiles ? 'border-[2px]' : 'border-[3px]'} shadow-[0_0_10px_rgba(0,0,0,0.8)] z-10 overflow-hidden flex items-center justify-center`}
+        style={{
+          borderColor: activeTheme.hubBorder,
+          backgroundColor: activeTheme.hubBg
+        }}
+      >
+      </div>
+    </div>
+  );
+}
+
 const RING_LABELS = {
   outer_ring: { label: "Outer Ring", color: "amber", hint: "Cards, archetypes, core energies — the largest ring" },
   middle_ring: { label: "Middle Ring", color: "orange", hint: "Modifiers, context, timing symbols" },
@@ -511,7 +606,7 @@ function RingEditor({ ringKey, segments, setSegments, deckCards, onOpenGallery }
   );
 }
 
-import { ROOTED_CARDS_DATA, WHEEL_MIDDLE, WHEEL_INNER } from "./SpiritWheel";
+import { ROOTED_CARDS_DATA, WHEEL_MIDDLE, WHEEL_INNER, WHEEL_THEMES } from "./SpiritWheel";
 
 export default function SpiritWheelDesigner() {
   const navigate = useNavigate();
@@ -823,8 +918,9 @@ export default function SpiritWheelDesigner() {
           </motion.div>
         )}
 
-        {/* Basic Info */}
-        <div className="bg-slate-900/70 border border-white/10 rounded-xl p-5 space-y-4">
+        {/* Basic Info & Theme Preview */}
+        <div className="grid lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 bg-slate-900/70 border border-white/10 rounded-xl p-5 space-y-4">
           <h2 className="font-semibold text-white text-lg">Wheel Info</h2>
           <div className="grid md:grid-cols-2 gap-4">
             <div>
@@ -1006,6 +1102,16 @@ export default function SpiritWheelDesigner() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Visual Preview */}
+        <div className="bg-slate-900/70 border border-white/10 rounded-xl p-5 flex flex-col items-center justify-center">
+          <h2 className="font-semibold text-white text-lg mb-4 self-start w-full">Visual Preview</h2>
+          <WheelThemePreview activeTheme={themeId === 'custom' ? customTheme : WHEEL_THEMES[themeId]} />
+          <p className="text-xs text-amber-200/50 text-center mt-4 max-w-[200px]">
+            Preview of colors, textures, and borders. Segments and icons are populated during the reading.
+          </p>
+        </div>
         </div>
 
         {/* Ring Editors */}

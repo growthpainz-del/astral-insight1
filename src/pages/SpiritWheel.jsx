@@ -280,7 +280,7 @@ export default function SpiritWheel() {
     fontFamily: '"Comic Sans MS", "Chalkboard SE", "Comic Neue", sans-serif'
   });
 
-  const WHEEL_THEMES = {
+  export const WHEEL_THEMES = {
     wood: {
       name: "Classic Wood",
       outerBg: "#e6b981", outerGrad: "#c48b53", outerBorder: "#2b1810",
