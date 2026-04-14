@@ -648,178 +648,6 @@ export default function SpiritWheel() {
         
         {/* Left Column: Controls & Display */}
         <div className="flex-1 w-full max-w-2xl mx-auto lg:mx-0 space-y-6 z-10 order-2 lg:order-1">
-          <div className="bg-slate-900/90 p-4 md:p-6 rounded-xl border border-[#8b5a2b] shadow-[0_4px_20px_rgba(0,0,0,0.5)] space-y-5">
-            <div>
-              <Label className="text-amber-200 mb-2 block font-semibold text-lg">Wheel Design Theme</Label>
-              <Select value={themeId} onValueChange={setThemeId}>
-                <SelectTrigger className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 h-12 text-lg mb-4">
-                  <SelectValue placeholder="Select a theme" />
-                </SelectTrigger>
-                <SelectContent className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100">
-                  <SelectItem value="wood">Classic Wood</SelectItem>
-                  <SelectItem value="galaxy">Cosmic Galaxy</SelectItem>
-                  <SelectItem value="neon">Cyber Neon</SelectItem>
-                  <SelectItem value="parchment">Ancient Parchment</SelectItem>
-                  <SelectItem value="stone_led">Stone + LED</SelectItem>
-                  <SelectItem value="custom">Custom Build...</SelectItem>
-                </SelectContent>
-              </Select>
-              
-              {themeId === 'custom' && (
-                <div className="grid grid-cols-2 gap-4 mb-4 bg-black/30 p-3 rounded-lg border border-[#5c3a21]">
-                  <div>
-                    <Label className="text-amber-200/80 text-xs">Outer Ring</Label>
-                    <div className="flex gap-2 mt-1 mb-1">
-                      <input type="color" value={customTheme.outerBg} onChange={e => setCustomTheme({...customTheme, outerBg: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
-                      <input type="color" value={customTheme.outerGrad} onChange={e => setCustomTheme({...customTheme, outerGrad: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
-                    </div>
-                    <Input value={customTheme.outerTextureUrl ?? customTheme.textureUrl ?? ''} onChange={e => setCustomTheme({...customTheme, outerTextureUrl: e.target.value})} placeholder="Texture URL" className="bg-black/40 border-white/10 text-[10px] h-6 px-1" />
-                  </div>
-                  <div>
-                    <Label className="text-amber-200/80 text-xs">Middle Ring</Label>
-                    <div className="flex gap-2 mt-1 mb-1">
-                      <input type="color" value={customTheme.middleBg} onChange={e => setCustomTheme({...customTheme, middleBg: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
-                      <input type="color" value={customTheme.middleGrad} onChange={e => setCustomTheme({...customTheme, middleGrad: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
-                    </div>
-                    <Input value={customTheme.middleTextureUrl ?? customTheme.textureUrl ?? ''} onChange={e => setCustomTheme({...customTheme, middleTextureUrl: e.target.value})} placeholder="Texture URL" className="bg-black/40 border-white/10 text-[10px] h-6 px-1" />
-                  </div>
-                  <div>
-                    <Label className="text-amber-200/80 text-xs">Inner Ring</Label>
-                    <div className="flex gap-2 mt-1 mb-1">
-                      <input type="color" value={customTheme.innerBg} onChange={e => setCustomTheme({...customTheme, innerBg: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
-                      <input type="color" value={customTheme.innerGrad} onChange={e => setCustomTheme({...customTheme, innerGrad: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
-                    </div>
-                    <Input value={customTheme.innerTextureUrl ?? customTheme.textureUrl ?? ''} onChange={e => setCustomTheme({...customTheme, innerTextureUrl: e.target.value})} placeholder="Texture URL" className="bg-black/40 border-white/10 text-[10px] h-6 px-1" />
-                  </div>
-                  <div>
-                    <Label className="text-amber-200/80 text-xs">Text & Dots</Label>
-                    <div className="flex gap-2 mt-1">
-                      <input type="color" value={customTheme.textOuter} onChange={e => setCustomTheme({...customTheme, textOuter: e.target.value, textMiddle: e.target.value, textInner: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
-                      <input type="color" value={customTheme.pin} onChange={e => setCustomTheme({...customTheme, pin: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
-                    </div>
-                  </div>
-                  <div>
-                    <Label className="text-amber-200/80 text-xs">Borders</Label>
-                    <div className="flex gap-2 mt-1">
-                      <input type="color" value={customTheme.outerBorder} onChange={e => setCustomTheme({...customTheme, outerBorder: e.target.value, middleBorder: e.target.value, innerBorder: e.target.value, hubBorder: e.target.value, divider: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
-                    </div>
-                  </div>
-                  <div>
-                    <Label className="text-amber-200/80 text-xs">Page Background</Label>
-                    <div className="flex gap-2 mt-1">
-                      <input type="color" value={customTheme.pageBg || "#0f172a"} onChange={e => setCustomTheme({...customTheme, pageBg: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
-                    </div>
-                  </div>
-                  <div className="col-span-2 hidden">
-                    <Label className="text-amber-200/80 text-xs">Global Texture URL</Label>
-                    <Input value={customTheme.textureUrl} onChange={e => setCustomTheme({...customTheme, textureUrl: e.target.value})} className="bg-black/40 border-white/10 mt-1 text-xs h-8" />
-                  </div>
-                  <div className="col-span-2">
-                    <Label className="text-amber-200/80 text-xs block mb-1">Layer & Blending Options</Label>
-                    <div className="flex gap-2">
-                      <Select value={customTheme.layerOrder || 'texture_top'} onValueChange={v => setCustomTheme({...customTheme, layerOrder: v})}>
-                        <SelectTrigger className="bg-black/40 border-white/10 text-[10px] h-7 flex-1" title="Layer Order">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="bg-slate-900 border-slate-700 text-white">
-                          <SelectItem value="texture_top">Texture on Top</SelectItem>
-                          <SelectItem value="color_top">Color on Top</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <div className="flex items-center gap-1 bg-black/40 border border-white/10 rounded-md px-1 h-7">
-                        <span className="text-[10px] text-amber-200/60 whitespace-nowrap">Opacity:</span>
-                        <Input type="number" min="0" max="100" value={customTheme.topLayerOpacity !== undefined ? Math.round(customTheme.topLayerOpacity * 100) : 100} onChange={e => setCustomTheme({...customTheme, topLayerOpacity: Number(e.target.value)/100})} className="w-10 bg-transparent border-none text-[10px] h-5 p-0 text-center focus-visible:ring-0 outline-none" />
-                        <span className="text-[10px] text-amber-200/60">%</span>
-                      </div>
-                      <Select value={customTheme.blendMode || 'multiply'} onValueChange={v => setCustomTheme({...customTheme, blendMode: v})}>
-                        <SelectTrigger className="bg-black/40 border-white/10 text-[10px] h-7 flex-1" title="Blend Mode">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="bg-slate-900 border-slate-700 text-white">
-                          <SelectItem value="normal">Normal</SelectItem>
-                          <SelectItem value="multiply">Multiply</SelectItem>
-                          <SelectItem value="overlay">Overlay</SelectItem>
-                          <SelectItem value="screen">Screen</SelectItem>
-                          <SelectItem value="soft-light">Soft Light</SelectItem>
-                          <SelectItem value="hard-light">Hard Light</SelectItem>
-                          <SelectItem value="color-burn">Color Burn</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                  <div className="col-span-2">
-                    <Label className="text-amber-200/80 text-xs">Page Background Image URL</Label>
-                    <Input value={customTheme.pageBgImage || ""} onChange={e => setCustomTheme({...customTheme, pageBgImage: e.target.value})} className="bg-black/40 border-white/10 mt-1 text-xs h-8" />
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div>
-              <Label className="text-amber-200 mb-2 block font-semibold text-lg">Custom Wheel Configuration</Label>
-              <Select value={selectedWheelId} onValueChange={setSelectedWheelId}>
-                <SelectTrigger className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 h-12 text-lg mb-4">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 max-h-64 overflow-y-auto">
-                  <SelectItem value="default">Default Spirit Wheel</SelectItem>
-                  {customWheels.map(w => (
-                    <SelectItem key={w.id} value={w.id}>{w.name} {w.publish_status === 'draft' ? '(Draft)' : ''}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              
-              <div className="flex gap-2 mb-4">
-                <Link to={createPageUrl("SpiritWheelDesigner")} className="flex-1">
-                  <Button variant="outline" className="w-full bg-[#1c0f05] hover:bg-[#2d1b0d] border-[#5c3a21] text-amber-300">
-                    <Plus className="w-4 h-4 mr-2" /> New Wheel
-                  </Button>
-                </Link>
-                {selectedWheelId !== "default" && customWheels.find(w => w.id === selectedWheelId)?.created_by === currentUser?.email && (
-                  <Link to={`${createPageUrl("SpiritWheelDesigner")}?id=${selectedWheelId}`} className="flex-1">
-                    <Button variant="outline" className="w-full bg-[#1c0f05] hover:bg-[#2d1b0d] border-[#5c3a21] text-amber-300">
-                      <Sparkles className="w-4 h-4 mr-2" /> Edit Wheel
-                    </Button>
-                  </Link>
-                )}
-              </div>
-
-              {selectedWheelId === "default" && (
-                <>
-                  <Label className="text-amber-200 mb-2 block font-semibold text-lg">Category-Shift Logic</Label>
-                  <Select value={category} onValueChange={setCategory}>
-                    <SelectTrigger className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 h-12 text-lg mb-4">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100">
-                      {CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </>
-              )}
-
-              <Label className="text-amber-200 mb-2 block font-semibold text-lg">Accompanying Deck (Optional)</Label>
-              <Select value={selectedDeckId} onValueChange={setSelectedDeckId}>
-                <SelectTrigger className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 h-12 text-lg mb-4">
-                  <SelectValue placeholder="None" />
-                </SelectTrigger>
-                <SelectContent className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 max-h-64 overflow-y-auto">
-                  <SelectItem value="none">None</SelectItem>
-                  {decks.map(d => (
-                    <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="flex items-center justify-between p-4 bg-[#2d1b0d]/50 rounded-lg border border-[#5c3a21]">
-              <div>
-                <div className="font-semibold text-amber-200">"Blank Tile" Imagine Mode</div>
-                <div className="text-sm text-amber-200/60">Hide meanings until you meditate on them</div>
-              </div>
-              <Switch checked={blankMode} onCheckedChange={setBlankMode} className="data-[state=checked]:bg-amber-600" />
-            </div>
-          </div>
 
           {/* Results Area */}
           <div className="bg-slate-900/90 p-6 rounded-xl border border-[#8b5a2b] min-h-[250px] shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
@@ -1314,6 +1142,182 @@ export default function SpiritWheel() {
           </div>
         </div>
       </div>
+
+      <div className="max-w-[100rem] mx-auto pb-12 mt-8 z-10 relative">
+        <div className="bg-slate-900/90 p-4 md:p-6 rounded-xl border border-[#8b5a2b] shadow-[0_4px_20px_rgba(0,0,0,0.5)] space-y-5">
+            <div>
+              <Label className="text-amber-200 mb-2 block font-semibold text-lg">Wheel Design Theme</Label>
+              <Select value={themeId} onValueChange={setThemeId}>
+                <SelectTrigger className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 h-12 text-lg mb-4">
+                  <SelectValue placeholder="Select a theme" />
+                </SelectTrigger>
+                <SelectContent className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100">
+                  <SelectItem value="wood">Classic Wood</SelectItem>
+                  <SelectItem value="galaxy">Cosmic Galaxy</SelectItem>
+                  <SelectItem value="neon">Cyber Neon</SelectItem>
+                  <SelectItem value="parchment">Ancient Parchment</SelectItem>
+                  <SelectItem value="stone_led">Stone + LED</SelectItem>
+                  <SelectItem value="custom">Custom Build...</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              {themeId === 'custom' && (
+                <div className="grid grid-cols-2 gap-4 mb-4 bg-black/30 p-3 rounded-lg border border-[#5c3a21]">
+                  <div>
+                    <Label className="text-amber-200/80 text-xs">Outer Ring</Label>
+                    <div className="flex gap-2 mt-1 mb-1">
+                      <input type="color" value={customTheme.outerBg} onChange={e => setCustomTheme({...customTheme, outerBg: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
+                      <input type="color" value={customTheme.outerGrad} onChange={e => setCustomTheme({...customTheme, outerGrad: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
+                    </div>
+                    <Input value={customTheme.outerTextureUrl ?? customTheme.textureUrl ?? ''} onChange={e => setCustomTheme({...customTheme, outerTextureUrl: e.target.value})} placeholder="Texture URL" className="bg-black/40 border-white/10 text-[10px] h-6 px-1" />
+                  </div>
+                  <div>
+                    <Label className="text-amber-200/80 text-xs">Middle Ring</Label>
+                    <div className="flex gap-2 mt-1 mb-1">
+                      <input type="color" value={customTheme.middleBg} onChange={e => setCustomTheme({...customTheme, middleBg: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
+                      <input type="color" value={customTheme.middleGrad} onChange={e => setCustomTheme({...customTheme, middleGrad: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
+                    </div>
+                    <Input value={customTheme.middleTextureUrl ?? customTheme.textureUrl ?? ''} onChange={e => setCustomTheme({...customTheme, middleTextureUrl: e.target.value})} placeholder="Texture URL" className="bg-black/40 border-white/10 text-[10px] h-6 px-1" />
+                  </div>
+                  <div>
+                    <Label className="text-amber-200/80 text-xs">Inner Ring</Label>
+                    <div className="flex gap-2 mt-1 mb-1">
+                      <input type="color" value={customTheme.innerBg} onChange={e => setCustomTheme({...customTheme, innerBg: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
+                      <input type="color" value={customTheme.innerGrad} onChange={e => setCustomTheme({...customTheme, innerGrad: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
+                    </div>
+                    <Input value={customTheme.innerTextureUrl ?? customTheme.textureUrl ?? ''} onChange={e => setCustomTheme({...customTheme, innerTextureUrl: e.target.value})} placeholder="Texture URL" className="bg-black/40 border-white/10 text-[10px] h-6 px-1" />
+                  </div>
+                  <div>
+                    <Label className="text-amber-200/80 text-xs">Text & Dots</Label>
+                    <div className="flex gap-2 mt-1">
+                      <input type="color" value={customTheme.textOuter} onChange={e => setCustomTheme({...customTheme, textOuter: e.target.value, textMiddle: e.target.value, textInner: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
+                      <input type="color" value={customTheme.pin} onChange={e => setCustomTheme({...customTheme, pin: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-amber-200/80 text-xs">Borders</Label>
+                    <div className="flex gap-2 mt-1">
+                      <input type="color" value={customTheme.outerBorder} onChange={e => setCustomTheme({...customTheme, outerBorder: e.target.value, middleBorder: e.target.value, innerBorder: e.target.value, hubBorder: e.target.value, divider: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-amber-200/80 text-xs">Page Background</Label>
+                    <div className="flex gap-2 mt-1">
+                      <input type="color" value={customTheme.pageBg || "#0f172a"} onChange={e => setCustomTheme({...customTheme, pageBg: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
+                    </div>
+                  </div>
+                  <div className="col-span-2 hidden">
+                    <Label className="text-amber-200/80 text-xs">Global Texture URL</Label>
+                    <Input value={customTheme.textureUrl} onChange={e => setCustomTheme({...customTheme, textureUrl: e.target.value})} className="bg-black/40 border-white/10 mt-1 text-xs h-8" />
+                  </div>
+                  <div className="col-span-2">
+                    <Label className="text-amber-200/80 text-xs block mb-1">Layer & Blending Options</Label>
+                    <div className="flex gap-2">
+                      <Select value={customTheme.layerOrder || 'texture_top'} onValueChange={v => setCustomTheme({...customTheme, layerOrder: v})}>
+                        <SelectTrigger className="bg-black/40 border-white/10 text-[10px] h-7 flex-1" title="Layer Order">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="bg-slate-900 border-slate-700 text-white">
+                          <SelectItem value="texture_top">Texture on Top</SelectItem>
+                          <SelectItem value="color_top">Color on Top</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <div className="flex items-center gap-1 bg-black/40 border border-white/10 rounded-md px-1 h-7">
+                        <span className="text-[10px] text-amber-200/60 whitespace-nowrap">Opacity:</span>
+                        <Input type="number" min="0" max="100" value={customTheme.topLayerOpacity !== undefined ? Math.round(customTheme.topLayerOpacity * 100) : 100} onChange={e => setCustomTheme({...customTheme, topLayerOpacity: Number(e.target.value)/100})} className="w-10 bg-transparent border-none text-[10px] h-5 p-0 text-center focus-visible:ring-0 outline-none" />
+                        <span className="text-[10px] text-amber-200/60">%</span>
+                      </div>
+                      <Select value={customTheme.blendMode || 'multiply'} onValueChange={v => setCustomTheme({...customTheme, blendMode: v})}>
+                        <SelectTrigger className="bg-black/40 border-white/10 text-[10px] h-7 flex-1" title="Blend Mode">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="bg-slate-900 border-slate-700 text-white">
+                          <SelectItem value="normal">Normal</SelectItem>
+                          <SelectItem value="multiply">Multiply</SelectItem>
+                          <SelectItem value="overlay">Overlay</SelectItem>
+                          <SelectItem value="screen">Screen</SelectItem>
+                          <SelectItem value="soft-light">Soft Light</SelectItem>
+                          <SelectItem value="hard-light">Hard Light</SelectItem>
+                          <SelectItem value="color-burn">Color Burn</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="col-span-2">
+                    <Label className="text-amber-200/80 text-xs">Page Background Image URL</Label>
+                    <Input value={customTheme.pageBgImage || ""} onChange={e => setCustomTheme({...customTheme, pageBgImage: e.target.value})} className="bg-black/40 border-white/10 mt-1 text-xs h-8" />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div>
+              <Label className="text-amber-200 mb-2 block font-semibold text-lg">Custom Wheel Configuration</Label>
+              <Select value={selectedWheelId} onValueChange={setSelectedWheelId}>
+                <SelectTrigger className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 h-12 text-lg mb-4">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 max-h-64 overflow-y-auto">
+                  <SelectItem value="default">Default Spirit Wheel</SelectItem>
+                  {customWheels.map(w => (
+                    <SelectItem key={w.id} value={w.id}>{w.name} {w.publish_status === 'draft' ? '(Draft)' : ''}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              <div className="flex gap-2 mb-4">
+                <Link to={createPageUrl("SpiritWheelDesigner")} className="flex-1">
+                  <Button variant="outline" className="w-full bg-[#1c0f05] hover:bg-[#2d1b0d] border-[#5c3a21] text-amber-300">
+                    <Plus className="w-4 h-4 mr-2" /> New Wheel
+                  </Button>
+                </Link>
+                {selectedWheelId !== "default" && customWheels.find(w => w.id === selectedWheelId)?.created_by === currentUser?.email && (
+                  <Link to={`${createPageUrl("SpiritWheelDesigner")}?id=${selectedWheelId}`} className="flex-1">
+                    <Button variant="outline" className="w-full bg-[#1c0f05] hover:bg-[#2d1b0d] border-[#5c3a21] text-amber-300">
+                      <Sparkles className="w-4 h-4 mr-2" /> Edit Wheel
+                    </Button>
+                  </Link>
+                )}
+              </div>
+
+              {selectedWheelId === "default" && (
+                <>
+                  <Label className="text-amber-200 mb-2 block font-semibold text-lg">Category-Shift Logic</Label>
+                  <Select value={category} onValueChange={setCategory}>
+                    <SelectTrigger className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 h-12 text-lg mb-4">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100">
+                      {CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </>
+              )}
+
+              <Label className="text-amber-200 mb-2 block font-semibold text-lg">Accompanying Deck (Optional)</Label>
+              <Select value={selectedDeckId} onValueChange={setSelectedDeckId}>
+                <SelectTrigger className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 h-12 text-lg mb-4">
+                  <SelectValue placeholder="None" />
+                </SelectTrigger>
+                <SelectContent className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 max-h-64 overflow-y-auto">
+                  <SelectItem value="none">None</SelectItem>
+                  {decks.map(d => (
+                    <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex items-center justify-between p-4 bg-[#2d1b0d]/50 rounded-lg border border-[#5c3a21]">
+              <div>
+                <div className="font-semibold text-amber-200">"Blank Tile" Imagine Mode</div>
+                <div className="text-sm text-amber-200/60">Hide meanings until you meditate on them</div>
+              </div>
+              <Switch checked={blankMode} onCheckedChange={setBlankMode} className="data-[state=checked]:bg-amber-600" />
+            </div>
+          </div>
+      </div>
+
       <div data-html2canvas-ignore="true">
         <AudioOrb 
           textToSpeak={aiInterpretation} 
