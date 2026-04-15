@@ -662,11 +662,33 @@ export default function SpiritWheel() {
       
       let staticReading = `Your reading focuses on ${categoryName}. The core themes are ${coreTheme1} and ${coreTheme2}. `;
       
+      const getCardRelationship = (id1, id2) => {
+        if (!id1 || !id2) return null;
+        const pair = [String(id1), String(id2)].sort((a, b) => parseInt(a) - parseInt(b)).join("|");
+        const relationships = {
+          "1|53": "The Rooted Journey and The Rooted Tree indicate complete grounding and an unshakeable foundation.",
+          "7|29": "The Seer's Gaze and Echoes of the Mind reveal that your inner guidance is offering profound clarity.",
+          "10|36": "Between the Folds and With Chains Unbound suggest that patience will soon break your old patterns.",
+          "13|39": "The Wild Embrace and Veins of the Void urge you to unleash your passions to claim your true self.",
+          "20|44": "Illuminating Insight and Cascading Illumination indicate a massive flow of inspiration lighting your path.",
+          "21|40": "Luna Duala and The Triad of Synergy point to ultimate harmonization of mind, body, and spirit.",
+          "23|39": "The 4 Shadows and Veins of the Void challenge you to embrace your shadows to find true freedom.",
+          "25|48": "The Cosmic Vision and Harmonic Gates of Ascension mean you are aligning with cosmic flow for a major transformation."
+        };
+        return relationships[pair] || null;
+      };
+
+      const relationshipInsight = selectedWheelId === "default" ? getCardRelationship(outerItem1.id, outerItem2.id) : null;
+      
       if (outerItem1.meaning || outerItem1.general?.includes(":")) {
         staticReading += `\n(${outerItem1.meaning || outerItem1.general.split(":")[1]?.trim()}) \n`;
       }
       if (outerItem2.meaning || outerItem2.general?.includes(":")) {
         staticReading += `\n(${outerItem2.meaning || outerItem2.general.split(":")[1]?.trim()}) \n\n`;
+      }
+      
+      if (relationshipInsight) {
+        staticReading += `✨ Cosmic Synergy: ${relationshipInsight}\n\n`;
       }
       
       staticReading += `Your modifier indicates "${timingModifier}", suggesting the context of your situation. `;
