@@ -84,11 +84,10 @@ export default function HomePage() {
                         Read with this deck
                       </Button>
                     </Link>
-                    <Link to={createPageUrl('SpiritWheelDesigner')} className="shrink-0">
-                      <Button variant="outline" className="w-24 h-24 flex flex-col items-center justify-center gap-2 border-purple-500/50 hover:bg-purple-500/10 text-white font-semibold p-2 transition-transform hover:scale-105">
-                        <img src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/f1038adff_IMG_8673.png" alt="Spirit Wheel Studio" className="w-8 h-8 rounded-full shadow-sm" />
-                        <span className="text-xs whitespace-normal leading-tight text-center">Spirit Wheel Studio</span>
-                      </Button>
+                    <Link to={createPageUrl('SpiritWheelDesigner')} className="shrink-0 group flex flex-col items-center gap-2">
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-purple-500/50 group-hover:border-purple-400 transition-all group-hover:scale-105 group-hover:shadow-[0_0_20px_rgba(168,85,247,0.4)] p-0 bg-black flex items-center justify-center cursor-pointer">
+                        <img src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/1a8c6a206_57A86B5A-A8FB-40C8-8114-D3C807C20921.png" alt="Spirit Wheel Studio" className="w-full h-full object-cover group-hover:rotate-90 transition-transform duration-1000" />
+                      </div>
                     </Link>
                   </div>
                 </div>
