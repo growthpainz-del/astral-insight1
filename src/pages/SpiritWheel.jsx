@@ -10,6 +10,7 @@ import { motion } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import AudioOrb from "@/components/reading/AudioOrb";
+import CelestialMapWidget from "@/components/reading/CelestialMapWidget";
 import html2canvas from 'html2canvas';
 import ReadingShareModal from "@/components/reading/ReadingShareModal";
 import { queueApiCall } from "@/components/utils/apiQueue";
@@ -673,7 +674,12 @@ export default function SpiritWheel() {
           </div>
         </div>
 
-        <div data-html2canvas-ignore="true">
+        <div data-html2canvas-ignore="true" className="flex flex-wrap items-center gap-2 justify-end">
+          <CelestialMapWidget onApplyEnergy={() => {
+            setCategory("Astrology");
+            // If they are on a custom wheel, maybe switch to the default one to use categories
+            setSelectedWheelId("default");
+          }} />
           <Button 
             onClick={handleDownloadImage}
             disabled={isCapturing}
