@@ -924,7 +924,7 @@ export default function SpiritWheel() {
                       <div className={`shrink-0 flex items-center justify-center overflow-hidden ${isCrowded ? 'w-8 h-8 sm:w-10 sm:h-10 md:w-14 md:h-14 lg:w-16 lg:h-16' : 'w-10 h-10 sm:w-14 sm:h-14 md:w-20 md:h-20 lg:w-24 lg:h-24'}`}>
                         <img src={getThumbnailUrl(getImageUrl(item.id), 400)} loading="lazy" alt="" className="w-full h-full object-contain filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)] rounded-full" />
                       </div>
-                    ) : (/^\d+$/.test(String(item.id)) ? null : item.id)}
+                    ) : (/^\d+$/.test(String(item.id)) ? <span className="text-[10px] sm:text-xs md:text-sm lg:text-base px-1 max-w-[60px] sm:max-w-[80px] whitespace-normal leading-tight text-center">{item.name}</span> : item.id)}
                   </div>
                   {/* Segment dividers */}
                   {/* <div className="absolute top-0 -translate-x-1/2 w-[1px] h-full" style={{ transform: `rotate(${angle / 2}deg)`, backgroundColor: activeTheme.divider, opacity: 0.25 }}></div> */}
@@ -998,7 +998,9 @@ export default function SpiritWheel() {
                         <img src={getThumbnailUrl(getImageUrl(item.id), 400)} loading="lazy" alt="" className="w-full h-full object-contain filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)] rounded-full" />
                       </div>
                     ) : (
-                      <span className={activeTheme.isTiles ? "text-[10px] md:text-sm" : ""}>{item.id}</span>
+                      <span className={activeTheme.isTiles ? "text-[10px] md:text-sm" : (/^\d+$/.test(String(item.id)) ? "text-[8px] sm:text-[10px] md:text-xs lg:text-sm px-1 max-w-[50px] sm:max-w-[70px] whitespace-normal leading-tight text-center" : "")}>
+                        {/^\d+$/.test(String(item.id)) ? item.name : item.id}
+                      </span>
                     )}
                   </div>
                   {/* Segment dividers */}
@@ -1071,7 +1073,11 @@ export default function SpiritWheel() {
                       <div className="w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-32 lg:h-32 shrink-0 flex items-center justify-center overflow-hidden">
                         <img src={getThumbnailUrl(getImageUrl(item.id), 400)} loading="lazy" alt="" className="w-full h-full object-contain filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)] rounded-full" />
                       </div>
-                    ) : item.id}
+                    ) : (
+                      <span className={/^\d+$/.test(String(item.id)) ? "text-[10px] sm:text-xs md:text-sm lg:text-base px-1 max-w-[60px] sm:max-w-[80px] whitespace-normal leading-tight text-center" : ""}>
+                        {/^\d+$/.test(String(item.id)) ? item.name : item.id}
+                      </span>
+                    )}
                   </div>
                   {/* Segment dividers */}
                   {/* <div className="absolute top-0 -translate-x-1/2 w-[1px] h-full" style={{ transform: `rotate(${angle / 2}deg)`, backgroundColor: activeTheme.divider, opacity: 0.25 }}></div> */}

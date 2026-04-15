@@ -542,7 +542,7 @@ function RingEditor({ ringKey, segments, setSegments, deckCards, onOpenGallery }
               <Input
                 value={seg.label}
                 onChange={e => updateSegment(i, "label", e.target.value)}
-                placeholder="Label (shown on wheel)"
+                placeholder="Name / Label"
                 className="flex-1 bg-black/40 border-white/10"
               />
               <Select value={seg.type} onValueChange={v => updateSegment(i, "type", v)}>
