@@ -97,7 +97,7 @@ export default function HomePage() {
           </motion.div>
         )}
 
-        <div className="grid md:grid-cols-2 gap-6 md:gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
@@ -187,6 +187,56 @@ export default function HomePage() {
                     <Button size="lg" className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold text-lg group-hover:shadow-lg">
                       Open Studio
                       <Palette className="w-5 h-5 ml-2" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.45 }}
+          >
+            <Link to={createPageUrl('SpiritWheel')}>
+              <div className="group relative h-full bg-gradient-to-br from-amber-600/20 to-orange-600/20 backdrop-blur-lg rounded-3xl border-2 border-amber-400/30 hover:border-amber-400/60 p-8 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-amber-500/30 cursor-pointer overflow-hidden flex flex-col">
+                <div className="absolute inset-0 bg-gradient-to-br from-amber-500/0 via-orange-500/0 to-amber-500/0 group-hover:from-amber-500/10 group-hover:via-orange-500/10 group-hover:to-amber-500/10 transition-all duration-500" />
+                
+                <div className="relative z-10 flex flex-col flex-1">
+                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg border border-amber-500/30 overflow-hidden bg-black/50 shrink-0">
+                    <img src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/f2eb42d24_57A86B5A-A8FB-40C8-8114-D3C807C20921.png" alt="Spirit Wheel" className="w-full h-full object-cover" />
+                  </div>
+                  
+                  <div className="flex-1">
+                    <h2 className="text-3xl font-bold text-white mb-3">
+                      🎡 Spirit Wheel
+                    </h2>
+                    
+                    <p className="text-amber-200 mb-6 text-lg">
+                      Consult the cosmic wheel for instant guidance and answers
+                    </p>
+
+                    <div className="space-y-2 text-sm text-amber-200/80">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="w-4 h-4" />
+                        <span>Instant divination</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Wand2 className="w-4 h-4" />
+                        <span>Multiple themes</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <BookOpen className="w-4 h-4" />
+                        <span>Deep interpretations</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-8 shrink-0">
+                    <Button size="lg" className="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold text-lg group-hover:shadow-lg">
+                      Spin the Wheel
+                      <Sparkles className="w-5 h-5 ml-2" />
                     </Button>
                   </div>
                 </div>
