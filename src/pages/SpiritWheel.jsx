@@ -615,8 +615,12 @@ export default function SpiritWheel() {
   };
 
   const getSegmentText = (ring, index) => {
-    if (ring === 'outer') {
-      const item = wheelData.outer[index];
+    if (ring === 'outer1') {
+      const item = wheelData.outer1[index];
+      return item?.name || item?.id || "";
+    }
+    if (ring === 'outer2') {
+      const item = wheelData.outer2[index];
       return item?.name || item?.id || "";
     }
     if (ring === 'middle') return wheelData.middle[index]?.meaning || "";
@@ -631,27 +635,33 @@ export default function SpiritWheel() {
   const getInterpretation = async () => {
     setIsAiLoading(true);
     try {
-      const outerItem = wheelData.outer[selectedIndices.outer] || {};
+      const outerItem1 = wheelData.outer1[selectedIndices.outer1] || {};
+      const outerItem2 = wheelData.outer2[selectedIndices.outer2] || {};
       const middleItem = wheelData.middle[selectedIndices.middle] || {};
       const innerItem = wheelData.inner[selectedIndices.inner] || {};
 
       // Database-driven reading based on combinations (Bypasses AI)
-      const coreTheme = outerItem.general ? outerItem.general.split(":")[0] : (outerItem.name || "Unknown theme");
+      const coreTheme1 = outerItem1.general ? outerItem1.general.split(":")[0] : (outerItem1.name || "Unknown theme");
+      const coreTheme2 = outerItem2.general ? outerItem2.general.split(":")[0] : (outerItem2.name || "Unknown theme");
+      
       const timingModifier = middleItem.meaning || middleItem.general || "Unknown modifier";
       const actionGuidance = innerItem.meaning || innerItem.general || "Unknown guidance";
       
       const categoryName = selectedWheelId === "default" ? category : customWheels.find(w => w.id === selectedWheelId)?.name || "Custom Reading";
       
-      let staticReading = `Your reading focuses on ${categoryName}. The core theme is ${coreTheme}. `;
+      let staticReading = `Your reading focuses on ${categoryName}. The core themes are ${coreTheme1} and ${coreTheme2}. `;
       
-      if (outerItem.meaning || outerItem.general?.includes(":")) {
-        staticReading += `\n(${outerItem.meaning || outerItem.general.split(":")[1]?.trim()}) \n\n`;
+      if (outerItem1.meaning || outerItem1.general?.includes(":")) {
+        staticReading += `\n(${outerItem1.meaning || outerItem1.general.split(":")[1]?.trim()}) \n`;
+      }
+      if (outerItem2.meaning || outerItem2.general?.includes(":")) {
+        staticReading += `\n(${outerItem2.meaning || outerItem2.general.split(":")[1]?.trim()}) \n\n`;
       }
       
       staticReading += `Your modifier indicates "${timingModifier}", suggesting the context of your situation. `;
       staticReading += `Your action guidance is "${actionGuidance}". `;
       
-      staticReading += `\n\nReflect on how ${actionGuidance.toLowerCase()} can be integrated with ${coreTheme}.`;
+      staticReading += `\n\nReflect on how ${actionGuidance.toLowerCase()} can be integrated with ${coreTheme1} and ${coreTheme2}.`;
       
       // Wait a short moment to simulate fetching
       await new Promise(resolve => setTimeout(resolve, 800));
@@ -736,7 +746,7 @@ export default function SpiritWheel() {
               <div className="flex items-center justify-center h-48 text-amber-200/50 animate-pulse text-lg">
                 The wheel turns, seeking answers...
               </div>
-            ) : blankMode && !isRevealed && !isSpinning && (rotations.outer > 0) ? (
+            ) : blankMode && !isRevealed && !isSpinning && (rotations.outer1 > 0) ? (
               <div className="text-center space-y-6 py-10">
                 <p className="text-amber-200 italic text-lg">Focus on the shapes and letters.<br/>Take 3 seconds to imagine the meaning...</p>
                 <Button onClick={handleReveal} className="bg-[#4a331a] hover:bg-[#5c3a21] border border-[#8b5a2b] text-lg px-8 py-6">
@@ -745,21 +755,39 @@ export default function SpiritWheel() {
               </div>
             ) : isRevealed ? (
               <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                {wheelData.outer.length > 0 && (
+                {wheelData.outer1.length > 0 && (
                   <div className="p-4 bg-[#1c0f05] rounded-lg border border-[#5c3a21]">
                     <div className="text-sm text-amber-500/70 uppercase font-semibold mb-1 flex justify-between items-center">
-                      <span>Outer Ring</span>
-                      {isImageSymbol(wheelData.outer[selectedIndices.outer]?.id) ? (
+                      <span>Outer Ring 1</span>
+                      {isImageSymbol(wheelData.outer1[selectedIndices.outer1]?.id) ? (
                         <div className="w-10 h-10 shrink-0 flex items-center justify-center overflow-hidden">
-                          <img src={getThumbnailUrl(getImageUrl(wheelData.outer[selectedIndices.outer]?.id), 400)} loading="lazy" alt="" className="w-full h-full object-contain filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] rounded-full" />
+                          <img src={getThumbnailUrl(getImageUrl(wheelData.outer1[selectedIndices.outer1]?.id), 400)} loading="lazy" alt="" className="w-full h-full object-contain filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] rounded-full" />
                         </div>
                       ) : (
                         <span className="text-amber-300 bg-black/20 px-2 py-0.5 rounded">
-                          {wheelData.outer[selectedIndices.outer]?.id || 'N/A'}
+                          {wheelData.outer1[selectedIndices.outer1]?.id || 'N/A'}
                         </span>
                       )}
                     </div>
-                    <div className="text-xl text-amber-50">{getSegmentText('outer', selectedIndices.outer)}</div>
+                    <div className="text-xl text-amber-50">{getSegmentText('outer1', selectedIndices.outer1)}</div>
+                  </div>
+                )}
+
+                {wheelData.outer2.length > 0 && (
+                  <div className="p-4 bg-[#1c0f05] rounded-lg border border-[#5c3a21]">
+                    <div className="text-sm text-amber-500/70 uppercase font-semibold mb-1 flex justify-between items-center">
+                      <span>Outer Ring 2</span>
+                      {isImageSymbol(wheelData.outer2[selectedIndices.outer2]?.id) ? (
+                        <div className="w-10 h-10 shrink-0 flex items-center justify-center overflow-hidden">
+                          <img src={getThumbnailUrl(getImageUrl(wheelData.outer2[selectedIndices.outer2]?.id), 400)} loading="lazy" alt="" className="w-full h-full object-contain filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] rounded-full" />
+                        </div>
+                      ) : (
+                        <span className="text-amber-300 bg-black/20 px-2 py-0.5 rounded">
+                          {wheelData.outer2[selectedIndices.outer2]?.id || 'N/A'}
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-xl text-amber-50">{getSegmentText('outer2', selectedIndices.outer2)}</div>
                   </div>
                 )}
                 
@@ -899,7 +927,7 @@ export default function SpiritWheel() {
               <div className="absolute top-[40px] md:top-[50px] left-1/2 -translate-x-1/2 w-8 h-8 md:w-10 md:h-10 bg-white/20 blur-md rounded-full mix-blend-screen pointer-events-none" />
             </div>
 
-            {/* Outer Ring */}
+            {/* Outer Ring 1 */}
             <motion.div 
               className={`absolute inset-0 rounded-full ${activeTheme.isTiles ? 'shadow-[0_0_80px_rgba(0,255,204,0.3)]' : 'overflow-hidden shadow-[inset_0_0_30px_rgba(0,0,0,0.4),0_15px_35px_rgba(0,0,0,0.6)]'}`}
               style={activeTheme.isTiles ? {
@@ -909,9 +937,9 @@ export default function SpiritWheel() {
                 borderStyle: activeTheme.borderStyle || 'solid',
                 borderColor: activeTheme.outerBorder,
               }}
-              animate={{ rotate: rotations.outer }}
+              animate={{ rotate: rotations.outer1 }}
               onUpdate={(latest) => {
-                 if (latest.rotate !== undefined) outerRotRef.current = latest.rotate;
+                 if (latest.rotate !== undefined) outer1RotRef.current = latest.rotate;
               }}
               transition={spinState === "spinning" ? { duration: 10000, ease: "linear" } : { duration: 3.5, type: "tween", ease: "circOut" }}
             >
@@ -930,9 +958,9 @@ export default function SpiritWheel() {
                   )}
                 </div>
               )}
-              {wheelData.outer.map((item, i) => {
-                const angle = 360 / wheelData.outer.length;
-                const isCrowded = wheelData.outer.length > 25;
+              {wheelData.outer1.map((item, i) => {
+                const angle = 360 / wheelData.outer1.length;
+                const isCrowded = wheelData.outer1.length > 25;
                 return (
                 <div 
                   key={i} 
@@ -941,7 +969,7 @@ export default function SpiritWheel() {
                 >
                   <div
                     ref={el => {
-                       if (outerItemsRef.current) outerItemsRef.current[i] = el;
+                       if (outer1ItemsRef.current) outer1ItemsRef.current[i] = el;
                     }}
                     className="absolute left-1/2 top-0 origin-center"
                     style={{ transform: 'translateX(-50%) scale(1)' }}
@@ -958,8 +986,8 @@ export default function SpiritWheel() {
                       backgroundImage: item.bgImage ? `url("${item.bgImage}")` : 'none',
                       backgroundSize: 'cover',
                       backgroundPosition: 'center',
-                      borderColor: activeTheme.isTiles || item.bgImage ? (i === selectedIndices.outer && !isSpinning ? (activeTheme.ledColor || '#f59e0b') : activeTheme.outerBorder) : 'transparent',
-                      boxShadow: (activeTheme.isTiles || item.bgImage) && i === selectedIndices.outer && !isSpinning ? `0 0 15px ${activeTheme.ledColor || '#f59e0b'}, inset 0 0 8px ${activeTheme.ledColor || '#f59e0b'}` : 'none',
+                      borderColor: activeTheme.isTiles || item.bgImage ? (i === selectedIndices.outer1 && !isSpinning ? (activeTheme.ledColor || '#f59e0b') : activeTheme.outerBorder) : 'transparent',
+                      boxShadow: (activeTheme.isTiles || item.bgImage) && i === selectedIndices.outer1 && !isSpinning ? `0 0 15px ${activeTheme.ledColor || '#f59e0b'}, inset 0 0 8px ${activeTheme.ledColor || '#f59e0b'}` : 'none',
                       opacity: blankMode && !isRevealed ? 0 : 1, 
                       textShadow: (!activeTheme.isTiles && !item.bgImage) && (themeId === 'wood' || themeId === 'parchment') ? '0.5px 0.5px 0 rgba(255,255,255,0.4)' : (!activeTheme.isTiles && !item.bgImage ? '0 0 5px currentColor' : 'none'),
                       fontFamily: activeTheme.fontFamily,
@@ -984,8 +1012,97 @@ export default function SpiritWheel() {
                     )}
                   </div>
                   </div>
-                  {/* Segment dividers */}
-                  {/* <div className="absolute top-0 -translate-x-1/2 w-[1px] h-full" style={{ transform: `rotate(${angle / 2}deg)`, backgroundColor: activeTheme.divider, opacity: 0.25 }}></div> */}
+                  {/* Silver Pins */}
+                  {!activeTheme.isTiles && <div className="absolute top-[2px] -translate-x-1/2 w-[3px] h-[3px] sm:w-1 sm:h-1 md:w-1.5 md:h-1.5 rounded-full shadow-sm border border-black/30 z-10" style={{ transform: `rotate(${angle / 2}deg)`, backgroundColor: activeTheme.pin }}></div>}
+                </div>
+              )})}
+            </motion.div>
+
+            {/* Outer Ring 2 */}
+            <motion.div 
+              className={`absolute inset-[11%] rounded-full ${activeTheme.isTiles ? 'shadow-[0_0_80px_rgba(0,255,204,0.3)]' : 'overflow-hidden shadow-[inset_0_0_30px_rgba(0,0,0,0.4),0_15px_35px_rgba(0,0,0,0.6)]'}`}
+              style={activeTheme.isTiles ? {
+                backgroundColor: 'transparent'
+              } : {
+                borderWidth: `${Math.max(1, (activeTheme.borderThickness ?? 6) - 1)}px`,
+                borderStyle: activeTheme.borderStyle || 'solid',
+                borderColor: activeTheme.outerBorder,
+              }}
+              animate={{ rotate: rotations.outer2 }}
+              onUpdate={(latest) => {
+                 if (latest.rotate !== undefined) outer2RotRef.current = latest.rotate;
+              }}
+              transition={spinState === "spinning" ? { duration: 10000, ease: "linear" } : { duration: 3.5, type: "tween", ease: "circOut" }}
+            >
+              {!activeTheme.isTiles && (
+                <div className="absolute inset-0 w-full h-full pointer-events-none rounded-full overflow-hidden" style={{ zIndex: 0 }}>
+                  {activeTheme.layerOrder === 'color_top' ? (
+                    <>
+                      <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.outerTextureUrl ?? activeTheme.textureUrl}")` }} />
+                      <div className="absolute inset-0 w-full h-full" style={{ background: `radial-gradient(circle, ${activeTheme.outerBg} 0%, ${activeTheme.outerGrad} 100%)`, opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
+                    </>
+                  ) : (
+                    <>
+                      <div className="absolute inset-0 w-full h-full" style={{ background: `radial-gradient(circle, ${activeTheme.outerBg} 0%, ${activeTheme.outerGrad} 100%)` }} />
+                      <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.outerTextureUrl ?? activeTheme.textureUrl}")`, opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
+                    </>
+                  )}
+                </div>
+              )}
+              {wheelData.outer2.map((item, i) => {
+                const angle = 360 / wheelData.outer2.length;
+                const isCrowded = wheelData.outer2.length > 25;
+                return (
+                <div 
+                  key={i} 
+                  className="absolute top-0 left-1/2 -translate-x-1/2 w-[1px] h-[50%] origin-bottom"
+                  style={{ transform: `rotate(${i * angle}deg)` }}
+                >
+                  <div
+                    ref={el => {
+                       if (outer2ItemsRef.current) outer2ItemsRef.current[i] = el;
+                    }}
+                    className="absolute left-1/2 top-0 origin-center"
+                    style={{ transform: 'translateX(-50%) scale(1)' }}
+                  >
+                    <div 
+                      className={`relative flex items-center justify-center font-bold whitespace-nowrap transition-all duration-300 ${
+                        activeTheme.isTiles || item.bgImage
+                          ? 'w-[32px] h-[32px] sm:w-10 sm:h-10 md:w-14 md:h-14 rounded-full border-2 top-[-16px] sm:top-[-20px] md:top-[-28px] shadow-lg' 
+                          : (isCrowded && i % 2 === 1 ? 'top-4 sm:top-6 md:top-8 lg:top-10' : 'top-0 sm:top-1 md:top-2 lg:top-3') + ' text-sm md:text-xl lg:text-2xl xl:text-3xl'
+                      }`} 
+                      style={{ 
+                      color: activeTheme.textOuter,
+                      backgroundColor: activeTheme.isTiles ? activeTheme.outerBg : (item.bgImage ? 'rgba(0,0,0,0.5)' : 'transparent'),
+                      backgroundImage: item.bgImage ? `url("${item.bgImage}")` : 'none',
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      borderColor: activeTheme.isTiles || item.bgImage ? (i === selectedIndices.outer2 && !isSpinning ? (activeTheme.ledColor || '#f59e0b') : activeTheme.outerBorder) : 'transparent',
+                      boxShadow: (activeTheme.isTiles || item.bgImage) && i === selectedIndices.outer2 && !isSpinning ? `0 0 15px ${activeTheme.ledColor || '#f59e0b'}, inset 0 0 8px ${activeTheme.ledColor || '#f59e0b'}` : 'none',
+                      opacity: blankMode && !isRevealed ? 0 : 1, 
+                      textShadow: (!activeTheme.isTiles && !item.bgImage) && (themeId === 'wood' || themeId === 'parchment') ? '0.5px 0.5px 0 rgba(255,255,255,0.4)' : (!activeTheme.isTiles && !item.bgImage ? '0 0 5px currentColor' : 'none'),
+                      fontFamily: activeTheme.fontFamily,
+                      animation: isSpinning && (activeTheme.isTiles || item.bgImage) ? `stoneBounce 0.3s ease-in-out infinite alternate` : 'none',
+                      animationDelay: `${i * 0.05}s`,
+                      fontSize: activeTheme.isTiles ? '0.75em' : undefined
+                    }}
+                  >
+                    {isImageSymbol(item.id) ? (
+                      <div className={`shrink-0 flex items-center justify-center overflow-hidden ${isCrowded ? 'w-6 h-6 sm:w-8 sm:h-8 md:w-12 md:h-12 lg:w-14 lg:h-14' : 'w-8 h-8 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-20 lg:h-20'}`}>
+                        <img src={getThumbnailUrl(getImageUrl(item.id), 400)} loading="lazy" alt="" className="w-full h-full object-contain filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)] rounded-full" />
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center leading-none gap-0.5">
+                        {!/^\d+$/.test(String(item.id)) && <span>{item.id}</span>}
+                        {showLabels && item.name && String(item.name).trim() !== String(item.id).trim() && (
+                          <span className="text-[8px] sm:text-[10px] md:text-xs lg:text-sm px-1 max-w-[50px] sm:max-w-[80px] whitespace-normal leading-tight text-center">
+                            {item.name}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  </div>
                   {/* Silver Pins */}
                   {!activeTheme.isTiles && <div className="absolute top-[2px] -translate-x-1/2 w-[3px] h-[3px] sm:w-1 sm:h-1 md:w-1.5 md:h-1.5 rounded-full shadow-sm border border-black/30 z-10" style={{ transform: `rotate(${angle / 2}deg)`, backgroundColor: activeTheme.pin }}></div>}
                 </div>
@@ -994,7 +1111,7 @@ export default function SpiritWheel() {
 
             {/* Middle Ring */}
             <motion.div 
-              className={`absolute inset-[18%] rounded-full ${activeTheme.isTiles ? '' : 'overflow-hidden shadow-[inset_0_0_20px_rgba(0,0,0,0.4)]'}`}
+              className={`absolute inset-[22%] rounded-full ${activeTheme.isTiles ? '' : 'overflow-hidden shadow-[inset_0_0_20px_rgba(0,0,0,0.4)]'}`}
               style={activeTheme.isTiles ? {
                 backgroundColor: 'transparent'
               } : {
@@ -1083,7 +1200,7 @@ export default function SpiritWheel() {
 
             {/* Inner Ring */}
             <motion.div 
-              className={`absolute inset-[34%] rounded-full ${activeTheme.isTiles ? '' : 'overflow-hidden shadow-[inset_0_0_15px_rgba(0,0,0,0.5)]'}`}
+              className={`absolute inset-[35%] rounded-full ${activeTheme.isTiles ? '' : 'overflow-hidden shadow-[inset_0_0_15px_rgba(0,0,0,0.5)]'}`}
               style={activeTheme.isTiles ? {
                 backgroundColor: 'transparent'
               } : {

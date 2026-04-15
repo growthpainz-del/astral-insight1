@@ -19,7 +19,7 @@ function WheelThemePreview({ activeTheme }) {
   if (!activeTheme) return null;
   return (
     <div className="relative w-full aspect-square max-w-[200px] mx-auto my-4 pointer-events-none">
-      {/* Outer Ring */}
+      {/* Outer Ring 1 */}
       <div 
         className={`absolute inset-0 rounded-full ${activeTheme.isTiles ? 'shadow-[0_0_20px_rgba(0,255,204,0.3)]' : 'overflow-hidden shadow-[inset_0_0_10px_rgba(0,0,0,0.4),0_5px_15px_rgba(0,0,0,0.6)]'}`}
         style={activeTheme.isTiles ? { backgroundColor: 'transparent' } : {
@@ -45,9 +45,35 @@ function WheelThemePreview({ activeTheme }) {
         )}
       </div>
 
+      {/* Outer Ring 2 */}
+      <div 
+        className={`absolute inset-[11%] rounded-full ${activeTheme.isTiles ? 'shadow-[0_0_20px_rgba(0,255,204,0.3)]' : 'overflow-hidden shadow-[inset_0_0_10px_rgba(0,0,0,0.4),0_5px_15px_rgba(0,0,0,0.6)]'}`}
+        style={activeTheme.isTiles ? { backgroundColor: 'transparent' } : {
+          borderWidth: `${(activeTheme.borderThickness ?? 6) / 2}px`,
+          borderStyle: activeTheme.borderStyle || 'solid',
+          borderColor: activeTheme.outerBorder,
+        }}
+      >
+        {!activeTheme.isTiles && (
+          <div className="absolute inset-0 w-full h-full pointer-events-none rounded-full overflow-hidden">
+            {activeTheme.layerOrder === 'color_top' ? (
+              <>
+                <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.outerTextureUrl ?? activeTheme.textureUrl}")`, backgroundSize: 'cover' }} />
+                <div className="absolute inset-0 w-full h-full" style={{ background: `radial-gradient(circle, ${activeTheme.outerBg} 0%, ${activeTheme.outerGrad} 100%)`, opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
+              </>
+            ) : (
+              <>
+                <div className="absolute inset-0 w-full h-full" style={{ background: `radial-gradient(circle, ${activeTheme.outerBg} 0%, ${activeTheme.outerGrad} 100%)` }} />
+                <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.outerTextureUrl ?? activeTheme.textureUrl}")`, backgroundSize: 'cover', opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
+              </>
+            )}
+          </div>
+        )}
+      </div>
+
       {/* Middle Ring */}
       <div 
-        className={`absolute inset-[18%] rounded-full ${activeTheme.isTiles ? '' : 'overflow-hidden shadow-[inset_0_0_10px_rgba(0,0,0,0.4)]'}`}
+        className={`absolute inset-[22%] rounded-full ${activeTheme.isTiles ? '' : 'overflow-hidden shadow-[inset_0_0_10px_rgba(0,0,0,0.4)]'}`}
         style={activeTheme.isTiles ? { backgroundColor: 'transparent' } : {
           borderWidth: `${Math.max(1, ((activeTheme.borderThickness ?? 6) / 2) - 0.5)}px`,
           borderStyle: activeTheme.borderStyle || 'solid',
@@ -73,7 +99,7 @@ function WheelThemePreview({ activeTheme }) {
 
       {/* Inner Ring */}
       <div 
-        className={`absolute inset-[34%] rounded-full ${activeTheme.isTiles ? '' : 'overflow-hidden shadow-[inset_0_0_8px_rgba(0,0,0,0.5)]'}`}
+        className={`absolute inset-[35%] rounded-full ${activeTheme.isTiles ? '' : 'overflow-hidden shadow-[inset_0_0_8px_rgba(0,0,0,0.5)]'}`}
         style={activeTheme.isTiles ? { backgroundColor: 'transparent' } : {
           borderWidth: `${Math.max(1, ((activeTheme.borderThickness ?? 6) / 2) - 1)}px`,
           borderStyle: activeTheme.borderStyle || 'solid',
