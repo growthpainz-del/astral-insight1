@@ -924,7 +924,16 @@ export default function SpiritWheel() {
                       <div className={`shrink-0 flex items-center justify-center overflow-hidden ${isCrowded ? 'w-8 h-8 sm:w-10 sm:h-10 md:w-14 md:h-14 lg:w-16 lg:h-16' : 'w-10 h-10 sm:w-14 sm:h-14 md:w-20 md:h-20 lg:w-24 lg:h-24'}`}>
                         <img src={getThumbnailUrl(getImageUrl(item.id), 400)} loading="lazy" alt="" className="w-full h-full object-contain filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)] rounded-full" />
                       </div>
-                    ) : (/^\d+$/.test(String(item.id)) ? <span className="text-[10px] sm:text-xs md:text-sm lg:text-base px-1 max-w-[60px] sm:max-w-[80px] whitespace-normal leading-tight text-center">{item.name}</span> : item.id)}
+                    ) : (
+                      <div className="flex flex-col items-center justify-center leading-none gap-0.5">
+                        {!/^\d+$/.test(String(item.id)) && <span>{item.id}</span>}
+                        {item.name && String(item.name).trim() !== String(item.id).trim() && (
+                          <span className="text-[8px] sm:text-[10px] md:text-xs lg:text-sm px-1 max-w-[50px] sm:max-w-[80px] whitespace-normal leading-tight text-center">
+                            {item.name}
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
                   {/* Segment dividers */}
                   {/* <div className="absolute top-0 -translate-x-1/2 w-[1px] h-full" style={{ transform: `rotate(${angle / 2}deg)`, backgroundColor: activeTheme.divider, opacity: 0.25 }}></div> */}
@@ -992,15 +1001,27 @@ export default function SpiritWheel() {
                     }}
                   >
                     {['Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Black', 'White', 'Brown', 'LightBlue', 'Grey', 'Orange'].includes(item.id) ? (
-                      <div className="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 lg:w-8 lg:h-8 rounded-full shadow-inner border border-black/30" style={{ backgroundColor: item.id === 'LightBlue' ? '#add8e6' : item.id.toLowerCase() }}></div>
+                      <div className="flex flex-col items-center justify-center leading-none gap-0.5">
+                        <div className="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 lg:w-8 lg:h-8 rounded-full shadow-inner border border-black/30" style={{ backgroundColor: item.id === 'LightBlue' ? '#add8e6' : item.id.toLowerCase() }}></div>
+                        {item.name && String(item.name).trim() !== String(item.id).trim() && (
+                          <span className="text-[8px] sm:text-[10px] md:text-xs lg:text-sm px-1 max-w-[50px] sm:max-w-[80px] whitespace-normal leading-tight text-center">
+                            {item.name}
+                          </span>
+                        )}
+                      </div>
                     ) : isImageSymbol(item.id) ? (
                       <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 shrink-0 flex items-center justify-center overflow-hidden">
                         <img src={getThumbnailUrl(getImageUrl(item.id), 400)} loading="lazy" alt="" className="w-full h-full object-contain filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)] rounded-full" />
                       </div>
                     ) : (
-                      <span className={activeTheme.isTiles ? "text-[10px] md:text-sm" : (/^\d+$/.test(String(item.id)) ? "text-[8px] sm:text-[10px] md:text-xs lg:text-sm px-1 max-w-[50px] sm:max-w-[70px] whitespace-normal leading-tight text-center" : "")}>
-                        {/^\d+$/.test(String(item.id)) ? item.name : item.id}
-                      </span>
+                      <div className={`flex flex-col items-center justify-center leading-none gap-0.5 ${activeTheme.isTiles ? "text-[10px] md:text-sm" : ""}`}>
+                        {!/^\d+$/.test(String(item.id)) && <span>{item.id}</span>}
+                        {item.name && String(item.name).trim() !== String(item.id).trim() && (
+                          <span className="text-[8px] sm:text-[10px] md:text-xs lg:text-sm px-1 max-w-[50px] sm:max-w-[70px] whitespace-normal leading-tight text-center">
+                            {item.name}
+                          </span>
+                        )}
+                      </div>
                     )}
                   </div>
                   {/* Segment dividers */}
@@ -1074,9 +1095,14 @@ export default function SpiritWheel() {
                         <img src={getThumbnailUrl(getImageUrl(item.id), 400)} loading="lazy" alt="" className="w-full h-full object-contain filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)] rounded-full" />
                       </div>
                     ) : (
-                      <span className={/^\d+$/.test(String(item.id)) ? "text-[10px] sm:text-xs md:text-sm lg:text-base px-1 max-w-[60px] sm:max-w-[80px] whitespace-normal leading-tight text-center" : ""}>
-                        {/^\d+$/.test(String(item.id)) ? item.name : item.id}
-                      </span>
+                      <div className="flex flex-col items-center justify-center leading-none gap-0.5">
+                        {!/^\d+$/.test(String(item.id)) && <span>{item.id}</span>}
+                        {item.name && String(item.name).trim() !== String(item.id).trim() && (
+                          <span className="text-[8px] sm:text-[10px] md:text-xs lg:text-sm px-1 max-w-[60px] sm:max-w-[80px] whitespace-normal leading-tight text-center">
+                            {item.name}
+                          </span>
+                        )}
+                      </div>
                     )}
                   </div>
                   {/* Segment dividers */}
