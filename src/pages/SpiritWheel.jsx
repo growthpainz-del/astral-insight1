@@ -285,41 +285,42 @@ export default function SpiritWheel() {
   const [spinSpeed, setSpinSpeed] = useState(1);
   const [spinDuration, setSpinDuration] = useState(5);
   const spinStartTime = useRef(0);
-  const startRotations = useRef({ outer: 0, middle: 0, inner: 0 });
-  const [rotations, setRotations] = useState({ outer: 0, middle: 0, inner: 0 });
-  const [selectedIndices, setSelectedIndices] = useState({ outer: 0, middle: 0, inner: 0 });
+  const startRotations = useRef({ outer1: 0, outer2: 0, middle: 0, inner: 0 });
+  const [rotations, setRotations] = useState({ outer1: 0, outer2: 0, middle: 0, inner: 0 });
+  const [selectedIndices, setSelectedIndices] = useState({ outer1: 0, outer2: 0, middle: 0, inner: 0 });
 
   const isSpinning = spinState !== "idle";
   
-  const outerRotRef = useRef(0);
-  const outerItemsRef = useRef([]);
+  const outer1RotRef = useRef(0);
+  const outer2RotRef = useRef(0);
+  const outer1ItemsRef = useRef([]);
+  const outer2ItemsRef = useRef([]);
 
-  useAnimationFrame(() => {
-    const r = outerRotRef.current;
-    const len = wheelData.outer.length;
-    if (len === 0 || !outerItemsRef.current) return;
+  const applyMagnify = (itemsRef, rotRef, len) => {
+    if (len === 0 || !itemsRef.current) return;
     const angle = 360 / len;
-    
-    outerItemsRef.current.forEach((el, i) => {
+    itemsRef.current.forEach((el, i) => {
       if (!el) return;
-      let absAngle = (r + i * angle) % 360;
+      let absAngle = (rotRef.current + i * angle) % 360;
       if (absAngle < 0) absAngle += 360;
-      
       let dist = Math.min(absAngle, 360 - absAngle);
-      
       let scale = 1;
       if (dist < 15) {
         const progress = 1 - (dist / 15);
-        scale = 1 + (0.7 * progress); // Magnify up to 1.7x
+        scale = 1 + (0.7 * progress);
         el.style.zIndex = 50;
         el.style.filter = `drop-shadow(0 0 10px rgba(255,200,0,${progress * 0.8}))`;
       } else {
         el.style.zIndex = 1;
         el.style.filter = 'none';
       }
-      
       el.style.transform = `translateX(-50%) scale(${scale})`;
     });
+  };
+
+  useAnimationFrame(() => {
+    applyMagnify(outer1ItemsRef, outer1RotRef, wheelData.outer1?.length || 0);
+    applyMagnify(outer2ItemsRef, outer2RotRef, wheelData.outer2?.length || 0);
   });
   const [aiInterpretation, setAiInterpretation] = useState("");
   const [isAiLoading, setIsAiLoading] = useState(false);
@@ -484,22 +485,27 @@ export default function SpiritWheel() {
     if (selectedWheelId !== "default") {
       const w = customWheels.find(cw => cw.id === selectedWheelId);
       if (w) {
+        const outerAll = (w.outer_ring || []).map((r, i) => ({ id: r.icon || String(i + 1), name: r.label, general: `${r.label}: ${r.meaning}` }));
+        const half = Math.ceil(outerAll.length / 2);
         return {
-          outer: (w.outer_ring || []).map((r, i) => ({ id: r.icon || String(i + 1), name: r.label, general: `${r.label}: ${r.meaning}` })),
+          outer1: outerAll.slice(0, half),
+          outer2: outerAll.slice(half),
           middle: (w.middle_ring || []).map((r, i) => ({ id: r.icon || String(i + 1), name: r.label, meaning: r.meaning, general: `${r.label}: ${r.meaning}` })),
           inner: (w.inner_ring || []).map((r, i) => ({ id: r.icon || String(i + 1), name: r.label, meaning: r.meaning, general: `${r.label}: ${r.meaning}` }))
         };
       }
     }
 
-    let outer = ROOTED_CARDS_DATA.map(c => ({
+    const allOuter = ROOTED_CARDS_DATA.map(c => ({
       id: c.id,
       name: c.name,
       general: `${c.name} (${c.symbol}): ${c.meaning}`
     }));
+    const half = Math.ceil(allOuter.length / 2);
 
     return {
-      outer,
+      outer1: allOuter.slice(0, half),
+      outer2: allOuter.slice(half),
       middle: WHEEL_MIDDLE,
       inner: WHEEL_INNER
     };
@@ -549,39 +555,43 @@ export default function SpiritWheel() {
     
 
 
-    const degreesPerSecondOuter = 270 * spinSpeed;
-    const degreesPerSecondMiddle = -270 * spinSpeed;
-    const degreesPerSecondInner = 360 * spinSpeed;
+    const degreesPerSecondOuter1 = 270 * spinSpeed;
+    const degreesPerSecondOuter2 = -270 * spinSpeed;
+    const degreesPerSecondMiddle = 360 * spinSpeed;
+    const degreesPerSecondInner = -360 * spinSpeed;
 
     setRotations({
-      outer: rotations.outer + degreesPerSecondOuter * 10000,
+      outer1: rotations.outer1 + degreesPerSecondOuter1 * 10000,
+      outer2: rotations.outer2 + degreesPerSecondOuter2 * 10000,
       middle: rotations.middle + degreesPerSecondMiddle * 10000,
       inner: rotations.inner + degreesPerSecondInner * 10000,
     });
 
     if (spinDuration !== "continuous") {
       window.spinTimeout = setTimeout(() => {
-        stopSpin(degreesPerSecondOuter, degreesPerSecondMiddle, degreesPerSecondInner);
+        stopSpin(degreesPerSecondOuter1, degreesPerSecondOuter2, degreesPerSecondMiddle, degreesPerSecondInner);
       }, spinDuration * 1000);
     }
   };
 
-  const stopSpin = (degOuter = 270 * spinSpeed, degMiddle = -270 * spinSpeed, degInner = 360 * spinSpeed) => {
+  const stopSpin = (degOuter1 = 270 * spinSpeed, degOuter2 = -270 * spinSpeed, degMiddle = 360 * spinSpeed, degInner = -360 * spinSpeed) => {
     setSpinState(prev => {
       if (prev !== "spinning") return prev;
       
       clearTimeout(window.spinTimeout);
       
       const elapsed = (Date.now() - spinStartTime.current) / 1000;
-      const currentOuter = startRotations.current.outer + degOuter * elapsed;
+      const currentOuter1 = startRotations.current.outer1 + degOuter1 * elapsed;
+      const currentOuter2 = startRotations.current.outer2 + degOuter2 * elapsed;
       const currentMiddle = startRotations.current.middle + degMiddle * elapsed;
       const currentInner = startRotations.current.inner + degInner * elapsed;
 
-      const newOuter = currentOuter + Math.sign(degOuter) * 360 * 1.5 + (wheelData.outer.length > 0 ? Math.floor(Math.random() * wheelData.outer.length) * (360 / wheelData.outer.length) : 0);
-      const newMiddle = currentMiddle + Math.sign(degMiddle) * 360 * 1.5 - (wheelData.middle.length > 0 ? Math.floor(Math.random() * wheelData.middle.length) * (360 / wheelData.middle.length) : 0);
-      const newInner = currentInner + Math.sign(degInner) * 360 * 1.5 + (wheelData.inner.length > 0 ? Math.floor(Math.random() * wheelData.inner.length) * (360 / wheelData.inner.length) : 0);
+      const newOuter1 = currentOuter1 + Math.sign(degOuter1) * 360 * 1.5 + (wheelData.outer1.length > 0 ? Math.floor(Math.random() * wheelData.outer1.length) * (360 / wheelData.outer1.length) : 0);
+      const newOuter2 = currentOuter2 + Math.sign(degOuter2) * 360 * 1.5 - (wheelData.outer2.length > 0 ? Math.floor(Math.random() * wheelData.outer2.length) * (360 / wheelData.outer2.length) : 0);
+      const newMiddle = currentMiddle + Math.sign(degMiddle) * 360 * 1.5 + (wheelData.middle.length > 0 ? Math.floor(Math.random() * wheelData.middle.length) * (360 / wheelData.middle.length) : 0);
+      const newInner = currentInner + Math.sign(degInner) * 360 * 1.5 - (wheelData.inner.length > 0 ? Math.floor(Math.random() * wheelData.inner.length) * (360 / wheelData.inner.length) : 0);
 
-      setRotations({ outer: newOuter, middle: newMiddle, inner: newInner });
+      setRotations({ outer1: newOuter1, outer2: newOuter2, middle: newMiddle, inner: newInner });
 
       if (typeof navigator !== 'undefined' && navigator.vibrate) {
         try {
@@ -600,9 +610,10 @@ export default function SpiritWheel() {
         if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate([30, 50, 30]);
         setSpinState("idle");
         setSelectedIndices({
-          outer: wheelData.outer.length > 0 ? (wheelData.outer.length - Math.round((newOuter % 360) / (360 / wheelData.outer.length))) % wheelData.outer.length : 0,
-          middle: wheelData.middle.length > 0 ? Math.round((Math.abs(newMiddle) % 360) / (360 / wheelData.middle.length)) % wheelData.middle.length : 0,
-          inner: wheelData.inner.length > 0 ? (wheelData.inner.length - Math.round((newInner % 360) / (360 / wheelData.inner.length))) % wheelData.inner.length : 0
+          outer1: wheelData.outer1.length > 0 ? (wheelData.outer1.length - Math.round((newOuter1 % 360) / (360 / wheelData.outer1.length))) % wheelData.outer1.length : 0,
+          outer2: wheelData.outer2.length > 0 ? Math.round((Math.abs(newOuter2) % 360) / (360 / wheelData.outer2.length)) % wheelData.outer2.length : 0,
+          middle: wheelData.middle.length > 0 ? (wheelData.middle.length - Math.round((newMiddle % 360) / (360 / wheelData.middle.length))) % wheelData.middle.length : 0,
+          inner: wheelData.inner.length > 0 ? Math.round((Math.abs(newInner) % 360) / (360 / wheelData.inner.length)) % wheelData.inner.length : 0
         });
         if (!blankMode) {
           // Force a micro-delay to let React apply selectedIndices before revealing
