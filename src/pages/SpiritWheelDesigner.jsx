@@ -154,16 +154,16 @@ const THEME_PACKS = {
     { label: "Pisces", meaning: "Compassionate, artistic, empathetic", type: "symbol", icon: "♓", card_id: "" }
   ],
   planets: [
-    { label: "Sun", meaning: "Ego, vitality, consciousness", type: "symbol", icon: "☀️", card_id: "" },
-    { label: "Moon", meaning: "Emotions, instincts, habits", type: "symbol", icon: "🌙", card_id: "" },
-    { label: "Mercury", meaning: "Communication, intellect, reason", type: "symbol", icon: "☿", card_id: "" },
-    { label: "Venus", meaning: "Love, beauty, harmony", type: "symbol", icon: "♀", card_id: "" },
-    { label: "Mars", meaning: "Action, desire, aggression", type: "symbol", icon: "♂", card_id: "" },
-    { label: "Jupiter", meaning: "Expansion, luck, philosophy", type: "symbol", icon: "♃", card_id: "" },
-    { label: "Saturn", meaning: "Restriction, discipline, structure", type: "symbol", icon: "♄", card_id: "" },
-    { label: "Uranus", meaning: "Innovation, rebellion, unpredictability", type: "symbol", icon: "♅", card_id: "" },
-    { label: "Neptune", meaning: "Dreams, illusion, spirituality", type: "symbol", icon: "♆", card_id: "" },
-    { label: "Pluto", meaning: "Transformation, power, rebirth", type: "symbol", icon: "♇", card_id: "" }
+    { label: "Sun", meaning: "Ego, vitality, consciousness", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/213c137b3_831F02BA-CCDF-4A3D-9B23-ABA1E0409415.png", card_id: "" },
+    { label: "Moon", meaning: "Emotions, instincts, habits", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/f17944a74_E388C6E8-CD80-4F9D-9270-E9DD93658270.png", card_id: "" },
+    { label: "Mercury", meaning: "Communication, intellect, reason", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/e561b7e01_A47648F8-437A-4170-B451-BFC8558D2628.png", card_id: "" },
+    { label: "Venus", meaning: "Love, beauty, harmony", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/d74ef49c9_0739AAAD-FCAE-4254-98B6-0FE79C9463E3.png", card_id: "" },
+    { label: "Mars", meaning: "Action, desire, aggression", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/dca42f5c1_BE0B3104-0129-4E8A-AAA8-6467D8B494EB.png", card_id: "" },
+    { label: "Jupiter", meaning: "Expansion, luck, philosophy", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/a2ffa2e05_A959156B-4F42-4556-9DC9-A33D6FD2C43A.png", card_id: "" },
+    { label: "Saturn", meaning: "Restriction, discipline, structure", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/12bfd8e92_71AAFBE2-CCC2-4D68-86C4-56B5A3D021EC.png", card_id: "" },
+    { label: "Uranus", meaning: "Innovation, rebellion, unpredictability", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/b7cac7685_B3C6EDCD-BD11-4F23-B44E-AE1CFF50806C.png", card_id: "" },
+    { label: "Neptune", meaning: "Dreams, illusion, spirituality", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/0ace0e0a7_2040CCCD-762C-462B-A8F3-F229B8ED919A.png", card_id: "" },
+    { label: "Pluto", meaning: "Transformation, power, rebirth", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/9e35aa2ef_77346AF3-16D9-4CC9-861B-043E96F54407.png", card_id: "" }
   ],
   spiritual_emoticons: [
     { label: "Grounded Moon", meaning: "Instant grounding and presence.", type: "symbol", icon: "🌙", card_id: "" },
