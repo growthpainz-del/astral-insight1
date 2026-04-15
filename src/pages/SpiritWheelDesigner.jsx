@@ -156,6 +156,7 @@ const THEME_PACKS = {
   planets: [
     { label: "Sun", meaning: "Ego, vitality, consciousness", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/213c137b3_831F02BA-CCDF-4A3D-9B23-ABA1E0409415.png", card_id: "" },
     { label: "Moon", meaning: "Emotions, instincts, habits", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/f17944a74_E388C6E8-CD80-4F9D-9270-E9DD93658270.png", card_id: "" },
+    { label: "Earth", meaning: "Physical reality, nature, grounding", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/6d17720e6_B65A5B34-095D-4CE1-A14C-4033955928C5.png", card_id: "" },
     { label: "Mercury", meaning: "Communication, intellect, reason", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/e561b7e01_A47648F8-437A-4170-B451-BFC8558D2628.png", card_id: "" },
     { label: "Venus", meaning: "Love, beauty, harmony", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/d74ef49c9_0739AAAD-FCAE-4254-98B6-0FE79C9463E3.png", card_id: "" },
     { label: "Mars", meaning: "Action, desire, aggression", type: "symbol", icon: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/dca42f5c1_BE0B3104-0129-4E8A-AAA8-6467D8B494EB.png", card_id: "" },
