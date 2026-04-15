@@ -6,7 +6,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Sparkles, RefreshCw, Eye, ChevronLeft, Save, Plus, ZoomIn, ZoomOut, Download, Octagon, StopCircle, Share2, Copy } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, useAnimationFrame } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import AudioOrb from "@/components/reading/AudioOrb";
@@ -279,6 +279,7 @@ export default function SpiritWheel() {
 
   const [category, setCategory] = useState("General");
   const [blankMode, setBlankMode] = useState(false);
+  const [showLabels, setShowLabels] = useState(false);
   const [isRevealed, setIsRevealed] = useState(false);
   const [spinState, setSpinState] = useState("idle"); // idle, spinning, stopping
   const [spinSpeed, setSpinSpeed] = useState(1);
@@ -289,6 +290,37 @@ export default function SpiritWheel() {
   const [selectedIndices, setSelectedIndices] = useState({ outer: 0, middle: 0, inner: 0 });
 
   const isSpinning = spinState !== "idle";
+  
+  const outerRotRef = useRef(0);
+  const outerItemsRef = useRef([]);
+
+  useAnimationFrame(() => {
+    const r = outerRotRef.current;
+    const len = wheelData.outer.length;
+    if (len === 0 || !outerItemsRef.current) return;
+    const angle = 360 / len;
+    
+    outerItemsRef.current.forEach((el, i) => {
+      if (!el) return;
+      let absAngle = (r + i * angle) % 360;
+      if (absAngle < 0) absAngle += 360;
+      
+      let dist = Math.min(absAngle, 360 - absAngle);
+      
+      let scale = 1;
+      if (dist < 15) {
+        const progress = 1 - (dist / 15);
+        scale = 1 + (0.7 * progress); // Magnify up to 1.7x
+        el.style.zIndex = 50;
+        el.style.filter = `drop-shadow(0 0 10px rgba(255,200,0,${progress * 0.8}))`;
+      } else {
+        el.style.zIndex = 1;
+        el.style.filter = 'none';
+      }
+      
+      el.style.transform = `translateX(-50%) scale(${scale})`;
+    });
+  });
   const [aiInterpretation, setAiInterpretation] = useState("");
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -878,6 +910,9 @@ export default function SpiritWheel() {
                 borderColor: activeTheme.outerBorder,
               }}
               animate={{ rotate: rotations.outer }}
+              onUpdate={(latest) => {
+                 if (latest.rotate !== undefined) outerRotRef.current = latest.rotate;
+              }}
               transition={spinState === "spinning" ? { duration: 10000, ease: "linear" } : { duration: 3.5, type: "tween", ease: "circOut" }}
             >
               {!activeTheme.isTiles && (
@@ -904,13 +939,20 @@ export default function SpiritWheel() {
                   className="absolute top-0 left-1/2 -translate-x-1/2 w-[1px] h-[50%] origin-bottom"
                   style={{ transform: `rotate(${i * angle}deg)` }}
                 >
-                  <div 
-                    className={`absolute -translate-x-1/2 flex items-center justify-center font-bold whitespace-nowrap transition-all duration-300 ${
-                      activeTheme.isTiles || item.bgImage
-                        ? 'w-[36px] h-[36px] sm:w-12 sm:h-12 md:w-16 md:h-16 rounded-full border-2 top-[-18px] sm:top-[-24px] md:top-[-32px] shadow-lg' 
-                        : (isCrowded && i % 2 === 1 ? 'top-6 sm:top-8 md:top-10 lg:top-12' : 'top-1 sm:top-2 md:top-3 lg:top-4') + ' text-base md:text-2xl lg:text-3xl xl:text-4xl'
-                    }`} 
-                    style={{ 
+                  <div
+                    ref={el => {
+                       if (outerItemsRef.current) outerItemsRef.current[i] = el;
+                    }}
+                    className="absolute left-1/2 top-0 origin-center"
+                    style={{ transform: 'translateX(-50%) scale(1)' }}
+                  >
+                    <div 
+                      className={`relative flex items-center justify-center font-bold whitespace-nowrap transition-all duration-300 ${
+                        activeTheme.isTiles || item.bgImage
+                          ? 'w-[36px] h-[36px] sm:w-12 sm:h-12 md:w-16 md:h-16 rounded-full border-2 top-[-18px] sm:top-[-24px] md:top-[-32px] shadow-lg' 
+                          : (isCrowded && i % 2 === 1 ? 'top-6 sm:top-8 md:top-10 lg:top-12' : 'top-1 sm:top-2 md:top-3 lg:top-4') + ' text-base md:text-2xl lg:text-3xl xl:text-4xl'
+                      }`} 
+                      style={{ 
                       color: activeTheme.textOuter,
                       backgroundColor: activeTheme.isTiles ? activeTheme.outerBg : (item.bgImage ? 'rgba(0,0,0,0.5)' : 'transparent'),
                       backgroundImage: item.bgImage ? `url("${item.bgImage}")` : 'none',
@@ -933,13 +975,14 @@ export default function SpiritWheel() {
                     ) : (
                       <div className="flex flex-col items-center justify-center leading-none gap-0.5">
                         {!/^\d+$/.test(String(item.id)) && <span>{item.id}</span>}
-                        {item.name && String(item.name).trim() !== String(item.id).trim() && (
+                        {showLabels && item.name && String(item.name).trim() !== String(item.id).trim() && (
                           <span className="text-[8px] sm:text-[10px] md:text-xs lg:text-sm px-1 max-w-[50px] sm:max-w-[80px] whitespace-normal leading-tight text-center">
                             {item.name}
                           </span>
                         )}
                       </div>
                     )}
+                  </div>
                   </div>
                   {/* Segment dividers */}
                   {/* <div className="absolute top-0 -translate-x-1/2 w-[1px] h-full" style={{ transform: `rotate(${angle / 2}deg)`, backgroundColor: activeTheme.divider, opacity: 0.25 }}></div> */}
@@ -1009,7 +1052,7 @@ export default function SpiritWheel() {
                     {['Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Black', 'White', 'Brown', 'LightBlue', 'Grey', 'Orange'].includes(item.id) ? (
                       <div className="flex flex-col items-center justify-center leading-none gap-0.5">
                         <div className="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 lg:w-8 lg:h-8 rounded-full shadow-inner border border-black/30" style={{ backgroundColor: item.id === 'LightBlue' ? '#add8e6' : item.id.toLowerCase() }}></div>
-                        {item.name && String(item.name).trim() !== String(item.id).trim() && (
+                        {showLabels && item.name && String(item.name).trim() !== String(item.id).trim() && (
                           <span className="text-[8px] sm:text-[10px] md:text-xs lg:text-sm px-1 max-w-[50px] sm:max-w-[80px] whitespace-normal leading-tight text-center">
                             {item.name}
                           </span>
@@ -1022,7 +1065,7 @@ export default function SpiritWheel() {
                     ) : (
                       <div className={`flex flex-col items-center justify-center leading-none gap-0.5 ${activeTheme.isTiles ? "text-[10px] md:text-sm" : ""}`}>
                         {!/^\d+$/.test(String(item.id)) && <span>{item.id}</span>}
-                        {item.name && String(item.name).trim() !== String(item.id).trim() && (
+                        {showLabels && item.name && String(item.name).trim() !== String(item.id).trim() && (
                           <span className="text-[8px] sm:text-[10px] md:text-xs lg:text-sm px-1 max-w-[50px] sm:max-w-[70px] whitespace-normal leading-tight text-center">
                             {item.name}
                           </span>
@@ -1077,8 +1120,8 @@ export default function SpiritWheel() {
                   <div 
                     className={`absolute -translate-x-1/2 flex items-center justify-center font-bold whitespace-nowrap transition-all duration-300 ${
                       activeTheme.isTiles || item.bgImage
-                        ? 'w-[36px] h-[36px] sm:w-14 sm:h-14 md:w-[70px] md:h-[70px] rounded-full border-2 top-[-18px] sm:top-[-28px] md:top-[-35px] shadow-lg' 
-                        : 'top-2 sm:top-3 md:top-5 lg:top-8 text-xl md:text-4xl lg:text-5xl xl:text-6xl'
+                        ? 'w-[28px] h-[28px] sm:w-10 sm:h-10 md:w-[50px] md:h-[50px] rounded-full border-2 top-[-14px] sm:top-[-20px] md:top-[-25px] shadow-lg' 
+                        : 'top-2 sm:top-3 md:top-5 lg:top-8 text-lg md:text-2xl lg:text-3xl xl:text-4xl'
                     }`} 
                     style={{ 
                       color: activeTheme.textInner,
@@ -1097,13 +1140,13 @@ export default function SpiritWheel() {
                     }}
                   >
                     {isImageSymbol(item.id) ? (
-                      <div className="w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-32 lg:h-32 shrink-0 flex items-center justify-center overflow-hidden">
+                      <div className="w-10 h-10 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 shrink-0 flex items-center justify-center overflow-hidden">
                         <img src={getThumbnailUrl(getImageUrl(item.id), 400)} loading="lazy" alt="" className="w-full h-full object-contain filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)] rounded-full" />
                       </div>
                     ) : (
                       <div className="flex flex-col items-center justify-center leading-none gap-0.5">
                         {!/^\d+$/.test(String(item.id)) && <span>{item.id}</span>}
-                        {item.name && String(item.name).trim() !== String(item.id).trim() && (
+                        {showLabels && item.name && String(item.name).trim() !== String(item.id).trim() && (
                           <span className="text-[8px] sm:text-[10px] md:text-xs lg:text-sm px-1 max-w-[60px] sm:max-w-[80px] whitespace-normal leading-tight text-center">
                             {item.name}
                           </span>
@@ -1368,6 +1411,14 @@ export default function SpiritWheel() {
                 <div className="text-sm text-amber-200/60">Hide meanings until you meditate on them</div>
               </div>
               <Switch checked={blankMode} onCheckedChange={setBlankMode} className="data-[state=checked]:bg-amber-600" />
+            </div>
+
+            <div className="flex items-center justify-between p-4 bg-[#2d1b0d]/50 rounded-lg border border-[#5c3a21]">
+              <div>
+                <div className="font-semibold text-amber-200">Show Symbol Titles</div>
+                <div className="text-sm text-amber-200/60">Display names under symbols directly on the wheel</div>
+              </div>
+              <Switch checked={showLabels} onCheckedChange={setShowLabels} className="data-[state=checked]:bg-amber-600" />
             </div>
           </div>
       </div>
