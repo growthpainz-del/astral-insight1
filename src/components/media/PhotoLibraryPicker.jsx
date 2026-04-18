@@ -179,6 +179,18 @@ export default function PhotoLibraryPicker({ isOpen, onClose, onSelect, deckId }
     }
   };
 
+  const copyAllUrls = async () => {
+    try {
+      const urls = filtered.map((it) => it.file_url).filter(Boolean).join("\n");
+      if (!urls) return;
+      await navigator.clipboard.writeText(urls);
+      setCopiedIdx("all");
+      setTimeout(() => setCopiedIdx(null), 2000);
+    } catch {
+      alert("Failed to copy URLs");
+    }
+  };
+
   const handleQuickUpload = async (fileList) => {
     const selected = Array.from(fileList || []).filter(isValidFile);
     if (!selected.length) return;
@@ -312,6 +324,12 @@ export default function PhotoLibraryPicker({ isOpen, onClose, onSelect, deckId }
                 Also original
               </label>
               {uploadError && <span className="text-red-300">{uploadError}</span>}
+              {filtered.length > 0 && (
+                <Button size="sm" variant="outline" className="border-white/20 text-white hover:bg-white/10 h-7 text-xs px-2" onClick={copyAllUrls}>
+                  {copiedIdx === "all" ? <Check className="w-3 h-3 mr-1 text-emerald-300" /> : <Copy className="w-3 h-3 mr-1" />}
+                  {copiedIdx === "all" ? "Copied!" : `Copy ${filtered.length} URLs`}
+                </Button>
+              )}
             </div>
             
             {/* Moved Load More button to the free space on the right of the checkboxes */}
