@@ -9,60 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { base44 } from '@/api/base44Client';
-
-// 50 Cards of the Rooted Crescent Oracle Deck
-const ROOTED_CARDS_DATA = [
-  { id: "1", name: "The Rooted Journey", symbol: "Minimalist tree root curling into a tight spiral circle.", meaning: "Grounded wisdom balances intuition and strength for growth." },
-  { id: "2", name: "The Endless Storm", symbol: "Stylized swirling storm lines inside a sturdy circle.", meaning: "Resilience shines through challenges, finding wisdom in scars." },
-  { id: "3", name: "Guardian of the Desert", symbol: "Simple saguaro cactus with three balanced arms.", meaning: "Thrive in adversity, balancing protection and nurturing." },
-  { id: "4", name: "Petals of Resilience", symbol: "Single open flower with five strong petals and solid center.", meaning: "Blend strength and softness to grow through challenges." },
-  { id: "5", name: "Emergence from Chaos", symbol: "Cracked circle with a butterfly breaking free.", meaning: "Clarity transforms struggles into opportunities." },
-  { id: "6", name: "The Jaws of Time", symbol: "Open jaws formed by clock hands around a small circle.", meaning: "Cherish the present to align with your purpose." },
-  { id: "7", name: "The Seer's Gaze", symbol: "Open eye with three concentric circles in the pupil.", meaning: "Intuition reveals hidden truths for spiritual growth." },
-  { id: "8", name: "The Guardian of Reflection", symbol: "Still pond circle with three gentle ripple lines.", meaning: "Deep reflection uncovers transformative wisdom." },
-  { id: "9", name: "The Silent Observer", symbol: "Closed eye with soft arched brow above.", meaning: "Silence fosters empathy and profound insight." },
-  { id: "10", name: "Between the Folds", symbol: "Simple folded layers unfolding into a smooth curve.", meaning: "Patience reveals hidden truths and clarity." },
-  { id: "11", name: "The Veil of Solitude", symbol: "Teardrop-shaped veil or curtain with soft folds.", meaning: "Solitude heals and transforms pain into wisdom." },
-  { id: "12", name: "Shielding Embrace", symbol: "Two curved arms forming a protective circle.", meaning: "Quiet support offers comfort without control." },
-  { id: "13", name: "The Wild Embrace", symbol: "Stylized flame inside a leaf-shaped heart.", meaning: "Unleash passion and instincts for authentic connection." },
-  { id: "14", name: "Ghostly Patrons", symbol: "Two faint overlapping ethereal figures in a circle.", meaning: "Past connections offer strength and wisdom." },
-  { id: "15", name: "In-Tan-Demoiselles", symbol: "Two figures back-to-back holding hands in a circle.", meaning: "Shared joy uplifts through collaboration." },
-  { id: "16", name: "The Alchemist's Cauldron", symbol: "Small cauldron with three flames underneath.", meaning: "Transform talents into new possibilities." },
-  { id: "17", name: "The Muse's Morning Star", symbol: "Bright star rising above a simple horizon line.", meaning: "Inspiration guides dreams to reality." },
-  { id: "18", name: "Starweaver's Embrace", symbol: "Two interlocking crescents forming a star.", meaning: "Weave cosmic inspiration for bold creation." },
-  { id: "19", name: "Visionary Journey", symbol: "Winding path leading toward an open horizon.", meaning: "Expand consciousness through exploration." },
-  { id: "20", name: "Illuminating Insight", symbol: "Bright star with radiating light beams.", meaning: "Brilliance lights new creative paths." },
-  { id: "21", name: "Luna Duala", symbol: "Two overlapping crescents (one light, one dark).", meaning: "Harmonize opposites for wholeness." },
-  { id: "22", name: "The Comfort Paradox", symbol: "Soft cushion shape merging into sharp upward arrow.", meaning: "Balance comfort with growth for progress." },
-  { id: "23", name: "The 4 Shadows", symbol: "Four small triangles arranged in a diamond.", meaning: "Embrace shadows for freedom and unity." },
-  { id: "24", name: "The Eye of Siren", symbol: "Stylized eye merged with a simple star or wave.", meaning: "Discern truth from illusion in relationships." },
-  { id: "25", name: "The Cosmic Vision", symbol: "Swirling cosmic circle with tiny stars inside.", meaning: "Universal truths bring inner peace." },
-  { id: "26", name: "The Weaver of Truth", symbol: "Simple loom or interwoven threads forming a web.", meaning: "Gently embrace truth for acceptance." },
-  { id: "27", name: "The Deflected", symbol: "Shield shape with arrows bouncing off.", meaning: "Reflect on defenses to embrace vulnerability." },
-  { id: "28", name: "The Day Moon's Grip", symbol: "Crescent moon gently holding a small sun disk.", meaning: "Forgiveness releases burdens for harmony." },
-  { id: "29", name: "Echoes of the Mind", symbol: "Concentric sound waves or ripples from a center point.", meaning: "Inner guidance offers protection and clarity." },
-  { id: "30", name: "The Heart Full Foundress", symbol: "Sturdy heart shape with roots at the base.", meaning: "Nurture with love and strength for growth." },
-  { id: "31", name: "Guardian of In-Essence", symbol: "Small glowing inner flame or child-like spark.", meaning: "Protect your inner joy and essence." },
-  { id: "32", name: "The Sureline of Purpose", symbol: "Straight arrow piercing a solid circle.", meaning: "Stand firm in purpose through introspection." },
-  { id: "33", name: "Nis Puk's Whisper", symbol: "Playful small creature silhouette with speech swirl.", meaning: "Playful wisdom guides subtly." },
-  { id: "34", name: "The Patient Feminine", symbol: "Gentle curved feminine figure in seated pose.", meaning: "Patience and grounded strength lead to growth." },
-  { id: "35", name: "The Garden Portal", symbol: "Simple arch or gate with upward flowing lines.", meaning: "Courage opens gateways to new dimensions." },
-  { id: "36", name: "With Chains Unbound", symbol: "Broken chain links forming an open circle.", meaning: "Break free from patterns for new paths." },
-  { id: "37", name: "Nature's Whisper", symbol: "Leaf or tree branch with subtle wind lines.", meaning: "Nature’s cycles guide wisdom and vitality." },
-  { id: "38", name: "Back Road Whispers", symbol: "Winding road path disappearing into distance.", meaning: "Winding paths lead to wisdom through exploration." },
-  { id: "39", name: "Veins of the Void", symbol: "Cracked dark circle with light veins flowing in.", meaning: "Emerge from shadows to claim your true self." },
-  { id: "40", name: "The Triad of Synergy", symbol: "Three interlocking circles or triangles.", meaning: "Harmonize mind, body, spirit for strength." },
-  { id: "41", name: "The Fun Gus In Us", symbol: "Mushroom with connected mycelium threads at base.", meaning: "Community and reciprocity foster joy." },
-  { id: "42", name: "The Voyage of Shadows", symbol: "Small boat on stylized wavy lines.", meaning: "Navigate inner darkness for growth." },
-  { id: "43", name: "Fringe Fusions", symbol: "Two different shapes (circle + triangle) merging.", meaning: "Blend unconventional ideas for growth." },
-  { id: "44", name: "Cascading Illumination", symbol: "Waterfall of light dots or lines flowing down.", meaning: "Insights flow to light new paths." },
-  { id: "45", name: "In-Tan-Demoiselles II", symbol: "Two figures back-to-back holding hands in circle.", meaning: "Shared joy uplifts through collaboration." },
-  { id: "46", name: "Blabbergaster", symbol: "Explosive speech bubble with chaotic energy lines.", meaning: "Embrace chaos for bold expression." },
-  { id: "47", name: "The Mountain's Keeper", symbol: "Triangular mountain peak with strong flat base.", meaning: "Ascend with clear vision and strength." },
-  { id: "48", name: "Harmonic Gates of Ascension", symbol: "Simple arch or gate with upward flowing lines.", meaning: "Align with cosmic flow for transformation." },
-  { id: "49", name: "The Humble Huntress", symbol: "Small bow and arrow pointing upward.", meaning: "Pursue goals with quiet determination." },
-  { id: "50", name: "The Jealous-Eye", symbol: "Eye with a small heart or trust symbol inside.", meaning: "Acknowledge jealousy to build trust." }
-];
+import { ROOTED_CARDS_DATA, WHEEL_MIDDLE, WHEEL_INNER } from "./SpiritWheel";
 
 const WHEEL_DATA = {
   outer: ROOTED_CARDS_DATA.map(c => ({
@@ -70,56 +17,8 @@ const WHEEL_DATA = {
     name: c.name,
     general: `${c.name} (${c.symbol}): ${c.meaning}`
   })),
-  middle: [
-    { id: "🍷", meaning: "Drink" },
-    { id: "✈️", meaning: "Travel" },
-    { id: "♂️", meaning: "Male" },
-    { id: "♀️", meaning: "Female" },
-    { id: "☹️", meaning: "Unhappy" },
-    { id: "😊", meaning: "Happy" },
-    { id: "😠", meaning: "Mad" },
-    { id: "👂", meaning: "Listen" },
-    { id: "⏪", meaning: "Look to the past" },
-    { id: "⏩", meaning: "Look to the future" },
-    { id: "⚖️", meaning: "Law" },
-    { id: "⏳", meaning: "Time" },
-    { id: "🔬", meaning: "Microscope (zoom in / examine)" },
-    { id: "🔭", meaning: "Telescope (big picture / far vision)" },
-    { id: "💨", meaning: "Smoke" },
-    { id: "🤝", meaning: "Together" },
-    { id: "Black", meaning: "Hidden / unconscious mind" },
-    { id: "White", meaning: "Purity / truth" },
-    { id: "Blue", meaning: "Water / communication / inspiration / peace" },
-    { id: "Yellow", meaning: "Air / mental activity" },
-    { id: "Green", meaning: "Nature / fertility / growth" },
-    { id: "Brown", meaning: "Earth / soil" },
-    { id: "Red", meaning: "Fire / passion / sex" },
-    { id: "Grey", meaning: "Stability / neutral" },
-    { id: "Orange", meaning: "Attraction / friendship" },
-    { id: "Purple", meaning: "Intuition / psychic / spirit contact" }
-  ],
-  inner: [
-    { id: "🚪", meaning: "Option closed / path shut for now" },
-    { id: "🔓", meaning: "Option open / path is clear" },
-    { id: "❤️", meaning: "Love / heart connection" },
-    { id: "💰", meaning: "Money / financial flow" },
-    { id: "♫", meaning: "Music / creative harmony" },
-    { id: "⚠️", meaning: "Bad / warning / evil" },
-    { id: "✅", meaning: "Yes" },
-    { id: "❌", meaning: "No" },
-    { id: "⏹", meaning: "Stop" },
-    { id: "▶", meaning: "Go" },
-    { id: "❓", meaning: "What? / Clarify" },
-    { id: "👋", meaning: "Hi!!! I’m here / positive presence" },
-    { id: "✌️", meaning: "Bye... until next time" },
-    { id: "📖", meaning: "Knowledge" },
-    { id: "💍", meaning: "Marriage" },
-    { id: "🔥", meaning: "Nothing" },
-    { id: "⬆️", meaning: "North / that way" },
-    { id: "➡️", meaning: "East / that way" },
-    { id: "⬇️", meaning: "South / that way" },
-    { id: "⬅️", meaning: "West / that way" }
-  ]
+  middle: WHEEL_MIDDLE,
+  inner: WHEEL_INNER
 };
 
 const CATEGORIES = ["General", "Relationships", "Numbers", "Age", "Body Parts", "Colors", "Lost Items", "Height", "Time", "Astrology", "Emotions", "Profiler", "Seasons and Shapes", "Traveling", "Zapped", "X-Rated"];
