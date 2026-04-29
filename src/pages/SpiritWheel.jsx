@@ -593,19 +593,7 @@ export default function SpiritWheel() {
     requestAnimationFrame(animate);
   };
 
-  const getSegmentText = (ring, index) => {
-    if (ring === 'outer1') {
-      const item = wheelData.outer1[index];
-      return item?.name || item?.id || "";
-    }
-    if (ring === 'outer2') {
-      const item = wheelData.outer2[index];
-      return item?.name || item?.id || "";
-    }
-    if (ring === 'middle') return wheelData.middle[index]?.meaning || "";
-    if (ring === 'inner') return wheelData.inner[index]?.meaning || "";
-    return "";
-  };
+
 
   const handleReveal = () => {
     setIsRevealed(true);
