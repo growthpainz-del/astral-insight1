@@ -16,6 +16,72 @@ import ReadingShareModal from "@/components/reading/ReadingShareModal";
 import { queueApiCall } from "@/components/utils/apiQueue";
 import { getThumbnailUrl } from "@/lib/utils";
 
+const SPIN_WORKER_CODE = `
+let interval;
+let spinning = false;
+let stopping = false;
+let velocities = {};
+let rotations = {};
+let targets = {};
+let lastTime = 0;
+
+self.onmessage = function(e) {
+  const { type, payload } = e.data;
+  
+  if (type === 'START') {
+    velocities = payload.velocities;
+    rotations = payload.startRotations;
+    spinning = true;
+    stopping = false;
+    lastTime = performance.now();
+    
+    clearInterval(interval);
+    interval = setInterval(() => {
+      const now = performance.now();
+      const dt = (now - lastTime) / 1000;
+      lastTime = now;
+      
+      rotations.outer1 += velocities.outer1 * dt;
+      rotations.outer2 += velocities.outer2 * dt;
+      rotations.middle += velocities.middle * dt;
+      rotations.inner += velocities.inner * dt;
+      
+      self.postMessage({ type: 'TICK', rotations });
+    }, 1000 / 60);
+  } 
+  else if (type === 'STOP') {
+    spinning = false;
+    stopping = true;
+    targets = payload.targets;
+    
+    clearInterval(interval);
+    interval = setInterval(() => {
+      const now = performance.now();
+      const dt = (now - lastTime) / 1000;
+      lastTime = now;
+      
+      let allStopped = true;
+      ['outer1', 'outer2', 'middle', 'inner'].forEach(key => {
+        const diff = targets[key] - rotations[key];
+        if (Math.abs(diff) > 0.5) {
+          rotations[key] += diff * 3.5 * dt;
+          allStopped = false;
+        } else {
+          rotations[key] = targets[key];
+        }
+      });
+      
+      self.postMessage({ type: 'TICK', rotations });
+      
+      if (allStopped) {
+        clearInterval(interval);
+        self.postMessage({ type: 'STOPPED', rotations });
+      }
+    }, 1000 / 60);
+  }
+};
+`;
+
 // 50 Cards of the Rooted Crescent Oracle Deck
 export const ROOTED_CARDS_DATA = [
   { id: "1", name: "The Rooted Journey", symbol: "Minimalist tree root curling into a tight spiral circle.", meaning: "Grounded wisdom balances intuition and strength for growth." },
@@ -293,8 +359,47 @@ export default function SpiritWheel() {
   
   const outer1RotRef = useRef(0);
   const outer2RotRef = useRef(0);
+  const middleRotRef = useRef(0);
+  const innerRotRef = useRef(0);
+  
   const outer1ItemsRef = useRef([]);
   const outer2ItemsRef = useRef([]);
+
+  const outer1RingRef = useRef(null);
+  const outer2RingRef = useRef(null);
+  const middleRingRef = useRef(null);
+  const innerRingRef = useRef(null);
+
+  const workerRef = useRef(null);
+  const handleWorkerStoppedRef = useRef(null);
+
+  useEffect(() => {
+    const blob = new Blob([SPIN_WORKER_CODE], { type: 'application/javascript' });
+    const url = URL.createObjectURL(blob);
+    workerRef.current = new Worker(url);
+    
+    workerRef.current.onmessage = (e) => {
+      const { type, rotations: newRots } = e.data;
+      if (type === 'TICK') {
+        if (outer1RingRef.current) outer1RingRef.current.style.transform = \`rotate(\${newRots.outer1}deg)\`;
+        if (outer2RingRef.current) outer2RingRef.current.style.transform = \`rotate(\${newRots.outer2}deg)\`;
+        if (middleRingRef.current) middleRingRef.current.style.transform = \`rotate(\${newRots.middle}deg)\`;
+        if (innerRingRef.current) innerRingRef.current.style.transform = \`rotate(\${newRots.inner}deg)\`;
+        
+        outer1RotRef.current = newRots.outer1;
+        outer2RotRef.current = newRots.outer2;
+        middleRotRef.current = newRots.middle;
+        innerRotRef.current = newRots.inner;
+      } else if (type === 'STOPPED') {
+        if (handleWorkerStoppedRef.current) handleWorkerStoppedRef.current(newRots);
+      }
+    };
+    
+    return () => {
+      if (workerRef.current) workerRef.current.terminate();
+      URL.revokeObjectURL(url);
+    };
+  }, []);
 
   const applyMagnify = (itemsRef, rotRef, len) => {
     if (len === 0 || !itemsRef.current) return;
@@ -545,6 +650,23 @@ export default function SpiritWheel() {
     }
   }, [selectedWheelId, customWheels]);
 
+  handleWorkerStoppedRef.current = (finalRotations) => {
+    if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate([30, 50, 30]);
+    setSpinState("idle");
+    setRotations(finalRotations);
+    
+    setSelectedIndices({
+      outer1: wheelData.outer1.length > 0 ? (wheelData.outer1.length - Math.round((finalRotations.outer1 % 360) / (360 / wheelData.outer1.length))) % wheelData.outer1.length : 0,
+      outer2: wheelData.outer2.length > 0 ? Math.round((Math.abs(finalRotations.outer2) % 360) / (360 / wheelData.outer2.length)) % wheelData.outer2.length : 0,
+      middle: wheelData.middle.length > 0 ? (wheelData.middle.length - Math.round((finalRotations.middle % 360) / (360 / wheelData.middle.length))) % wheelData.middle.length : 0,
+      inner: wheelData.inner.length > 0 ? Math.round((Math.abs(finalRotations.inner) % 360) / (360 / wheelData.inner.length)) % wheelData.inner.length : 0
+    });
+    
+    if (!blankMode) {
+      setTimeout(() => setIsRevealed(true), 50);
+    }
+  };
+
   const spinWheel = () => {
     if (spinState !== "idle") return;
     setSpinState("spinning");
@@ -553,45 +675,64 @@ export default function SpiritWheel() {
     spinStartTime.current = Date.now();
     startRotations.current = rotations;
     
+    const velocities = {
+      outer1: 270 * spinSpeed,
+      outer2: -270 * spinSpeed,
+      middle: 360 * spinSpeed,
+      inner: -360 * spinSpeed
+    };
 
-
-    const degreesPerSecondOuter1 = 270 * spinSpeed;
-    const degreesPerSecondOuter2 = -270 * spinSpeed;
-    const degreesPerSecondMiddle = 360 * spinSpeed;
-    const degreesPerSecondInner = -360 * spinSpeed;
-
-    setRotations({
-      outer1: rotations.outer1 + degreesPerSecondOuter1 * 10000,
-      outer2: rotations.outer2 + degreesPerSecondOuter2 * 10000,
-      middle: rotations.middle + degreesPerSecondMiddle * 10000,
-      inner: rotations.inner + degreesPerSecondInner * 10000,
-    });
+    if (workerRef.current) {
+      workerRef.current.postMessage({
+        type: 'START',
+        payload: {
+          velocities,
+          startRotations: { ...rotations }
+        }
+      });
+    }
 
     if (spinDuration !== "continuous") {
       window.spinTimeout = setTimeout(() => {
-        stopSpin(degreesPerSecondOuter1, degreesPerSecondOuter2, degreesPerSecondMiddle, degreesPerSecondInner);
+        stopSpin(velocities);
       }, spinDuration * 1000);
     }
   };
 
-  const stopSpin = (degOuter1 = 270 * spinSpeed, degOuter2 = -270 * spinSpeed, degMiddle = 360 * spinSpeed, degInner = -360 * spinSpeed) => {
+  const stopSpin = (velocities = null) => {
     setSpinState(prev => {
       if (prev !== "spinning") return prev;
-      
       clearTimeout(window.spinTimeout);
       
-      const elapsed = (Date.now() - spinStartTime.current) / 1000;
-      const currentOuter1 = startRotations.current.outer1 + degOuter1 * elapsed;
-      const currentOuter2 = startRotations.current.outer2 + degOuter2 * elapsed;
-      const currentMiddle = startRotations.current.middle + degMiddle * elapsed;
-      const currentInner = startRotations.current.inner + degInner * elapsed;
+      if (!velocities || !velocities.outer1) {
+        velocities = {
+          outer1: 270 * spinSpeed,
+          outer2: -270 * spinSpeed,
+          middle: 360 * spinSpeed,
+          inner: -360 * spinSpeed
+        };
+      }
 
-      const newOuter1 = currentOuter1 + Math.sign(degOuter1) * 360 * 1.5 + (wheelData.outer1.length > 0 ? Math.floor(Math.random() * wheelData.outer1.length) * (360 / wheelData.outer1.length) : 0);
-      const newOuter2 = currentOuter2 + Math.sign(degOuter2) * 360 * 1.5 - (wheelData.outer2.length > 0 ? Math.floor(Math.random() * wheelData.outer2.length) * (360 / wheelData.outer2.length) : 0);
-      const newMiddle = currentMiddle + Math.sign(degMiddle) * 360 * 1.5 + (wheelData.middle.length > 0 ? Math.floor(Math.random() * wheelData.middle.length) * (360 / wheelData.middle.length) : 0);
-      const newInner = currentInner + Math.sign(degInner) * 360 * 1.5 - (wheelData.inner.length > 0 ? Math.floor(Math.random() * wheelData.inner.length) * (360 / wheelData.inner.length) : 0);
+      const currentRotations = {
+        outer1: outer1RotRef.current,
+        outer2: outer2RotRef.current,
+        middle: middleRotRef.current,
+        inner: innerRotRef.current
+      };
 
-      setRotations({ outer1: newOuter1, outer2: newOuter2, middle: newMiddle, inner: newInner });
+      const newOuter1 = currentRotations.outer1 + Math.sign(velocities.outer1) * 360 * 1.5 + (wheelData.outer1.length > 0 ? Math.floor(Math.random() * wheelData.outer1.length) * (360 / wheelData.outer1.length) : 0);
+      const newOuter2 = currentRotations.outer2 + Math.sign(velocities.outer2) * 360 * 1.5 - (wheelData.outer2.length > 0 ? Math.floor(Math.random() * wheelData.outer2.length) * (360 / wheelData.outer2.length) : 0);
+      const newMiddle = currentRotations.middle + Math.sign(velocities.middle) * 360 * 1.5 + (wheelData.middle.length > 0 ? Math.floor(Math.random() * wheelData.middle.length) * (360 / wheelData.middle.length) : 0);
+      const newInner = currentRotations.inner + Math.sign(velocities.inner) * 360 * 1.5 - (wheelData.inner.length > 0 ? Math.floor(Math.random() * wheelData.inner.length) * (360 / wheelData.inner.length) : 0);
+
+      const targets = { outer1: newOuter1, outer2: newOuter2, middle: newMiddle, inner: newInner };
+
+      if (workerRef.current) {
+        workerRef.current.postMessage({
+          type: 'STOP',
+          payload: { targets }
+        });
+      }
 
       if (typeof navigator !== 'undefined' && navigator.vibrate) {
         try {
@@ -606,21 +747,6 @@ export default function SpiritWheel() {
         } catch (e) {}
       }
 
-      setTimeout(() => {
-        if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate([30, 50, 30]);
-        setSpinState("idle");
-        setSelectedIndices({
-          outer1: wheelData.outer1.length > 0 ? (wheelData.outer1.length - Math.round((newOuter1 % 360) / (360 / wheelData.outer1.length))) % wheelData.outer1.length : 0,
-          outer2: wheelData.outer2.length > 0 ? Math.round((Math.abs(newOuter2) % 360) / (360 / wheelData.outer2.length)) % wheelData.outer2.length : 0,
-          middle: wheelData.middle.length > 0 ? (wheelData.middle.length - Math.round((newMiddle % 360) / (360 / wheelData.middle.length))) % wheelData.middle.length : 0,
-          inner: wheelData.inner.length > 0 ? Math.round((Math.abs(newInner) % 360) / (360 / wheelData.inner.length)) % wheelData.inner.length : 0
-        });
-        if (!blankMode) {
-          // Force a micro-delay to let React apply selectedIndices before revealing
-          setTimeout(() => setIsRevealed(true), 50);
-        }
-      }, 3500);
-      
       return "stopping";
     });
   };
@@ -961,20 +1087,17 @@ export default function SpiritWheel() {
             </div>
 
             {/* Outer Ring 1 */}
-            <motion.div 
+            <div 
+              ref={outer1RingRef}
               className={`absolute inset-0 rounded-full ${activeTheme.isTiles ? 'shadow-[0_0_80px_rgba(0,255,204,0.3)]' : 'overflow-hidden shadow-[inset_0_0_30px_rgba(0,0,0,0.4),0_15px_35px_rgba(0,0,0,0.6)]'}`}
-              style={activeTheme.isTiles ? {
-                backgroundColor: 'transparent'
-              } : {
-                borderWidth: `${activeTheme.borderThickness ?? 6}px`,
-                borderStyle: activeTheme.borderStyle || 'solid',
-                borderColor: activeTheme.outerBorder,
+              style={{
+                ...(activeTheme.isTiles ? { backgroundColor: 'transparent' } : {
+                  borderWidth: `${activeTheme.borderThickness ?? 6}px`,
+                  borderStyle: activeTheme.borderStyle || 'solid',
+                  borderColor: activeTheme.outerBorder,
+                }),
+                transform: `rotate(${rotations.outer1}deg)`
               }}
-              animate={{ rotate: rotations.outer1 }}
-              onUpdate={(latest) => {
-                 if (latest.rotate !== undefined) outer1RotRef.current = latest.rotate;
-              }}
-              transition={spinState === "spinning" ? { duration: 10000, ease: "linear" } : { duration: 3.5, type: "tween", ease: "circOut" }}
             >
               {!activeTheme.isTiles && (
                 <div className="absolute inset-0 w-full h-full pointer-events-none rounded-full overflow-hidden" style={{ zIndex: 0 }}>
@@ -1049,23 +1172,20 @@ export default function SpiritWheel() {
                   {!activeTheme.isTiles && <div className="absolute top-[2px] -translate-x-1/2 w-[3px] h-[3px] sm:w-1 sm:h-1 md:w-1.5 md:h-1.5 rounded-full shadow-sm border border-black/30 z-10" style={{ transform: `rotate(${angle / 2}deg)`, backgroundColor: activeTheme.pin }}></div>}
                 </div>
               )})}
-            </motion.div>
+            </div>
 
             {/* Outer Ring 2 */}
-            <motion.div 
+            <div 
+              ref={outer2RingRef}
               className={`absolute inset-[11%] rounded-full ${activeTheme.isTiles ? 'shadow-[0_0_80px_rgba(0,255,204,0.3)]' : 'overflow-hidden shadow-[inset_0_0_30px_rgba(0,0,0,0.4),0_15px_35px_rgba(0,0,0,0.6)]'}`}
-              style={activeTheme.isTiles ? {
-                backgroundColor: 'transparent'
-              } : {
-                borderWidth: `${Math.max(1, (activeTheme.borderThickness ?? 6) - 1)}px`,
-                borderStyle: activeTheme.borderStyle || 'solid',
-                borderColor: activeTheme.outerBorder,
+              style={{
+                ...(activeTheme.isTiles ? { backgroundColor: 'transparent' } : {
+                  borderWidth: `${Math.max(1, (activeTheme.borderThickness ?? 6) - 1)}px`,
+                  borderStyle: activeTheme.borderStyle || 'solid',
+                  borderColor: activeTheme.outerBorder,
+                }),
+                transform: `rotate(${rotations.outer2}deg)`
               }}
-              animate={{ rotate: rotations.outer2 }}
-              onUpdate={(latest) => {
-                 if (latest.rotate !== undefined) outer2RotRef.current = latest.rotate;
-              }}
-              transition={spinState === "spinning" ? { duration: 10000, ease: "linear" } : { duration: 3.5, type: "tween", ease: "circOut" }}
             >
               {!activeTheme.isTiles && (
                 <div className="absolute inset-0 w-full h-full pointer-events-none rounded-full overflow-hidden" style={{ zIndex: 0 }}>
@@ -1140,20 +1260,20 @@ export default function SpiritWheel() {
                   {!activeTheme.isTiles && <div className="absolute top-[2px] -translate-x-1/2 w-[3px] h-[3px] sm:w-1 sm:h-1 md:w-1.5 md:h-1.5 rounded-full shadow-sm border border-black/30 z-10" style={{ transform: `rotate(${angle / 2}deg)`, backgroundColor: activeTheme.pin }}></div>}
                 </div>
               )})}
-            </motion.div>
+            </div>
 
             {/* Middle Ring */}
-            <motion.div 
+            <div 
+              ref={middleRingRef}
               className={`absolute inset-[22%] rounded-full ${activeTheme.isTiles ? '' : 'overflow-hidden shadow-[inset_0_0_20px_rgba(0,0,0,0.4)]'}`}
-              style={activeTheme.isTiles ? {
-                backgroundColor: 'transparent'
-              } : {
-                borderWidth: `${Math.max(1, (activeTheme.borderThickness ?? 6) - 1)}px`,
-                borderStyle: activeTheme.borderStyle || 'solid',
-                borderColor: activeTheme.middleBorder,
+              style={{
+                ...(activeTheme.isTiles ? { backgroundColor: 'transparent' } : {
+                  borderWidth: `${Math.max(1, (activeTheme.borderThickness ?? 6) - 1)}px`,
+                  borderStyle: activeTheme.borderStyle || 'solid',
+                  borderColor: activeTheme.middleBorder,
+                }),
+                transform: `rotate(${rotations.middle}deg)`
               }}
-              animate={{ rotate: rotations.middle }}
-              transition={spinState === "spinning" ? { duration: 10000, ease: "linear" } : { duration: 3.5, type: "tween", ease: "circOut" }}
             >
               {!activeTheme.isTiles && (
                 <div className="absolute inset-0 w-full h-full pointer-events-none rounded-full overflow-hidden" style={{ zIndex: 0 }}>
@@ -1229,20 +1349,20 @@ export default function SpiritWheel() {
                   {!activeTheme.isTiles && <div className="absolute top-[2px] -translate-x-1/2 w-[3px] h-[3px] sm:w-1 sm:h-1 md:w-1.5 md:h-1.5 rounded-full shadow-sm border border-black/30 z-10" style={{ transform: `rotate(${angle / 2}deg)`, backgroundColor: activeTheme.pin }}></div>}
                 </div>
               )})}
-            </motion.div>
+            </div>
 
             {/* Inner Ring */}
-            <motion.div 
+            <div 
+              ref={innerRingRef}
               className={`absolute inset-[35%] rounded-full ${activeTheme.isTiles ? '' : 'overflow-hidden shadow-[inset_0_0_15px_rgba(0,0,0,0.5)]'}`}
-              style={activeTheme.isTiles ? {
-                backgroundColor: 'transparent'
-              } : {
-                borderWidth: `${Math.max(1, (activeTheme.borderThickness ?? 6) - 2)}px`,
-                borderStyle: activeTheme.borderStyle || 'solid',
-                borderColor: activeTheme.innerBorder,
+              style={{
+                ...(activeTheme.isTiles ? { backgroundColor: 'transparent' } : {
+                  borderWidth: `${Math.max(1, (activeTheme.borderThickness ?? 6) - 2)}px`,
+                  borderStyle: activeTheme.borderStyle || 'solid',
+                  borderColor: activeTheme.innerBorder,
+                }),
+                transform: `rotate(${rotations.inner}deg)`
               }}
-              animate={{ rotate: rotations.inner }}
-              transition={spinState === "spinning" ? { duration: 10000, ease: "linear" } : { duration: 3.5, type: "tween", ease: "circOut" }}
             >
               {!activeTheme.isTiles && (
                 <div className="absolute inset-0 w-full h-full pointer-events-none rounded-full overflow-hidden" style={{ zIndex: 0 }}>
@@ -1310,7 +1430,7 @@ export default function SpiritWheel() {
                   {!activeTheme.isTiles && <div className="absolute top-[2px] -translate-x-1/2 w-[3px] h-[3px] sm:w-1 sm:h-1 md:w-1.5 md:h-1.5 rounded-full shadow-sm border border-black/30 z-10" style={{ transform: `rotate(${angle / 2}deg)`, backgroundColor: activeTheme.pin }}></div>}
                 </div>
               )})}
-            </motion.div>
+            </div>
             
             {/* Center Hub */}
             <div 
