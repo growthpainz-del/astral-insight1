@@ -381,10 +381,10 @@ export default function SpiritWheel() {
     workerRef.current.onmessage = (e) => {
       const { type, rotations: newRots } = e.data;
       if (type === 'TICK') {
-        if (outer1RingRef.current) outer1RingRef.current.style.transform = \`rotate(\${newRots.outer1}deg)\`;
-        if (outer2RingRef.current) outer2RingRef.current.style.transform = \`rotate(\${newRots.outer2}deg)\`;
-        if (middleRingRef.current) middleRingRef.current.style.transform = \`rotate(\${newRots.middle}deg)\`;
-        if (innerRingRef.current) innerRingRef.current.style.transform = \`rotate(\${newRots.inner}deg)\`;
+        if (outer1RingRef.current) outer1RingRef.current.style.transform = `rotate(${newRots.outer1}deg)`;
+        if (outer2RingRef.current) outer2RingRef.current.style.transform = `rotate(${newRots.outer2}deg)`;
+        if (middleRingRef.current) middleRingRef.current.style.transform = `rotate(${newRots.middle}deg)`;
+        if (innerRingRef.current) innerRingRef.current.style.transform = `rotate(${newRots.inner}deg)`;
         
         outer1RotRef.current = newRots.outer1;
         outer2RotRef.current = newRots.outer2;
