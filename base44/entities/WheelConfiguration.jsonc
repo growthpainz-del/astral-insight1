@@ -1,0 +1,68 @@
+{
+  "name": "WheelConfiguration",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name of the wheel"
+    },
+    "description": {
+      "type": "string"
+    },
+    "outer_ring": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "middle_ring": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "inner_ring": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "rune_ring": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "synergy_rules": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "reading_engine": {
+      "type": "object"
+    },
+    "center": {
+      "type": "object"
+    },
+    "metatron": {
+      "type": "object"
+    },
+    "ring_borders": {
+      "type": "object"
+    },
+    "texture_layers": {
+      "type": "object"
+    },
+    "theme_id": {
+      "type": "string"
+    },
+    "is_public": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

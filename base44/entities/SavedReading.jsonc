@@ -1,0 +1,43 @@
+{
+  "name": "SavedReading",
+  "type": "object",
+  "properties": {
+    "wheel_id": {
+      "type": "string"
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "shadow_card": {
+      "type": "object"
+    },
+    "synthesis_text": {
+      "type": "string"
+    },
+    "zone": {
+      "type": "string"
+    },
+    "stop_angle": {
+      "type": "number"
+    },
+    "metatron_rotation": {
+      "type": "number"
+    },
+    "date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "user_intent": {
+      "type": "string"
+    },
+    "seed": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "wheel_id"
+  ]
+}

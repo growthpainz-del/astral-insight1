@@ -1,0 +1,35 @@
+{
+  "name": "AssetLibrary",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "url": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "image",
+        "audio",
+        "video",
+        "other"
+      ],
+      "default": "image"
+    },
+    "is_public": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "url"
+  ]
+}

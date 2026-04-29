@@ -1,0 +1,25 @@
+{
+  "name": "ThemePack",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "segments": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "is_public": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "name"
+  ]
+}
