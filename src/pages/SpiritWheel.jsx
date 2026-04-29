@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Sparkles, RefreshCw, Eye, ChevronLeft, Save, Plus, ZoomIn, ZoomOut, Download, Octagon, StopCircle, Share2, Copy } from 'lucide-react';
 import { motion, useAnimationFrame } from 'framer-motion';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import AudioOrb from "@/components/reading/AudioOrb";
 import CelestialMapWidget from "@/components/reading/CelestialMapWidget";
@@ -276,6 +276,7 @@ export const WHEEL_THEMES = {
 
 export default function SpiritWheel() {
   const location = useLocation();
+  const navigate = useNavigate();
   const urlParams = new URLSearchParams(location.search);
   const initialWheelId = urlParams.get("id");
 
@@ -1137,23 +1138,17 @@ export default function SpiritWheel() {
               </Select>
               
               <div className="flex gap-2 mb-4">
-                <Link to={createPageUrl("SpiritWheelDesigner")} className="flex-1">
-                  <Button variant="outline" className="w-full bg-[#1c0f05] hover:bg-[#2d1b0d] border-[#5c3a21] text-amber-300">
-                    <Plus className="w-4 h-4 mr-2" /> New Wheel
-                  </Button>
-                </Link>
+                <Button onClick={() => navigate(createPageUrl("SpiritWheelDesigner"))} variant="outline" className="flex-1 w-full bg-[#1c0f05] hover:bg-[#2d1b0d] border-[#5c3a21] text-amber-300">
+                  <Plus className="w-4 h-4 mr-2" /> New Wheel
+                </Button>
                 {selectedWheelId !== "default" && customWheels.find(w => w.id === selectedWheelId)?.created_by === currentUser?.email ? (
-                  <Link to={`${createPageUrl("SpiritWheelDesigner")}?id=${selectedWheelId}`} className="flex-1">
-                    <Button variant="outline" className="w-full bg-[#1c0f05] hover:bg-[#2d1b0d] border-[#5c3a21] text-amber-300">
-                      <Sparkles className="w-4 h-4 mr-2" /> Edit Wheel
-                    </Button>
-                  </Link>
+                  <Button onClick={() => navigate(`${createPageUrl("SpiritWheelDesigner")}?id=${selectedWheelId}`)} variant="outline" className="flex-1 w-full bg-[#1c0f05] hover:bg-[#2d1b0d] border-[#5c3a21] text-amber-300">
+                    <Sparkles className="w-4 h-4 mr-2" /> Edit Wheel
+                  </Button>
                 ) : selectedWheelId === "default" && (
-                  <Link to={`${createPageUrl("SpiritWheelDesigner")}?clone=default`} className="flex-1">
-                    <Button variant="outline" className="w-full bg-[#1c0f05] hover:bg-[#2d1b0d] border-[#5c3a21] text-amber-300">
-                      <Copy className="w-4 h-4 mr-2" /> Clone to Edit
-                    </Button>
-                  </Link>
+                  <Button onClick={() => navigate(`${createPageUrl("SpiritWheelDesigner")}?clone=default`)} variant="outline" className="flex-1 w-full bg-[#1c0f05] hover:bg-[#2d1b0d] border-[#5c3a21] text-amber-300">
+                    <Copy className="w-4 h-4 mr-2" /> Clone to Edit
+                  </Button>
                 )}
               </div>
 

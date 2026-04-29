@@ -120,7 +120,15 @@ export default function CanvasSpiritWheel({
           }
           if (img.complete && img.naturalWidth > 0) {
             const size = (rOut - rIn) * 0.6;
-            ctx.drawImage(img, -size / 2, -size / 2, size, size);
+            if (showLabels && (item.label || item.name)) {
+              ctx.drawImage(img, -size / 2, -size / 2 - 8, size, size);
+              ctx.font = `bold ${Math.max(8, (config.fontSize || 14) - 4)}px ${activeTheme?.fontFamily || 'sans-serif'}`;
+              let txt = item.label || item.name;
+              if (txt.length > 12) txt = txt.substring(0, 10) + '..';
+              ctx.fillText(txt, 0, size / 2 + 6);
+            } else {
+              ctx.drawImage(img, -size / 2, -size / 2, size, size);
+            }
           }
         } else {
           // If id is just a generic fallback number string (e.g. "1"), prefer the name/label
