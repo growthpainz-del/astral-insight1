@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 
 export default function CanvasSpiritWheel({
   wheelData,
@@ -6,9 +6,12 @@ export default function CanvasSpiritWheel({
   activeTheme,
   metatron,
   zoomLevel = 1,
-  isSpinning = false
+  isSpinning = false,
+  showLabels = false
 }) {
   const canvasRef = useRef(null);
+  const imageCache = useRef({});
+  const [, forceUpdate] = React.useState(0);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -104,9 +107,28 @@ export default function CanvasSpiritWheel({
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         
-        let txt = item.label || item.name || item.id || '';
-        if (txt.length > 12) txt = txt.substring(0, 10) + '..';
-        ctx.fillText(txt, 0, 0);
+        const isUrl = typeof item.id === 'string' && (item.id.startsWith('http') || item.id.startsWith('data:image'));
+        
+        if (isUrl) {
+          let img = imageCache.current[item.id];
+          if (!img) {
+            img = new Image();
+            img.crossOrigin = "anonymous";
+            img.onload = () => forceUpdate(n => n + 1);
+            img.src = item.id;
+            imageCache.current[item.id] = img;
+          }
+          if (img.complete && img.naturalWidth > 0) {
+            const size = (rOut - rIn) * 0.6;
+            ctx.drawImage(img, -size / 2, -size / 2, size, size);
+          }
+        } else {
+          // If id is just a generic fallback number string (e.g. "1"), prefer the name/label
+          const isFallbackId = /^\d+$/.test(item.id);
+          let txt = (isFallbackId ? (item.label || item.name) : item.id) || item.label || item.name || '';
+          if (txt.length > 12) txt = txt.substring(0, 10) + '..';
+          ctx.fillText(txt, 0, 0);
+        }
         
         ctx.restore();
       });
