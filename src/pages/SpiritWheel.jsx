@@ -15,72 +15,8 @@ import html2canvas from 'html2canvas';
 import ReadingShareModal from "@/components/reading/ReadingShareModal";
 import { queueApiCall } from "@/components/utils/apiQueue";
 import { getThumbnailUrl } from "@/lib/utils";
-
-const SPIN_WORKER_CODE = `
-let interval;
-let spinning = false;
-let stopping = false;
-let velocities = {};
-let rotations = {};
-let targets = {};
-let lastTime = 0;
-
-self.onmessage = function(e) {
-  const { type, payload } = e.data;
-  
-  if (type === 'START') {
-    velocities = payload.velocities;
-    rotations = payload.startRotations;
-    spinning = true;
-    stopping = false;
-    lastTime = performance.now();
-    
-    clearInterval(interval);
-    interval = setInterval(() => {
-      const now = performance.now();
-      const dt = (now - lastTime) / 1000;
-      lastTime = now;
-      
-      rotations.outer1 += velocities.outer1 * dt;
-      rotations.outer2 += velocities.outer2 * dt;
-      rotations.middle += velocities.middle * dt;
-      rotations.inner += velocities.inner * dt;
-      
-      self.postMessage({ type: 'TICK', rotations });
-    }, 1000 / 60);
-  } 
-  else if (type === 'STOP') {
-    spinning = false;
-    stopping = true;
-    targets = payload.targets;
-    
-    clearInterval(interval);
-    interval = setInterval(() => {
-      const now = performance.now();
-      const dt = (now - lastTime) / 1000;
-      lastTime = now;
-      
-      let allStopped = true;
-      ['outer1', 'outer2', 'middle', 'inner'].forEach(key => {
-        const diff = targets[key] - rotations[key];
-        if (Math.abs(diff) > 0.5) {
-          rotations[key] += diff * 3.5 * dt;
-          allStopped = false;
-        } else {
-          rotations[key] = targets[key];
-        }
-      });
-      
-      self.postMessage({ type: 'TICK', rotations });
-      
-      if (allStopped) {
-        clearInterval(interval);
-        self.postMessage({ type: 'STOPPED', rotations });
-      }
-    }, 1000 / 60);
-  }
-};
-`;
+import CanvasSpiritWheel from '@/components/reading/CanvasSpiritWheel';
+import { hashSeed, seededRandom, pickWeighted, calculateTargetAngle, calculateMetatronZone } from '@/utils/spiritWheelEngine';
 
 // 50 Cards of the Rooted Crescent Oracle Deck
 export const ROOTED_CARDS_DATA = [
@@ -347,86 +283,14 @@ export default function SpiritWheel() {
   const [blankMode, setBlankMode] = useState(false);
   const [showLabels, setShowLabels] = useState(false);
   const [isRevealed, setIsRevealed] = useState(false);
-  const [spinState, setSpinState] = useState("idle"); // idle, spinning, stopping
+  const [spinState, setSpinState] = useState("idle"); // idle, spinning
   const [spinSpeed, setSpinSpeed] = useState(1);
-  const [spinDuration, setSpinDuration] = useState(5);
-  const spinStartTime = useRef(0);
-  const startRotations = useRef({ outer1: 0, outer2: 0, middle: 0, inner: 0 });
-  const [rotations, setRotations] = useState({ outer1: 0, outer2: 0, middle: 0, inner: 0 });
-  const [selectedIndices, setSelectedIndices] = useState({ outer1: 0, outer2: 0, middle: 0, inner: 0 });
+  const [rotations, setRotations] = useState({ outer1: 0, outer2: 0, middle: 0, inner: 0, rune: 0 });
+  const [selectedIndices, setSelectedIndices] = useState({ outer1: 0, outer2: 0, middle: 0, inner: 0, rune: 0 });
+  const [intentionPhrase, setIntentionPhrase] = useState("");
+  const [metatronResult, setMetatronResult] = useState(null);
 
   const isSpinning = spinState !== "idle";
-  
-  const outer1RotRef = useRef(0);
-  const outer2RotRef = useRef(0);
-  const middleRotRef = useRef(0);
-  const innerRotRef = useRef(0);
-  
-  const outer1ItemsRef = useRef([]);
-  const outer2ItemsRef = useRef([]);
-
-  const outer1RingRef = useRef(null);
-  const outer2RingRef = useRef(null);
-  const middleRingRef = useRef(null);
-  const innerRingRef = useRef(null);
-
-  const workerRef = useRef(null);
-  const handleWorkerStoppedRef = useRef(null);
-
-  useEffect(() => {
-    const blob = new Blob([SPIN_WORKER_CODE], { type: 'application/javascript' });
-    const url = URL.createObjectURL(blob);
-    workerRef.current = new Worker(url);
-    
-    workerRef.current.onmessage = (e) => {
-      const { type, rotations: newRots } = e.data;
-      if (type === 'TICK') {
-        if (outer1RingRef.current) outer1RingRef.current.style.transform = `rotate(${newRots.outer1}deg)`;
-        if (outer2RingRef.current) outer2RingRef.current.style.transform = `rotate(${newRots.outer2}deg)`;
-        if (middleRingRef.current) middleRingRef.current.style.transform = `rotate(${newRots.middle}deg)`;
-        if (innerRingRef.current) innerRingRef.current.style.transform = `rotate(${newRots.inner}deg)`;
-        
-        outer1RotRef.current = newRots.outer1;
-        outer2RotRef.current = newRots.outer2;
-        middleRotRef.current = newRots.middle;
-        innerRotRef.current = newRots.inner;
-      } else if (type === 'STOPPED') {
-        if (handleWorkerStoppedRef.current) handleWorkerStoppedRef.current(newRots);
-      }
-    };
-    
-    return () => {
-      if (workerRef.current) workerRef.current.terminate();
-      URL.revokeObjectURL(url);
-    };
-  }, []);
-
-  const applyMagnify = (itemsRef, rotRef, len) => {
-    if (len === 0 || !itemsRef.current) return;
-    const angle = 360 / len;
-    itemsRef.current.forEach((el, i) => {
-      if (!el) return;
-      let absAngle = (rotRef.current + i * angle) % 360;
-      if (absAngle < 0) absAngle += 360;
-      let dist = Math.min(absAngle, 360 - absAngle);
-      let scale = 1;
-      if (dist < 15) {
-        const progress = 1 - (dist / 15);
-        scale = 1 + (0.7 * progress);
-        el.style.zIndex = 50;
-        el.style.filter = `drop-shadow(0 0 10px rgba(255,200,0,${progress * 0.8}))`;
-      } else {
-        el.style.zIndex = 1;
-        el.style.filter = 'none';
-      }
-      el.style.transform = `translateX(-50%) scale(${scale})`;
-    });
-  };
-
-  useAnimationFrame(() => {
-    applyMagnify(outer1ItemsRef, outer1RotRef, wheelData.outer1?.length || 0);
-    applyMagnify(outer2ItemsRef, outer2RotRef, wheelData.outer2?.length || 0);
-  });
   const [aiInterpretation, setAiInterpretation] = useState("");
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -596,7 +460,8 @@ export default function SpiritWheel() {
           outer1: outerAll.slice(0, half),
           outer2: outerAll.slice(half),
           middle: (w.middle_ring || []).map((r, i) => ({ id: r.icon || String(i + 1), name: r.label, meaning: r.meaning, general: `${r.label}: ${r.meaning}` })),
-          inner: (w.inner_ring || []).map((r, i) => ({ id: r.icon || String(i + 1), name: r.label, meaning: r.meaning, general: `${r.label}: ${r.meaning}` }))
+          inner: (w.inner_ring || []).map((r, i) => ({ id: r.icon || String(i + 1), name: r.label, meaning: r.meaning, general: `${r.label}: ${r.meaning}` })),
+          rune: (w.rune_ring || []).map((r, i) => ({ id: r.icon || String(i + 1), name: r.label, meaning: r.meaning, general: `${r.label}: ${r.meaning}` }))
         };
       }
     }
@@ -612,7 +477,8 @@ export default function SpiritWheel() {
       outer1: allOuter.slice(0, half),
       outer2: allOuter.slice(half),
       middle: WHEEL_MIDDLE,
-      inner: WHEEL_INNER
+      inner: WHEEL_INNER,
+      rune: []
     };
   }, [selectedWheelId, customWheels]);
 
@@ -650,105 +516,81 @@ export default function SpiritWheel() {
     }
   }, [selectedWheelId, customWheels]);
 
-  handleWorkerStoppedRef.current = (finalRotations) => {
-    if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate([30, 50, 30]);
-    setSpinState("idle");
-    setRotations(finalRotations);
-    
-    setSelectedIndices({
-      outer1: wheelData.outer1.length > 0 ? (wheelData.outer1.length - Math.round((finalRotations.outer1 % 360) / (360 / wheelData.outer1.length))) % wheelData.outer1.length : 0,
-      outer2: wheelData.outer2.length > 0 ? Math.round((Math.abs(finalRotations.outer2) % 360) / (360 / wheelData.outer2.length)) % wheelData.outer2.length : 0,
-      middle: wheelData.middle.length > 0 ? (wheelData.middle.length - Math.round((finalRotations.middle % 360) / (360 / wheelData.middle.length))) % wheelData.middle.length : 0,
-      inner: wheelData.inner.length > 0 ? Math.round((Math.abs(finalRotations.inner) % 360) / (360 / wheelData.inner.length)) % wheelData.inner.length : 0
-    });
-    
-    if (!blankMode) {
-      setTimeout(() => setIsRevealed(true), 50);
-    }
-  };
-
   const spinWheel = () => {
     if (spinState !== "idle") return;
     setSpinState("spinning");
     setIsRevealed(false);
     setAiInterpretation("");
-    spinStartTime.current = Date.now();
-    startRotations.current = rotations;
+    setMetatronResult(null);
+
+    // 1. Generate seed
+    const seedPhrase = intentionPhrase.trim() || Date.now().toString();
+    const seed = hashSeed(seedPhrase);
     
-    const velocities = {
-      outer1: 270 * spinSpeed,
-      outer2: -270 * spinSpeed,
-      middle: 360 * spinSpeed,
-      inner: -360 * spinSpeed
+    // 2. Determine winners using seeded RNG
+    const outer1Winner = pickWeighted(wheelData.outer1, seededRandom(seed + 1));
+    const outer2Winner = pickWeighted(wheelData.outer2, seededRandom(seed + 2));
+    const middleWinner = pickWeighted(wheelData.middle, seededRandom(seed + 3));
+    const innerWinner = pickWeighted(wheelData.inner, seededRandom(seed + 4));
+    const runeWinner = pickWeighted(wheelData.rune || [], seededRandom(seed + 5));
+
+    setSelectedIndices({
+      outer1: outer1Winner,
+      outer2: outer2Winner,
+      middle: middleWinner,
+      inner: innerWinner,
+      rune: runeWinner
+    });
+
+    // 3. Calculate target angles
+    const extraSpins = 4 * spinSpeed;
+    const targetRotations = {
+      outer1: calculateTargetAngle(rotations.outer1, extraSpins + 1, outer1Winner, wheelData.outer1.length),
+      outer2: -calculateTargetAngle(Math.abs(rotations.outer2), extraSpins + 2, outer2Winner, wheelData.outer2.length), 
+      middle: calculateTargetAngle(rotations.middle, extraSpins + 3, middleWinner, wheelData.middle.length),
+      inner: -calculateTargetAngle(Math.abs(rotations.inner), extraSpins + 4, innerWinner, wheelData.inner.length),
+      rune: calculateTargetAngle(rotations.rune || 0, extraSpins + 5, runeWinner, wheelData.rune?.length || 0)
     };
 
-    if (workerRef.current) {
-      workerRef.current.postMessage({
-        type: 'START',
-        payload: {
-          velocities,
-          startRotations: { ...rotations }
-        }
-      });
-    }
+    // Calculate Metatron zone based on outer1 target angle
+    const finalOuter1Angle = targetRotations.outer1 % 360;
+    const zoneInfo = calculateMetatronZone(finalOuter1Angle, activeTheme.metatron?.rotation || 0);
 
-    if (spinDuration !== "continuous") {
-      window.spinTimeout = setTimeout(() => {
-        stopSpin(velocities);
-      }, spinDuration * 1000);
-    }
-  };
+    // 4. Animate to targets
+    const duration = 4000;
+    const startRots = { ...rotations };
+    const startTime = performance.now();
 
-  const stopSpin = (velocities = null) => {
-    setSpinState(prev => {
-      if (prev !== "spinning") return prev;
-      clearTimeout(window.spinTimeout);
+    const animate = (time) => {
+      let progress = (time - startTime) / duration;
+      if (progress > 1) progress = 1;
       
-      if (!velocities || !velocities.outer1) {
-        velocities = {
-          outer1: 270 * spinSpeed,
-          outer2: -270 * spinSpeed,
-          middle: 360 * spinSpeed,
-          inner: -360 * spinSpeed
-        };
-      }
-
-      const currentRotations = {
-        outer1: outer1RotRef.current,
-        outer2: outer2RotRef.current,
-        middle: middleRotRef.current,
-        inner: innerRotRef.current
+      // Ease out cubic
+      const ease = 1 - Math.pow(1 - progress, 3);
+      
+      const currentRots = {
+        outer1: startRots.outer1 + (targetRotations.outer1 - startRots.outer1) * ease,
+        outer2: startRots.outer2 + (targetRotations.outer2 - startRots.outer2) * ease,
+        middle: startRots.middle + (targetRotations.middle - startRots.middle) * ease,
+        inner: startRots.inner + (targetRotations.inner - startRots.inner) * ease,
+        rune: (startRots.rune || 0) + (targetRotations.rune - (startRots.rune || 0)) * ease
       };
 
-      const newOuter1 = currentRotations.outer1 + Math.sign(velocities.outer1) * 360 * 1.5 + (wheelData.outer1.length > 0 ? Math.floor(Math.random() * wheelData.outer1.length) * (360 / wheelData.outer1.length) : 0);
-      const newOuter2 = currentRotations.outer2 + Math.sign(velocities.outer2) * 360 * 1.5 - (wheelData.outer2.length > 0 ? Math.floor(Math.random() * wheelData.outer2.length) * (360 / wheelData.outer2.length) : 0);
-      const newMiddle = currentRotations.middle + Math.sign(velocities.middle) * 360 * 1.5 + (wheelData.middle.length > 0 ? Math.floor(Math.random() * wheelData.middle.length) * (360 / wheelData.middle.length) : 0);
-      const newInner = currentRotations.inner + Math.sign(velocities.inner) * 360 * 1.5 - (wheelData.inner.length > 0 ? Math.floor(Math.random() * wheelData.inner.length) * (360 / wheelData.inner.length) : 0);
+      setRotations(currentRots);
 
-      const targets = { outer1: newOuter1, outer2: newOuter2, middle: newMiddle, inner: newInner };
-
-      if (workerRef.current) {
-        workerRef.current.postMessage({
-          type: 'STOP',
-          payload: { targets }
-        });
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        setSpinState("idle");
+        if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate([30, 50, 30]);
+        setMetatronResult(zoneInfo);
+        if (!blankMode) {
+          setTimeout(() => setIsRevealed(true), 50);
+        }
       }
-
-      if (typeof navigator !== 'undefined' && navigator.vibrate) {
-        try {
-          const pattern = [];
-          let delay = 30;
-          for (let i = 0; i < 28; i++) {
-            pattern.push(15);
-            pattern.push(delay);
-            delay += 10;
-          }
-          navigator.vibrate(pattern);
-        } catch (e) {}
-      }
-
-      return "stopping";
-    });
+    };
+    
+    requestAnimationFrame(animate);
   };
 
   const getSegmentText = (ring, index) => {
@@ -769,6 +611,21 @@ export default function SpiritWheel() {
     setIsRevealed(true);
   };
 
+  const getSegmentText = (ring, index) => {
+    if (ring === 'outer1') {
+      const item = wheelData.outer1[index];
+      return item?.name || item?.id || "";
+    }
+    if (ring === 'outer2') {
+      const item = wheelData.outer2[index];
+      return item?.name || item?.id || "";
+    }
+    if (ring === 'middle') return wheelData.middle[index]?.meaning || "";
+    if (ring === 'inner') return wheelData.inner[index]?.meaning || "";
+    if (ring === 'rune') return wheelData.rune[index]?.meaning || "";
+    return "";
+  };
+
   const getInterpretation = async () => {
     setIsAiLoading(true);
     try {
@@ -776,6 +633,7 @@ export default function SpiritWheel() {
       const outerItem2 = wheelData.outer2[selectedIndices.outer2] || {};
       const middleItem = wheelData.middle[selectedIndices.middle] || {};
       const innerItem = wheelData.inner[selectedIndices.inner] || {};
+      const runeItem = wheelData.rune?.[selectedIndices.rune] || null;
 
       // Database-driven reading based on combinations (Bypasses AI)
       const coreTheme1 = outerItem1.general ? outerItem1.general.split(":")[0] : (outerItem1.name || "Unknown theme");
@@ -783,6 +641,7 @@ export default function SpiritWheel() {
       
       const timingModifier = middleItem.meaning || middleItem.general || "Unknown modifier";
       const actionGuidance = innerItem.meaning || innerItem.general || "Unknown guidance";
+      const runeGuidance = runeItem ? (runeItem.meaning || runeItem.general || "Unknown ancient wisdom") : null;
       
       const categoryName = selectedWheelId === "default" ? category : customWheels.find(w => w.id === selectedWheelId)?.name || "Custom Reading";
       
@@ -816,9 +675,17 @@ export default function SpiritWheel() {
       if (relationshipInsight) {
         staticReading += `✨ Cosmic Synergy: ${relationshipInsight}\n\n`;
       }
+
+      if (metatronResult && activeTheme.metatron?.enabled) {
+        staticReading += `🔮 Sacred Geometry Alignment: The pointer landed in the ${metatronResult.zone} zone (${Math.round(metatronResult.sectorAngle)}°). ${metatronResult.description}.\n\n`;
+      }
       
       staticReading += `Your modifier indicates "${timingModifier}", suggesting the context of your situation. `;
       staticReading += `Your action guidance is "${actionGuidance}". `;
+      
+      if (runeGuidance) {
+        staticReading += `\nThe ancient runes whisper: "${runeGuidance}". `;
+      }
       
       staticReading += `\n\nReflect on how ${actionGuidance.toLowerCase()} can be integrated with ${coreTheme1} and ${coreTheme2}.`;
       
@@ -986,6 +853,38 @@ export default function SpiritWheel() {
                   </div>
                 )}
                 
+                {wheelData.rune && wheelData.rune.length > 0 && (
+                  <div className="p-4 bg-[#1c0f05] rounded-lg border border-[#ea580c] shadow-[0_0_10px_rgba(234,88,12,0.2)]">
+                    <div className="text-sm text-orange-500/70 uppercase font-semibold mb-1 flex justify-between items-center">
+                      <span>Rune Ring</span>
+                      {isImageSymbol(wheelData.rune[selectedIndices.rune]?.id) ? (
+                        <div className="w-10 h-10 shrink-0 flex items-center justify-center overflow-hidden">
+                          <img src={getThumbnailUrl(getImageUrl(wheelData.rune[selectedIndices.rune]?.id), 400)} loading="lazy" alt="" className="w-full h-full object-contain filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] rounded-full" />
+                        </div>
+                      ) : (
+                        <span className="text-orange-300 bg-black/20 px-2 py-0.5 rounded">
+                          {wheelData.rune[selectedIndices.rune]?.id || 'N/A'}
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-xl text-amber-50">{getSegmentText('rune', selectedIndices.rune)}</div>
+                  </div>
+                )}
+
+                {metatronResult && activeTheme.metatron?.enabled && (
+                  <div className="p-4 bg-gradient-to-r from-[#1c0f05] to-[#2d1b0d] rounded-lg border border-[#d4af37] shadow-[0_0_15px_rgba(212,175,55,0.2)]">
+                    <div className="text-sm text-[#d4af37]/80 uppercase font-semibold mb-2 flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-[#d4af37]" />
+                      Sacred Geometry Alignment
+                    </div>
+                    <div className="text-lg text-amber-50">
+                      Zone: <span className="font-bold text-[#d4af37]">{metatronResult.zone}</span> 
+                      <span className="text-sm text-amber-200/50 ml-2">({Math.round(metatronResult.sectorAngle)}°)</span>
+                    </div>
+                    <div className="text-sm text-amber-200/80 italic mt-1">{metatronResult.description}</div>
+                  </div>
+                )}
+                
                 <div data-html2canvas-ignore="true">
                   <Button onClick={getInterpretation} disabled={isAiLoading} className="w-full mt-6 bg-[#3b2313] hover:bg-[#4a2c18] border border-[#8b5a2b] text-lg py-6">
                     {isAiLoading ? <RefreshCw className="w-5 h-5 mr-2 animate-spin text-amber-400" /> : <Eye className="w-5 h-5 mr-2 text-amber-400" />}
@@ -1058,406 +957,34 @@ export default function SpiritWheel() {
             className="relative w-[340px] h-[340px] sm:w-[450px] sm:h-[450px] md:w-[600px] md:h-[600px] lg:w-[700px] lg:h-[700px] xl:w-[850px] xl:h-[850px] shrink-0 mt-6 lg:mt-0 transition-transform duration-300 origin-center"
             style={{ transform: `scale(${zoomLevel})` }}
           >
-            <motion.div 
-              className={`absolute inset-0 cursor-pointer ${isSpinning && activeTheme.stroboscopic ? 'stroboscopic-spin' : ''}`}
-              onClick={() => !isSpinning && spinWheel()}
-              onPanEnd={(e, info) => {
-                const velocity = Math.max(Math.abs(info.velocity.x), Math.abs(info.velocity.y));
-                if (velocity > 200 && !isSpinning) {
-                  spinWheel();
-                }
-              }}
-              whileTap={{ scale: 0.98 }}
-              style={{ touchAction: "pan-y" }}
-            >
-              {/* Pointer / Indicator at top */}
-            <div className="absolute top-[-35px] md:top-[-45px] lg:top-[-55px] left-1/2 -translate-x-1/2 z-50 drop-shadow-[0_4px_12px_rgba(245,158,11,0.8)]">
-              <svg className="w-10 h-12 md:w-14 md:h-16 lg:w-16 lg:h-20 relative z-10" viewBox="0 0 40 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M20 48L0 0H40L20 48Z" fill="url(#pointer-gradient)" />
-                <defs>
-                  <linearGradient id="pointer-gradient" x1="20" y1="0" x2="20" y2="48" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#f59e0b" />
-                    <stop offset="1" stopColor="#b45309" />
-                  </linearGradient>
-                </defs>
-              </svg>
-              {/* Dynamic Glow Zone for symbols passing underneath */}
-              <div className="absolute top-[40px] md:top-[50px] left-1/2 -translate-x-1/2 w-16 h-16 md:w-20 md:h-20 bg-amber-400/30 blur-xl rounded-full mix-blend-screen pointer-events-none" />
-              <div className="absolute top-[40px] md:top-[50px] left-1/2 -translate-x-1/2 w-8 h-8 md:w-10 md:h-10 bg-white/20 blur-md rounded-full mix-blend-screen pointer-events-none" />
+            <div className="absolute inset-0 cursor-pointer" onClick={() => !isSpinning && spinWheel()}>
+              <CanvasSpiritWheel 
+                wheelData={wheelData}
+                rotations={rotations}
+                activeTheme={activeTheme}
+                metatron={{ 
+                  enabled: activeTheme.metatron?.enabled ?? true, 
+                  color: activeTheme.metatron?.color || 'rgba(212, 175, 55, 0.4)', 
+                  rotation: activeTheme.metatron?.rotation || 0 
+                }}
+                zoomLevel={1}
+                isSpinning={isSpinning}
+              />
             </div>
-
-            {/* Outer Ring 1 */}
-            <div 
-              ref={outer1RingRef}
-              className={`absolute inset-0 rounded-full ${activeTheme.isTiles ? 'shadow-[0_0_80px_rgba(0,255,204,0.3)]' : 'overflow-hidden shadow-[inset_0_0_30px_rgba(0,0,0,0.4),0_15px_35px_rgba(0,0,0,0.6)]'}`}
-              style={{
-                ...(activeTheme.isTiles ? { backgroundColor: 'transparent' } : {
-                  borderWidth: `${activeTheme.borderThickness ?? 6}px`,
-                  borderStyle: activeTheme.borderStyle || 'solid',
-                  borderColor: activeTheme.outerBorder,
-                }),
-                transform: `rotate(${rotations.outer1}deg)`
-              }}
-            >
-              {!activeTheme.isTiles && (
-                <div className="absolute inset-0 w-full h-full pointer-events-none rounded-full overflow-hidden" style={{ zIndex: 0 }}>
-                  {activeTheme.layerOrder === 'color_top' ? (
-                    <>
-                      <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.outerTextureUrl ?? activeTheme.textureUrl}")` }} />
-                      <div className="absolute inset-0 w-full h-full" style={{ background: `radial-gradient(circle, ${activeTheme.outerBg} 0%, ${activeTheme.outerGrad} 100%)`, opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
-                    </>
-                  ) : (
-                    <>
-                      <div className="absolute inset-0 w-full h-full" style={{ background: `radial-gradient(circle, ${activeTheme.outerBg} 0%, ${activeTheme.outerGrad} 100%)` }} />
-                      <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.outerTextureUrl ?? activeTheme.textureUrl}")`, opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
-                    </>
-                  )}
-                </div>
-              )}
-              {wheelData.outer1.map((item, i) => {
-                const angle = 360 / wheelData.outer1.length;
-                const isCrowded = wheelData.outer1.length > 25;
-                return (
-                <div 
-                  key={i} 
-                  className="absolute top-0 left-1/2 -translate-x-1/2 w-[1px] h-[50%] origin-bottom"
-                  style={{ transform: `rotate(${i * angle}deg)` }}
-                >
-                  <div
-                    ref={el => {
-                       if (outer1ItemsRef.current) outer1ItemsRef.current[i] = el;
-                    }}
-                    className="absolute left-1/2 top-0 origin-center"
-                    style={{ transform: 'translateX(-50%) scale(1)' }}
-                  >
-                    <div 
-                      className={`relative flex items-center justify-center font-bold whitespace-nowrap transition-all duration-300 ${
-                        activeTheme.isTiles || item.bgImage
-                          ? 'w-[30px] h-[30px] sm:w-10 sm:h-10 md:w-14 md:h-14 rounded-full border-2 top-[-15px] sm:top-[-20px] md:top-[-28px] shadow-lg' 
-                          : (isCrowded && i % 2 === 1 ? 'top-6 sm:top-8 md:top-10 lg:top-12' : 'top-1 sm:top-2 md:top-3 lg:top-4') + ' text-sm md:text-xl lg:text-2xl xl:text-3xl'
-                      }`} 
-                      style={{ 
-                      color: activeTheme.textOuter,
-                      backgroundColor: activeTheme.isTiles ? activeTheme.outerBg : (item.bgImage ? 'rgba(0,0,0,0.5)' : 'transparent'),
-                      backgroundImage: item.bgImage ? `url("${item.bgImage}")` : 'none',
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                      borderColor: activeTheme.isTiles || item.bgImage ? (i === selectedIndices.outer1 && !isSpinning ? (activeTheme.ledColor || '#f59e0b') : activeTheme.outerBorder) : 'transparent',
-                      boxShadow: (activeTheme.isTiles || item.bgImage) && i === selectedIndices.outer1 && !isSpinning ? `0 0 15px ${activeTheme.ledColor || '#f59e0b'}, inset 0 0 8px ${activeTheme.ledColor || '#f59e0b'}` : 'none',
-                      opacity: blankMode && !isRevealed ? 0 : 1, 
-                      textShadow: (!activeTheme.isTiles && !item.bgImage) && (themeId === 'wood' || themeId === 'parchment') ? '0.5px 0.5px 0 rgba(255,255,255,0.4)' : (!activeTheme.isTiles && !item.bgImage ? '0 0 5px currentColor' : 'none'),
-                      fontFamily: activeTheme.fontFamily,
-                      animation: isSpinning && (activeTheme.isTiles || item.bgImage) ? `stoneBounce 0.3s ease-in-out infinite alternate` : 'none',
-                      animationDelay: `${i * 0.05}s`,
-                      fontSize: activeTheme.isTiles ? '0.75em' : undefined
-                    }}
-                  >
-                    {isImageSymbol(item.id) ? (
-                      <div className={`shrink-0 flex items-center justify-center overflow-hidden ${isCrowded ? 'w-7 h-7 sm:w-8 sm:h-8 md:w-12 md:h-12 lg:w-14 lg:h-14' : 'w-8 h-8 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-20 lg:h-20'}`}>
-                        <img src={getThumbnailUrl(getImageUrl(item.id), 400)} loading="lazy" alt="" className="w-full h-full object-contain filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)] rounded-full" />
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center justify-center leading-none gap-0.5">
-                        {!/^\d+$/.test(String(item.id)) && <span>{item.id}</span>}
-                        {showLabels && item.name && String(item.name).trim() !== String(item.id).trim() && (
-                          <span className="text-[8px] sm:text-[10px] md:text-xs lg:text-sm px-1 max-w-[50px] sm:max-w-[80px] whitespace-normal leading-tight text-center">
-                            {item.name}
-                          </span>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                  </div>
-                  {/* Silver Pins */}
-                  {!activeTheme.isTiles && <div className="absolute top-[2px] -translate-x-1/2 w-[3px] h-[3px] sm:w-1 sm:h-1 md:w-1.5 md:h-1.5 rounded-full shadow-sm border border-black/30 z-10" style={{ transform: `rotate(${angle / 2}deg)`, backgroundColor: activeTheme.pin }}></div>}
-                </div>
-              )})}
-            </div>
-
-            {/* Outer Ring 2 */}
-            <div 
-              ref={outer2RingRef}
-              className={`absolute inset-[11%] rounded-full ${activeTheme.isTiles ? 'shadow-[0_0_80px_rgba(0,255,204,0.3)]' : 'overflow-hidden shadow-[inset_0_0_30px_rgba(0,0,0,0.4),0_15px_35px_rgba(0,0,0,0.6)]'}`}
-              style={{
-                ...(activeTheme.isTiles ? { backgroundColor: 'transparent' } : {
-                  borderWidth: `${Math.max(1, (activeTheme.borderThickness ?? 6) - 1)}px`,
-                  borderStyle: activeTheme.borderStyle || 'solid',
-                  borderColor: activeTheme.outerBorder,
-                }),
-                transform: `rotate(${rotations.outer2}deg)`
-              }}
-            >
-              {!activeTheme.isTiles && (
-                <div className="absolute inset-0 w-full h-full pointer-events-none rounded-full overflow-hidden" style={{ zIndex: 0 }}>
-                  {activeTheme.layerOrder === 'color_top' ? (
-                    <>
-                      <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.outerTextureUrl ?? activeTheme.textureUrl}")` }} />
-                      <div className="absolute inset-0 w-full h-full" style={{ background: `radial-gradient(circle, ${activeTheme.outerBg} 0%, ${activeTheme.outerGrad} 100%)`, opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
-                    </>
-                  ) : (
-                    <>
-                      <div className="absolute inset-0 w-full h-full" style={{ background: `radial-gradient(circle, ${activeTheme.outerBg} 0%, ${activeTheme.outerGrad} 100%)` }} />
-                      <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.outerTextureUrl ?? activeTheme.textureUrl}")`, opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
-                    </>
-                  )}
-                </div>
-              )}
-              {wheelData.outer2.map((item, i) => {
-                const angle = 360 / wheelData.outer2.length;
-                const isCrowded = wheelData.outer2.length > 25;
-                return (
-                <div 
-                  key={i} 
-                  className="absolute top-0 left-1/2 -translate-x-1/2 w-[1px] h-[50%] origin-bottom"
-                  style={{ transform: `rotate(${i * angle}deg)` }}
-                >
-                  <div
-                    ref={el => {
-                       if (outer2ItemsRef.current) outer2ItemsRef.current[i] = el;
-                    }}
-                    className="absolute left-1/2 top-0 origin-center"
-                    style={{ transform: 'translateX(-50%) scale(1)' }}
-                  >
-                    <div 
-                      className={`relative flex items-center justify-center font-bold whitespace-nowrap transition-all duration-300 ${
-                        activeTheme.isTiles || item.bgImage
-                          ? 'w-[28px] h-[28px] sm:w-8 sm:h-8 md:w-12 md:h-12 rounded-full border-2 top-[-14px] sm:top-[-16px] md:top-[-24px] shadow-lg' 
-                          : (isCrowded && i % 2 === 1 ? 'top-4 sm:top-6 md:top-8 lg:top-10' : 'top-0 sm:top-1 md:top-2 lg:top-3') + ' text-xs md:text-lg lg:text-xl xl:text-2xl'
-                      }`} 
-                      style={{ 
-                      color: activeTheme.textOuter,
-                      backgroundColor: activeTheme.isTiles ? activeTheme.outerBg : (item.bgImage ? 'rgba(0,0,0,0.5)' : 'transparent'),
-                      backgroundImage: item.bgImage ? `url("${item.bgImage}")` : 'none',
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                      borderColor: activeTheme.isTiles || item.bgImage ? (i === selectedIndices.outer2 && !isSpinning ? (activeTheme.ledColor || '#f59e0b') : activeTheme.outerBorder) : 'transparent',
-                      boxShadow: (activeTheme.isTiles || item.bgImage) && i === selectedIndices.outer2 && !isSpinning ? `0 0 15px ${activeTheme.ledColor || '#f59e0b'}, inset 0 0 8px ${activeTheme.ledColor || '#f59e0b'}` : 'none',
-                      opacity: blankMode && !isRevealed ? 0 : 1, 
-                      textShadow: (!activeTheme.isTiles && !item.bgImage) && (themeId === 'wood' || themeId === 'parchment') ? '0.5px 0.5px 0 rgba(255,255,255,0.4)' : (!activeTheme.isTiles && !item.bgImage ? '0 0 5px currentColor' : 'none'),
-                      fontFamily: activeTheme.fontFamily,
-                      animation: isSpinning && (activeTheme.isTiles || item.bgImage) ? `stoneBounce 0.3s ease-in-out infinite alternate` : 'none',
-                      animationDelay: `${i * 0.05}s`,
-                      fontSize: activeTheme.isTiles ? '0.75em' : undefined
-                    }}
-                  >
-                    {isImageSymbol(item.id) ? (
-                      <div className={`shrink-0 flex items-center justify-center overflow-hidden ${isCrowded ? 'w-5 h-5 sm:w-7 sm:h-7 md:w-10 md:h-10 lg:w-12 lg:h-12' : 'w-7 h-7 sm:w-10 sm:h-10 md:w-14 md:h-14 lg:w-16 lg:h-16'}`}>
-                        <img src={getThumbnailUrl(getImageUrl(item.id), 400)} loading="lazy" alt="" className="w-full h-full object-contain filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)] rounded-full" />
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center justify-center leading-none gap-0.5">
-                        {!/^\d+$/.test(String(item.id)) && <span>{item.id}</span>}
-                        {showLabels && item.name && String(item.name).trim() !== String(item.id).trim() && (
-                          <span className="text-[8px] sm:text-[10px] md:text-xs lg:text-sm px-1 max-w-[50px] sm:max-w-[80px] whitespace-normal leading-tight text-center">
-                            {item.name}
-                          </span>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                  </div>
-                  {/* Silver Pins */}
-                  {!activeTheme.isTiles && <div className="absolute top-[2px] -translate-x-1/2 w-[3px] h-[3px] sm:w-1 sm:h-1 md:w-1.5 md:h-1.5 rounded-full shadow-sm border border-black/30 z-10" style={{ transform: `rotate(${angle / 2}deg)`, backgroundColor: activeTheme.pin }}></div>}
-                </div>
-              )})}
-            </div>
-
-            {/* Middle Ring */}
-            <div 
-              ref={middleRingRef}
-              className={`absolute inset-[22%] rounded-full ${activeTheme.isTiles ? '' : 'overflow-hidden shadow-[inset_0_0_20px_rgba(0,0,0,0.4)]'}`}
-              style={{
-                ...(activeTheme.isTiles ? { backgroundColor: 'transparent' } : {
-                  borderWidth: `${Math.max(1, (activeTheme.borderThickness ?? 6) - 1)}px`,
-                  borderStyle: activeTheme.borderStyle || 'solid',
-                  borderColor: activeTheme.middleBorder,
-                }),
-                transform: `rotate(${rotations.middle}deg)`
-              }}
-            >
-              {!activeTheme.isTiles && (
-                <div className="absolute inset-0 w-full h-full pointer-events-none rounded-full overflow-hidden" style={{ zIndex: 0 }}>
-                  {activeTheme.layerOrder === 'color_top' ? (
-                    <>
-                      <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.middleTextureUrl ?? activeTheme.textureUrl}")` }} />
-                      <div className="absolute inset-0 w-full h-full" style={{ background: `radial-gradient(circle, ${activeTheme.middleBg} 0%, ${activeTheme.middleGrad} 100%)`, opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
-                    </>
-                  ) : (
-                    <>
-                      <div className="absolute inset-0 w-full h-full" style={{ background: `radial-gradient(circle, ${activeTheme.middleBg} 0%, ${activeTheme.middleGrad} 100%)` }} />
-                      <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.middleTextureUrl ?? activeTheme.textureUrl}")`, opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
-                    </>
-                  )}
-                </div>
-              )}
-              {wheelData.middle.map((item, i) => {
-                const angle = 360 / wheelData.middle.length;
-                return (
-                <div 
-                  key={i} 
-                  className="absolute top-0 left-1/2 -translate-x-1/2 w-[1px] h-[50%] origin-bottom"
-                  style={{ transform: `rotate(${i * angle}deg)` }}
-                >
-                  <div 
-                    className={`absolute -translate-x-1/2 flex items-center justify-center font-bold whitespace-nowrap transition-all duration-300 ${
-                      activeTheme.isTiles || item.bgImage
-                        ? 'w-[32px] h-[32px] sm:w-11 sm:h-11 md:w-14 md:h-14 rounded-full border-2 top-[-16px] sm:top-[-22px] md:top-[-28px] shadow-lg' 
-                        : 'top-2 sm:top-3 md:top-4 lg:top-5 text-lg md:text-3xl lg:text-4xl xl:text-5xl'
-                    }`} 
-                    style={{ 
-                      color: activeTheme.textMiddle,
-                      backgroundColor: activeTheme.isTiles ? activeTheme.middleBg : (item.bgImage ? 'rgba(0,0,0,0.5)' : 'transparent'),
-                      backgroundImage: item.bgImage ? `url("${item.bgImage}")` : 'none',
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                      borderColor: activeTheme.isTiles || item.bgImage ? (i === selectedIndices.middle && !isSpinning ? (activeTheme.ledColor || '#f59e0b') : activeTheme.middleBorder) : 'transparent',
-                      boxShadow: (activeTheme.isTiles || item.bgImage) && i === selectedIndices.middle && !isSpinning ? `0 0 15px ${activeTheme.ledColor || '#f59e0b'}, inset 0 0 8px ${activeTheme.ledColor || '#f59e0b'}` : 'none',
-                      opacity: blankMode && !isRevealed ? 0 : 1, 
-                      textShadow: (!activeTheme.isTiles && !item.bgImage) && (themeId === 'wood' || themeId === 'parchment') ? '0.5px 0.5px 0 rgba(255,255,255,0.4)' : (!activeTheme.isTiles && !item.bgImage ? '0 0 5px currentColor' : 'none'),
-                      fontFamily: activeTheme.fontFamily,
-                      animation: isSpinning && (activeTheme.isTiles || item.bgImage) ? `stoneBounce 0.35s ease-in-out infinite alternate` : 'none',
-                      animationDelay: `${i * 0.05}s`
-                    }}
-                  >
-                    {['Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Black', 'White', 'Brown', 'LightBlue', 'Grey', 'Orange'].includes(item.id) ? (
-                      <div className="flex flex-col items-center justify-center leading-none gap-0.5">
-                        <div className="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 lg:w-8 lg:h-8 rounded-full shadow-inner border border-black/30" style={{ backgroundColor: item.id === 'LightBlue' ? '#add8e6' : item.id.toLowerCase() }}></div>
-                        {showLabels && item.name && String(item.name).trim() !== String(item.id).trim() && (
-                          <span className="text-[8px] sm:text-[10px] md:text-xs lg:text-sm px-1 max-w-[50px] sm:max-w-[80px] whitespace-normal leading-tight text-center">
-                            {item.name}
-                          </span>
-                        )}
-                      </div>
-                    ) : isImageSymbol(item.id) ? (
-                      <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 shrink-0 flex items-center justify-center overflow-hidden">
-                        <img src={getThumbnailUrl(getImageUrl(item.id), 400)} loading="lazy" alt="" className="w-full h-full object-contain filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)] rounded-full" />
-                      </div>
-                    ) : (
-                      <div className={`flex flex-col items-center justify-center leading-none gap-0.5 ${activeTheme.isTiles ? "text-[10px] md:text-sm" : ""}`}>
-                        {!/^\d+$/.test(String(item.id)) && <span>{item.id}</span>}
-                        {showLabels && item.name && String(item.name).trim() !== String(item.id).trim() && (
-                          <span className="text-[8px] sm:text-[10px] md:text-xs lg:text-sm px-1 max-w-[50px] sm:max-w-[70px] whitespace-normal leading-tight text-center">
-                            {item.name}
-                          </span>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                  {/* Segment dividers */}
-                  {/* <div className="absolute top-0 -translate-x-1/2 w-[1px] h-full" style={{ transform: `rotate(${angle / 2}deg)`, backgroundColor: activeTheme.divider, opacity: 0.25 }}></div> */}
-                  {/* Silver Pins */}
-                  {!activeTheme.isTiles && <div className="absolute top-[2px] -translate-x-1/2 w-[3px] h-[3px] sm:w-1 sm:h-1 md:w-1.5 md:h-1.5 rounded-full shadow-sm border border-black/30 z-10" style={{ transform: `rotate(${angle / 2}deg)`, backgroundColor: activeTheme.pin }}></div>}
-                </div>
-              )})}
-            </div>
-
-            {/* Inner Ring */}
-            <div 
-              ref={innerRingRef}
-              className={`absolute inset-[35%] rounded-full ${activeTheme.isTiles ? '' : 'overflow-hidden shadow-[inset_0_0_15px_rgba(0,0,0,0.5)]'}`}
-              style={{
-                ...(activeTheme.isTiles ? { backgroundColor: 'transparent' } : {
-                  borderWidth: `${Math.max(1, (activeTheme.borderThickness ?? 6) - 2)}px`,
-                  borderStyle: activeTheme.borderStyle || 'solid',
-                  borderColor: activeTheme.innerBorder,
-                }),
-                transform: `rotate(${rotations.inner}deg)`
-              }}
-            >
-              {!activeTheme.isTiles && (
-                <div className="absolute inset-0 w-full h-full pointer-events-none rounded-full overflow-hidden" style={{ zIndex: 0 }}>
-                  {activeTheme.layerOrder === 'color_top' ? (
-                    <>
-                      <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.innerTextureUrl ?? activeTheme.textureUrl}")` }} />
-                      <div className="absolute inset-0 w-full h-full" style={{ background: `radial-gradient(circle, ${activeTheme.innerBg} 0%, ${activeTheme.innerGrad} 100%)`, opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
-                    </>
-                  ) : (
-                    <>
-                      <div className="absolute inset-0 w-full h-full" style={{ background: `radial-gradient(circle, ${activeTheme.innerBg} 0%, ${activeTheme.innerGrad} 100%)` }} />
-                      <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.innerTextureUrl ?? activeTheme.textureUrl}")`, opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
-                    </>
-                  )}
-                </div>
-              )}
-              {wheelData.inner.map((item, i) => {
-                const angle = 360 / wheelData.inner.length;
-                return (
-                <div 
-                  key={i} 
-                  className="absolute top-0 left-1/2 -translate-x-1/2 w-[1px] h-[50%] origin-bottom"
-                  style={{ transform: `rotate(${i * angle}deg)` }}
-                >
-                  <div 
-                    className={`absolute -translate-x-1/2 flex items-center justify-center font-bold whitespace-nowrap transition-all duration-300 ${
-                      activeTheme.isTiles || item.bgImage
-                        ? 'w-[28px] h-[28px] sm:w-10 sm:h-10 md:w-[50px] md:h-[50px] rounded-full border-2 top-[-14px] sm:top-[-20px] md:top-[-25px] shadow-lg' 
-                        : 'top-2 sm:top-3 md:top-5 lg:top-8 text-lg md:text-2xl lg:text-3xl xl:text-4xl'
-                    }`} 
-                    style={{ 
-                      color: activeTheme.textInner,
-                      backgroundColor: activeTheme.isTiles ? activeTheme.innerBg : (item.bgImage ? 'rgba(0,0,0,0.5)' : 'transparent'),
-                      backgroundImage: item.bgImage ? `url("${item.bgImage}")` : 'none',
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                      borderColor: activeTheme.isTiles || item.bgImage ? (i === selectedIndices.inner && !isSpinning ? (activeTheme.ledColor || '#f59e0b') : activeTheme.innerBorder) : 'transparent',
-                      boxShadow: (activeTheme.isTiles || item.bgImage) && i === selectedIndices.inner && !isSpinning ? `0 0 15px ${activeTheme.ledColor || '#f59e0b'}, inset 0 0 8px ${activeTheme.ledColor || '#f59e0b'}` : 'none',
-                      opacity: blankMode && !isRevealed ? 0 : 1, 
-                      textShadow: (!activeTheme.isTiles && !item.bgImage) && (themeId === 'wood' || themeId === 'parchment') ? '0.5px 0.5px 0 rgba(255,255,255,0.4)' : (!activeTheme.isTiles && !item.bgImage ? '0 0 5px currentColor' : 'none'),
-                      fontFamily: activeTheme.fontFamily,
-                      animation: isSpinning && (activeTheme.isTiles || item.bgImage) ? `stoneBounce 0.4s ease-in-out infinite alternate` : 'none',
-                      animationDelay: `${i * 0.05}s`,
-                      fontSize: activeTheme.isTiles ? '1.2em' : undefined
-                    }}
-                  >
-                    {isImageSymbol(item.id) ? (
-                      <div className="w-10 h-10 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 shrink-0 flex items-center justify-center overflow-hidden">
-                        <img src={getThumbnailUrl(getImageUrl(item.id), 400)} loading="lazy" alt="" className="w-full h-full object-contain filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)] rounded-full" />
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center justify-center leading-none gap-0.5">
-                        {!/^\d+$/.test(String(item.id)) && <span>{item.id}</span>}
-                        {showLabels && item.name && String(item.name).trim() !== String(item.id).trim() && (
-                          <span className="text-[8px] sm:text-[10px] md:text-xs lg:text-sm px-1 max-w-[60px] sm:max-w-[80px] whitespace-normal leading-tight text-center">
-                            {item.name}
-                          </span>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                  {/* Segment dividers */}
-                  {/* <div className="absolute top-0 -translate-x-1/2 w-[1px] h-full" style={{ transform: `rotate(${angle / 2}deg)`, backgroundColor: activeTheme.divider, opacity: 0.25 }}></div> */}
-                  {/* Silver Pins */}
-                  {!activeTheme.isTiles && <div className="absolute top-[2px] -translate-x-1/2 w-[3px] h-[3px] sm:w-1 sm:h-1 md:w-1.5 md:h-1.5 rounded-full shadow-sm border border-black/30 z-10" style={{ transform: `rotate(${angle / 2}deg)`, backgroundColor: activeTheme.pin }}></div>}
-                </div>
-              )})}
-            </div>
-            
-            {/* Center Hub */}
-            <div 
-              className={`absolute inset-[48%] sm:inset-[46%] md:inset-[47%] rounded-full ${activeTheme.isTiles ? 'border-[3px]' : 'border-[5px]'} shadow-[0_0_20px_rgba(0,0,0,0.8)] z-10 overflow-hidden flex items-center justify-center`}
-              style={{
-                borderColor: activeTheme.hubBorder,
-                backgroundColor: activeTheme.hubBg
-              }}
-            >
-              {activeTheme.hubIcon ? (
-                <div className="text-3xl md:text-5xl">{activeTheme.hubIcon}</div>
-              ) : (
-                <img 
-                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d2a300021f94d0f312c039/4cde5ffdd_IMG_6738.jpg" 
-                  alt="Center Logo" 
-                  className="w-full h-full object-cover pointer-events-none" 
-                />
-              )}
-            </div>
-
-
-
-          </motion.div>
           </div>
 
           {/* Spin controls underneath the wheel */}
           <div className="w-full max-w-md mt-12 space-y-4 z-20 relative px-4">
+            <div className="flex flex-col gap-2">
+              <Label className="text-amber-200/80 text-xs">Intention Phrase (Optional Seed)</Label>
+              <Input 
+                value={intentionPhrase} 
+                onChange={(e) => setIntentionPhrase(e.target.value)} 
+                placeholder="e.g. Guidance for today..." 
+                disabled={spinState !== "idle"}
+                className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 placeholder:text-amber-100/30"
+              />
+            </div>
             <div className="flex gap-2">
               <div className="flex-1">
                 <Label className="text-amber-200/80 text-xs">Spin Speed</Label>
@@ -1469,20 +996,6 @@ export default function SpiritWheel() {
                     <SelectItem value="0.5">Slow</SelectItem>
                     <SelectItem value="1">Normal</SelectItem>
                     <SelectItem value="2">Fast</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex-1">
-                <Label className="text-amber-200/80 text-xs">Duration</Label>
-                <Select value={spinDuration.toString()} onValueChange={(v) => setSpinDuration(v === "continuous" ? "continuous" : parseInt(v))} disabled={spinState !== "idle"}>
-                  <SelectTrigger className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 h-10">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100">
-                    <SelectItem value="3">3 seconds</SelectItem>
-                    <SelectItem value="5">5 seconds</SelectItem>
-                    <SelectItem value="10">10 seconds</SelectItem>
-                    <SelectItem value="continuous">Continuous</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -1498,19 +1011,15 @@ export default function SpiritWheel() {
               </Button>
             ) : (
               <Button 
-                onClick={() => stopSpin()} 
-                disabled={spinState === "stopping"}
-                className="w-full bg-red-900 hover:bg-red-800 text-red-50 py-8 text-xl shadow-[inset_0_0_10px_rgba(0,0,0,0.5),0_4px_15px_rgba(0,0,0,0.4)] border border-red-700 active:scale-95 transition-transform"
+                disabled
+                className="w-full bg-amber-900/50 text-amber-50/50 py-8 text-xl border border-amber-900/50 cursor-not-allowed"
               >
-                {spinState === "stopping" ? (
-                  <><RefreshCw className="animate-spin w-6 h-6 mr-3" /> Halting Spirits...</>
-                ) : (
-                  <><Octagon className="w-6 h-6 mr-3" /> Stop Wheel</>
-                )}
+                <RefreshCw className="animate-spin w-6 h-6 mr-3" />
+                Channeling Spirits...
               </Button>
             )}
             <div className="text-center text-amber-200/50 text-sm italic pt-2">
-              👆 Or tap / swipe the wheel directly to spin
+              👆 Or tap the wheel directly to spin
             </div>
           </div>
         </div>
