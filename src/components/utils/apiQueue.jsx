@@ -80,11 +80,14 @@ class ApiQueue {
           return null;
         }
 
+        const status = error.response?.status || error.status;
+
         const isRateLimitError = 
-          error.response?.status === 429 || 
+          status === 429 || 
           error.message?.includes('Rate limit') || 
           error.message?.includes('API_RATE_LIMIT_EXCEEDED') ||
-          error.response?.data?.error?.includes('Rate limit');
+          error.response?.data?.error?.includes('Rate limit') ||
+          error.data?.error?.includes('Rate limit');
           
         const isNetworkError = 
           error.message?.includes('Network Error') || 
@@ -94,9 +97,8 @@ class ApiQueue {
           error.code === 'ERR_NETWORK' ||
           error.code === 'ECONNABORTED' || // NEW: Connection aborted
           error.code === 'ETIMEDOUT' || // NEW: Timeout
-          !error.response;
+          (!error.response && !error.status);
 
-        const status = error.response?.status;
         const isServerError = status >= 500;
         const isLoop508 = status === 508;
 
