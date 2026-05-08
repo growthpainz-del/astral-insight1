@@ -239,7 +239,9 @@ export default function DeckView() {
         })),
         card_relationships: (relationships || []).map(r => ({
           card_id_1: r.card_id_1,
+          card_1_name: cards.find(c => c.id === r.card_id_1)?.name,
           card_id_2: r.card_id_2,
+          card_2_name: cards.find(c => c.id === r.card_id_2)?.name,
           relationship_key: r.relationship_key,
           relationship_type: r.relationship_type,
           strength: r.strength,

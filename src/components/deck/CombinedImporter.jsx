@@ -9,6 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import { Card as CardEntity } from "@/entities/Card";
 import { Spread } from "@/entities/Spread";
 import { Deck } from "@/entities/Deck";
+import { base44 } from "@/api/base44Client";
 import { Loader2, FileJson, ListPlus, CheckCircle2, AlertTriangle } from "lucide-react";
 import { InvokeLLM, GenerateImage } from "@/integrations/Core";
 
@@ -811,8 +812,10 @@ export default function CombinedImporter({ deckId, isOpen, onClose, onImportComp
   const [parseWarnings, setParseWarnings] = React.useState([]); // NEW: State for parsing warnings
   const [cards, setCards] = React.useState([]);
   const [spreads, setSpreads] = React.useState([]);
+  const [relationships, setRelationships] = React.useState([]);
   const [importCards, setImportCards] = React.useState(true);
   const [importSpreads, setImportSpreads] = React.useState(true);
+  const [importRelationships, setImportRelationships] = React.useState(true);
   const [isParsing, setIsParsing] = React.useState(false);
 
   const [validateAndPlaceholder, setValidateAndPlaceholder] = React.useState(true);
@@ -833,8 +836,10 @@ export default function CombinedImporter({ deckId, isOpen, onClose, onImportComp
       setParseWarnings([]); // Clear warnings on close
       setCards([]);
       setSpreads([]);
+      setRelationships([]);
       setImportCards(true);
       setImportSpreads(true);
+      setImportRelationships(true);
       setIsParsing(false);
       setIsImporting(false);
       setProgress(0);
@@ -941,6 +946,9 @@ export default function CombinedImporter({ deckId, isOpen, onClose, onImportComp
       const mappedSpreads = rawSpreads.map((s) => normalizeSpread(s, deckId, "General")).filter(Boolean);
       setSpreads(mappedSpreads);
 
+      const rawRelationships = toArrayMaybe(fullParsedObject?.card_relationships || fullParsedObject?.relationships);
+      setRelationships(rawRelationships.filter(Boolean));
+
       // Compute duplicate stats by name against existing deck content
       try {
         const existing = await CardEntity.filter({ deck_id: deckId });
@@ -1000,12 +1008,15 @@ export default function CombinedImporter({ deckId, isOpen, onClose, onImportComp
 
     let createdCards = 0;
     let createdSpreads = 0;
+    let createdRelationships = 0;
     let failedCards = 0;
     let failedSpreads = 0;
+    let failedRelationships = 0;
     const failures = [];
 
     const willImportCards = importCards && cards.length > 0;
     const willImportSpreads = importSpreads && spreads.length > 0;
+    const willImportRelationships = importRelationships && relationships.length > 0;
 
     try {
       if (willImportCards) {
@@ -1068,6 +1079,120 @@ export default function CombinedImporter({ deckId, isOpen, onClose, onImportComp
         }
       }
 
+      if (willImportRelationships) {
+        const currentCards = await CardEntity.filter({ deck_id: deckId });
+        const nameToId = new Map(currentCards.map(c => [(c.name || "").toLowerCase(), c.id]));
+        
+        const toCreateRels = [];
+        for (const r of relationships) {
+            let id1 = r.card_id_1;
+            let id2 = r.card_id_2;
+
+            if (r.card_1_name && nameToId.has((r.card_1_name || "").toLowerCase())) {
+                id1 = nameToId.get((r.card_1_name || "").toLowerCase());
+            }
+            if (r.card_2_name && nameToId.has((r.card_2_name || "").toLowerCase())) {
+                id2 = nameToId.get((r.card_2_name || "").toLowerCase());
+            }
+            
+            if (!id1 || !id2) {
+                failedRelationships++;
+                failures.push(`Relationship missing card match: ${r.card_1_name || r.card_id_1} <-> ${r.card_2_name || r.card_id_2}`);
+                continue;
+            }
+
+            const relationshipKey = [id1, id2].sort().join('|');
+
+            toCreateRels.push({
+                deck_id: deckId,
+                card_id_1: id1,
+                card_id_2: id2,
+                relationship_key: relationshipKey,
+                relationship_type: r.relationship_type || 'custom',
+                strength: r.strength || 0.5,
+                custom_notes: r.custom_notes || '',
+                auto_detected: !!r.auto_detected,
+                detection_reasons: r.detection_reasons || [],
+                shared_keywords: r.shared_keywords || [],
+                shared_themes: r.shared_themes || [],
+                element_relationship: r.element_relationship || 'none',
+                number_sequence: !!r.number_sequence,
+                is_favorite: !!r.is_favorite
+            });
+        }
+
+        const batchesR = chunk(toCreateRels, 25);
+        for (let i = 0; i < batchesR.length; i++) {
+          const batch = batchesR[i];
+          try {
+            const res = await base44.entities.CardRelationship.bulkCreate(batch);
+            createdRelationships += Array.isArray(res) ? res.length : batch.length;
+          } catch (err) {
+            failedRelationships += batch.length;
+            failures.push(`Relationships batch ${i + 1}: ${err.message || "Unknown error"}`);
+          }
+          setProgress(Math.min(100, progress + 5));
+          await new Promise((r) => setTimeout(r, 40));
+        }
+      }
+
+      if (willImportRelationships) {
+        const currentCards = await CardEntity.filter({ deck_id: deckId });
+        const nameToId = new Map(currentCards.map(c => [(c.name || "").toLowerCase(), c.id]));
+        
+        const toCreateRels = [];
+        for (const r of relationships) {
+            let id1 = r.card_id_1;
+            let id2 = r.card_id_2;
+
+            if (r.card_1_name && nameToId.has((r.card_1_name || "").toLowerCase())) {
+                id1 = nameToId.get((r.card_1_name || "").toLowerCase());
+            }
+            if (r.card_2_name && nameToId.has((r.card_2_name || "").toLowerCase())) {
+                id2 = nameToId.get((r.card_2_name || "").toLowerCase());
+            }
+            
+            if (!id1 || !id2) {
+                failedRelationships++;
+                failures.push(`Relationship missing card match: ${r.card_1_name || r.card_id_1} <-> ${r.card_2_name || r.card_id_2}`);
+                continue;
+            }
+
+            const relationshipKey = [id1, id2].sort().join('|');
+
+            toCreateRels.push({
+                deck_id: deckId,
+                card_id_1: id1,
+                card_id_2: id2,
+                relationship_key: relationshipKey,
+                relationship_type: r.relationship_type || 'custom',
+                strength: r.strength || 0.5,
+                custom_notes: r.custom_notes || '',
+                auto_detected: !!r.auto_detected,
+                detection_reasons: r.detection_reasons || [],
+                shared_keywords: r.shared_keywords || [],
+                shared_themes: r.shared_themes || [],
+                element_relationship: r.element_relationship || 'none',
+                number_sequence: !!r.number_sequence,
+                is_favorite: !!r.is_favorite
+            });
+        }
+
+        const batchesR = chunk(toCreateRels, 25);
+        for (let i = 0; i < batchesR.length; i++) {
+          const batch = batchesR[i];
+          try {
+            const res = await base44.entities.CardRelationship.bulkCreate(batch);
+            createdRelationships += Array.isArray(res) ? res.length : batch.length;
+          } catch (err) {
+            failedRelationships += batch.length;
+            failures.push(`Relationships batch ${i + 1}: ${err.message || "Unknown error"}`);
+          }
+          setProgress(Math.min(100, progress + 5));
+          await new Promise((r) => setTimeout(r, 40));
+        }
+      }
+
       if (willImportSpreads) {
         const existingSpreads = await Spread.filter({ deck_id: deckId });
         const existingSpreadNames = new Set(existingSpreads.map((s) => (s.name || "").toLowerCase()));
@@ -1096,6 +1221,7 @@ export default function CombinedImporter({ deckId, isOpen, onClose, onImportComp
       setSummary({
         cards: { created: createdCards, failed: failedCards, total: cards.length },
         spreads: { created: createdSpreads, failed: failedSpreads, total: spreads.length },
+        relationships: { created: createdRelationships, failed: failedRelationships, total: relationships.length },
         failures,
       });
 
@@ -1105,7 +1231,7 @@ export default function CombinedImporter({ deckId, isOpen, onClose, onImportComp
     }
   };
 
-  const totalParsed = cards.length + spreads.length;
+  const totalParsed = cards.length + spreads.length + relationships.length;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -1154,11 +1280,15 @@ export default function CombinedImporter({ deckId, isOpen, onClose, onImportComp
           <div className="flex items-center gap-3 flex-wrap">
             <label className="text-xs text-white/70 flex items-center gap-2">
               <input type="checkbox" className="accent-purple-500" checked={importCards} onChange={(e) => setImportCards(e.target.checked)} />
-              Import cards
+              Cards
             </label>
             <label className="text-xs text-white/70 flex items-center gap-2">
               <input type="checkbox" className="accent-purple-500" checked={importSpreads} onChange={(e) => setImportSpreads(e.target.checked)} />
-              Import spreads
+              Spreads
+            </label>
+            <label className="text-xs text-white/70 flex items-center gap-2">
+              <input type="checkbox" className="accent-purple-500" checked={importRelationships} onChange={(e) => setImportRelationships(e.target.checked)} />
+              Relationships
             </label>
             <Button onClick={handleParse} disabled={isParsing} className="bg-indigo-600 hover:bg-indigo-700">
               {isParsing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <ListPlus className="w-4 h-4 mr-2" />}
@@ -1217,6 +1347,7 @@ export default function CombinedImporter({ deckId, isOpen, onClose, onImportComp
               <div className="flex items-center gap-3 text-sm">
                 <Badge className="bg-white/10">Cards: {cards.length}</Badge>
                 <Badge className="bg-white/10">Spreads: {spreads.length}</Badge>
+                <Badge className="bg-white/10">Rels: {relationships.length}</Badge>
               </div>
 
               {cards.length > 0 && (
@@ -1294,6 +1425,7 @@ export default function CombinedImporter({ deckId, isOpen, onClose, onImportComp
               <div className="text-white/80">Done.</div>
               <div className="text-white/70">Cards — created: {summary.cards.created} / {summary.cards.total}, failed: {summary.cards.failed}</div>
               <div className="text-white/70">Spreads — created: {summary.spreads.created} / {summary.spreads.total}, failed: {summary.spreads.failed}</div>
+              <div className="text-white/70">Relationships — created: {summary.relationships.created} / {summary.relationships.total}, failed: {summary.relationships.failed}</div>
               {summary.failures?.length > 0 && (
                 <details className="mt-1">
                   <summary className="cursor-pointer text-white/70">Show errors</summary>
@@ -1312,7 +1444,7 @@ export default function CombinedImporter({ deckId, isOpen, onClose, onImportComp
           </Button>
           <Button
             onClick={handleImport}
-            disabled={isImporting || (!importCards && !importSpreads) || ((importCards && cards.length === 0) && (importSpreads && spreads.length === 0))}
+            disabled={isImporting || (!importCards && !importSpreads && !importRelationships) || ((importCards && cards.length === 0) && (importSpreads && spreads.length === 0) && (importRelationships && relationships.length === 0))}
             className="bg-emerald-600 hover:bg-emerald-700"
           >
             {isImporting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 mr-2" />}
