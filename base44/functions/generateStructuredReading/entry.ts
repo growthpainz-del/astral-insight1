@@ -181,13 +181,18 @@ Deno.serve(async (req) => {
             });
 
             if (relationshipDescriptions.length > 0) {
-                relationshipsText = `\n\nDetected Card Relationships:\n${relationshipDescriptions.join('\n')}`;
+                relationshipsText = relationshipDescriptions.join('\n');
             }
         }
         
+        const synergy = relationshipsText ? {
+            title: "Card Synergies",
+            content: relationshipsText
+        } : null;
+
         const branch3 = {
             title: category.branch_3_title || "The Action / Outcome",
-            content: branch3Content + relationshipsText
+            content: branch3Content
         };
 
         return Response.json({
@@ -195,6 +200,7 @@ Deno.serve(async (req) => {
                 branch_1: branch1,
                 branch_2: branch2,
                 branch_3: branch3,
+                synergy: synergy,
                 instructions: category.interpretation_instructions,
                 boosters_used: selectedBoosters,
                 cosmic_symbol: cosmic_symbol

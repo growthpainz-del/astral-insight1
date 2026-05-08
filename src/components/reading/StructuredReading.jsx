@@ -26,7 +26,7 @@ export default function StructuredReading({ isOpen, drawnCards, deck, onClose })
   const handleSaveReading = async () => {
     setIsSaving(true);
     try {
-      const interpretationText = `Branch 1 (${result.branch_1?.title}): ${result.branch_1?.content}\n\nBranch 2 (${result.branch_2?.title}): ${result.branch_2?.content}\n\nBranch 3 (${result.branch_3?.title}): ${result.branch_3?.content}\n\nOverall Message: ${aiSummary}`;
+      const interpretationText = `Branch 1 (${result.branch_1?.title}): ${result.branch_1?.content}\n\nBranch 2 (${result.branch_2?.title}): ${result.branch_2?.content}\n\nBranch 3 (${result.branch_3?.title}): ${result.branch_3?.content}${result.synergy ? `\n\nSynergy (${result.synergy.title}):\n${result.synergy.content}` : ''}\n\nOverall Message: ${aiSummary}`;
       
       await base44.entities.Reading.create({
         title: `Structured Reading: ${deck?.name || "Unknown"}`,
@@ -133,7 +133,7 @@ export default function StructuredReading({ isOpen, drawnCards, deck, onClose })
       const prompt = `Provide an overall message for this structured reading. Make it a cohesive, encouraging 2-3 sentence insight:
       Branch 1 (${result.branch_1?.title}): ${result.branch_1?.content}
       Branch 2 (${result.branch_2?.title}): ${result.branch_2?.content}
-      Branch 3 (${result.branch_3?.title}): ${result.branch_3?.content}`;
+      Branch 3 (${result.branch_3?.title}): ${result.branch_3?.content}${result.synergy ? `\n      Synergy (${result.synergy.title}): ${result.synergy.content}` : ''}`;
 
       const res = await base44.integrations.Core.InvokeLLM({
         prompt,
@@ -287,6 +287,16 @@ export default function StructuredReading({ isOpen, drawnCards, deck, onClose })
                   </h3>
                   <p className="text-white/90 leading-relaxed pl-7">{result.branch_3?.content}</p>
                 </div>
+
+                {result.synergy && (
+                  <div className="bg-black/30 border border-white/10 rounded-xl p-5">
+                    <h3 className="text-lg font-bold text-cyan-400 mb-2 flex items-center gap-2">
+                      <ChevronRight className="w-5 h-5" />
+                      {result.synergy.title}
+                    </h3>
+                    <p className="text-white/90 leading-relaxed pl-7 whitespace-pre-wrap">{result.synergy.content}</p>
+                  </div>
+                )}
 
                 <div className="bg-cyan-900/20 border border-cyan-500/30 rounded-xl p-5">
                   <h3 className="text-sm font-bold text-cyan-300 uppercase tracking-wider mb-2">Instructions</h3>
