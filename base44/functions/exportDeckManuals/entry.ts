@@ -33,6 +33,12 @@ Deno.serve(async (req) => {
       // Fetch cards for this deck (ordered by number if present)
       const deckCards = await base44.entities.Card.filter({ deck_id: deck.id }, 'number', 1000);
 
+      // Fetch card relationships
+      let deckRelationships = [];
+      try {
+        deckRelationships = await base44.entities.CardRelationship.filter({ deck_id: deck.id }, null, 1000);
+      } catch(e) {}
+
       if (Array.isArray(deck.manual_files) && deck.manual_files.length > 0) {
         for (const mf of deck.manual_files) {
           const name = mf?.name || 'Manual Section';
@@ -150,6 +156,7 @@ Deno.serve(async (req) => {
         },
         cards: cardsWithDescriptions,
         agent_cards: cardsForAgent,
+        card_relationships: deckRelationships,
       });
     }
 

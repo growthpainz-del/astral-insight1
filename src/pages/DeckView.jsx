@@ -183,7 +183,14 @@ export default function DeckView() {
   const handleExportJson = async () => {
     if (!deck?.id) return;
     try {
-      const cards = await Card.filter({ deck_id: deck.id }); // Changed to Card entity
+      const cards = await queueApiCall(() => Card.filter({ deck_id: deck.id }, null, 1000), 3, 1000);
+      let relationships = [];
+      try {
+        relationships = await queueApiCall(() => base44.entities.CardRelationship.filter({ deck_id: deck.id }, null, 1000), 3, 1000);
+      } catch (e) {
+        console.warn("Failed to fetch relationships for export", e);
+      }
+
       const exportData = {
         deck: {
           name: deck.name,
@@ -229,6 +236,21 @@ export default function DeckView() {
           ai_image_negative_prompt: c.ai_image_negative_prompt,
           ai_prompt_style: c.ai_prompt_style,
           ai_reference_image_url: c.ai_reference_image_url,
+        })),
+        card_relationships: (relationships || []).map(r => ({
+          card_id_1: r.card_id_1,
+          card_id_2: r.card_id_2,
+          relationship_key: r.relationship_key,
+          relationship_type: r.relationship_type,
+          strength: r.strength,
+          custom_notes: r.custom_notes,
+          auto_detected: r.auto_detected,
+          detection_reasons: r.detection_reasons,
+          shared_keywords: r.shared_keywords,
+          shared_themes: r.shared_themes,
+          element_relationship: r.element_relationship,
+          number_sequence: r.number_sequence,
+          is_favorite: r.is_favorite
         })),
         exported_date: new Date().toISOString(),
       };

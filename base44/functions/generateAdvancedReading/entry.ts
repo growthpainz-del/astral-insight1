@@ -70,6 +70,32 @@ Deno.serve(async (req) => {
         // Ensure we only use the relevant cards for the spread
         const relevantCards = drawnCards.slice(0, numPositions);
 
+        // Fetch relationships for the deck
+        const deckId = deck?.id || deck?.deck_id;
+        let deckRelationships = [];
+        if (deckId) {
+            try {
+                deckRelationships = await base44.entities.CardRelationship.filter({ deck_id: deckId }, null, 500);
+            } catch (_) {}
+        }
+
+        // Filter relationships to only those between drawn cards
+        const relevantCardIds = relevantCards.map(c => String(c.id || c.card_id));
+        const activeRelationships = (deckRelationships || []).filter(r => 
+            relevantCardIds.includes(String(r.card_id_1)) && relevantCardIds.includes(String(r.card_id_2))
+        );
+
+        let relationshipContext = "";
+        if (activeRelationships.length > 0) {
+            const relLines = activeRelationships.map(r => {
+                const c1 = relevantCards.find(c => String(c.id || c.card_id) === String(r.card_id_1));
+                const c2 = relevantCards.find(c => String(c.id || c.card_id) === String(r.card_id_2));
+                let notes = r.custom_notes || (r.detection_reasons || []).join("; ") || r.relationship_type;
+                return `- ${c1.name} & ${c2.name}: ${notes}`;
+            });
+            relationshipContext = `\n\nCARD RELATIONSHIPS (These drawn cards have special connections):\n${relLines.join('\n')}\nWeave these connections into your interpretation where it makes sense.`;
+        }
+
         const cardDescriptions = relevantCards
             .map((card, idx) => {
                 const spreadPos = spreadPositions[idx];
@@ -238,6 +264,7 @@ ${adviceDepthInstruction}
 ${pastContext}
 ${rootedSection}
 ${astralContext}
+${relationshipContext}
 
 SPREAD STRUCTURE:
 ${spreadStructure}
