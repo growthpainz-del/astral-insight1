@@ -1,0 +1,40 @@
+{
+  "name": "ReportedContent",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "enum": [
+        "reading_interpretation",
+        "chat_message",
+        "generated_image",
+        "other"
+      ],
+      "description": "The type of content being reported"
+    },
+    "context": {
+      "type": "string",
+      "description": "The content itself, URL, or context of the report"
+    },
+    "reason": {
+      "type": "string",
+      "description": "User's reason for reporting the content"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "reviewed",
+        "resolved",
+        "dismissed"
+      ],
+      "default": "pending",
+      "description": "Admin review status"
+    }
+  },
+  "required": [
+    "type",
+    "context",
+    "reason"
+  ]
+}

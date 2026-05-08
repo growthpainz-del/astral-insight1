@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Loader2, Sparkles, AlertTriangle, Copy, Check, Volume2, StopCircle, Mic, Moon, Heart, Download, FileText } from "lucide-react";
+import { Loader2, Sparkles, AlertTriangle, Copy, Check, Volume2, StopCircle, Mic, Moon, Heart, Download, FileText, Flag } from "lucide-react";
+import ReportContentDialog from "@/components/common/ReportContentDialog";
 // removed: AudioPlayer import (switched to SpeechSynthesis)
 
 import FreeLimitReached from "@/components/pricing/FreeLimitReached";
@@ -78,6 +79,7 @@ export default function ChanneledReading({ isOpen, drawnCards, deck, spread, que
   const [summary, setSummary] = useState("");
   const [isSummarizing, setIsSummarizing] = useState(false);
   const [summaryError, setSummaryError] = useState("");
+  const [showReportDialog, setShowReportDialog] = useState(false);
 
   // AI Coach customizations
   const [coachPersona, setCoachPersona] = useState("");
@@ -885,6 +887,15 @@ if (user && typeof user.token_balance === "number") {
               Your {selectedTier.charAt(0).toUpperCase() + selectedTier.slice(1)} Reading
             </h3>
             <div className="flex items-center gap-2 flex-wrap justify-end">
+              <Button
+                onClick={() => setShowReportDialog(true)}
+                variant="ghost"
+                size="sm"
+                className="text-red-400 hover:text-red-300 hover:bg-red-900/20 border border-red-500/30"
+              >
+                <Flag className="w-4 h-4 mr-2" />
+                Report
+              </Button>
               {/* Voice selection hidden – forced voice in use */}
               <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-white/5 border border-white/10">
                 <span className="text-xs text-white/70">Concise</span>
@@ -984,6 +995,13 @@ if (user && typeof user.token_balance === "number") {
               Generate Another Reading
             </Button>
           </div>
+
+          <ReportContentDialog
+              isOpen={showReportDialog}
+              onClose={() => setShowReportDialog(false)}
+              contentType="reading_interpretation"
+              contentContext={interpretation?.substring(0, 100) + "..."}
+          />
         </div>
       )}
     </div>

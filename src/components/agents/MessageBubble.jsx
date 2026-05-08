@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Button } from "@/components/ui/button";
-import { Copy, Zap, CheckCircle2, AlertCircle, Loader2, ChevronRight, Clock } from 'lucide-react';
+import { Copy, Zap, CheckCircle2, AlertCircle, Loader2, ChevronRight, Clock, Flag } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import ReportContentDialog from "@/components/common/ReportContentDialog";
 
 const FunctionDisplay = ({ toolCall }) => {
     const [expanded, setExpanded] = useState(false);
@@ -98,9 +99,10 @@ const FunctionDisplay = ({ toolCall }) => {
 
 export default function MessageBubble({ message }) {
     const isUser = message.role === 'user';
+    const [showReportDialog, setShowReportDialog] = useState(false);
     
     return (
-        <div className={cn("flex gap-3", isUser ? "justify-end" : "justify-start")}>
+        <div className={cn("flex gap-3 group/bubble relative", isUser ? "justify-end" : "justify-start")}>
             {!isUser && (
                 <div className="h-8 w-8 rounded-full bg-purple-900/50 border border-purple-500/30 flex items-center justify-center mt-0.5 flex-shrink-0">
                     <span className="text-purple-300 text-xs">AI</span>
@@ -163,8 +165,29 @@ export default function MessageBubble({ message }) {
                                 {message.content}
                             </ReactMarkdown>
                         )}
+                        
+                        {!isUser && message.content && (
+                            <div className="absolute top-2 -right-8 opacity-0 group-hover/bubble:opacity-100 transition-opacity">
+                                <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    onClick={() => setShowReportDialog(true)}
+                                    className="h-6 w-6 text-slate-400 hover:text-red-400 hover:bg-red-500/10"
+                                    title="Report Content"
+                                >
+                                    <Flag className="h-3 w-3" />
+                                </Button>
+                            </div>
+                        )}
                     </div>
                 )}
+
+                <ReportContentDialog
+                    isOpen={showReportDialog}
+                    onClose={() => setShowReportDialog(false)}
+                    contentType="chat_message"
+                    contentContext={message.content?.substring(0, 100) + "..."}
+                />
                 
                 {message.tool_calls?.length > 0 && (
                     <div className="space-y-1 w-full mt-2">

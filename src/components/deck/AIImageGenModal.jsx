@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Wand2, Image as ImageIcon, Check, Copy, AlertTriangle, Heart } from "lucide-react";
+import { Loader2, Wand2, Image as ImageIcon, Check, Copy, AlertTriangle, Heart, Flag } from "lucide-react";
+import ReportContentDialog from "@/components/common/ReportContentDialog";
 import { GenerateImage } from "@/integrations/Core";
 import { Card as CardEntity } from "@/entities/Card";
 import { base44 } from "@/api/base44Client";
@@ -33,6 +34,7 @@ function computeDims(aspectId, baseWidth) {
 export default function AIImageGenModal({ isOpen, onClose, card, defaultPrompt, onApplied }) {
   const [prompt, setPrompt] = React.useState(defaultPrompt || "");
   const [negative, setNegative] = React.useState("");
+  const [showReportDialog, setShowReportDialog] = React.useState(false);
   const [style, setStyle] = React.useState("photorealistic");
   const [seed, setSeed] = React.useState("");
   const [aspect, setAspect] = React.useState("portrait");
@@ -256,12 +258,17 @@ export default function AIImageGenModal({ isOpen, onClose, card, defaultPrompt, 
 
           {resultUrl && (
             <div className="space-y-2">
-              <div className="rounded border border-white/10 bg-black/30 p-3">
+              <div className="relative group rounded border border-white/10 bg-black/30 p-3">
                 <img
                   src={resultUrl}
                   alt="Generated"
                   className="max-h-[360px] w-auto mx-auto rounded"
                 />
+                <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button size="sm" variant="destructive" className="bg-red-500/80 hover:bg-red-600 text-white border-0" onClick={(e) => { e.preventDefault(); setShowReportDialog(true); }}>
+                        <Flag className="w-4 h-4 mr-2" /> Report
+                    </Button>
+                </div>
               </div>
               <div className="flex gap-2 flex-wrap">
                 <Button onClick={applyToCard} className="bg-emerald-600 hover:bg-emerald-700">
@@ -290,6 +297,13 @@ export default function AIImageGenModal({ isOpen, onClose, card, defaultPrompt, 
           </Button>
         </DialogFooter>
       </DialogContent>
+
+      <ReportContentDialog
+          isOpen={showReportDialog}
+          onClose={() => setShowReportDialog(false)}
+          contentType="generated_image"
+          contentContext={resultUrl || "Generated image"}
+      />
     </Dialog>
   );
 }

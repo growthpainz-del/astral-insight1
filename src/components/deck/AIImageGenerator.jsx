@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { GenerateImage } from "@/integrations/Core";
 import {
@@ -12,14 +11,16 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Wand2, Sparkles, Check, RotateCcw, Image as ImageIcon, AlertTriangle } from "lucide-react";
+import { Wand2, Sparkles, Check, RotateCcw, Image as ImageIcon, AlertTriangle, Flag } from "lucide-react";
 import { motion } from "framer-motion";
+import ReportContentDialog from "@/components/common/ReportContentDialog";
 
 export default function AIImageGenerator({ isOpen, onClose, onImageGenerated, card }) {
     const [prompt, setPrompt] = useState("");
     const [isGenerating, setIsGenerating] = useState(false);
     const [generatedImageUrl, setGeneratedImageUrl] = useState(null);
     const [error, setError] = useState(null);
+    const [showReportDialog, setShowReportDialog] = useState(false);
 
     // Helper function to generate a prompt from card details
     const generatePromptFromCard = () => {
@@ -178,13 +179,20 @@ export default function AIImageGenerator({ isOpen, onClose, onImageGenerated, ca
                                 <Sparkles className="w-full h-full text-amber-400" />
                             </motion.div>
                         ) : generatedImageUrl ? (
-                            <motion.img
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                src={generatedImageUrl}
-                                alt="Generated card art"
-                                className="max-h-64 rounded-md shadow-lg"
-                            />
+                            <div className="relative group w-full flex justify-center">
+                                <motion.img
+                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    src={generatedImageUrl}
+                                    alt="Generated card art"
+                                    className="max-h-64 rounded-md shadow-lg"
+                                />
+                                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <Button size="sm" variant="destructive" className="bg-red-500/80 hover:bg-red-600 text-white border-0" onClick={(e) => { e.preventDefault(); setShowReportDialog(true); }}>
+                                        <Flag className="w-4 h-4 mr-2" /> Report Image
+                                    </Button>
+                                </div>
+                            </div>
                         ) : (
                             <div className="text-center text-purple-300">
                                 <ImageIcon className="w-12 h-12 mx-auto mb-2" />
@@ -213,6 +221,13 @@ export default function AIImageGenerator({ isOpen, onClose, onImageGenerated, ca
                     )}
                 </DialogFooter>
             </DialogContent>
+
+            <ReportContentDialog
+                isOpen={showReportDialog}
+                onClose={() => setShowReportDialog(false)}
+                contentType="generated_image"
+                contentContext={generatedImageUrl || "Generated image"}
+            />
         </Dialog>
     );
 }

@@ -5,7 +5,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Sparkles, RefreshCw, Eye, ChevronLeft, Save, Plus, ZoomIn, ZoomOut, Download, Octagon, StopCircle, Share2, Copy } from 'lucide-react';
+import { Sparkles, RefreshCw, Eye, ChevronLeft, Save, Plus, ZoomIn, ZoomOut, Download, Octagon, StopCircle, Share2, Copy, Flag } from 'lucide-react';
+import ReportContentDialog from "@/components/common/ReportContentDialog";
 import { motion, useAnimationFrame } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -299,6 +300,7 @@ export default function SpiritWheel() {
   const [zoomLevel, setZoomLevel] = useState(1);
   const [isCapturing, setIsCapturing] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showReportDialog, setShowReportDialog] = useState(false);
 
   const handleDownloadImage = async () => {
     setIsCapturing(true);
@@ -896,6 +898,15 @@ export default function SpiritWheel() {
                         <Button 
                           size="sm" 
                           variant="outline" 
+                          onClick={() => setShowReportDialog(true)}
+                          className="bg-red-900/20 hover:bg-red-900/40 border-red-500/30 text-red-400 h-8"
+                        >
+                          <Flag className="w-4 h-4 mr-2" />
+                          Report
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
                           onClick={() => setShowShareModal(true)}
                           className="bg-[#3b2313] hover:bg-[#4a2c18] border-[#8b5a2b] text-amber-400 h-8"
                         >
@@ -1207,6 +1218,13 @@ export default function SpiritWheel() {
         deckName="Rooted Crescent Wheel"
         spreadName="Spirit Wheel Reading"
         drawnCards={[]}
+      />
+      
+      <ReportContentDialog
+          isOpen={showReportDialog}
+          onClose={() => setShowReportDialog(false)}
+          contentType="reading_interpretation"
+          contentContext={aiInterpretation?.substring(0, 100) + "..."}
       />
     </div>
   );
