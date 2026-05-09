@@ -634,7 +634,8 @@ function RingEditor({ ringKey, segments, setSegments, deckCards, onOpenGallery }
   );
 }
 
-import { ROOTED_CARDS_DATA, WHEEL_MIDDLE, WHEEL_INNER, WHEEL_THEMES } from "./SpiritWheel";
+import { ROOTED_CARDS_DATA, WHEEL_MIDDLE, WHEEL_INNER } from "@/lib/spiritWheelData";
+import { WHEEL_THEMES } from "@/lib/spiritWheelThemes";
 
 export { RingEditor };
 
