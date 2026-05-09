@@ -977,6 +977,7 @@ const [showShareModal, setShowShareModal] = useState(false);
                 isOpen={showStructuredReading}
                 drawnCards={(placedCards.some(Boolean) ? placedCards : drawnCards).filter(Boolean)}
                 deck={deck}
+                spread={selectedSpread}
                 onClose={() => setShowStructuredReading(false)}
               />,
               document.body

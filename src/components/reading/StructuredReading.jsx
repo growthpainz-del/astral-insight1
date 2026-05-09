@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { QUESTION_CATEGORIES } from "@/lib/cosmic-data";
 import CosmicSymbolSprite from "./CosmicSymbolSprite";
 
-export default function StructuredReading({ isOpen, drawnCards, deck, onClose }) {
+export default function StructuredReading({ isOpen, drawnCards, deck, spread, onClose }) {
   const [categories, setCategories] = useState([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [questionCategory, setQuestionCategory] = useState("");
@@ -109,6 +109,7 @@ export default function StructuredReading({ isOpen, drawnCards, deck, onClose })
         category: selectedCategory,
         deck_id: deck.id,
         drawnCards: drawnCards,
+        spread: spread,
         includeMoonPhase: true,
         question_category: questionCategory
       });

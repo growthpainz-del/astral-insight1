@@ -85,15 +85,38 @@ Deno.serve(async (req) => {
             relevantCardIds.includes(String(r.card_id_1)) && relevantCardIds.includes(String(r.card_id_2))
         );
 
-        let relationshipContext = "";
+        const relationshipLines = [];
+        
+        // 1. Add auto-detected relationships
+        for (let i = 0; i < relevantCards.length; i++) {
+            for (let j = i + 1; j < relevantCards.length; j++) {
+                const c1 = relevantCards[i];
+                const c2 = relevantCards[j];
+                const sharedKeywords = (c1.keywords || []).filter(k => (c2.keywords || []).includes(k));
+                const sameElement = (c1.element && c2.element && c1.element.toLowerCase() !== 'none' && c1.element.toLowerCase() === c2.element.toLowerCase());
+                if (sharedKeywords.length > 0 || sameElement) {
+                    let notes = [];
+                    if (sharedKeywords.length > 0) notes.push(`Shared themes: ${sharedKeywords.join(', ')}`);
+                    if (sameElement) notes.push(`Both share the ${c1.element} element`);
+                    relationshipLines.push(`- ${c1.name} & ${c2.name} (Auto-detected): ${notes.join('; ')}`);
+                }
+            }
+        }
+
+        // 2. Add saved relationships
         if (activeRelationships.length > 0) {
-            const relLines = activeRelationships.map(r => {
+            activeRelationships.forEach(r => {
                 const c1 = relevantCards.find(c => String(c.id || c.card_id) === String(r.card_id_1));
                 const c2 = relevantCards.find(c => String(c.id || c.card_id) === String(r.card_id_2));
                 let notes = r.custom_notes || (r.detection_reasons || []).join("; ") || r.relationship_type;
-                return `- ${c1.name} & ${c2.name}: ${notes}`;
+                relationshipLines.push(`- ${c1.name} & ${c2.name} (Saved): ${notes}`);
             });
-            relationshipContext = `\n\nCARD RELATIONSHIPS (These drawn cards have special connections):\n${relLines.join('\n')}\nWeave these connections into your interpretation where it makes sense.`;
+        }
+
+        let relationshipContext = "";
+        const uniqueRelLines = [...new Set(relationshipLines)];
+        if (uniqueRelLines.length > 0) {
+            relationshipContext = `\n\nCARD RELATIONSHIPS (These drawn cards have special connections):\n${uniqueRelLines.join('\n')}\nWeave these connections into your interpretation where it makes sense.`;
         }
 
         const cardDescriptions = relevantCards

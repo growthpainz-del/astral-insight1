@@ -60,7 +60,7 @@ const COSMIC_SYMBOLS = [
 Deno.serve(async (req) => {
     try {
         const base44 = createClientFromRequest(req);
-        const { category_id, category: providedCategory, deck_id, drawnCards, includeMoonPhase, question_category } = await req.json();
+        const { category_id, category: providedCategory, deck_id, drawnCards, spread, includeMoonPhase, question_category } = await req.json();
 
         // 1. Get the category definition from the database
         let category = providedCategory;
@@ -104,15 +104,17 @@ Deno.serve(async (req) => {
         }
 
         // 4. Construct the 3 Branches of Information
-        // Branch 1: The Core Energy (Based on the first card drawn and its position)
-        const primaryCard = drawnCards[0] || null;
-        let branch1Content = "No card drawn for core energy.";
-        if (primaryCard) {
-            const positionText = primaryCard.position ? ` (in position: ${primaryCard.position} - ${primaryCard.position_meaning || "Core Focus"})` : "";
-            branch1Content = `The ${primaryCard.name}${positionText} brings the primary focus: ${primaryCard.overall_meaning || primaryCard.upright_meaning}`;
+        // Branch 1: The Core Energy (Based on the spread positions and drawn cards)
+        let branch1Content = "No cards drawn.";
+        if (drawnCards.length > 0) {
+            branch1Content = drawnCards.map((card, idx) => {
+                const posText = card.position ? `[${card.position}${card.position_meaning ? ` - ${card.position_meaning}` : ''}]` : `[Card ${idx + 1}]`;
+                const meaning = card.is_reversed || card.isReversed ? (card.reversed_meaning || card.overall_meaning) : (card.upright_meaning || card.overall_meaning);
+                return `**${posText}**\nThe ${card.name}: ${meaning}`;
+            }).join('\n\n');
         }
         const branch1 = {
-            title: category.branch_1_title || "The Core Energy",
+            title: (category.branch_1_title || "The Core Energy") + (spread ? ` (${spread.name})` : ""),
             content: branch1Content
         };
 
@@ -134,32 +136,46 @@ Deno.serve(async (req) => {
                      selectedBoosters.map(b => `${b.symbol} : ${b.meaning}`).join('\n')
         };
 
-        // Branch 3: The Supporting Action (Based on subsequent cards, their positions, or generalized guidance)
+        // Branch 3: The Supporting Action
         let branch3Content = "Rely on your boosters and core energy to determine your next steps.";
-        if (drawnCards.length > 1) {
-            const subsequentCards = drawnCards.slice(1);
-            branch3Content = subsequentCards.map((card, idx) => {
-                const posText = card.position ? ` (Position: ${card.position} - ${card.position_meaning || "Influence"})` : "";
-                return `${idx + 1}. ${card.name}${posText}: ${card.upright_action || card.upright_insight || card.overall_meaning || card.upright_meaning}`;
+        if (drawnCards.length > 0) {
+            branch3Content = drawnCards.map((card, idx) => {
+                const posText = card.position ? `[${card.position}]` : `[Card ${idx + 1}]`;
+                const action = card.is_reversed || card.isReversed ? (card.reversed_action || card.reversed_insight || card.reversed_meaning) : (card.upright_action || card.upright_insight || card.upright_meaning);
+                return `**${posText}** ${card.name}: ${action || 'Reflect on this energy.'}`;
             }).join('\n\n');
-            branch3Content = `The following forces provide supporting guidance and outcome indicators:\n\n${branch3Content}`;
+            branch3Content = `Actionable steps based on your spread positions:\n\n${branch3Content}`;
         }
 
         let relationshipsText = "";
         if (drawnCards.length > 1) {
             const relationshipPromises = [];
             const pairs = [];
+            const relationshipDescriptions = [];
+
             for (let i = 0; i < drawnCards.length; i++) {
                 for (let j = i + 1; j < drawnCards.length; j++) {
-                    const c1 = drawnCards[i].id || drawnCards[i].card_id;
-                    const c2 = drawnCards[j].id || drawnCards[j].card_id;
-                    const name1 = drawnCards[i].name;
-                    const name2 = drawnCards[j].name;
-                    if (c1 && c2) {
-                        const minId = c1 < c2 ? c1 : c2;
-                        const maxId = c1 > c2 ? c1 : c2;
+                    const c1 = drawnCards[i];
+                    const c2 = drawnCards[j];
+                    
+                    // Basic auto-detection
+                    const sharedKeywords = (c1.keywords || []).filter(k => (c2.keywords || []).includes(k));
+                    const sameElement = (c1.element && c2.element && c1.element.toLowerCase() !== 'none' && c1.element.toLowerCase() === c2.element.toLowerCase());
+                    if (sharedKeywords.length > 0 || sameElement) {
+                        let notes = [];
+                        if (sharedKeywords.length > 0) notes.push(`Shared themes: ${sharedKeywords.join(', ')}`);
+                        if (sameElement) notes.push(`Both share the ${c1.element} element`);
+                        relationshipDescriptions.push(`• ${c1.name} & ${c2.name} (Auto-detected): ${notes.join('; ')}`);
+                    }
+
+                    // Database lookup
+                    const id1 = c1.id || c1.card_id;
+                    const id2 = c2.id || c2.card_id;
+                    if (id1 && id2) {
+                        const minId = id1 < id2 ? id1 : id2;
+                        const maxId = id1 > id2 ? id1 : id2;
                         const relKey = `${minId}|${maxId}`;
-                        pairs.push({ name1, name2, relKey });
+                        pairs.push({ name1: c1.name, name2: c2.name, relKey });
                         relationshipPromises.push(
                             base44.asServiceRole.entities.CardRelationship.filter({ deck_id: deck_id, relationship_key: relKey })
                         );
@@ -168,7 +184,6 @@ Deno.serve(async (req) => {
             }
             const relResults = await Promise.all(relationshipPromises);
             
-            const relationshipDescriptions = [];
             relResults.forEach((rels, index) => {
                 if (rels && rels.length > 0) {
                     const pair = pairs[index];
@@ -176,12 +191,14 @@ Deno.serve(async (req) => {
                     const type = rel.relationship_type !== 'custom' ? rel.relationship_type : 'connected';
                     const notes = rel.custom_notes ? ` (${rel.custom_notes})` : '';
                     const shared = rel.shared_keywords && rel.shared_keywords.length > 0 ? ` [Shared: ${rel.shared_keywords.join(', ')}]` : '';
-                    relationshipDescriptions.push(`• ${pair.name1} & ${pair.name2}: ${type} relationship${notes}${shared}.`);
+                    relationshipDescriptions.push(`• ${pair.name1} & ${pair.name2} (Saved): ${type} relationship${notes}${shared}.`);
                 }
             });
 
-            if (relationshipDescriptions.length > 0) {
-                relationshipsText = relationshipDescriptions.join('\n');
+            // Unique descriptions
+            const uniqueRels = [...new Set(relationshipDescriptions)];
+            if (uniqueRels.length > 0) {
+                relationshipsText = uniqueRels.join('\n');
             }
         }
         
