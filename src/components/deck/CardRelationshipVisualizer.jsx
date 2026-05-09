@@ -1,4 +1,3 @@
-
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -443,6 +442,8 @@ async function detectRelationships(cards, options = {}) {
 function GraphView({ cards, relationships, selectedCards, onCardClick, onRelationshipClick }) {
   const containerRef = React.useRef(null);
   const [dimensions, setDimensions] = React.useState({ width: 800, height: 600 });
+  const [positions, setPositions] = React.useState([]);
+  const [isSimulating, setIsSimulating] = React.useState(false);
 
   React.useEffect(() => {
     if (containerRef.current) {
@@ -451,32 +452,141 @@ function GraphView({ cards, relationships, selectedCards, onCardClick, onRelatio
     }
   }, []);
 
-  // Position cards in a circle
-  const positions = React.useMemo(() => {
-    const angleStep = (2 * Math.PI) / cards.length;
-    const radius = Math.min(dimensions.width, dimensions.height) * 0.35;
-    const centerX = dimensions.width / 2;
-    const centerY = dimensions.height / 2;
+  // Initial circle layout
+  React.useEffect(() => {
+    if (dimensions.width === 0 || cards.length === 0) return;
+    
+    setPositions((prev) => {
+      if (prev.length === cards.length) return prev;
+      
+      const angleStep = (2 * Math.PI) / cards.length;
+      const radius = Math.min(dimensions.width, dimensions.height) * 0.35;
+      const centerX = dimensions.width / 2;
+      const centerY = dimensions.height / 2;
 
-    return cards.map((card, i) => {
-      const angle = i * angleStep - Math.PI / 2; // Start from top
-      return {
-        card,
-        x: centerX + radius * Math.cos(angle),
-        y: centerY + radius * Math.sin(angle)
-      };
+      return cards.map((card, i) => {
+        const angle = i * angleStep - Math.PI / 2; // Start from top
+        return {
+          id: card.id,
+          card,
+          x: centerX + radius * Math.cos(angle),
+          y: centerY + radius * Math.sin(angle),
+          vx: 0,
+          vy: 0
+        };
+      });
     });
   }, [cards, dimensions]);
+
+  // Simple force-directed layout simulation
+  React.useEffect(() => {
+    if (!isSimulating) return;
+    
+    let animationFrame;
+    const K = 0.05; // Spring constant
+    const REPULSION = 8000; // Repulsion constant
+    const DAMPING = 0.85; // Damping
+    
+    const simulate = () => {
+      setPositions(prev => {
+        const next = prev.map(p => ({ ...p }));
+        
+        for (let i = 0; i < next.length; i++) {
+          const node1 = next[i];
+          let fx = 0, fy = 0;
+          
+          // Repulsion
+          for (let j = 0; j < next.length; j++) {
+            if (i === j) continue;
+            const node2 = next[j];
+            const dx = node1.x - node2.x;
+            const dy = node1.y - node2.y;
+            const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+            const force = REPULSION / (dist * dist);
+            fx += (dx / dist) * force;
+            fy += (dy / dist) * force;
+          }
+          
+          // Attraction (Springs along relationships)
+          relationships.forEach(rel => {
+            if (rel.card1.id === node1.id || rel.card2.id === node1.id) {
+              const otherId = rel.card1.id === node1.id ? rel.card2.id : rel.card1.id;
+              const node2 = next.find(n => n.id === otherId);
+              if (node2) {
+                const dx = node2.x - node1.x;
+                const dy = node2.y - node1.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                const targetDist = 150; // Ideal distance
+                const force = K * (dist - targetDist) * rel.strength;
+                fx += (dx / dist) * force;
+                fy += (dy / dist) * force;
+              }
+            }
+          });
+          
+          // Center gravity
+          const dx = dimensions.width / 2 - node1.x;
+          const dy = dimensions.height / 2 - node1.y;
+          fx += dx * 0.02;
+          fy += dy * 0.02;
+          
+          node1.vx = (node1.vx + fx) * DAMPING;
+          node1.vy = (node1.vy + fy) * DAMPING;
+          
+          node1.x += node1.vx;
+          node1.y += node1.vy;
+          
+          // Boundaries
+          node1.x = Math.max(40, Math.min(dimensions.width - 40, node1.x));
+          node1.y = Math.max(60, Math.min(dimensions.height - 60, node1.y));
+        }
+        
+        // Stop if settled
+        const totalVelocity = next.reduce((sum, n) => sum + Math.abs(n.vx) + Math.abs(n.vy), 0);
+        if (totalVelocity < 0.5) {
+          setIsSimulating(false);
+        }
+        
+        return next;
+      });
+      
+      if (isSimulating) {
+        animationFrame = requestAnimationFrame(simulate);
+      }
+    };
+    
+    animationFrame = requestAnimationFrame(simulate);
+    return () => cancelAnimationFrame(animationFrame);
+  }, [isSimulating, relationships, dimensions]);
+
+  const handlePan = (id, event, info) => {
+    setPositions(prev => prev.map(p => {
+      if (p.id === id) {
+        return { ...p, x: p.x + info.delta.x, y: p.y + info.delta.y };
+      }
+      return p;
+    }));
+  };
 
   const isCardSelected = (cardId) => selectedCards.some(c => c.id === cardId);
 
   return (
-    <div ref={containerRef} className="relative w-full h-[600px] bg-slate-900/50 rounded-xl border border-purple-500/20">
-      <svg width="100%" height="100%" className="absolute inset-0">
+    <div ref={containerRef} className="relative w-full h-[600px] bg-slate-900/50 rounded-xl border border-purple-500/20 overflow-hidden">
+      <Button 
+        onClick={() => setIsSimulating(!isSimulating)} 
+        size="sm" 
+        variant="outline" 
+        className="absolute top-4 left-4 z-30 border-purple-500/30 bg-slate-900/80 text-purple-300"
+      >
+        <Sparkles className="w-4 h-4 mr-2" />
+        {isSimulating ? "Stop Layout" : "Auto Layout"}
+      </Button>
+
+      <svg width="100%" height="100%" className="absolute inset-0 pointer-events-none">
         {/* Draw relationship lines */}
         {relationships.map((rel, idx) => {
-          const pos1 = positions.find(p => p.card.id === rel.card1.id);
-          const pos2 = positions.find(p => p.card.id === rel.card2.id);
+          const pos1 = positions.find(p => p.id === rel.card1.id);
+          const pos2 = positions.find(p => p.id === rel.card2.id);
 
           if (!pos1 || !pos2) return null;
 
@@ -489,7 +599,7 @@ function GraphView({ cards, relationships, selectedCards, onCardClick, onRelatio
                        '#ec4899';
 
           return (
-            <g key={idx}>
+            <g key={idx} className="pointer-events-auto">
               <line
                 x1={pos1.x}
                 y1={pos1.y}
@@ -498,7 +608,7 @@ function GraphView({ cards, relationships, selectedCards, onCardClick, onRelatio
                 stroke={color}
                 strokeWidth={Math.max(1, rel.strength * 4)}
                 strokeOpacity={opacity}
-                className="transition-all duration-300 cursor-pointer hover:stroke-opacity-100"
+                className="transition-all duration-100 cursor-pointer hover:stroke-opacity-100"
                 onClick={() => onRelationshipClick(rel)}
               />
               {isHighlighted && (
@@ -517,13 +627,14 @@ function GraphView({ cards, relationships, selectedCards, onCardClick, onRelatio
       </svg>
 
       {/* Draw cards */}
-      {positions.map(({ card, x, y }) => {
+      {positions.map(({ card, x, y, id }) => {
         const selected = isCardSelected(card.id);
 
         return (
           <motion.div
-            key={card.id}
-            className={`absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer group ${
+            key={id}
+            onPan={(e, info) => handlePan(id, e, info)}
+            className={`absolute transform -translate-x-1/2 -translate-y-1/2 cursor-grab active:cursor-grabbing group ${
               selected ? 'z-20' : 'z-10'
             }`}
             style={{ left: x, top: y }}
@@ -535,17 +646,17 @@ function GraphView({ cards, relationships, selectedCards, onCardClick, onRelatio
               selected ? 'border-purple-400 shadow-lg shadow-purple-500/50' : 'border-white/20 group-hover:border-purple-400/50'
             }`}>
               {card.image_url ? (
-                <img src={card.image_url} alt={card.name} className="w-full h-full object-cover" />
+                <img src={card.image_url} alt={card.name} className="w-full h-full object-cover pointer-events-none" />
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-purple-900 to-indigo-900 flex items-center justify-center">
+                <div className="w-full h-full bg-gradient-to-br from-purple-900 to-indigo-900 flex items-center justify-center pointer-events-none">
                   <span className="text-white text-[8px] text-center px-1">{card.name}</span>
                 </div>
               )}
               {selected && (
-                <div className="absolute inset-0 bg-purple-500/20 backdrop-blur-[1px]" />
+                <div className="absolute inset-0 bg-purple-500/20 backdrop-blur-[1px] pointer-events-none" />
               )}
             </div>
-            <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+            <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 whitespace-nowrap pointer-events-none">
               <Badge className="bg-purple-600/90 text-white text-[10px] px-1.5 py-0.5">
                 {card.number ? `#${card.number}` : card.name}
               </Badge>
