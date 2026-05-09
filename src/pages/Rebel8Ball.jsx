@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -150,6 +149,10 @@ export default function Rebel8BallPage() {
   const [isUploadingVideo, setIsUploadingVideo] = useState(false);
   const [activeTab, setActiveTab] = useState("fortune");
   const [error, setError] = useState(null);
+  const [decks, setDecks] = useState([]);
+  const [selectedDeckId, setSelectedDeckId] = useState("none");
+  const [deckCards, setDeckCards] = useState([]);
+  const [drawnCard, setDrawnCard] = useState(null);
   const audioRef = useRef(null);
   const ballRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -167,6 +170,36 @@ export default function Rebel8BallPage() {
       setError(`Failed to load history: ${err.message}.`);
     }
   }, [user]);
+
+  useEffect(() => {
+    const fetchDecks = async () => {
+      try {
+        if (user) {
+          const userDecks = await base44.entities.Deck.filter({ created_by: user.email }, "-created_date", 100);
+          setDecks(userDecks);
+        }
+      } catch (err) {
+        console.error("Failed to load decks:", err);
+      }
+    };
+    if (user) fetchDecks();
+  }, [user]);
+
+  useEffect(() => {
+    const fetchCards = async () => {
+      if (selectedDeckId === "none") {
+        setDeckCards([]);
+        return;
+      }
+      try {
+        const cards = await base44.entities.Card.filter({ deck_id: selectedDeckId }, null, 500);
+        setDeckCards(cards);
+      } catch (err) {
+        console.error("Failed to load cards:", err);
+      }
+    };
+    fetchCards();
+  }, [selectedDeckId]);
 
   useEffect(() => {
     const fetchUserAndHistory = async () => {
@@ -218,19 +251,20 @@ export default function Rebel8BallPage() {
     }
   };
 
-  const generateAICommentary = async (question, simpleAnswer, personaId) => {
+  const generateAICommentary = async (question, simpleAnswer, personaId, drawnCardInfo) => {
     const persona = AI_PERSONAS.find(p => p.id === personaId);
     if (!persona) return "...";
 
     try {
       setIsGeneratingCommentary(true);
 
-      const prompt = `${persona.systemPrompt}
+      let prompt = `${persona.systemPrompt}\n\nQuestion: "${question}"\n8-Ball Answer: ${simpleAnswer}`;
 
-Question: "${question}"
-8-Ball Answer: ${simpleAnswer}
+      if (drawnCardInfo) {
+        prompt += `\nCard Revealed: "${drawnCardInfo.name}"\nCard Meaning: ${drawnCardInfo.overall_meaning || drawnCardInfo.upright_meaning || 'No specific meaning provided.'}`;
+      }
 
-Provide your commentary on this answer in your unique voice. Be entertaining and stay in character.`;
+      prompt += `\n\nProvide your commentary on this answer in your unique voice. Be entertaining and stay in character.`;
 
       const response = await base44.integrations.Core.InvokeLLM({
         prompt: prompt,
@@ -255,6 +289,7 @@ Provide your commentary on this answer in your unique voice. Be entertaining and
     setIsShaking(true);
     setAnswer({ text: '...', type: 'shaking' });
     setAiCommentary("");
+    setDrawnCard(null);
     setError(null);
 
     if (audioRef.current) {
@@ -277,19 +312,26 @@ Provide your commentary on this answer in your unique voice. Be entertaining and
       setAnswer(selectedAnswer);
       setIsShaking(false);
 
+      let selectedCard = null;
+      if (selectedDeckId !== "none" && deckCards.length > 0) {
+        selectedCard = deckCards[Math.floor(Math.random() * deckCards.length)];
+        setDrawnCard(selectedCard);
+      }
+
       // Generate AI commentary
-      const commentary = await generateAICommentary(question, selectedAnswer.text, selectedPersona);
+      const commentary = await generateAICommentary(question, selectedAnswer.text, selectedPersona, selectedCard);
       setAiCommentary(commentary);
 
       // Save to history
       if (user) {
+        const finalCommentary = commentary + (selectedCard ? `\n\n(Card Revealed: ${selectedCard.name})` : "");
         const newHistoryItemData = {
           question,
           category,
           custom_tone: category === "custom" ? customTone : undefined,
           answer: selectedAnswer.text,
           answer_type: selectedAnswer.type,
-          ai_commentary: commentary,
+          ai_commentary: finalCommentary,
           persona_id: selectedPersona,
           persona_name: AI_PERSONAS.find(p => p.id === selectedPersona)?.name,
           timestamp: new Date().toISOString()
@@ -590,6 +632,24 @@ Provide your commentary on this answer in your unique voice. Be entertaining and
                     )}
 
                     <div>
+                      <Label className="text-purple-300 mb-2 block font-semibold flex items-center gap-2">
+                        <Sparkles className="w-4 h-4" />
+                        Reveal a Card? (Optional)
+                      </Label>
+                      <Select value={selectedDeckId} onValueChange={setSelectedDeckId}>
+                        <SelectTrigger className="bg-black/50 border-purple-500/30 text-white">
+                          <SelectValue placeholder="Select a deck" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-gray-900 border-purple-500/30">
+                          <SelectItem value="none">No Card</SelectItem>
+                          {decks.map(d => (
+                            <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
                       <Label className="text-purple-300 mb-2 block font-semibold">Your Question</Label>
                       <Input
                         value={question}
@@ -655,6 +715,46 @@ Provide your commentary on this answer in your unique voice. Be entertaining and
                       </div>
                       {/* Speech bubble pointer */}
                       <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[15px] border-l-transparent border-r-[15px] border-r-transparent border-t-[15px] border-t-purple-400/50"></div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Card Reveal */}
+                <AnimatePresence>
+                  {drawnCard && !isShaking && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -20, scale: 0.9 }}
+                      transition={{ duration: 0.5, ease: "easeOut", delay: 0.2 }}
+                      className="bg-gradient-to-br from-indigo-900/40 to-purple-900/40 border border-purple-500/30 rounded-2xl p-6 flex flex-col sm:flex-row items-center gap-6 shadow-xl"
+                    >
+                      <div className="w-32 h-48 rounded-lg overflow-hidden border-2 border-purple-500/50 shadow-lg shadow-purple-500/20 flex-shrink-0">
+                        {drawnCard.image_url ? (
+                          <img src={drawnCard.image_url} alt={drawnCard.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-purple-900 to-indigo-900 flex items-center justify-center p-2 text-center text-xs">
+                            {drawnCard.name}
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 text-center sm:text-left">
+                        <Badge className="mb-2 bg-purple-500/20 text-purple-300 border-purple-500/30">Card Revealed</Badge>
+                        <h3 className="text-2xl font-bold text-purple-200 mb-2">{drawnCard.name}</h3>
+                        <p className="text-white/80 text-sm italic mb-4">
+                          {drawnCard.overall_meaning?.slice(0, 150) || drawnCard.subtitle || 'A mysterious presence...'}
+                          {(drawnCard.overall_meaning?.length > 150) ? '...' : ''}
+                        </p>
+                        {drawnCard.keywords && drawnCard.keywords.length > 0 && (
+                          <div className="flex flex-wrap justify-center sm:justify-start gap-1">
+                            {drawnCard.keywords.slice(0, 4).map((kw, i) => (
+                              <Badge key={i} variant="outline" className="text-xs border-purple-500/30 text-purple-300">
+                                {kw}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </motion.div>
                   )}
                 </AnimatePresence>

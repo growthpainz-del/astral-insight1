@@ -42,6 +42,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 // Inline controllers (already in codebase)
 import AIManualBuilder from "@/components/deck/AIManualBuilder";
@@ -111,6 +113,8 @@ export default function DeckView() {
   const [activeTab, setActiveTab] = useState("cards"); // cards, insights, relationships, settings, manual, publishing
 
   const [isMobileView, setIsMobileView] = useState(false);
+  const [showJsonModal, setShowJsonModal] = useState(false);
+  const [jsonContent, setJsonContent] = useState("");
 
   useEffect(() => {
     const checkMobile = () => setIsMobileView(window.innerWidth < 768);
@@ -177,6 +181,89 @@ export default function DeckView() {
       setCards(cardsList || []);
     } catch (e) {
       console.error("Failed to reload cards:", e);
+    }
+  };
+
+  const handleViewJson = async () => {
+    if (!deck?.id) return;
+    try {
+      const cards = await queueApiCall(() => Card.filter({ deck_id: deck.id }, null, 1000), 3, 1000);
+      let relationships = [];
+      try {
+        relationships = await queueApiCall(() => base44.entities.CardRelationship.filter({ deck_id: deck.id }, null, 1000), 3, 1000);
+      } catch (e) {
+        console.warn("Failed to fetch relationships for view", e);
+      }
+
+      const exportData = {
+        deck: {
+          name: deck.name,
+          description: deck.description,
+          author: deck.author,
+          category: deck.category,
+          cover_image: deck.cover_image,
+          back_image_url: deck.back_image_url,
+          is_public: deck.is_public,
+          is_premium: deck.is_premium,
+          ai_reading_coach: deck.ai_reading_coach,
+          manual_url: deck.manual_url,
+          manual_content: deck.manual_content,
+          censor_mode: deck.censor_mode,
+          suggested_questions: deck.suggested_questions,
+        },
+        cards: cards.map(c => ({
+          name: c.name,
+          number: c.number,
+          subtitle: c.subtitle,
+          image_url: c.image_url,
+          video_url: c.video_url,
+          frame_style: c.frame_style,
+          element: c.element,
+          keywords: c.keywords,
+          ancient_wisdom: c.ancient_wisdom,
+          overall_meaning: c.overall_meaning,
+          upright_meaning: c.upright_meaning,
+          upright_insight: c.upright_insight,
+          upright_action: c.upright_action,
+          reversed_meaning: c.reversed_meaning,
+          reversed_insight: c.reversed_insight,
+          reversed_action: c.reversed_action,
+          interaction: c.interaction,
+          musician_quote: c.musician_quote,
+          facedown_meaning: c.facedown_meaning,
+          custom: c.custom,
+          custom_ai_notes: c.custom_ai_notes,
+          custom_ai_helper: c.custom_ai_helper,
+          custom_fields: c.custom_fields,
+          ai_image_prompt: c.ai_image_prompt,
+          ai_image_negative_prompt: c.ai_image_negative_prompt,
+          ai_prompt_style: c.ai_prompt_style,
+          ai_reference_image_url: c.ai_reference_image_url,
+        })),
+        card_relationships: (relationships || []).map(r => ({
+          card_id_1: r.card_id_1,
+          card_1_name: cards.find(c => c.id === r.card_id_1)?.name,
+          card_id_2: r.card_id_2,
+          card_2_name: cards.find(c => c.id === r.card_id_2)?.name,
+          relationship_key: r.relationship_key,
+          relationship_type: r.relationship_type,
+          strength: r.strength,
+          custom_notes: r.custom_notes,
+          auto_detected: r.auto_detected,
+          detection_reasons: r.detection_reasons,
+          shared_keywords: r.shared_keywords,
+          shared_themes: r.shared_themes,
+          element_relationship: r.element_relationship,
+          number_sequence: r.number_sequence,
+          is_favorite: r.is_favorite
+        })),
+        exported_date: new Date().toISOString(),
+      };
+
+      setJsonContent(JSON.stringify(exportData, null, 2));
+      setShowJsonModal(true);
+    } catch (e) {
+      alert("Failed to generate JSON: " + (e.message || "Unknown error"));
     }
   };
 
@@ -487,6 +574,14 @@ export default function DeckView() {
                     </Button>
                   </Link>
                   <Button
+                    onClick={handleViewJson}
+                    variant="outline"
+                    className="border-blue-400/60 text-blue-200 hover:bg-blue-500/10 font-semibold"
+                  >
+                    <FileJson className="w-4 h-4 mr-2" />
+                    View JSON
+                  </Button>
+                  <Button
                     onClick={handleExportJson}
                     variant="outline"
                     className="border-emerald-400/60 text-emerald-200 hover:bg-emerald-500/10 font-semibold"
@@ -574,6 +669,7 @@ export default function DeckView() {
                       <ToolButton label="Bulk Spreads" icon={Layers} onClick={() => setSelectedTool("bulkSpreads")} className="bg-indigo-700" />
                       <ToolButton label="Deck Settings" icon={Settings} onClick={() => setSelectedTool("settingsInline")} className="bg-slate-700" />
                       <ToolButton label="Spread Designer" icon={Layers} asLink to={createPageUrl(`SpreadDesigner?deckId=${deck?.id || ""}`)} className="bg-indigo-600/30" />
+                      <ToolButton label="View Deck JSON" icon={FileJson} onClick={handleViewJson} className="bg-blue-700" />
                       <ToolButton label="Export Deck JSON" icon={Download} onClick={handleExportJson} className="bg-emerald-700" />
                       <ToolButton label="Delete Deck" icon={Trash2} onClick={handleDeleteDeck} className="bg-red-700" />
                     </AccordionContent>
@@ -953,6 +1049,37 @@ export default function DeckView() {
           </div>
         )}
       </div>
+
+      <Dialog open={showJsonModal} onOpenChange={setShowJsonModal}>
+        <DialogContent className="bg-slate-900 border-purple-500/30 text-white max-w-4xl w-[90vw] h-[80vh] flex flex-col p-4 sm:p-6">
+          <DialogHeader>
+            <DialogTitle className="flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                <FileJson className="w-5 h-5 text-purple-400" />
+                Deck JSON Data
+              </span>
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-white/20 hover:bg-white/10"
+                onClick={() => {
+                  navigator.clipboard.writeText(jsonContent);
+                  alert("Copied to clipboard!");
+                }}
+              >
+                Copy to Clipboard
+              </Button>
+            </DialogTitle>
+          </DialogHeader>
+          <div className="flex-1 overflow-hidden mt-4 rounded-md border border-white/10 bg-black/50">
+            <ScrollArea className="h-full">
+              <pre className="p-4 text-[10px] sm:text-xs text-purple-200 font-mono whitespace-pre-wrap break-all">
+                {jsonContent}
+              </pre>
+            </ScrollArea>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Mount the cover editor modal and open it when selectedTool is updateCover */}
       {deck && (
