@@ -409,7 +409,7 @@ export default function Layout({ children, currentPageName }) {
         ) : (
           <div className="fixed z-[60] top-3 right-3 flex gap-2">
             <Link to={createPageUrl('Dashboard')}>
-              <Button size="sm" className="btn-dark-outline">Dashboard</Button>
+              <Button size="sm" className="btn-dark-outline">Reading Room</Button>
             </Link>
 
           </div>

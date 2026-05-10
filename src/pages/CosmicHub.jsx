@@ -356,8 +356,8 @@ export default function CosmicHub() {
               display: "flex", justifyContent: "space-around", alignItems: "flex-end",
               padding: "0 2%",
             }}>
-              <Portal to={createPageUrl("Dashboard")} icon="🌙" label="Dashboard" sub="Your central hub" accent="#a78bfa" delay={0.7} />
-              <Portal to={createPageUrl("Studio")} icon="🎨" label="Studio" sub="Build oracle decks" accent="#f472b6" delay={0.9} />
+              <Portal to={createPageUrl("Dashboard")} icon="🌙" label="Reading Room" sub="Your central hub" accent="#a78bfa" delay={0.7} />
+              <Portal to={createPageUrl("Studio")} icon="🎨" label="Creators Studio" sub="Build oracle decks" accent="#f472b6" delay={0.9} />
               <Portal to={createPageUrl("SpiritWheel")} icon="⚗️" label="Spirit Wheel" sub="Instant cosmic guidance" accent="#67e8f9" delay={1.1} />
             </div>
           </div>
