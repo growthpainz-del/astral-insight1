@@ -38,6 +38,7 @@ export default function SigilForge() {
   const [mirrorAmount, setMirrorAmount] = useState(50);
   const [brushOpacity, setBrushOpacity] = useState(100);
   const [erasing, setErasing] = useState(false);
+  const [fillMode, setFillMode] = useState(false);
 
   const [isForging, setIsForging] = useState(false);
   const [isSavingToWheel, setIsSavingToWheel] = useState(false);
@@ -97,10 +98,120 @@ export default function SigilForge() {
     return { x: (clientX - rect.left) * sx, y: (clientY - rect.top) * sy };
   };
 
+  const hexToRgba = (hex, opacity) => {
+    let c;
+    if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
+        c= hex.substring(1).split('');
+        if(c.length== 3){
+            c= [c[0], c[0], c[1], c[1], c[2], c[2]];
+        }
+        c= '0x'+c.join('');
+        return [(c>>16)&255, (c>>8)&255, c&255, opacity === undefined ? 255 : opacity];
+    }
+    return [0,0,0, opacity === undefined ? 255 : opacity];
+  };
+
+  const floodFill = (ctx, startX, startY, fillColorArray, tolerance = 30) => {
+    const canvas = ctx.canvas;
+    const w = canvas.width;
+    const h = canvas.height;
+    const imageData = ctx.getImageData(0, 0, w, h);
+    const data = imageData.data;
+
+    const getPixelPos = (x, y) => (y * w + x) * 4;
+    const startPos = getPixelPos(startX, startY);
+    const startR = data[startPos];
+    const startG = data[startPos + 1];
+    const startB = data[startPos + 2];
+    const startA = data[startPos + 3];
+
+    // If filling same color, do nothing
+    if (Math.abs(startR - fillColorArray[0]) < tolerance && 
+        Math.abs(startG - fillColorArray[1]) < tolerance && 
+        Math.abs(startB - fillColorArray[2]) < tolerance && 
+        Math.abs(startA - fillColorArray[3]) < tolerance) {
+        return;
+    }
+
+    const matchStartColor = (pos) => {
+        return Math.abs(data[pos] - startR) <= tolerance &&
+               Math.abs(data[pos + 1] - startG) <= tolerance &&
+               Math.abs(data[pos + 2] - startB) <= tolerance &&
+               Math.abs(data[pos + 3] - startA) <= tolerance;
+    };
+
+    const colorPixel = (pos) => {
+        data[pos] = fillColorArray[0];
+        data[pos + 1] = fillColorArray[1];
+        data[pos + 2] = fillColorArray[2];
+        data[pos + 3] = fillColorArray[3];
+    };
+
+    const pixelStack = [[startX, startY]];
+
+    while (pixelStack.length > 0) {
+        const newPos = pixelStack.pop();
+        let x = newPos[0];
+        let y = newPos[1];
+
+        let pixelPos = getPixelPos(x, y);
+        while (y >= 0 && matchStartColor(pixelPos)) {
+            y--;
+            pixelPos -= w * 4;
+        }
+        pixelPos += w * 4;
+        y++;
+
+        let reachLeft = false;
+        let reachRight = false;
+        
+        while (y < h && matchStartColor(pixelPos)) {
+            colorPixel(pixelPos);
+
+            if (x > 0) {
+                if (matchStartColor(pixelPos - 4)) {
+                    if (!reachLeft) {
+                        pixelStack.push([x - 1, y]);
+                        reachLeft = true;
+                    }
+                } else if (reachLeft) {
+                    reachLeft = false;
+                }
+            }
+
+            if (x < w - 1) {
+                if (matchStartColor(pixelPos + 4)) {
+                    if (!reachRight) {
+                        pixelStack.push([x + 1, y]);
+                        reachRight = true;
+                    }
+                } else if (reachRight) {
+                    reachRight = false;
+                }
+            }
+
+            y++;
+            pixelPos += w * 4;
+        }
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+  };
+
   const startDraw = (e) => {
     e.preventDefault();
-    isDrawingRef.current = true;
     const pos = getXY(e, drawCanvasRef.current);
+    
+    if (fillMode) {
+      const ctx = drawCanvasRef.current.getContext('2d');
+      const opacityValue = Math.round((brushOpacity / 100) * 255);
+      const colorArr = erasing ? [0, 0, 0, 0] : hexToRgba(brushColor, opacityValue);
+      floodFill(ctx, Math.floor(pos.x), Math.floor(pos.y), colorArr);
+      updateMirror();
+      return;
+    }
+    
+    isDrawingRef.current = true;
     lastPosRef.current = pos;
 
     const ctx = drawCanvasRef.current.getContext('2d');
@@ -440,6 +551,13 @@ export default function SigilForge() {
 
         <div className="flex flex-col gap-4 mt-4">
           <div className="flex flex-wrap gap-2 items-center">
+            <input 
+              type="color" 
+              value={brushColor}
+              onChange={(e) => { setBrushColor(e.target.value); setErasing(false); }}
+              className="w-8 h-8 rounded cursor-pointer p-0 border-0 bg-transparent"
+              title="Color Wheel"
+            />
             {['#ffffff', '#C17A3A', '#7BB8C4', '#9B7FBE', '#6BAF6B', '#C44B4B', '#67e8f9', '#a78bfa'].map(c => (
               <div 
                 key={c}
@@ -465,7 +583,9 @@ export default function SigilForge() {
               Opacity <input type="range" min="10" max="100" value={brushOpacity} onChange={e => setBrushOpacity(Number(e.target.value))} className="w-20" />
               <span className="text-[#C17A3A] min-w-[30px]">{brushOpacity}%</span>
             </div>
-            <button className={`v-btn ${erasing ? 'active' : ''}`} onClick={() => setErasing(!erasing)}>Erase</button>
+            <button className={`v-btn ${!erasing && !fillMode ? 'active' : ''}`} onClick={() => { setErasing(false); setFillMode(false); }}>Brush</button>
+            <button className={`v-btn ${fillMode && !erasing ? 'active' : ''}`} onClick={() => { setFillMode(true); setErasing(false); }}>Fill</button>
+            <button className={`v-btn ${erasing ? 'active' : ''}`} onClick={() => { setErasing(true); setFillMode(false); }}>Erase</button>
             <button className="v-btn" onClick={clearCanvas}>Clear</button>
           </div>
         </div>
