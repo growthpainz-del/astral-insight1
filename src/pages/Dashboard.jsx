@@ -379,20 +379,19 @@ export default function Dashboard() {
             Your mystical journey into oracle readings, tarot, and cosmic guidance
           </p>
           <div className="flex gap-4 items-center">
-            <Link to={createPageUrl("Reading")}>
-              <Button size="lg" className="bg-white hover:bg-white/90 font-bold force-dark">
-                <Play className="w-5 h-5 mr-2" />
-                Start Reading
-              </Button>
-            </Link>
+            <Button 
+              size="lg" 
+              className="bg-white hover:bg-white/90 font-bold force-dark"
+              onClick={() => document.getElementById('official-decks')?.scrollIntoView({ behavior: 'smooth' })}
+            >
+              <Play className="w-5 h-5 mr-2" />
+              Start Reading
+            </Button>
             <Link to={createPageUrl("Help")}>
               <Button size="lg" variant="outline" className="border-white/50 text-white hover:bg-white/10 force-white">
                 Learn More
               </Button>
             </Link>
-            <div className="ml-2 md:ml-4" title="Quick Read">
-              <AudioOrb variant="link" to={createPageUrl("Reading")} />
-            </div>
           </div>
         </div>
       </div>
@@ -468,12 +467,7 @@ export default function Dashboard() {
             to={createPageUrl("Pendulum")}
             gradient="bg-gradient-to-br from-rose-600 to-pink-800"
           />
-          <QuickAction
-            label="Explore Decks"
-            icon={Sparkles}
-            to={createPageUrl("Reading")}
-            gradient="bg-gradient-to-br from-cyan-600 to-blue-600"
-          />
+
           <QuickAction
             label="Interpreter Training"
             icon={Settings}
@@ -485,7 +479,7 @@ export default function Dashboard() {
 
       {/* Official Decks */}
       {publicDecks.length > 0 && (
-        <div className="px-8 mb-12">
+        <div id="official-decks" className="px-8 mb-12">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold flex items-center gap-2">
               <Sparkles className="w-6 h-6 text-cyan-400" />
@@ -497,14 +491,6 @@ export default function Dashboard() {
             {publicDecks.map(deck => (
               <DeckCard key={deck.id} deck={deck} isOwned={isOwnedByUser(deck)} />
             ))}
-            <Link to={createPageUrl("Reading")} className="group flex-shrink-0">
-              <div className="flex flex-col items-center justify-center w-48 aspect-[2/3] rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 hover:border-cyan-400/30 transition-all duration-300">
-                <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform group-hover:bg-cyan-500/20">
-                   <ChevronRight className="w-6 h-6 text-white group-hover:text-cyan-400" />
-                </div>
-                <span className="text-white font-medium group-hover:text-cyan-400 transition-colors">Browse All</span>
-              </div>
-            </Link>
           </div>
         </div>
       )}
