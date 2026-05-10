@@ -118,15 +118,26 @@ function QuickAction({ label, icon: Icon, to, gradient }) {
 }
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const [publicDecks, setPublicDecks] = useState([]);
   const [myDecks, setMyDecks] = useState([]);
   const [draftDecks, setDraftDecks] = useState([]);
   
   const [recentReadings, setRecentReadings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [currentUser, setCurrentUser] = useState(undefined); // Start as undefined to distinguish from null (no user)
+  const [currentUser, setCurrentUser] = useState(undefined);
   const [error, setError] = useState("");
   const [isRetrying, setIsRetrying] = useState(false);
+
+  // New UI State
+  const [mode, setMode] = useState('personal');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [focusIdx, setFocusIdx] = useState(0);
+  const [question, setQuestion] = useState('');
+  const [spread, setSpread] = useState('three_card');
+
+  const [isDragging, setIsDragging] = useState(false);
+  const startXRef = React.useRef(0);
 
 
   // Load user on mount
@@ -264,6 +275,22 @@ export default function Dashboard() {
     window.location.reload(); 
   };
 
+  const handlePointerDown = (e) => {
+    setIsDragging(true);
+    startXRef.current = e.clientX || e.touches?.[0]?.clientX || 0;
+  };
+
+  const handlePointerUp = (e) => {
+    if (!isDragging) return;
+    setIsDragging(false);
+    const endX = e.clientX || e.changedTouches?.[0]?.clientX || 0;
+    const diff = endX - startXRef.current;
+    if (Math.abs(diff) > 28) {
+      if (diff < 0) setFocusIdx(f => f + 1);
+      else if (diff > 0) setFocusIdx(f => Math.max(0, f - 1));
+    }
+  };
+
   const handleDownloadManuals = async (zip = false) => {
     try {
       const { data } = await base44.functions.invoke('exportDeckManuals', zip ? { per_deck_zip: true } : {});
@@ -302,13 +329,34 @@ export default function Dashboard() {
 
 
 
+  const activePoolRaw = mode === 'personal' ? myDecks : publicDecks;
+  const activePool = activePoolRaw.filter(d => 
+    d.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+  
+  React.useEffect(() => {
+    if (focusIdx >= activePool.length && activePool.length > 0) {
+      setFocusIdx(activePool.length - 1);
+    }
+  }, [activePool.length, focusIdx]);
+
+  const selectedDeck = activePool[focusIdx] || null;
+
+  const handleDrawCards = () => {
+    if (!selectedDeck) return;
+    const query = new URLSearchParams();
+    query.set('deckId', selectedDeck.id);
+    if (spread) query.set('spread', spread);
+    if (question) query.set('question', question);
+    navigate(createPageUrl(`Reading?${query.toString()}`));
+  };
+
   if (loading && !error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-black flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#07050f' }}>
         <div className="text-center">
-          <Sparkles className="w-12 h-12 text-purple-400 mx-auto mb-4 animate-pulse" />
-          <div className="text-white">Loading your decks...</div>
-          <p className="text-white/60 text-sm mt-2">This may take a moment...</p>
+          <Sparkles className="w-12 h-12 text-[#a78bfa] mx-auto mb-4 animate-pulse" />
+          <div className="text-[rgba(225,215,255,.9)] font-serif">Loading your decks...</div>
         </div>
       </div>
     );
@@ -316,295 +364,187 @@ export default function Dashboard() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-black flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-red-900/20 border border-red-500/40 rounded-xl p-6 text-center">
-          <AlertTriangle className="w-12 h-12 text-red-400 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-white mb-2">Connection Issue</h2>
-          <p className="text-red-200 mb-6">{error}</p>
+      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#07050f' }}>
+        <div className="max-w-md w-full bg-[#160f2a] border border-[#ef4444] rounded-xl p-6 text-center">
+          <AlertTriangle className="w-12 h-12 text-[#ef4444] mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-[rgba(225,215,255,.9)] font-serif mb-2">Connection Issue</h2>
+          <p className="text-[rgba(180,160,220,.42)] mb-6">{error}</p>
           <Button
             onClick={handleRetry}
             disabled={isRetrying}
-            className="bg-red-600 hover:bg-red-700 w-full"
+            className="bg-[#ef4444] hover:bg-[#b91c1c] w-full text-white font-serif"
           >
-            {isRetrying ? (
-              <>
-                <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                Retrying...
-              </>
-            ) : (
-              <>
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Try Again
-              </>
-            )}
+            {isRetrying ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
+            {isRetrying ? 'Retrying...' : 'Try Again'}
           </Button>
-          <p className="text-white/60 text-xs mt-4">
-            If this persists, try refreshing the page or checking your internet connection.
-          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-black text-white">
+    <div className="min-h-screen font-serif" style={{ background: '#07050f', color: 'rgba(225,215,255,.9)', paddingBottom: '72px' }}>
       <DisablePullToRefresh targetSelector="body" />
+      <style>{`
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulseBtn { 0%, 100% { box-shadow: 0 0 0 0 rgba(167,139,250,.35); } 50% { box-shadow: 0 0 0 8px rgba(167,139,250,0); } }
+      `}</style>
 
-      {/* NETFLIX-STYLE HERO SECTION */}
-      <div className="relative h-[70vh] mb-8">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-900/40 to-blue-900/40">
-          <img
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d2a300021f94d0f312c039/700bd7a94_0DC18799-794E-447B-AD87-0A5B20D22CE5.png"
-            alt="Hero"
-            className="w-full h-full object-cover opacity-30"
-          />
+      <div className="max-w-[430px] mx-auto pt-6">
+        <div className="flex items-center gap-2 px-5 mb-4 text-[9px] uppercase tracking-[0.28em] text-[rgba(180,160,220,.42)]" style={{ fontFamily: "'Cinzel', serif" }}>
+          Choose Your Deck
+          <div className="flex-1 h-[1px] bg-[rgba(160,120,255,.16)] ml-2"></div>
         </div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
-        <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12">
-          <h1 className="text-5xl md:text-7xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400">
-            Astral Insight
-          </h1>
-          <p className="text-xl md:text-2xl force-white-80 mb-6 max-w-2xl">
-            Your mystical journey into oracle readings, tarot, and cosmic guidance
-          </p>
-          <div className="flex gap-4 items-center">
-            <Button 
-              size="lg" 
-              className="bg-white hover:bg-white/90 font-bold force-dark"
-              onClick={() => document.getElementById('official-decks')?.scrollIntoView({ behavior: 'smooth' })}
-            >
-              <Play className="w-5 h-5 mr-2" />
-              Start Reading
-            </Button>
-            <Link to={createPageUrl("Help")}>
-              <Button size="lg" variant="outline" className="border-white/50 text-white hover:bg-white/10 force-white">
-                Learn More
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </div>
 
-      {/* Lunar Cycle Widget */}
-      <div className="px-8 mb-12 max-w-7xl mx-auto">
-        <MoonPhaseWidget />
-      </div>
-
-      {/* Quick Actions */}
-      <div className="px-8 mb-12">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold flex items-center gap-2">
-            <TrendingUp className="w-6 h-6 text-purple-400" />
-            Quick Actions
-          </h2>
-          <div className="flex gap-2">
-            <Button
-                      variant="outline"
-                      className="border-white/30 text-white hover:bg-white/10 gap-2 force-white"
-                      onClick={() => handleDownloadManuals(false)}
-              title="Export manuals + image descriptions for all decks (single JSON)"
-            >
-              <Download className="w-4 h-4" /> JSON
-            </Button>
-
-          <Button
-              variant="outline"
-              className="border-white/30 text-white hover:bg-white/10 gap-2 force-white"
-              onClick={() => handleDownloadManuals(true)}
-              title="Export per-deck JSON files in a ZIP (includes agent_cards per deck)"
-            >
-              <Download className="w-4 h-4" /> ZIP (per deck)
-            </Button>
-          </div>
-        </div>
-        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide pan-2d">
-          {draftDecks.length > 0 && (
-            <QuickAction
-              label={`My Drafts (${draftDecks.length})`}
-              icon={Clock}
-              to={createPageUrl(`DeckView?id=${draftDecks[0].id}`)}
-              gradient="bg-gradient-to-br from-amber-600 to-orange-600"
+        <div className="px-5 flex gap-2.5 items-center mb-4">
+          <div className="flex-1 flex items-center gap-2 bg-[#160f2a] border border-[rgba(160,120,255,.16)] rounded-full px-4 py-2.5 transition-colors focus-within:border-[rgba(167,139,250,.45)]">
+            <span className="text-[13px] text-[rgba(180,160,220,.42)] shrink-0">🔍</span>
+            <input 
+              type="text" 
+              placeholder="Search decks…" 
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className="bg-transparent border-none outline-none w-full text-[15px] text-[rgba(225,215,255,.9)] font-serif placeholder:text-[rgba(180,160,220,.42)]"
             />
-          )}
-          <QuickAction
-            label="Create New Deck"
-            icon={Plus}
-            to={createPageUrl("CreateDeck")}
-            gradient="bg-gradient-to-br from-purple-600 to-blue-600"
-          />
-          <QuickAction
-            label="Reading History"
-            icon={Clock}
-            to={createPageUrl("History")}
-            gradient="bg-gradient-to-br from-indigo-600 to-purple-600"
-          />
-          <QuickAction
-            label="Oracle Chat"
-            icon={Sparkles}
-            to={createPageUrl("AgentChat")}
-            gradient="bg-gradient-to-br from-blue-600 to-cyan-600"
-          />
-          <QuickAction
-            label="Spirit Wheel"
-            icon={Sparkles}
-            to={createPageUrl("SpiritWheel")}
-            gradient="bg-gradient-to-br from-amber-700 to-orange-900"
-          />
-          <QuickAction
-            label="Mystic Pendulum"
-            icon={Sparkles}
-            to={createPageUrl("Pendulum")}
-            gradient="bg-gradient-to-br from-rose-600 to-pink-800"
-          />
-
-          <QuickAction
-            label="Interpreter Training"
-            icon={Settings}
-            to={createPageUrl("Persona")}
-            gradient="bg-gradient-to-br from-emerald-600 to-teal-600"
-          />
-        </div>
-      </div>
-
-      {/* Official Decks */}
-      {publicDecks.length > 0 && (
-        <div id="official-decks" className="px-8 mb-12">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold flex items-center gap-2">
-              <Sparkles className="w-6 h-6 text-cyan-400" />
-              Official Decks ({publicDecks.length})
-            </h2>
-
           </div>
-          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide pan-2d">
-            {publicDecks.map(deck => (
-              <DeckCard key={deck.id} deck={deck} isOwned={isOwnedByUser(deck)} />
-            ))}
+          <div className="flex bg-[#160f2a] border border-[rgba(160,120,255,.16)] rounded-full p-[3px] gap-[2px] shrink-0">
+            <button 
+              className={`px-3 py-1.5 rounded-full border-none cursor-pointer uppercase text-[8px] tracking-[0.12em] whitespace-nowrap transition-all ${mode === 'personal' ? 'bg-[#a78bfa] text-white shadow-[0_0_12px_rgba(167,139,250,.4)]' : 'bg-transparent text-[rgba(180,160,220,.42)]'}`}
+              style={{ fontFamily: "'Cinzel', serif" }}
+              onClick={() => setMode('personal')}
+            >
+              Mine
+            </button>
+            <button 
+              className={`px-3 py-1.5 rounded-full border-none cursor-pointer uppercase text-[8px] tracking-[0.12em] whitespace-nowrap transition-all ${mode === 'public' ? 'bg-[#a78bfa] text-white shadow-[0_0_12px_rgba(167,139,250,.4)]' : 'bg-transparent text-[rgba(180,160,220,.42)]'}`}
+              style={{ fontFamily: "'Cinzel', serif" }}
+              onClick={() => setMode('public')}
+            >
+              Public
+            </button>
           </div>
         </div>
-      )}
 
-      {/* My Decks */}
-      {myDecks.length > 0 && (
-        <div className="px-8 mb-12">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold">My Decks ({myDecks.length})</h2>
-            <Link to={createPageUrl("CreateDeck")} className="text-white/60 hover:text-white flex items-center gap-1 text-sm">
-              Create New <Plus className="w-4 h-4" />
-            </Link>
-          </div>
-          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide pan-2d">
-            {myDecks.map(deck => (
-              <DeckCard key={deck.id} deck={deck} isOwned={true} />
-            ))}
-          </div>
-        </div>
-      )}
+        <div className="w-full overflow-hidden py-1.5" style={{ WebkitMaskImage: 'linear-gradient(to right,transparent 0%,#000 18%,#000 82%,transparent 100%)' }}>
+          <div 
+            className="flex items-center gap-3 px-[calc(50%-58px)] transition-transform duration-300 ease-out cursor-grab active:cursor-grabbing"
+            style={{ transform: `translateX(${-focusIdx * 128}px)` }}
+            onPointerDown={handlePointerDown}
+            onPointerUp={handlePointerUp}
+            onPointerCancel={handlePointerUp}
+          >
+            {activePool.map((d, i) => {
+              const diff = Math.abs(i - focusIdx);
+              const scale = diff === 0 ? 1 : diff === 1 ? 0.87 : 0.74;
+              const opacity = diff === 0 ? 1 : diff === 1 ? 0.62 : 0.38;
+              const translateY = diff === 0 ? 0 : diff === 1 ? 5 : 10;
+              const isFocus = diff === 0;
 
-      {/* My Drafts */}
-      {draftDecks.length > 0 && (
-        <div className="px-8 mb-12">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold flex items-center gap-2">
-              <Clock className="w-6 h-6 text-amber-400" />
-              My Drafts ({draftDecks.length})
-            </h2>
-            <Link to={createPageUrl("CreateDeck")} className="text-white/60 hover:text-white flex items-center gap-1 text-sm">
-              Create New <Plus className="w-4 h-4" />
-            </Link>
-          </div>
-          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide pan-2d">
-            {draftDecks.map(deck => (
-              <Link key={deck.id} to={createPageUrl(`DeckView?id=${deck.id}`)} className="group block">
-                <div className="relative flex-shrink-0 w-48 aspect-[2/3] rounded-lg overflow-hidden bg-gradient-to-br from-amber-900/40 to-slate-900/40 border border-amber-500/30 hover:border-amber-400/60 transition-all duration-300 hover:scale-105">
-                  {deck.cover_image ? (
-                    <img src={deck.cover_image} alt={deck.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-white/40">
-                      <Clock className="w-12 h-12" />
-                    </div>
-                  )}
-                  
-                  <div className="absolute top-2 left-2">
-                    {deck.publish_status === "pending_review" && (
-                      <div className="bg-yellow-500 text-black text-xs font-bold px-2 py-1 rounded">PENDING</div>
-                    )}
-                    {deck.publish_status === "rejected" && (
-                      <div className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">REJECTED</div>
-                    )}
-                    {deck.publish_status === "draft" && (
-                      <div className="bg-gray-500 text-white text-xs font-bold px-2 py-1 rounded">DRAFT</div>
+              return (
+                <div 
+                  key={d.id} 
+                  className="shrink-0 w-[116px] flex flex-col items-center gap-2 transition-all duration-300 ease-out"
+                  style={{ transform: `scale(${scale}) translateY(${translateY}px)`, opacity }}
+                  onClick={() => setFocusIdx(i)}
+                >
+                  <div className={`w-[116px] h-[164px] rounded-[13px] overflow-hidden border-[1.5px] bg-[#160f2a] flex items-center justify-center text-[40px] transition-all duration-300 ${isFocus ? 'border-[rgba(167,139,250,.6)] shadow-[0_0_0_1px_rgba(167,139,250,.2),0_10px_32px_rgba(100,50,200,.5),0_0_50px_rgba(100,50,200,.1)]' : 'border-[rgba(160,120,255,.16)]'}`}>
+                    {d.cover_image ? (
+                      <img src={d.cover_image} alt={d.name} className="w-full h-full object-cover pointer-events-none" />
+                    ) : (
+                      <span>{isFocus ? '✨' : '📖'}</span>
                     )}
                   </div>
-
-                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 md:opacity-100 transition-opacity">
-                    <div className="bg-black/70 hover:bg-black/90 backdrop-blur-sm p-2 rounded-lg border border-amber-400/40">
-                      <Settings className="w-4 h-4 text-amber-300" />
-                    </div>
+                  <div className={`text-[8.5px] uppercase tracking-[0.12em] text-center max-w-[108px] leading-[1.4] transition-colors duration-300 ${isFocus ? 'text-[#a78bfa]' : 'text-[rgba(180,160,220,.42)]'}`} style={{ fontFamily: "'Cinzel', serif" }}>
+                    {d.name}
+                  </div>
+                  <div className={`text-[11px] italic transition-colors duration-300 ${isFocus ? 'text-[rgba(167,139,250,.65)]' : 'text-[rgba(167,139,250,.38)]'}`} style={{ fontFamily: "'IM Fell English', serif" }}>
+                    {d.category || 'Oracle'}
                   </div>
                 </div>
-                <div className="mt-2">
-                  <h4 className="text-white font-semibold truncate">{deck.name}</h4>
-                  <p className="text-white/60 text-sm">{deck.publish_status}</p>
-                </div>
-              </Link>
-            ))}
+              );
+            })}
+            {activePool.length === 0 && (
+              <div className="w-full text-center text-[rgba(180,160,220,.42)] italic text-[15px] py-10 w-[116px] shrink-0" style={{ fontFamily: "'IM Fell English', serif" }}>
+                No decks.
+              </div>
+            )}
           </div>
         </div>
-      )}
 
-
-      {/* Recent Readings */}
-      {recentReadings.length > 0 && (
-        <div className="px-8 mb-12">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold flex items-center gap-2">
-              <Clock className="w-6 h-6 text-indigo-400" />
-              Continue Your Journey
-            </h2>
-            <Link to={createPageUrl("History")} className="text-white/60 hover:text-white flex items-center gap-1 text-sm">
-              View All <ChevronRight className="w-4 h-4" />
-            </Link>
-          </div>
-          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide pan-2d">
-            {recentReadings.slice(0, 8).map(reading => (
-              <ReadingCard
-                key={reading.id}
-                reading={reading}
-                deck={publicDecks.find(d => d.id === reading.deck_id) || myDecks.find(d => d.id === reading.deck_id)}
+        {activePool.length > 0 && (
+          <div className="flex justify-center gap-1.5 py-2">
+            {activePool.map((_, i) => (
+              <div 
+                key={i} 
+                className={`h-[5px] rounded-full transition-all duration-300 cursor-pointer ${i === focusIdx ? 'w-4 bg-[#a78bfa]' : 'w-[5px] bg-[rgba(160,120,255,.3)]'}`}
+                onClick={() => setFocusIdx(i)}
               />
             ))}
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Footer */}
-      <div className="px-8 py-12 text-center text-white/30 text-sm flex flex-col items-center gap-4">
-        <div>Astral Insight • Your Gateway to Cosmic Wisdom</div>
-        <Link to={createPageUrl('PrivacyPolicy')} className="text-purple-400 hover:text-purple-300 transition-colors">
-          Privacy Policy & Disclaimers
-        </Link>
-        <div className="max-w-3xl text-xs text-white/20 leading-relaxed">
-          Disclaimer: The readings and guidance provided are for entertainment purposes only and do not constitute professional advice. Client logins are secured, data privacy is respected, and user data can be deleted at any time.
+        {selectedDeck && (
+          <div className="mx-5 mt-2.5 mb-1 px-4 py-3 bg-[#160f2a] border border-[rgba(167,139,250,.2)] rounded-[13px] flex items-center justify-between animate-[fadeUp_0.3s_ease]">
+            <div>
+              <div className="text-[13px] tracking-[0.08em] text-white" style={{ fontFamily: "'Cinzel', serif" }}>{selectedDeck.name}</div>
+              <div className="text-[12px] italic text-[rgba(180,160,220,.42)] mt-0.5" style={{ fontFamily: "'IM Fell English', serif" }}>
+                {selectedDeck.category || 'Oracle'}
+              </div>
+            </div>
+            <div className="w-7 h-7 rounded-full bg-[rgba(167,139,250,.12)] border border-[rgba(167,139,250,.3)] flex items-center justify-center text-[12px] text-[#a78bfa]">
+              ✦
+            </div>
+          </div>
+        )}
+
+        <div className="mx-5 my-3 p-[17px] bg-[#0f0b1e] border border-[rgba(160,120,255,.16)] rounded-[14px] flex flex-col gap-[13px]">
+          <div>
+            <div className="text-[9px] uppercase tracking-[0.2em] text-[rgba(180,160,220,.42)] mb-1.5" style={{ fontFamily: "'Cinzel', serif" }}>Your Question</div>
+            <textarea 
+              className="w-full bg-[#160f2a] border border-[rgba(160,120,255,.16)] rounded-[10px] p-3 text-[16px] text-[rgba(225,215,255,.9)] font-serif resize-none outline-none min-h-[78px] leading-[1.5] transition-colors focus:border-[rgba(167,139,250,.45)] placeholder:text-[rgba(180,160,220,.42)]"
+              placeholder="What guidance do you seek?"
+              value={question}
+              onChange={e => setQuestion(e.target.value)}
+            />
+          </div>
+          <div>
+            <div className="text-[9px] uppercase tracking-[0.2em] text-[rgba(180,160,220,.42)] mb-1.5" style={{ fontFamily: "'Cinzel', serif" }}>Spread</div>
+            <select 
+              className="w-full bg-[#160f2a] border border-[rgba(160,120,255,.16)] rounded-[10px] py-[11px] px-[14px] text-[15px] text-[rgba(225,215,255,.9)] font-serif outline-none cursor-pointer appearance-none transition-colors focus:border-[rgba(167,139,250,.45)]"
+              style={{
+                backgroundImage: \`url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' fill='none'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%23a78bfa' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E")\`,
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'right 13px center'
+              }}
+              value={spread}
+              onChange={e => setSpread(e.target.value)}
+            >
+              <option value="single">Single Card — 1 card</option>
+              <option value="three_card">Past, Present, Future — 3 cards</option>
+              <option value="celtic_cross">Celtic Cross — 10 cards</option>
+              <option value="diamond">7 Card Diamond</option>
+              <option value="horseshoe">Horseshoe — 7 cards</option>
+              <option value="relationship">Relationship — 6 cards</option>
+            </select>
+          </div>
+          <button 
+            className="w-full p-[14px] rounded-full border-none cursor-pointer text-[11.5px] tracking-[0.18em] uppercase text-white flex items-center justify-center gap-2 transition-all active:scale-[0.97]"
+            style={{ 
+              background: 'linear-gradient(135deg,#6d28d9,#7c3aed,#a78bfa)', 
+              boxShadow: '0 4px 20px rgba(124,58,237,.45)',
+              fontFamily: "'Cinzel', serif",
+              animation: 'pulseBtn 2.5s ease infinite'
+            }}
+            onClick={handleDrawCards}
+            disabled={!selectedDeck}
+          >
+            ✦ Draw Cards
+          </button>
+        </div>
+        <div className="text-center italic text-[11px] text-[rgba(160,140,200,.3)] px-5 pb-1 leading-[1.5]" style={{ fontFamily: "'Crimson Text', serif" }}>
+          Readings are for entertainment purposes only and do not constitute professional advice.
         </div>
       </div>
-
-      <style>{`
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-        .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-        /* Independent 2D pan/scroll areas for mobile */
-        .pan-2d { 
-          touch-action: pan-x pan-y; 
-          overscroll-behavior: contain; 
-          -webkit-overflow-scrolling: touch; 
-        }
-
-      `}</style>
     </div>
   );
 }

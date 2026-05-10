@@ -482,92 +482,8 @@ const [showShareModal, setShowShareModal] = useState(false);
 
   // If no deck chosen, show an in-page deck picker
   if (!deckIdFromUrl) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-950 to-purple-950 text-white">
-        <div className="max-w-6xl mx-auto p-4 md:p-8">
-          <div className="flex items-center justify-between mb-6">
-            <Link to="/">
-              <Button variant="ghost" className="text-purple-200">
-                <ChevronLeft className="w-4 h-4 mr-2" /> Back to Hub
-              </Button>
-            </Link>
-            <div className="text-center flex-1">
-              <h1 className="text-2xl font-bold">Choose a deck</h1>
-              <p className="text-purple-300 text-sm mt-1">Pick a deck to start your reading</p>
-            </div>
-            <div className="w-[84px]" />
-          </div>
-
-          {pickerLoading ? (
-            <div className="flex items-center justify-center py-20">
-              <Loader2 className="w-8 h-8 animate-spin text-purple-400" />
-            </div>
-          ) : (
-            <div className="space-y-10">
-              {pickerDecks.myDecks?.length > 0 && (
-                <div>
-                  <h2 className="text-xl font-semibold mb-3">My Decks</h2>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                    {pickerDecks.myDecks.map((d) => (
-                      <div key={d.id} className="group">
-                        <Button asChild variant="ghost" className="p-0 h-auto">
-                          <Link to={createPageUrl(`Reading?deckId=${d.id}`)}>
-                            <div className="aspect-[2/3] rounded-lg overflow-hidden border border-white/10 bg-white/5 hover:border-purple-400/60 transition">
-                            {d.cover_image ? (
-                              <img src={d.cover_image} alt={d.name} className="w-full h-full object-cover" />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center text-white/40">
-                                <BookOpen className="w-8 h-8" />
-                              </div>
-                            )}
-                          </div>
-                        </Link>
-                        </Button>
-                        <div className="mt-2 text-sm truncate">{d.name}</div>
-                        <Button asChild size="sm" className="mt-2 w-full bg-purple-600 hover:bg-purple-700">
-                          <Link to={createPageUrl(`Reading?deckId=${d.id}`)}>Use Deck</Link>
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div>
-                <h2 className="text-xl font-semibold mb-3">Official Decks</h2>
-                {pickerDecks.publicDecks?.length === 0 ? (
-                  <div className="text-white/70 text-sm">No public decks available.</div>
-                ) : (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                    {pickerDecks.publicDecks.map((d) => (
-                      <div key={d.id} className="group">
-                        <Button asChild variant="ghost" className="p-0 h-auto">
-                          <Link to={createPageUrl(`Reading?deckId=${d.id}`)}>
-                            <div className="aspect-[2/3] rounded-lg overflow-hidden border border-white/10 bg-white/5 hover:border-purple-400/60 transition">
-                            {d.cover_image ? (
-                              <img src={d.cover_image} alt={d.name} className="w-full h-full object-cover" />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center text-white/40">
-                                <BookOpen className="w-8 h-8" />
-                              </div>
-                            )}
-                          </div>
-                        </Link>
-                        </Button>
-                        <div className="mt-2 text-sm truncate">{d.name}</div>
-                        <Button asChild size="sm" className="mt-2 w-full bg-purple-600 hover:bg-purple-700">
-                          <Link to={createPageUrl(`Reading?deckId=${d.id}`)}>Use Deck</Link>
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    );
+    navigate(createPageUrl('Dashboard'));
+    return null;
   }
 
   if (error && !deck) {
@@ -818,226 +734,129 @@ const [showShareModal, setShowShareModal] = useState(false);
         )}
 
         {/* Display for Drawn Cards */}
-        {drawnCards.length > 0 && (
-          <div className="space-y-6">
-            {/* Compact preview removed — using a single main compact view */}
-
-             {/* Enhanced Spread Visualization */}
-             <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-               <div className="flex items-center justify-between mb-6">
-                 <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400">
-                   Your Reading
-                 </h2>
-                 <div className="flex gap-2 flex-wrap justify-end">
-                   {/* Compact-only: removed view toggle */}
-                   <Button
-                     size="sm"
-                     variant="outline"
-                     onClick={() => {
-                       console.log('🔄 Clearing drawn cards');
-                       setDrawnCards([]);
-                     }}
-                     className="border-white/20 text-white hover:bg-white/10"
-                   >
-                     <RefreshCw className="w-4 h-4 mr-2" />
-                     New Reading
-                   </Button>
-                   <Button
-                     size="sm"
-                     onClick={handleSaveReading}
-                     className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700"
-                   >
-                     <Save className="w-4 h-4 mr-2" />
-                     Save Session
-                   </Button>
-                   <Button
-                     size="sm"
-                     variant="outline"
-                     onClick={() => setShowShareModal(true)}
-                     className="border-pink-500/40 text-pink-300 hover:bg-pink-500/10"
-                   >
-                     <Share2 className="w-4 h-4 mr-2" />
-                     Share
-                   </Button>
-                   <Button
-                       size="sm"
-                       variant="outline"
-                       onClick={() => setShowRelationshipsOverlay(true)}
-                       className="border-purple-500/40 text-purple-300 hover:bg-purple-500/10"
-                     >
-                       <Sparkles className="w-4 h-4 mr-2" />
-                       Relationships
-                     </Button>
-                     {/* Compact-only: removed extra overlay button */}
-                     {selectedSpread?.isCustom && selectedSpread?.id ? (
-                       <Link to={createPageUrl(`SpreadDesigner?id=${selectedSpread.id}`)}>
-                         <Button size="sm" variant="outline" className="border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10">
-                           Edit Spread
-                         </Button>
-                       </Link>
-                     ) : (
-                       <Link to={createPageUrl('SpreadManager')}>
-                         <Button size="sm" variant="outline" className="border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10">
-                           Edit Spread
-                         </Button>
-                       </Link>
-                     )}
-                 </div>
-               </div>
-
-               {selectedSpread?.isCustom && (
-                 <div className="mb-4 bg-cyan-900/20 border border-cyan-500/30 rounded-lg p-3 text-xs text-cyan-200">
-                   <div className="font-semibold mb-1">Custom Spread: {selectedSpread.name}</div>
-                   <div className="text-cyan-300/80">
-                     {selectedSpread.positions.length} positions • 
-                     {selectedSpread.positions.filter(p => typeof p.x === 'number').length} with coordinates
-                   </div>
-                 </div>
-               )}
-
-               <div className="mt-2">
-                 {deck?.name?.toLowerCase().includes('rooted crescent') ? (
-                   <RootedCrescentStage 
-                     spread={selectedSpread}
-                     positions={readingPositions}
-                     cards={placedCards}
-                     deck={deck}
-                     onCardClick={handleCardClick}
-                     revealedCards={revealedCards}
-                   />
-                 ) : (
-                  <CompactSpread
-                    spread={selectedSpread}
-                    positions={readingPositions}
-                    cards={placedCards}
-                    deck={deck}
-                    viewMode={viewMode}
-                    revealedCards={revealedCards}
-                    onCardClick={handleCardClick}
-                    onCardReveal={handleCardReveal}
-                  />
-                 )}
+        {!viewerCard && drawnCards.length > 0 && (
+          <div className="w-full">
+            <style>{`
+              @keyframes shimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
+              @keyframes moonGlow { 0%, 100% { opacity: 0.6; } 50% { opacity: 0.85; } }
+              @keyframes cardReveal { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: translateY(0); } }
+            `}</style>
+            <div className="flex items-center justify-between px-[18px] py-[13px]">
+              <div>
+                <div 
+                  className="text-[14px] tracking-[0.1em] text-transparent bg-clip-text bg-gradient-to-r from-[#c8a8ff] via-[#fff] to-[#a0c8ff]"
+                  style={{ fontFamily: "'Cinzel', serif", backgroundSize: '200% auto', animation: 'shimmer 4s linear infinite' }}
+                >
+                  {deck?.name || 'Reading'}
                 </div>
-
-               </div>
-
-            {/* Session Notes - Quick Input */}
-            {!disableHeavyAnimations && (
-              <div className="bg-gradient-to-br from-purple-900/20 to-blue-900/20 border border-purple-500/30 rounded-xl p-6">
-
-              <div className="flex items-center gap-2 mb-4">
-                <FileText className="w-5 h-5 text-purple-300" />
-                <h3 className="text-xl font-bold text-purple-300">Session Notes</h3>
+                <div className="mt-[2px] text-[12px] italic text-[rgba(180,160,220,.42)]" style={{ fontFamily: "'IM Fell English', serif" }}>
+                  {selectedSpread?.name}
+                </div>
               </div>
-              <Textarea
-                value={sessionNotes}
-                onChange={(e) => setSessionNotes(e.target.value)}
-                placeholder="Jot down your thoughts, feelings, and insights as you go through this reading..."
-                className="min-h-[120px] bg-slate-900/80 border-purple-500/30 text-white"
-              />
-              <p className="text-xs text-purple-300/70 mt-2">
-                💡 These notes will be saved with your reading session
-              </p>
+              <div className="flex gap-[6px]">
+                <button 
+                  className="px-[11px] py-[7px] rounded-full border border-[rgba(160,120,255,.3)] bg-[#160f2a] text-[rgba(225,215,255,.9)] text-[8px] tracking-[0.1em] uppercase cursor-pointer flex items-center gap-[4px] transition-all hover:border-[#a78bfa] hover:text-[#a78bfa]"
+                  style={{ fontFamily: "'Cinzel', serif" }}
+                  onClick={() => navigate(createPageUrl('Dashboard'))}
+                >
+                  ↺ New
+                </button>
+                <button 
+                  className="px-[11px] py-[7px] rounded-full border border-[rgba(52,211,153,.3)] bg-[rgba(52,211,153,.1)] text-[#34d399] text-[8px] tracking-[0.1em] uppercase cursor-pointer flex items-center gap-[4px] transition-all hover:border-[#a78bfa] hover:text-[#a78bfa]"
+                  style={{ fontFamily: "'Cinzel', serif" }}
+                  onClick={handleSaveReading}
+                >
+                  ⬡ Save
+                </button>
+                <button 
+                  className="px-[11px] py-[7px] rounded-full border border-[rgba(160,120,255,.3)] bg-[#160f2a] text-[rgba(225,215,255,.9)] text-[8px] tracking-[0.1em] uppercase cursor-pointer flex items-center gap-[4px] transition-all hover:border-[#a78bfa] hover:text-[#a78bfa]"
+                  style={{ fontFamily: "'Cinzel', serif" }}
+                  onClick={() => setShowShareModal(true)}
+                >
+                  ↑ Share
+                </button>
+              </div>
             </div>
-            )}
 
-            {/* Reference manual link */}
-            {deck?.name === 'Rooted Crescent Oracle Deck' && (
-              <div className="bg-white/10 border border-white/20 rounded-lg p-3 text-sm mb-3">
-                <a
-                  href="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d2a300021f94d0f312c039/63b9fd985_agentcosmicchronicles.txt"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-cyan-300 hover:underline"
-                >
-                  Reference: Rooted Crescent Oracle Knowledge
-                </a>
+            <div className="relative mx-[14px] rounded-[18px] overflow-hidden border border-[rgba(160,120,255,.16)] min-h-[270px] flex items-center justify-center" style={{ background: 'linear-gradient(160deg,#0d0822,#1a0f35,#0a0618)' }}>
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="absolute w-[310px] h-[310px] rounded-full opacity-[0.6] mix-blend-screen" style={{ background: 'radial-gradient(circle,rgba(167,139,250,.05),transparent 70%)', animation: 'moonGlow 6s 1s ease-in-out infinite' }} />
+                <div className="w-[230px] h-[230px] rounded-full border border-[rgba(201,168,76,.08)] opacity-[0.6]" style={{ background: 'radial-gradient(circle at 40% 35%,rgba(201,168,76,.15),rgba(120,80,200,.07) 55%,transparent 75%)', animation: 'moonGlow 5s ease-in-out infinite' }} />
               </div>
-            )}
-
-            {/* AI Insight Button */}
-            {!showAI && !showStructuredReading && deck?.name?.toLowerCase().includes('rooted crescent') ? (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="flex flex-col sm:flex-row items-center justify-center gap-4 text-center px-4"
-                style={{ fontFamily: "'Cinzel', serif" }}
-              >
-                <button
-                  onClick={() => setShowAI(true)}
-                  className="w-full max-w-[280px] p-4 rounded-[13px] border-none cursor-pointer flex items-center justify-center gap-3 transition-transform duration-200"
-                  style={{
-                    background: "linear-gradient(135deg, #5b21b6, #7c3aed, #a78bfa)",
-                    boxShadow: "0 4px 22px rgba(124,58,237,0.4)",
-                    color: "#fff"
-                  }}
-                  onMouseOver={(e) => e.currentTarget.style.transform = "translateY(-2px)"}
-                  onMouseOut={(e) => e.currentTarget.style.transform = "translateY(0)"}
-                >
-                  <span className="text-lg shrink-0">✦</span>
-                  <div className="text-left">
-                    <div className="text-[13px] tracking-[0.12em] uppercase font-bold">Unlock Deep Insight</div>
-                    <div className="text-[11px] opacity-75 mt-0.5" style={{ fontFamily: "'IM Fell English', serif", fontStyle: "italic" }}>
-                      AI-powered interpretation
-                    </div>
-                  </div>
-                </button>
-                <button
-                  onClick={() => setShowStructuredReading(true)}
-                  className="w-full max-w-[280px] p-4 rounded-[13px] cursor-pointer flex items-center justify-center gap-3 transition-transform duration-200"
-                  style={{
-                    background: "linear-gradient(135deg, rgba(6,182,212,0.15), rgba(103,232,249,0.08))",
-                    border: "1px solid rgba(103,232,249,0.3)",
-                    color: "#67e8f9",
-                    boxShadow: "0 4px 16px rgba(6,182,212,0.15)"
-                  }}
-                  onMouseOver={(e) => e.currentTarget.style.transform = "translateY(-2px)"}
-                  onMouseOut={(e) => e.currentTarget.style.transform = "translateY(0)"}
-                >
-                  <span className="text-lg shrink-0">📖</span>
-                  <div className="text-left">
-                    <div className="text-[13px] tracking-[0.12em] uppercase font-bold">Structured Reading</div>
-                    <div className="text-[11px] opacity-65 mt-0.5" style={{ fontFamily: "'IM Fell English', serif", fontStyle: "italic" }}>
-                      Rules-based interpretation
-                    </div>
-                  </div>
-                </button>
-              </motion.div>
-            ) : !showAI && !showStructuredReading && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="flex flex-col sm:flex-row items-center justify-center gap-6 text-center"
-              >
-                <div className="flex flex-col items-center">
-                  <Button
-                    onClick={() => setShowAI(true)}
-                    className="bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 hover:from-purple-700 hover:via-pink-700 hover:to-blue-700 text-white font-bold py-6 px-8 text-lg shadow-lg shadow-purple-500/50 w-full sm:w-auto"
+              <div className="relative z-10 flex flex-wrap items-end justify-center gap-[10px] w-full px-[14px] pt-[26px] pb-[22px]">
+                {drawnCards.map((c, i) => (
+                  <div 
+                    key={i} 
+                    className="flex-1 max-w-[108px] flex flex-col items-center gap-[7px] cursor-pointer"
+                    style={{ animation: `cardReveal 0.5s ease ${i * 0.18}s both` }}
+                    onClick={() => handleCardClick(c, i)}
                   >
-                    <Sparkles className="w-6 h-6 mr-3" />
-                    Unlock Deep Insight
-                    <Sparkles className="w-6 h-6 ml-3" />
-                  </Button>
-                  <p className="text-purple-300 text-sm mt-3">
-                    Get AI-powered interpretation of your reading
-                  </p>
-                </div>
+                    <div className="w-full aspect-[2/3] rounded-[10px] border-[1.5px] border-[rgba(167,139,250,.3)] flex items-center justify-center text-[28px] overflow-hidden relative group hover:border-[rgba(167,139,250,.6)] hover:shadow-[0_8px_28px_rgba(0,0,0,.6),0_0_28px_rgba(100,50,200,.3)] transition-all duration-200" style={{ background: 'linear-gradient(135deg,#1e1438,#0d0822)', boxShadow: '0 6px 20px rgba(0,0,0,.5),0 0 18px rgba(100,50,200,.18)' }}>
+                      {c.image_url ? (
+                        <img src={c.image_url} alt={c.name} className="w-full h-full object-cover rounded-[8px]" />
+                      ) : (
+                        <span>{c.icon || '✨'}</span>
+                      )}
+                      <div className="absolute inset-0 rounded-[8px] pointer-events-none" style={{ background: 'linear-gradient(135deg,rgba(255,255,255,.07) 0%,transparent 50%)' }} />
+                    </div>
+                    <div className="text-[7.5px] tracking-[0.1em] uppercase text-[rgba(220,210,255,.8)] text-center leading-[1.3]" style={{ fontFamily: "'Cinzel', serif" }}>{c.name}</div>
+                    <div className="text-[7px] tracking-[0.1em] uppercase py-[3px] px-[8px] rounded-full bg-[rgba(167,139,250,.12)] border border-[rgba(167,139,250,.25)] text-[#a78bfa]" style={{ fontFamily: "'Cinzel', serif" }}>{i+1}. {c.position || 'Card'}</div>
+                    <div className="text-[10px] italic text-[rgba(180,160,220,.42)] text-center leading-[1.3]" style={{ fontFamily: "'IM Fell English', serif" }}>{c.position_meaning || ''}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
 
-                <div className="flex flex-col items-center">
-                  <Button
-                    onClick={() => setShowStructuredReading(true)}
-                    className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white font-bold py-6 px-8 text-lg shadow-lg shadow-cyan-500/50 w-full sm:w-auto"
-                  >
-                    <BookOpen className="w-6 h-6 mr-3" />
-                    Structured Reading
-                  </Button>
-                  <p className="text-cyan-300 text-sm mt-3">
-                    Deterministic rules-based interpretation
-                  </p>
-                </div>
-              </motion.div>
-            )}
+            <div className="text-center italic text-[11px] text-[rgba(167,139,250,.3)] py-[4px] pb-[8px]" style={{ fontFamily: "'IM Fell English', serif" }}>Tap a card to explore its meaning</div>
 
+            <div className="px-[18px] pt-[4px]">
+              <button 
+                className="w-full p-[13px] px-[17px] rounded-[13px] border-none cursor-pointer flex items-center gap-[11px] mb-[9px] transition-all hover:-translate-y-[2px] active:scale-[0.97]"
+                style={{ background: 'linear-gradient(135deg,#4c1d95,#6d28d9,#7c3aed)', boxShadow: '0 4px 20px rgba(109,40,217,.4)', color: '#fff', fontFamily: "'Cinzel', serif" }}
+                onClick={() => setShowAI(true)}
+              >
+                <span className="text-[17px] shrink-0">✦</span>
+                <div className="text-left">
+                  <div className="text-[12px] tracking-[0.12em] uppercase">Unlock Deep Insight</div>
+                  <div className="italic text-[11px] opacity-[0.65] mt-[1px]" style={{ fontFamily: "'IM Fell English', serif" }}>AI-powered interpretation of your reading</div>
+                </div>
+              </button>
+              
+              <button 
+                className="w-full p-[13px] px-[17px] rounded-[13px] cursor-pointer flex items-center gap-[11px] mb-[9px] transition-all hover:-translate-y-[2px] active:scale-[0.97]"
+                style={{ background: 'rgba(6,182,212,.08)', border: '1px solid rgba(103,232,249,.25)', color: '#67e8f9', boxShadow: '0 3px 14px rgba(6,182,212,.1)', fontFamily: "'Cinzel', serif" }}
+                onClick={() => setShowStructuredReading(true)}
+              >
+                <span className="text-[17px] shrink-0">📖</span>
+                <div className="text-left">
+                  <div className="text-[12px] tracking-[0.12em] uppercase">Structured Reading</div>
+                  <div className="italic text-[11px] opacity-[0.65] mt-[1px]" style={{ fontFamily: "'IM Fell English', serif" }}>Deterministic rules-based interpretation</div>
+                </div>
+              </button>
+            </div>
+
+            <div className="mx-[18px] mt-[4px]">
+              <div className="flex items-center gap-[10px] py-[10px] pb-[11px]">
+                <div className="text-[8.5px] tracking-[0.12em] uppercase px-[12px] py-[5px] rounded-full bg-[rgba(167,139,250,.12)] border border-[rgba(167,139,250,.28)] text-[#a78bfa] flex items-center gap-[5px]" style={{ fontFamily: "'Cinzel', serif" }}>
+                  ✦ Card Relationships
+                </div>
+                <div className="text-[14px] text-[rgba(180,160,220,.42)]" style={{ fontFamily: "'Crimson Text', serif" }}>Discover connections</div>
+              </div>
+              <div className="bg-[#0f0b1e] border border-[rgba(160,120,255,.16)] rounded-[14px] overflow-hidden">
+                <div className="p-[13px] px-[15px] flex items-center justify-between border-b border-[rgba(160,120,255,.16)]">
+                  <div className="text-[12px] tracking-[0.08em] text-white flex items-center gap-[7px]" style={{ fontFamily: "'Cinzel', serif" }}>⬡ Connections</div>
+                  <div className="flex gap-[6px]">
+                    <button className="text-[7.5px] tracking-[0.09em] uppercase px-[10px] py-[5px] rounded-full border border-[rgba(160,120,255,.3)] bg-[#160f2a] text-[rgba(225,215,255,.9)] cursor-pointer flex items-center gap-[3px] transition-colors hover:border-[#a78bfa] hover:text-[#a78bfa]" style={{ fontFamily: "'Cinzel', serif" }} onClick={() => setShowRelationshipsOverlay(true)}>✦ Auto</button>
+                  </div>
+                </div>
+                <div className="p-[18px] px-[15px] text-center italic text-[13px] text-[rgba(180,160,220,.42)] leading-[1.6]" style={{ fontFamily: "'IM Fell English', serif" }}>
+                  Click "Auto" to detect visual or thematic similarities across drawn cards.
+                </div>
+              </div>
+            </div>
+            
+            <div className="text-center italic text-[11px] text-[rgba(160,140,200,.3)] py-[14px]" style={{ fontFamily: "'Crimson Text', serif" }}>Readings are for entertainment purposes only.</div>
+            
             {/* AI Reading Section */}
             {typeof document !== 'undefined' ? createPortal(
               <AIReading
@@ -1063,27 +882,81 @@ const [showShareModal, setShowShareModal] = useState(false);
               />,
               document.body
             ) : null}
-
-            {/* Card Relationships Section */}
-            {(placedCards.filter(Boolean).length >= 2 || drawnCards.length >= 2) && (
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 p-4 md:p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <Badge className="bg-purple-600/80 text-white">
-                    <Sparkles className="w-3 h-3 mr-1" />
-                    Card Relationships
-                  </Badge>
-                  <span className="text-purple-200 text-sm">
-                    Discover connections in your reading
-                  </span>
-                </div>
-                
-                <CardRelationshipVisualizer
-                  deckId={deck.id}
-                  cards={(placedCards.some(Boolean) ? placedCards : drawnCards).filter(Boolean)}
-                  selectedCards={(placedCards.some(Boolean) ? placedCards : drawnCards).filter(Boolean)}
-                />
+          </div>
+        )}
+        
+        {/* Display for Selected Card Details (Screen 3) */}
+        {viewerCard && (
+          <div className="w-full pt-[18px] pb-[10px]">
+            <div className="w-[170px] mx-auto aspect-[2/3] rounded-[16px] border-[2px] border-[rgba(167,139,250,.38)] flex items-center justify-center text-[56px] relative overflow-hidden" style={{ background: 'linear-gradient(135deg,#1e1438,#0d0822)', boxShadow: '0 12px 38px rgba(0,0,0,.6),0 0 38px rgba(100,50,200,.22)' }}>
+              {viewerCard.card?.image_url ? (
+                <img src={viewerCard.card.image_url} alt={viewerCard.card.name} className="w-full h-full object-cover" />
+              ) : (
+                <span>{viewerCard.card?.icon || '🌙'}</span>
+              )}
+            </div>
+            
+            <div className="text-center px-4">
+              <div 
+                className="text-[19px] tracking-[0.12em] uppercase text-center mt-[16px] mb-[4px] text-transparent bg-clip-text bg-gradient-to-r from-[#c8a8ff] via-[#fff] to-[#a0c8ff]"
+                style={{ fontFamily: "'Cinzel', serif", backgroundSize: '200% auto', animation: 'shimmer 4s linear infinite' }}
+              >
+                {viewerCard.card?.name || 'Unknown Card'}
               </div>
-            )}
+              <div className="text-[9px] tracking-[0.14em] uppercase py-[4px] px-[13px] rounded-full bg-[rgba(167,139,250,.12)] border border-[rgba(167,139,250,.28)] text-[#a78bfa] inline-block mb-[16px]" style={{ fontFamily: "'Cinzel', serif" }}>
+                {viewerCard.position || 'Selected'}
+              </div>
+            </div>
+
+            <div className="px-[18px] flex flex-col gap-[11px]">
+              {viewerCard.card?.upright_meaning && (
+                <div className="bg-[#0f0b1e] border border-[rgba(160,120,255,.16)] rounded-[14px] p-[15px]">
+                  <div className="text-[9px] tracking-[0.2em] uppercase text-[rgba(180,160,220,.42)] mb-[7px] flex items-center gap-[6px]" style={{ fontFamily: "'Cinzel', serif" }}>↑ Upright</div>
+                  <div className="text-[16px] text-[rgba(225,215,255,.9)] leading-[1.65]" style={{ fontFamily: "'Crimson Text', serif" }}>{viewerCard.card.upright_meaning}</div>
+                  {viewerCard.card?.upright_insight && (
+                    <div className="italic text-[14px] text-[rgba(200,180,255,.6)] mt-[7px] leading-[1.55]" style={{ fontFamily: "'IM Fell English', serif" }}>{viewerCard.card.upright_insight}</div>
+                  )}
+                  {viewerCard.card?.upright_action && (
+                    <div className="mt-[9px] p-[9px] px-[12px] rounded-[9px] bg-[rgba(167,139,250,.07)] border border-[rgba(167,139,250,.14)] text-[14px] text-[rgba(225,215,255,.9)] leading-[1.55]" style={{ fontFamily: "'Crimson Text', serif" }}>
+                      ✦ {viewerCard.card.upright_action}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {viewerCard.card?.reversed_meaning && (
+                <div className="bg-[#0f0b1e] border border-[rgba(160,120,255,.16)] rounded-[14px] p-[15px]">
+                  <div className="text-[9px] tracking-[0.2em] uppercase text-[rgba(180,160,220,.42)] mb-[7px] flex items-center gap-[6px]" style={{ fontFamily: "'Cinzel', serif" }}>↓ Reversed</div>
+                  <div className="text-[16px] text-[rgba(225,215,255,.9)] leading-[1.65]" style={{ fontFamily: "'Crimson Text', serif" }}>{viewerCard.card.reversed_meaning}</div>
+                </div>
+              )}
+
+              {viewerCard.card?.keywords && viewerCard.card.keywords.length > 0 && (
+                <div className="bg-[#0f0b1e] border border-[rgba(160,120,255,.16)] rounded-[14px] p-[15px]">
+                  <div className="text-[9px] tracking-[0.2em] uppercase text-[rgba(180,160,220,.42)] mb-[7px] flex items-center gap-[6px]" style={{ fontFamily: "'Cinzel', serif" }}>◈ Keywords</div>
+                  <div className="flex flex-wrap gap-[6px] mt-[9px]">
+                    {viewerCard.card.keywords.map((kw, i) => (
+                      <span key={i} className="text-[7.5px] tracking-[0.09em] uppercase py-[4px] px-[10px] rounded-full bg-[rgba(167,139,250,.09)] border border-[rgba(167,139,250,.18)] text-[rgba(200,180,255,.65)]" style={{ fontFamily: "'Cinzel', serif" }}>{kw}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {viewerCard.card?.ancient_wisdom && (
+                <div className="bg-[#0f0b1e] border border-[rgba(160,120,255,.16)] rounded-[14px] p-[15px]">
+                  <div className="text-[9px] tracking-[0.2em] uppercase text-[rgba(180,160,220,.42)] mb-[7px] flex items-center gap-[6px]" style={{ fontFamily: "'Cinzel', serif" }}>🌙 Ancient Wisdom</div>
+                  <div className="italic text-[15px] text-[rgba(225,215,255,.9)]" style={{ fontFamily: "'Crimson Text', serif" }}>{viewerCard.card.ancient_wisdom}</div>
+                </div>
+              )}
+
+              <button 
+                className="w-full mt-2 p-[13px] rounded-full border border-[rgba(160,120,255,.3)] bg-[rgba(160,120,255,.1)] text-[rgba(225,215,255,.9)] text-[11.5px] tracking-[0.18em] uppercase cursor-pointer transition-all hover:bg-[rgba(160,120,255,.2)]"
+                style={{ fontFamily: "'Cinzel', serif" }}
+                onClick={() => setViewerCard(null)}
+              >
+                Close Details
+              </button>
+            </div>
           </div>
         )}
 
