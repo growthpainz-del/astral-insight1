@@ -305,7 +305,7 @@ export default function CosmicHub() {
               animation: "titleReveal 1.1s 0.2s cubic-bezier(.2,.8,.2,1) both, shimmer 4s 1.4s linear infinite",
               marginBottom: 10,
             }}>
-              The Oracle Chamber
+              Astral Insight
             </h1>
             <p style={{
               fontFamily: "'IM Fell English', serif", fontStyle: "italic",
