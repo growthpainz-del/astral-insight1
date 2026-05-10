@@ -301,7 +301,7 @@ export default function Layout({ children, currentPageName }) {
 
   const handleMobileBack = () => {
     const readingRelatedPages = new Set([
-      'ReadingRoom', 'ReadingSimple', 'SharedReading', 'History', 'CardInfo', 'CardGallery', 'DeckView'
+      'ReadingSimple', 'SharedReading', 'History', 'CardInfo', 'CardGallery', 'DeckView'
     ]);
 
     try {
@@ -328,7 +328,6 @@ export default function Layout({ children, currentPageName }) {
   };
 
   const readingLinks = [
-    { href: "ReadingRoom", icon: BookOpen, label: "Reading Room" },
     { href: "Reading", icon: Sprout, label: "Start Reading" },
     { href: "History", icon: History, label: "Reading History" },
     { href: "Journal", icon: BookOpen, label: "Journal" },
@@ -876,7 +875,7 @@ export default function Layout({ children, currentPageName }) {
           <div className="flex-1 flex flex-col">
             <header className="md:hidden bg-slate-900/95 backdrop-blur-lg border-b border-purple-800/40 h-16 pt-[env(safe-area-inset-top)] flex items-center px-4 justify-between flex-shrink-0 sticky top-0 z-40">
               <div className="flex items-center">
-                {['CosmicHub','ReadingRoom','Studio','Journal', 'Dashboard'].includes(currentPageName) ? (
+                {['CosmicHub','Studio','Journal', 'Dashboard'].includes(currentPageName) ? (
                   <button 
                     onClick={() => setIsSidebarOpen(true)} 
                     className="text-purple-300 hover:text-purple-100 active:scale-95 transition-all p-2 -ml-2 touch-manipulation"

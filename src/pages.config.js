@@ -76,7 +76,7 @@ import Persona from './pages/Persona';
 import PhotoUploader from './pages/PhotoUploader';
 import PrintifySetup from './pages/PrintifySetup';
 import Reading from './pages/Reading';
-import ReadingRoom from './pages/ReadingRoom';
+
 import ReadingSimple from './pages/ReadingSimple';
 import Rebel8Ball from './pages/Rebel8Ball';
 import SharedReading from './pages/SharedReading';
@@ -125,7 +125,7 @@ export const PAGES = {
     "PhotoUploader": PhotoUploader,
     "PrintifySetup": PrintifySetup,
     "Reading": Reading,
-    "ReadingRoom": ReadingRoom,
+
     "ReadingSimple": ReadingSimple,
     "Rebel8Ball": Rebel8Ball,
     "SharedReading": SharedReading,

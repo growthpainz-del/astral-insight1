@@ -9,14 +9,14 @@ export default function MobileBottomNav() {
 
   const tabs = [
     { key: "Home", root: createPageUrl("Home"), label: "Home", icon: Home },
-    { key: "Read", root: createPageUrl("ReadingRoom"), label: "Read", icon: BookOpen },
+    { key: "Read", root: createPageUrl("Reading"), label: "Read", icon: BookOpen },
     { key: "Studio", root: createPageUrl("Studio"), label: "Studio", icon: Palette },
     { key: "Journal", root: createPageUrl("Journal"), label: "Journal", icon: BookOpen },
     { key: "Agent", root: createPageUrl("LiveAgent"), label: "Agent", icon: Sparkles },
   ];
 
   const getTabFromPath = (pathname) => {
-    if (pathname.startsWith("/ReadingRoom") || pathname.startsWith("/Reading") || pathname.startsWith("/History") || pathname.startsWith("/ZodiacReading") || pathname.startsWith("/FusionReading") || pathname.startsWith("/DeckGallery")) return "Read";
+    if (pathname.startsWith("/Reading") || pathname.startsWith("/History") || pathname.startsWith("/ZodiacReading") || pathname.startsWith("/FusionReading") || pathname.startsWith("/DeckGallery")) return "Read";
     if (pathname.startsWith("/Studio") || pathname.startsWith("/CreateDeck") || pathname.startsWith("/DeckView") || pathname.startsWith("/PhotoUploader") || pathname.startsWith("/SpreadManager")) return "Studio";
     if (pathname.startsWith("/Journal")) return "Journal";
     if (pathname.startsWith("/LiveAgent")) return "Agent";
