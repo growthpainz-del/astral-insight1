@@ -293,14 +293,7 @@ export default function Layout({ children, currentPageName }) {
                             applyTheme(newT);
                           };
 
-                          // Ensure root ("/") redirects to Home as the first page
-                          useEffect(() => {
-                            try {
-                              if (window.location.pathname === '/' || window.location.pathname === '') {
-                                navigate(createPageUrl('Home'), { replace: true });
-                              }
-                            } catch (_) {}
-                          }, []);
+                          // Removed automatic redirect to Home so CosmicHub can render on "/"
 
   const handleLogout = async () => {
     await base44.auth.logout(createPageUrl('Home'));
@@ -392,7 +385,7 @@ export default function Layout({ children, currentPageName }) {
     return <div className="min-h-screen flex items-center justify-center text-white/80">Redirecting to login…</div>;
   }
 
-  if (currentPageName === 'Home') {
+  if (currentPageName === 'Home' || currentPageName === 'CosmicHub') {
     return (
       <div className="bg-gray-900 text-white min-h-screen">
         <NetworkBanner />
