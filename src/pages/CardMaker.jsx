@@ -14,6 +14,8 @@ export default function CardMaker() {
   const [originalImageFileUrl, setOriginalImageFileUrl] = useState("");
   const [cardName, setCardName] = useState("The Fool");
   const [frameStyle, setFrameStyle] = useState("classic_white");
+  const [titleSize, setTitleSize] = useState("medium");
+  const [titleFont, setTitleFont] = useState("serif");
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedUrl, setUploadedUrl] = useState("");
   const [cardMeaning, setCardMeaning] = useState("");
@@ -59,7 +61,7 @@ export default function CardMaker() {
     if (imageSrc) {
       drawCanvas();
     }
-  }, [imageSrc, cardName, frameStyle]);
+  }, [imageSrc, cardName, frameStyle, titleSize, titleFont]);
 
   const handleAiSuggest = async () => {
     if (!originalImageFileUrl && !canvasRef.current) return;
@@ -284,19 +286,26 @@ export default function CardMaker() {
       ctx.textBaseline = "middle";
       const textY = height - (textSpace / 2);
       
+      let baseFontSize = 60;
+      if (titleSize === "small") baseFontSize = 45;
+      if (titleSize === "large") baseFontSize = 75;
+
+      let fontStyle = "bold";
+      
       if (frameStyle === "classic_white") {
         ctx.fillStyle = "#000000";
-        ctx.font = "bold 60px serif";
       } else if (frameStyle === "dark_magic") {
         ctx.fillStyle = "#e0e7ff";
-        ctx.font = "italic 60px serif";
+        fontStyle = "italic";
       } else if (frameStyle === "vintage") {
         ctx.fillStyle = "#3e2723";
-        ctx.font = "bold 70px 'Courier New', Courier, monospace";
+        if (titleSize === "medium") baseFontSize = 70; // keep vintage slightly larger by default
       } else if (frameStyle === "gold_border") {
         ctx.fillStyle = "#d4af37";
-        ctx.font = "bold 65px serif";
+        if (titleSize === "medium") baseFontSize = 65;
       }
+
+      ctx.font = `${fontStyle} ${baseFontSize}px ${titleFont}`;
 
       ctx.fillText(cardName.toUpperCase(), width / 2, textY);
     };
@@ -490,19 +499,49 @@ export default function CardMaker() {
                     </div>
                   </div>
 
-                  <div>
-                    <Label className="text-white/70">Frame Style</Label>
-                    <Select value={frameStyle} onValueChange={setFrameStyle}>
-                      <SelectTrigger className="bg-black/40 border-white/20 mt-1">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="classic_white">Classic White Border</SelectItem>
-                        <SelectItem value="dark_magic">Dark Magic (Midnight)</SelectItem>
-                        <SelectItem value="vintage">Vintage Parchment</SelectItem>
-                        <SelectItem value="gold_border">Opulent Gold</SelectItem>
-                      </SelectContent>
-                    </Select>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <Label className="text-white/70">Frame Style</Label>
+                      <Select value={frameStyle} onValueChange={setFrameStyle}>
+                        <SelectTrigger className="bg-black/40 border-white/20 mt-1">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="classic_white">Classic White Border</SelectItem>
+                          <SelectItem value="dark_magic">Dark Magic (Midnight)</SelectItem>
+                          <SelectItem value="vintage">Vintage Parchment</SelectItem>
+                          <SelectItem value="gold_border">Opulent Gold</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label className="text-white/70">Title Size</Label>
+                      <Select value={titleSize} onValueChange={setTitleSize}>
+                        <SelectTrigger className="bg-black/40 border-white/20 mt-1">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="small">Small</SelectItem>
+                          <SelectItem value="medium">Medium</SelectItem>
+                          <SelectItem value="large">Large</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label className="text-white/70">Title Font</Label>
+                      <Select value={titleFont} onValueChange={setTitleFont}>
+                        <SelectTrigger className="bg-black/40 border-white/20 mt-1">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="serif">Classic Serif</SelectItem>
+                          <SelectItem value="'Cinzel', serif">Cinzel (Divine)</SelectItem>
+                          <SelectItem value="'IM Fell English', serif">IM Fell (Mystic)</SelectItem>
+                          <SelectItem value="'Crimson Text', serif">Crimson (Elegant)</SelectItem>
+                          <SelectItem value="'Courier New', Courier, monospace">Courier (Vintage)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 </div>
 
