@@ -3,11 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import SigilForgeComponent from '@/components/reading/SigilForge';
 
+import DisablePullToRefresh from '@/components/common/DisablePullToRefresh';
+
 export default function SigilForge() {
   const navigate = useNavigate();
 
   return (
     <div className="min-h-screen pb-24 md:p-8 font-serif" style={{ backgroundColor: '#07050f' }}>
+      <DisablePullToRefresh targetSelector="body" />
       <style>{`
         .mode-tabs {
           display: flex; gap: 0; background: rgba(22,15,42,0.8); border-bottom: 1px solid rgba(160,120,255,0.16);

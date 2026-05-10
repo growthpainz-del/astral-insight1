@@ -65,10 +65,16 @@ export default function SigilForge() {
     const W = 160, H = 180;
     const dc = drawCanvasRef.current;
     const mc = mirrorCanvasRef.current;
+    const sc = stoneCanvasRef.current;
     if (!dc || !mc) return;
 
     dc.width = W; dc.height = H;
     mc.width = W; mc.height = H;
+    
+    if (sc) {
+      sc.width = 200;
+      sc.height = 200;
+    }
 
     const dctx = dc.getContext('2d');
     dctx.clearRect(0, 0, W, H);
@@ -489,7 +495,7 @@ export default function SigilForge() {
               <ellipse cx="72" cy="68" rx="28" ry="18" fill="rgba(255,255,255,0.07)" transform="rotate(-20,72,68)"/>
               <ellipse cx="100" cy="105" rx="88" ry="82" fill="none" stroke={palette.stoneStroke} strokeWidth="4"/>
             </svg>
-            <canvas ref={stoneCanvasRef} id="stone-canvas" width="200" height="200"></canvas>
+            <canvas ref={stoneCanvasRef} id="stone-canvas"></canvas>
           </div>
           <div className="stone-text flex flex-col gap-3">
             {isForging && <Loader2 className="w-6 h-6 animate-spin text-[#C17A3A] mx-auto sm:mx-0 mb-2" />}
