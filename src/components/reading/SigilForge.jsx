@@ -287,7 +287,7 @@ export default function SigilForge() {
       const res = await base44.integrations.Core.InvokeLLM({
         prompt: `You are the Rooted Crescent Oracle. Carefully analyze the visual shapes, lines, and patterns in this mirrored drawing. ${nameContext}Based strictly on your visual analysis of what the sigil actually looks like, identify the single primary spirit symbol that emerges (one or two words). Then, write exactly 3 sentences as a ${toneText} oracle reading focused on ${focusText}. The meaning MUST be directly inspired by the specific visual characteristics of the drawing you just analyzed. Provide only an upright, balanced, or positive meaning. Make sure this reading is completely unique. (Seed: ${entropy})`,
         file_urls: [file_url],
-        model: 'claude_sonnet_4_6',
+        model: 'gpt_5_4',
         response_json_schema: {
           type: "object",
           properties: {
