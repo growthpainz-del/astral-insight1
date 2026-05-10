@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, ChevronLeft, Download, ZoomIn, ZoomOut } from 'lucide-react';
@@ -51,6 +51,39 @@ export default function SpiritWheel() {
   const [showShareModal, setShowShareModal] = useState(false);
   const [showReportDialog, setShowReportDialog] = useState(false);
   const [activeTab, setActiveTab] = useState(tabFromUrl);
+
+  const [panPos, setPanPos] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStart = useRef({ x: 0, y: 0 });
+  const lastPan = useRef({ x: 0, y: 0 });
+  const hasDragged = useRef(false);
+
+  const handlePointerDown = (e) => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    setIsDragging(true);
+    hasDragged.current = false;
+    dragStart.current = { x: e.clientX, y: e.clientY };
+    lastPan.current = { ...panPos };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+
+  const handlePointerMove = (e) => {
+    if (!isDragging) return;
+    const dx = e.clientX - dragStart.current.x;
+    const dy = e.clientY - dragStart.current.y;
+    if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+      hasDragged.current = true;
+    }
+    setPanPos({
+      x: lastPan.current.x + dx,
+      y: lastPan.current.y + dy
+    });
+  };
+
+  const handlePointerUp = (e) => {
+    setIsDragging(false);
+    e.currentTarget.releasePointerCapture(e.pointerId);
+  };
 
   const handleDownloadImage = async () => {
     setIsCapturing(true);
@@ -437,8 +470,16 @@ export default function SpiritWheel() {
             </div>
 
             <div 
-              className="relative w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] md:w-[500px] md:h-[500px] lg:w-[650px] lg:h-[650px] xl:w-[800px] xl:h-[800px] shrink-0 transition-transform duration-300 origin-center my-4"
-              style={{ transform: `scale(${zoomLevel})` }}
+              className="relative w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] md:w-[500px] md:h-[500px] lg:w-[650px] lg:h-[650px] xl:w-[800px] xl:h-[800px] shrink-0 origin-center my-4"
+              style={{ 
+                transform: `translate(${panPos.x}px, ${panPos.y}px) scale(${zoomLevel})`,
+                transition: isDragging ? 'none' : 'transform 0.3s ease-in-out',
+                touchAction: 'none'
+              }}
+              onPointerDown={handlePointerDown}
+              onPointerMove={handlePointerMove}
+              onPointerUp={handlePointerUp}
+              onPointerCancel={handlePointerUp}
             >
               <div 
                 className="absolute top-[-14px] left-1/2 z-10 w-0 h-0"
@@ -464,7 +505,9 @@ export default function SpiritWheel() {
               <div 
                 className={`absolute inset-0 cursor-pointer rounded-full transition-all duration-300 ${isSpinning ? 'animate-[glowPulse_0.5s_ease-in-out_infinite]' : 'hover:drop-shadow-[0_0_30px_rgba(201,168,76,0.5)]'}`} 
                 style={{ filter: isSpinning ? "none" : "drop-shadow(0 0 20px rgba(201,168,76,0.3)) drop-shadow(0 8px 30px rgba(0,0,0,0.6))" }}
-                onClick={() => !isSpinning && spinWheel()}
+                onClick={() => {
+                  if (!hasDragged.current && !isSpinning) spinWheel();
+                }}
               >
                 <CanvasSpiritWheel 
                   wheelData={wheelData}
