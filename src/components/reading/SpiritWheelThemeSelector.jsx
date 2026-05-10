@@ -1,115 +1,221 @@
 import React from 'react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
 
 export default function SpiritWheelThemeSelector({ themeId, setThemeId, customTheme, setCustomTheme }) {
   return (
-    <div>
-      <Label className="text-amber-200 mb-2 block font-semibold text-lg">Wheel Design Theme</Label>
-      <Select value={themeId} onValueChange={setThemeId}>
-        <SelectTrigger className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100 h-12 text-lg mb-4">
-          <SelectValue placeholder="Select a theme" />
-        </SelectTrigger>
-        <SelectContent className="bg-[#2d1b0d] border-[#5c3a21] text-amber-100">
-          <SelectItem value="wood">Classic Wood</SelectItem>
-          <SelectItem value="galaxy">Cosmic Galaxy</SelectItem>
-          <SelectItem value="neon">Cyber Neon</SelectItem>
-          <SelectItem value="parchment">Ancient Parchment</SelectItem>
-          <SelectItem value="stone_led">Stone + LED</SelectItem>
-          <SelectItem value="metatron">Sacred Geometry</SelectItem>
-          <SelectItem value="custom">Custom Build...</SelectItem>
-        </SelectContent>
-      </Select>
-      
+    <>
+      <div 
+        className="flex items-center gap-[8px] mb-[14px] text-[12px] tracking-[0.14em] uppercase text-[#c9a84c]"
+        style={{ fontFamily: "'Cinzel', serif" }}
+      >
+        ⊙ Wheel Design Theme
+      </div>
+      <div>
+        <div 
+          className="text-[9px] tracking-[0.18em] uppercase text-[rgba(180,160,220,0.42)] mb-[6px]"
+          style={{ fontFamily: "'Cinzel', serif" }}
+        >
+          Theme
+        </div>
+        <select 
+          value={themeId} onChange={(e) => setThemeId(e.target.value)}
+          className="w-full bg-[#160f2a] border border-[rgba(160,120,255,0.16)] rounded-[10px] px-[14px] py-[11px] text-[15px] text-[rgba(225,215,255,0.9)] outline-none appearance-none cursor-pointer transition-colors duration-250 focus:border-[#c9a84c]/40 mb-[12px]"
+          style={{ 
+            fontFamily: "'Crimson Text', serif",
+            backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' fill='none'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%23c9a84c' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E\")",
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "right 13px center"
+          }}
+        >
+          <option value="wood" style={{ background: "#160f2a" }}>Classic Wood</option>
+          <option value="galaxy" style={{ background: "#160f2a" }}>Cosmic Galaxy</option>
+          <option value="neon" style={{ background: "#160f2a" }}>Cyber Neon</option>
+          <option value="parchment" style={{ background: "#160f2a" }}>Ancient Parchment</option>
+          <option value="stone_led" style={{ background: "#160f2a" }}>Stone + LED</option>
+          <option value="metatron" style={{ background: "#160f2a" }}>Sacred Geometry</option>
+          <option value="custom" style={{ background: "#160f2a" }}>Custom Build...</option>
+        </select>
+      </div>
+
       {themeId === 'custom' && (
-        <div className="grid grid-cols-2 gap-4 mb-4 bg-black/30 p-3 rounded-lg border border-[#5c3a21]">
-          <div>
-            <Label className="text-amber-200/80 text-xs">Outer Ring</Label>
-            <div className="flex gap-2 mt-1 mb-1">
-              <input type="color" value={customTheme.outerBg} onChange={e => setCustomTheme({...customTheme, outerBg: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
-              <input type="color" value={customTheme.outerGrad} onChange={e => setCustomTheme({...customTheme, outerGrad: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
-            </div>
-            <Input value={customTheme.outerTextureUrl ?? customTheme.textureUrl ?? ''} onChange={e => setCustomTheme({...customTheme, outerTextureUrl: e.target.value})} placeholder="Texture URL" className="bg-black/40 border-white/10 text-[10px] h-6 px-1" />
-          </div>
-          <div>
-            <Label className="text-amber-200/80 text-xs">Middle Ring</Label>
-            <div className="flex gap-2 mt-1 mb-1">
-              <input type="color" value={customTheme.middleBg} onChange={e => setCustomTheme({...customTheme, middleBg: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
-              <input type="color" value={customTheme.middleGrad} onChange={e => setCustomTheme({...customTheme, middleGrad: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
-            </div>
-            <Input value={customTheme.middleTextureUrl ?? customTheme.textureUrl ?? ''} onChange={e => setCustomTheme({...customTheme, middleTextureUrl: e.target.value})} placeholder="Texture URL" className="bg-black/40 border-white/10 text-[10px] h-6 px-1" />
-          </div>
-          <div>
-            <Label className="text-amber-200/80 text-xs">Inner Ring</Label>
-            <div className="flex gap-2 mt-1 mb-1">
-              <input type="color" value={customTheme.innerBg} onChange={e => setCustomTheme({...customTheme, innerBg: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
-              <input type="color" value={customTheme.innerGrad} onChange={e => setCustomTheme({...customTheme, innerGrad: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
-            </div>
-            <Input value={customTheme.innerTextureUrl ?? customTheme.textureUrl ?? ''} onChange={e => setCustomTheme({...customTheme, innerTextureUrl: e.target.value})} placeholder="Texture URL" className="bg-black/40 border-white/10 text-[10px] h-6 px-1" />
-          </div>
-          <div>
-            <Label className="text-amber-200/80 text-xs">Text & Dots</Label>
-            <div className="flex gap-2 mt-1">
-              <input type="color" value={customTheme.textOuter} onChange={e => setCustomTheme({...customTheme, textOuter: e.target.value, textMiddle: e.target.value, textInner: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
-              <input type="color" value={customTheme.pin} onChange={e => setCustomTheme({...customTheme, pin: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
-            </div>
-          </div>
-          <div>
-            <Label className="text-amber-200/80 text-xs">Borders</Label>
-            <div className="flex gap-2 mt-1">
-              <input type="color" value={customTheme.outerBorder} onChange={e => setCustomTheme({...customTheme, outerBorder: e.target.value, middleBorder: e.target.value, innerBorder: e.target.value, hubBorder: e.target.value, divider: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
-            </div>
-          </div>
-          <div>
-            <Label className="text-amber-200/80 text-xs">Page Background</Label>
-            <div className="flex gap-2 mt-1">
-              <input type="color" value={customTheme.pageBg || "#0f172a"} onChange={e => setCustomTheme({...customTheme, pageBg: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
-            </div>
-          </div>
-          <div className="col-span-2 hidden">
-            <Label className="text-amber-200/80 text-xs">Global Texture URL</Label>
-            <Input value={customTheme.textureUrl} onChange={e => setCustomTheme({...customTheme, textureUrl: e.target.value})} className="bg-black/40 border-white/10 mt-1 text-xs h-8" />
-          </div>
-          <div className="col-span-2">
-            <Label className="text-amber-200/80 text-xs block mb-1">Layer & Blending Options</Label>
-            <div className="flex gap-2">
-              <Select value={customTheme.layerOrder || 'texture_top'} onValueChange={v => setCustomTheme({...customTheme, layerOrder: v})}>
-                <SelectTrigger className="bg-black/40 border-white/10 text-[10px] h-7 flex-1" title="Layer Order">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-slate-900 border-slate-700 text-white">
-                  <SelectItem value="texture_top">Texture on Top</SelectItem>
-                  <SelectItem value="color_top">Color on Top</SelectItem>
-                </SelectContent>
-              </Select>
-              <div className="flex items-center gap-1 bg-black/40 border border-white/10 rounded-md px-1 h-7">
-                <span className="text-[10px] text-amber-200/60 whitespace-nowrap">Opacity:</span>
-                <Input type="number" min="0" max="100" value={customTheme.topLayerOpacity !== undefined ? Math.round(customTheme.topLayerOpacity * 100) : 100} onChange={e => setCustomTheme({...customTheme, topLayerOpacity: Number(e.target.value)/100})} className="w-10 bg-transparent border-none text-[10px] h-5 p-0 text-center focus-visible:ring-0 outline-none" />
-                <span className="text-[10px] text-amber-200/60">%</span>
+        <div className="space-y-[12px] p-[16px] bg-[#160f2a] border border-[rgba(160,120,255,0.16)] rounded-[10px]">
+          <h4 className="text-[11px] font-semibold text-[#c9a84c] uppercase tracking-[0.1em] mb-2" style={{ fontFamily: "'Cinzel', serif" }}>Custom Colors & Textures</h4>
+          
+          <div className="grid grid-cols-2 gap-[12px]">
+            <div className="color-item">
+              <div className="text-[8.5px] tracking-[0.14em] uppercase text-[rgba(180,160,220,0.42)] mb-[6px]" style={{ fontFamily: "'Cinzel', serif" }}>Outer Ring</div>
+              <div className="flex gap-[6px] mb-[6px]">
+                <div className="w-[30px] h-[30px] rounded-[7px] cursor-pointer border-[2px] border-[rgba(255,255,255,0.15)] transition-transform duration-200 hover:scale-110 overflow-hidden relative" style={{ background: customTheme.outerBg }}>
+                  <input type="color" value={customTheme.outerBg} onChange={e => setCustomTheme({...customTheme, outerBg: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Background" />
+                </div>
+                <div className="w-[30px] h-[30px] rounded-[7px] cursor-pointer border-[2px] border-[rgba(255,255,255,0.15)] transition-transform duration-200 hover:scale-110 overflow-hidden relative" style={{ background: customTheme.outerGrad }}>
+                  <input type="color" value={customTheme.outerGrad} onChange={e => setCustomTheme({...customTheme, outerGrad: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Gradient" />
+                </div>
               </div>
-              <Select value={customTheme.blendMode || 'multiply'} onValueChange={v => setCustomTheme({...customTheme, blendMode: v})}>
-                <SelectTrigger className="bg-black/40 border-white/10 text-[10px] h-7 flex-1" title="Blend Mode">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-slate-900 border-slate-700 text-white">
-                  <SelectItem value="normal">Normal</SelectItem>
-                  <SelectItem value="multiply">Multiply</SelectItem>
-                  <SelectItem value="overlay">Overlay</SelectItem>
-                  <SelectItem value="screen">Screen</SelectItem>
-                  <SelectItem value="soft-light">Soft Light</SelectItem>
-                  <SelectItem value="hard-light">Hard Light</SelectItem>
-                  <SelectItem value="color-burn">Color Burn</SelectItem>
-                </SelectContent>
-              </Select>
+              <input 
+                value={customTheme.outerTextureUrl ?? customTheme.textureUrl ?? ''} onChange={e => setCustomTheme({...customTheme, outerTextureUrl: e.target.value})} 
+                placeholder="Texture URL" 
+                className="w-full bg-[#160f2a] border border-[rgba(160,120,255,0.16)] rounded-[7px] px-[8px] py-[6px] text-[12px] text-[rgba(180,160,220,0.42)] outline-none"
+                style={{ fontFamily: "'Crimson Text', serif" }}
+              />
+            </div>
+            
+            <div className="color-item">
+              <div className="text-[8.5px] tracking-[0.14em] uppercase text-[rgba(180,160,220,0.42)] mb-[6px]" style={{ fontFamily: "'Cinzel', serif" }}>Middle Ring</div>
+              <div className="flex gap-[6px] mb-[6px]">
+                <div className="w-[30px] h-[30px] rounded-[7px] cursor-pointer border-[2px] border-[rgba(255,255,255,0.15)] transition-transform duration-200 hover:scale-110 overflow-hidden relative" style={{ background: customTheme.middleBg }}>
+                  <input type="color" value={customTheme.middleBg} onChange={e => setCustomTheme({...customTheme, middleBg: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Background" />
+                </div>
+                <div className="w-[30px] h-[30px] rounded-[7px] cursor-pointer border-[2px] border-[rgba(255,255,255,0.15)] transition-transform duration-200 hover:scale-110 overflow-hidden relative" style={{ background: customTheme.middleGrad }}>
+                  <input type="color" value={customTheme.middleGrad} onChange={e => setCustomTheme({...customTheme, middleGrad: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Gradient" />
+                </div>
+              </div>
+              <input 
+                value={customTheme.middleTextureUrl ?? customTheme.textureUrl ?? ''} onChange={e => setCustomTheme({...customTheme, middleTextureUrl: e.target.value})} 
+                placeholder="Texture URL" 
+                className="w-full bg-[#160f2a] border border-[rgba(160,120,255,0.16)] rounded-[7px] px-[8px] py-[6px] text-[12px] text-[rgba(180,160,220,0.42)] outline-none"
+                style={{ fontFamily: "'Crimson Text', serif" }}
+              />
+            </div>
+            
+            <div className="color-item">
+              <div className="text-[8.5px] tracking-[0.14em] uppercase text-[rgba(180,160,220,0.42)] mb-[6px]" style={{ fontFamily: "'Cinzel', serif" }}>Inner Ring</div>
+              <div className="flex gap-[6px] mb-[6px]">
+                <div className="w-[30px] h-[30px] rounded-[7px] cursor-pointer border-[2px] border-[rgba(255,255,255,0.15)] transition-transform duration-200 hover:scale-110 overflow-hidden relative" style={{ background: customTheme.innerBg }}>
+                  <input type="color" value={customTheme.innerBg} onChange={e => setCustomTheme({...customTheme, innerBg: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Background" />
+                </div>
+                <div className="w-[30px] h-[30px] rounded-[7px] cursor-pointer border-[2px] border-[rgba(255,255,255,0.15)] transition-transform duration-200 hover:scale-110 overflow-hidden relative" style={{ background: customTheme.innerGrad }}>
+                  <input type="color" value={customTheme.innerGrad} onChange={e => setCustomTheme({...customTheme, innerGrad: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Gradient" />
+                </div>
+              </div>
+              <input 
+                value={customTheme.innerTextureUrl ?? customTheme.textureUrl ?? ''} onChange={e => setCustomTheme({...customTheme, innerTextureUrl: e.target.value})} 
+                placeholder="Texture URL" 
+                className="w-full bg-[#160f2a] border border-[rgba(160,120,255,0.16)] rounded-[7px] px-[8px] py-[6px] text-[12px] text-[rgba(180,160,220,0.42)] outline-none"
+                style={{ fontFamily: "'Crimson Text', serif" }}
+              />
+            </div>
+            
+            <div className="color-item">
+              <div className="text-[8.5px] tracking-[0.14em] uppercase text-[rgba(180,160,220,0.42)] mb-[6px]" style={{ fontFamily: "'Cinzel', serif" }}>Text & Dots</div>
+              <div className="flex gap-[6px] mb-[6px]">
+                <div className="w-[30px] h-[30px] rounded-[7px] cursor-pointer border-[2px] border-[rgba(255,255,255,0.15)] transition-transform duration-200 hover:scale-110 overflow-hidden relative" style={{ background: customTheme.textOuter || "#2a1505" }}>
+                  <input type="color" value={customTheme.textOuter || "#2a1505"} onChange={e => setCustomTheme({...customTheme, textOuter: e.target.value, textMiddle: e.target.value, textInner: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Text Color" />
+                </div>
+                <div className="w-[30px] h-[30px] rounded-[7px] cursor-pointer border-[2px] border-[rgba(255,255,255,0.15)] transition-transform duration-200 hover:scale-110 overflow-hidden relative" style={{ background: customTheme.pin || "#f5f5f5" }}>
+                  <input type="color" value={customTheme.pin || "#f5f5f5"} onChange={e => setCustomTheme({...customTheme, pin: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Pin Color" />
+                </div>
+              </div>
             </div>
           </div>
-          <div className="col-span-2">
-            <Label className="text-amber-200/80 text-xs">Page Background Image URL</Label>
-            <Input value={customTheme.pageBgImage || ""} onChange={e => setCustomTheme({...customTheme, pageBgImage: e.target.value})} className="bg-black/40 border-white/10 mt-1 text-xs h-8" />
+
+          <div className="flex items-center gap-[8px] mt-[4px]">
+             <div className="w-[32px] h-[32px] rounded-[7px] cursor-pointer bg-[#2a1505] border-[2px] border-[rgba(201,168,76,0.2)] overflow-hidden relative" style={{ background: customTheme.outerBorder || "#2a1505" }}>
+                <input type="color" value={customTheme.outerBorder || "#2a1505"} onChange={e => setCustomTheme({...customTheme, outerBorder: e.target.value, middleBorder: e.target.value, innerBorder: e.target.value, hubBorder: e.target.value, divider: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Border Color" />
+             </div>
+             <input 
+               type="number" min="0" max="20" 
+               value={customTheme.borderThickness ?? 6} 
+               onChange={e => setCustomTheme({...customTheme, borderThickness: Number(e.target.value)})} 
+               className="w-[52px] bg-[#160f2a] border border-[rgba(160,120,255,0.16)] rounded-[7px] px-[9px] py-[7px] text-[14px] text-[rgba(225,215,255,0.9)] outline-none text-center"
+               style={{ fontFamily: "'Crimson Text', serif" }}
+             />
+             <select 
+               value={customTheme.borderStyle || "solid"} 
+               onChange={e => setCustomTheme({...customTheme, borderStyle: e.target.value})}
+               className="flex-1 bg-[#160f2a] border border-[rgba(160,120,255,0.16)] rounded-[7px] px-[10px] py-[7px] text-[14px] text-[rgba(225,215,255,0.9)] outline-none appearance-none"
+               style={{ fontFamily: "'Crimson Text', serif" }}
+             >
+               <option value="solid" style={{ background: "#160f2a" }}>Solid</option>
+               <option value="dashed" style={{ background: "#160f2a" }}>Dashed</option>
+               <option value="dotted" style={{ background: "#160f2a" }}>Dotted</option>
+               <option value="double" style={{ background: "#160f2a" }}>Double</option>
+             </select>
+             <div className="flex-1"></div>
+             <div>
+                <div className="text-[9px] tracking-[0.18em] uppercase text-[rgba(180,160,220,0.42)] mb-[4px]" style={{ fontFamily: "'Cinzel', serif" }}>Page Bg</div>
+                <div className="w-[32px] h-[32px] rounded-[7px] cursor-pointer border-[2px] border-[rgba(255,255,255,0.15)] overflow-hidden relative" style={{ background: customTheme.pageBg || "#0d0e1a" }}>
+                  <input type="color" value={customTheme.pageBg || "#0f172a"} onChange={e => setCustomTheme({...customTheme, pageBg: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Page Background Color" />
+                </div>
+             </div>
           </div>
+
+          <div className="mt-[12px]">
+            <div className="text-[9px] tracking-[0.18em] uppercase text-[rgba(180,160,220,0.42)] mb-[6px]" style={{ fontFamily: "'Cinzel', serif" }}>Layer & Blending Options</div>
+            <div className="flex gap-[8px] items-center flex-wrap">
+              <select 
+                value={customTheme.layerOrder || 'texture_top'} 
+                onChange={e => setCustomTheme({...customTheme, layerOrder: e.target.value})}
+                className="bg-[#160f2a] border border-[rgba(160,120,255,0.16)] rounded-[7px] px-[10px] py-[7px] text-[13px] text-[rgba(225,215,255,0.9)] outline-none appearance-none cursor-pointer"
+                style={{ 
+                  fontFamily: "'Crimson Text', serif",
+                  backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' fill='none'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%23c9a84c' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E\")",
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "right 10px center",
+                  paddingRight: "28px"
+                }}
+              >
+                <option value="texture_top" style={{ background: "#160f2a" }}>Texture on Top</option>
+                <option value="color_top" style={{ background: "#160f2a" }}>Color on Top</option>
+              </select>
+              
+              <span className="text-[8.5px] tracking-[0.1em] text-[rgba(180,160,220,0.42)] uppercase" style={{ fontFamily: "'Cinzel', serif" }}>TOP OPACITY:</span>
+              
+              <input 
+                type="number" min="0" max="100" 
+                value={customTheme.topLayerOpacity !== undefined ? Math.round(customTheme.topLayerOpacity * 100) : 100} 
+                onChange={e => setCustomTheme({...customTheme, topLayerOpacity: Number(e.target.value)/100})} 
+                className="w-[60px] bg-[#160f2a] border border-[rgba(160,120,255,0.16)] rounded-[7px] px-[9px] py-[7px] text-[14px] text-[rgba(225,215,255,0.9)] outline-none text-center"
+                style={{ fontFamily: "'Crimson Text', serif" }}
+              />
+              <span className="text-[10px] text-[rgba(180,160,220,0.42)]" style={{ fontFamily: "'Cinzel', serif" }}>%</span>
+              
+              <select 
+                value={customTheme.blendMode || 'multiply'} 
+                onChange={e => setCustomTheme({...customTheme, blendMode: e.target.value})}
+                className="bg-[#160f2a] border border-[rgba(160,120,255,0.16)] rounded-[7px] px-[10px] py-[7px] text-[13px] text-[rgba(225,215,255,0.9)] outline-none appearance-none cursor-pointer"
+                style={{ 
+                  fontFamily: "'Crimson Text', serif",
+                  backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' fill='none'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%23c9a84c' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E\")",
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "right 10px center",
+                  paddingRight: "28px"
+                }}
+              >
+                <option value="normal" style={{ background: "#160f2a" }}>Normal</option>
+                <option value="multiply" style={{ background: "#160f2a" }}>Multiply</option>
+                <option value="overlay" style={{ background: "#160f2a" }}>Overlay</option>
+                <option value="screen" style={{ background: "#160f2a" }}>Screen</option>
+                <option value="soft-light" style={{ background: "#160f2a" }}>Soft Light</option>
+                <option value="hard-light" style={{ background: "#160f2a" }}>Hard Light</option>
+                <option value="color-burn" style={{ background: "#160f2a" }}>Color Burn</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+             <div className="text-[9px] tracking-[0.18em] uppercase text-[rgba(180,160,220,0.42)] mb-[4px]" style={{ fontFamily: "'Cinzel', serif" }}>Global Texture URL</div>
+             <input 
+               value={customTheme.textureUrl || ""} 
+               onChange={e => setCustomTheme({...customTheme, textureUrl: e.target.value})} 
+               placeholder="https://..." 
+               className="w-full bg-[#160f2a] border border-[rgba(160,120,255,0.16)] rounded-[7px] px-[8px] py-[6px] text-[12px] text-[rgba(180,160,220,0.42)] outline-none"
+               style={{ fontFamily: "'Crimson Text', serif" }}
+             />
+          </div>
+
+          <div>
+             <div className="text-[9px] tracking-[0.18em] uppercase text-[rgba(180,160,220,0.42)] mb-[4px]" style={{ fontFamily: "'Cinzel', serif" }}>Page Background Image URL</div>
+             <input 
+               value={customTheme.pageBgImage || ""} 
+               onChange={e => setCustomTheme({...customTheme, pageBgImage: e.target.value})} 
+               placeholder="https://..." 
+               className="w-full bg-[#160f2a] border border-[rgba(160,120,255,0.16)] rounded-[9px] px-[12px] py-[9px] text-[14px] text-[rgba(225,215,255,0.9)] outline-none"
+               style={{ fontFamily: "'Crimson Text', serif" }}
+             />
+          </div>
+            
         </div>
       )}
-    </div>
+    </>
   );
 }

@@ -12,13 +12,16 @@ import { createPageUrl } from "@/utils";
 import { motion } from "framer-motion";
 import { getThumbnailUrl } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
+import SpiritWheelThemeSelector from "@/components/reading/SpiritWheelThemeSelector";
 
 const DEFAULT_SEGMENT = { label: "", meaning: "", type: "custom", icon: "", card_id: "" };
+
+
 
 function WheelThemePreview({ activeTheme }) {
   if (!activeTheme) return null;
   return (
-    <div className="relative w-full aspect-square max-w-[200px] mx-auto my-4 pointer-events-none">
+    <div className="relative w-full aspect-square max-w-[200px] mx-auto my-4 pointer-events-none rounded-full" style={{ boxShadow: "0 6px 24px rgba(0,0,0,0.5), 0 0 20px rgba(201,168,76,0.15)" }}>
       {/* Outer Ring 1 */}
       <div 
         className={`absolute inset-0 rounded-full ${activeTheme.isTiles ? 'shadow-[0_0_20px_rgba(0,255,204,0.3)]' : 'overflow-hidden shadow-[inset_0_0_10px_rgba(0,0,0,0.4),0_5px_15px_rgba(0,0,0,0.6)]'}`}
@@ -406,12 +409,6 @@ function RingEditor({ ringKey, segments, setSegments, deckCards, onOpenGallery }
     setSegments(updated);
   };
 
-  const colorMap = {
-    amber: "border-amber-500/40 bg-amber-950/20",
-    orange: "border-orange-500/40 bg-orange-950/20",
-    yellow: "border-yellow-500/40 bg-yellow-950/20",
-  };
-
   const filteredSegments = segments.map((seg, i) => ({ ...seg, originalIndex: i })).filter((seg) => {
     if (!searchQuery) return true;
     const q = searchQuery.toLowerCase();
@@ -423,105 +420,162 @@ function RingEditor({ ringKey, segments, setSegments, deckCards, onOpenGallery }
   });
 
   return (
-    <div className={`rounded-xl border p-5 space-y-4 ${colorMap[meta.color]}`}>
-      <div className="flex items-center justify-between">
+    <div className="p-[14px] mb-[12px] rounded-[14px] border border-[rgba(201,168,76,0.18)] mx-[18px] md:mx-0" style={{ background: "linear-gradient(135deg, rgba(61,32,8,0.5), rgba(15,11,30,0.8))" }}>
+      <div className="flex items-start justify-between mb-[10px]">
         <div>
-          <h3 className="text-lg font-bold text-amber-300">{meta.label}</h3>
-          <p className="text-xs text-amber-200/60">{meta.hint} — {segments.length} segments</p>
+          <div className="text-[13px] tracking-[0.1em] text-[#c9a84c]" style={{ fontFamily: "'Cinzel', serif" }}>
+            {meta.label}
+          </div>
+          <div className="text-[12px] text-[rgba(180,160,220,0.42)] mt-[3px] leading-[1.4]" style={{ fontFamily: "'Crimson Text', serif" }}>
+            {meta.hint}<br/>— {segments.length} segments
+          </div>
         </div>
-        <div className="flex gap-2 flex-wrap justify-end">
-          {segments.length > 0 && (
-            <Button size="sm" variant="outline" onClick={handleHarvestSymbols} disabled={isHarvesting} className="bg-slate-900 border-amber-600/40 text-amber-300 hover:bg-amber-900/40 hover:text-amber-200 h-8">
-              {isHarvesting ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Sparkles className="w-4 h-4 mr-1" />}
-              Harvest Symbols
-            </Button>
-          )}
-          {deckCards && deckCards.length > 0 && (
-            <Button size="sm" variant="outline" onClick={addAllCards} className="bg-slate-900 border-amber-600/40 text-amber-300 hover:bg-amber-900/40 hover:text-amber-200 h-8">
-              <Sparkles className="w-4 h-4 mr-1" /> Add All Cards
-            </Button>
-          )}
-          <Select key={themePackSelectKey} onValueChange={(v) => {
-            if(v && THEME_PACKS[v]) {
-              setSegments([...segments, ...THEME_PACKS[v]]);
-              setTimeout(() => setThemePackSelectKey(Date.now()), 10);
-            }
-          }}>
-            <SelectTrigger className="w-40 bg-amber-900/40 hover:bg-amber-800/60 border-amber-600/40 text-amber-100 h-8 text-xs focus:ring-0">
-              <SelectValue placeholder="Add Theme Pack..." />
-            </SelectTrigger>
-            <SelectContent className="bg-slate-900 border-slate-700 text-white">
-              <SelectItem value="yes_no">Yes / No / Maybe</SelectItem>
-              <SelectItem value="elements">Elements</SelectItem>
-              <SelectItem value="timing">Timing</SelectItem>
-              <SelectItem value="directions">Directions</SelectItem>
-              <SelectItem value="zodiac">Zodiac Signs</SelectItem>
-              <SelectItem value="planets">Planets</SelectItem>
-              <SelectItem value="chakras">Chakras</SelectItem>
-              <SelectItem value="seven_sisters">7 Sisters</SelectItem>
-              <SelectItem value="spiritual_emoticons">Spiritual Emoticons</SelectItem>
-              <SelectItem value="moon_emblems">Moon Emblems</SelectItem>
-              <SelectItem value="animal_spirits">Animal Spirits</SelectItem>
-              <SelectItem value="rooted_crescent">Rooted Crescent</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button size="sm" onClick={() => setShowBulkModal(true)} className="bg-amber-800 hover:bg-amber-700 text-white h-8">
-            Bulk Add
-          </Button>
-          <Button size="sm" onClick={addSegment} className="bg-amber-700 hover:bg-amber-600 text-white h-8">
-            <Plus className="w-4 h-4 mr-1" /> Add Custom
-          </Button>
+        <div className="flex flex-col gap-[6px] items-end">
+          <select 
+            key={themePackSelectKey} 
+            onChange={(e) => {
+              const v = e.target.value;
+              if(v && v !== "none" && THEME_PACKS[v]) {
+                setSegments([...segments, ...THEME_PACKS[v]]);
+                setTimeout(() => setThemePackSelectKey(Date.now()), 10);
+              }
+            }}
+            className="text-[8px] tracking-[0.1em] uppercase px-[11px] py-[6px] rounded-[8px] border border-[rgba(201,168,76,0.2)] text-[rgba(201,168,76,0.7)] cursor-pointer whitespace-nowrap transition-all duration-200 outline-none appearance-none"
+            style={{ 
+              fontFamily: "'Cinzel', serif",
+              background: "rgba(22,15,42,0.8)", // fallback to match var(--surface2)
+              backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5' fill='none'%3E%3Cpath d='M1 1l3 3L7 1' stroke='rgba(201,168,76,0.7)' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E\")",
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "right 8px center",
+              paddingRight: "22px"
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.borderColor = "rgba(201,168,76,0.4)";
+              e.currentTarget.style.color = "#c9a84c";
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.borderColor = "rgba(201,168,76,0.2)";
+              e.currentTarget.style.color = "rgba(201,168,76,0.7)";
+            }}
+          >
+            <option value="none" style={{ background: "#160f2a" }}>Add Theme Pack ▾</option>
+            <option value="yes_no" style={{ background: "#160f2a" }}>Yes / No / Maybe</option>
+            <option value="elements" style={{ background: "#160f2a" }}>Elements</option>
+            <option value="timing" style={{ background: "#160f2a" }}>Timing</option>
+            <option value="directions" style={{ background: "#160f2a" }}>Directions</option>
+            <option value="zodiac" style={{ background: "#160f2a" }}>Zodiac Signs</option>
+            <option value="planets" style={{ background: "#160f2a" }}>Planets</option>
+            <option value="chakras" style={{ background: "#160f2a" }}>Chakras</option>
+            <option value="seven_sisters" style={{ background: "#160f2a" }}>7 Sisters</option>
+            <option value="spiritual_emoticons" style={{ background: "#160f2a" }}>Spiritual Emoticons</option>
+            <option value="moon_emblems" style={{ background: "#160f2a" }}>Moon Emblems</option>
+            <option value="animal_spirits" style={{ background: "#160f2a" }}>Animal Spirits</option>
+            <option value="rooted_crescent" style={{ background: "#160f2a" }}>Rooted Crescent</option>
+          </select>
+          
+          <div className="flex gap-[6px]">
+             {deckCards && deckCards.length > 0 && (
+              <button 
+                onClick={addAllCards}
+                className="text-[8px] tracking-[0.1em] uppercase px-[12px] py-[7px] rounded-[8px] border-[1px] border-[rgba(201,168,76,0.25)] bg-[rgba(201,168,76,0.08)] text-[#c9a84c] cursor-pointer transition-all duration-200"
+                style={{ fontFamily: "'Cinzel', serif" }}
+                onMouseOver={(e) => e.currentTarget.style.background = "rgba(201,168,76,0.15)"}
+                onMouseOut={(e) => e.currentTarget.style.background = "rgba(201,168,76,0.08)"}
+              >
+                + Cards
+              </button>
+            )}
+            <button 
+              onClick={() => setShowBulkModal(true)}
+              className="text-[8px] tracking-[0.1em] uppercase px-[12px] py-[7px] rounded-[8px] border-[1px] border-[rgba(201,168,76,0.25)] bg-[rgba(201,168,76,0.15)] text-[#c9a84c] cursor-pointer transition-all duration-200"
+              style={{ fontFamily: "'Cinzel', serif" }}
+              onMouseOver={(e) => e.currentTarget.style.background = "rgba(201,168,76,0.25)"}
+              onMouseOut={(e) => e.currentTarget.style.background = "rgba(201,168,76,0.15)"}
+            >
+              Bulk Add
+            </button>
+            <button 
+              onClick={addSegment}
+              className="text-[8px] tracking-[0.1em] uppercase px-[12px] py-[7px] rounded-[8px] border-[1px] border-[rgba(52,211,153,0.25)] bg-[rgba(52,211,153,0.1)] text-[#34d399] cursor-pointer transition-all duration-200"
+              style={{ fontFamily: "'Cinzel', serif" }}
+              onMouseOver={(e) => e.currentTarget.style.background = "rgba(52,211,153,0.2)"}
+              onMouseOut={(e) => e.currentTarget.style.background = "rgba(52,211,153,0.1)"}
+            >
+              + Add Custom
+            </button>
+          </div>
+          
+           {segments.length > 0 && (
+             <div className="flex gap-[6px] mt-1">
+              <button 
+                onClick={handleHarvestSymbols} disabled={isHarvesting}
+                className="text-[7.5px] tracking-[0.1em] uppercase px-[8px] py-[5px] rounded-[6px] border-[1px] border-[rgba(201,168,76,0.25)] bg-[rgba(201,168,76,0.08)] text-[#c9a84c] cursor-pointer transition-all duration-200"
+                style={{ fontFamily: "'Cinzel', serif" }}
+                onMouseOver={(e) => e.currentTarget.style.background = "rgba(201,168,76,0.15)"}
+                onMouseOut={(e) => e.currentTarget.style.background = "rgba(201,168,76,0.08)"}
+              >
+                {isHarvesting ? 'Harvesting...' : 'Harvest Symbols'}
+              </button>
+              <button 
+                onClick={() => {
+                  if (window.confirm("Are you sure you want to clear all segments in this ring?")) {
+                    setSegments([]);
+                  }
+                }}
+                className="text-[7.5px] tracking-[0.1em] uppercase px-[8px] py-[5px] rounded-[6px] border-[1px] border-red-900/40 bg-red-900/20 text-red-400 cursor-pointer transition-all duration-200 hover:bg-red-900/40"
+                style={{ fontFamily: "'Cinzel', serif" }}
+              >
+                Clear
+              </button>
+             </div>
+           )}
 
           <Dialog open={showBulkModal} onOpenChange={setShowBulkModal}>
             <DialogContent className="max-w-xl bg-slate-900 border-amber-600/30 text-amber-100 max-h-[90dvh] overflow-y-auto p-4 md:p-6">
               <DialogHeader>
-                <DialogTitle>Bulk Add Segments</DialogTitle>
+                <DialogTitle style={{ fontFamily: "'Cinzel', serif" }}>Bulk Add Segments</DialogTitle>
               </DialogHeader>
-              <p className="text-sm text-amber-200/60">
+              <p className="text-sm text-amber-200/60" style={{ fontFamily: "'Crimson Text', serif" }}>
                 Paste your segments below. Each line is a segment. Separate Label, Meaning, and Icon with a Tab or Pipe (|).
               </p>
               <Textarea 
                 value={bulkText} 
                 onChange={e => setBulkText(e.target.value)} 
                 placeholder="Label | Meaning | Icon URL or Emoji"
-                className="h-64 bg-black/40 border-amber-500/20 text-sm focus:border-amber-500/50"
+                className="h-64 bg-black/40 border-amber-500/20 text-sm focus:border-amber-500/50 font-mono"
               />
               <DialogFooter>
-                <Button variant="ghost" onClick={() => setShowBulkModal(false)} className="text-amber-200/60 hover:text-amber-200">Cancel</Button>
-                <Button onClick={handleBulkImport} className="bg-amber-600 hover:bg-amber-500 text-white">Import Segments</Button>
+                <Button variant="ghost" onClick={() => setShowBulkModal(false)} className="text-amber-200/60 hover:text-amber-200" style={{ fontFamily: "'Cinzel', serif", letterSpacing: "0.1em" }}>Cancel</Button>
+                <Button onClick={handleBulkImport} className="bg-[#c9a84c] hover:bg-[#a07030] text-[#1a0f05] font-bold" style={{ fontFamily: "'Cinzel', serif", letterSpacing: "0.1em" }}>Import Segments</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
-          {segments.length > 0 && (
-            <Button size="sm" variant="outline" onClick={() => {
-              if (window.confirm("Are you sure you want to clear all segments in this ring?")) {
-                setSegments([]);
-              }
-            }} className="bg-slate-900 border-red-600/40 text-red-400 hover:bg-red-900/40 hover:text-red-200 h-8">
-              <Trash2 className="w-4 h-4 mr-1" /> Clear All
-            </Button>
-          )}
         </div>
       </div>
 
       {segments.length > 0 && (
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-amber-200/50" />
-          <Input
+        <div className="relative mb-[12px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#c9a84c]/50" />
+          <input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={`Search ${segments.length} segments by name, symbol or meaning...`}
-            className="pl-9 bg-black/40 border-amber-500/20 text-sm text-amber-100 focus:border-amber-500/50"
+            className="w-full pl-9 bg-black/40 border border-[#c9a84c]/20 rounded-[8px] text-[13px] text-[#c9a84c] py-[8px] px-[12px] outline-none focus:border-[#c9a84c]/50 transition-colors"
+            style={{ fontFamily: "'Crimson Text', serif" }}
           />
         </div>
       )}
 
-      <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
+      <div className="space-y-[8px] max-h-[400px] overflow-y-auto pr-1 custom-scrollbar">
         {segments.length === 0 && (
-          <div className="text-center text-amber-200/40 py-8 italic">No segments yet. Add one or import JSON.</div>
+          <div className="text-center py-[16px] text-[13px] text-[rgba(201,168,76,0.25)] italic" style={{ fontFamily: "'IM Fell English', serif" }}>
+            No segments yet. Add one or import JSON.
+          </div>
         )}
         {filteredSegments.length === 0 && segments.length > 0 && (
-          <div className="text-center text-amber-200/40 py-8 italic">No segments match your search.</div>
+          <div className="text-center py-[16px] text-[13px] text-[rgba(201,168,76,0.25)] italic" style={{ fontFamily: "'IM Fell English', serif" }}>
+            No segments match your search.
+          </div>
         )}
         {filteredSegments.map((seg) => {
           const i = seg.originalIndex;
@@ -530,19 +584,19 @@ function RingEditor({ ringKey, segments, setSegments, deckCards, onOpenGallery }
             key={seg.originalIndex}
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-black/30 rounded-lg p-3 space-y-2 border border-white/5"
+            className="bg-black/30 rounded-[8px] p-[10px] space-y-[8px] border border-white/5"
           >
-            <div className="flex items-center gap-2">
-              <span className="text-white/40 text-xs w-5 shrink-0">#{i + 1}</span>
-              <div className="flex flex-col gap-1 shrink-0 w-28">
-                <div className="flex gap-1 items-center w-full">
+            <div className="flex items-center gap-[8px]">
+              <span className="text-white/40 text-[10px] w-[20px] shrink-0 font-mono">#{i + 1}</span>
+              <div className="flex flex-col gap-[4px] shrink-0 w-[110px]">
+                <div className="flex gap-[4px] items-center w-full">
                   <div className="relative flex-1 shrink-0">
-                    <Input
+                    <input
                       value={seg.icon}
                       onChange={e => updateSegment(i, "icon", e.target.value)}
                       placeholder="Icon"
                       title={typeof seg.icon === 'string' ? seg.icon : ""}
-                      className={`w-full bg-black/40 border-white/10 peer transition-all h-8 ${isImageSymbol(seg.icon) ? 'text-transparent text-center focus:text-white focus:text-[10px] focus:text-left px-1' : 'text-center text-lg'}`}
+                      className={`w-full bg-black/40 border border-white/10 rounded-[6px] py-[4px] peer transition-all h-[28px] outline-none focus:border-[#c9a84c]/50 ${isImageSymbol(seg.icon) ? 'text-transparent text-center focus:text-white focus:text-[10px] focus:text-left px-[4px]' : 'text-center text-[16px]'}`}
                     />
                     {isImageSymbol(seg.icon) && (
                       <img 
@@ -551,85 +605,111 @@ function RingEditor({ ringKey, segments, setSegments, deckCards, onOpenGallery }
                         loading="lazy"
                         onError={(e) => { e.target.style.opacity = '0'; }}
                         onLoad={(e) => { e.target.style.opacity = '1'; }}
-                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 object-contain pointer-events-none peer-focus:opacity-0 transition-opacity rounded-full" 
+                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[20px] h-[20px] object-contain pointer-events-none peer-focus:opacity-0 transition-opacity rounded-full" 
                       />
                     )}
                   </div>
-                  <Button size="icon" variant="ghost" onClick={() => onOpenGallery && onOpenGallery(i, 'icon')} className="w-7 h-8 text-amber-400 hover:text-amber-300 hover:bg-white/10 shrink-0" title="Icon Gallery">
-                    <ImageIcon className="w-4 h-4" />
-                  </Button>
+                  <button type="button" onClick={() => onOpenGallery && onOpenGallery(i, 'icon')} className="w-[28px] h-[28px] rounded-[6px] bg-black/40 border border-white/10 text-[#c9a84c] hover:text-white hover:bg-white/10 shrink-0 flex items-center justify-center cursor-pointer transition-colors" title="Icon Gallery">
+                    <ImageIcon className="w-[14px] h-[14px]" />
+                  </button>
                 </div>
-                <div className="flex gap-1 items-center w-full">
-                   <Input value={seg.bgImage || ""} onChange={e => updateSegment(i, "bgImage", e.target.value)} placeholder="Bg Texture URL" className="flex-1 text-[10px] h-6 px-1 bg-black/40 border-white/10" />
-                   <Button size="icon" variant="ghost" onClick={() => onOpenGallery && onOpenGallery(i, 'bgImage')} className="w-7 h-6 text-amber-400 hover:text-amber-300 hover:bg-white/10 shrink-0" title="Section Background Gallery">
-                     <ImageIcon className="w-3 h-3" />
-                   </Button>
+                <div className="flex gap-[4px] items-center w-full">
+                   <input 
+                     value={seg.bgImage || ""} onChange={e => updateSegment(i, "bgImage", e.target.value)} 
+                     placeholder="Bg Texture URL" 
+                     className="flex-1 text-[9px] h-[22px] px-[6px] bg-black/40 border border-white/10 rounded-[6px] outline-none focus:border-[#c9a84c]/50" 
+                   />
+                   <button type="button" onClick={() => onOpenGallery && onOpenGallery(i, 'bgImage')} className="w-[22px] h-[22px] rounded-[6px] bg-black/40 border border-white/10 text-[#c9a84c] hover:text-white hover:bg-white/10 shrink-0 flex items-center justify-center cursor-pointer transition-colors" title="Section Background Gallery">
+                     <ImageIcon className="w-[10px] h-[10px]" />
+                   </button>
                 </div>
               </div>
-              <Input
-                value={seg.label}
-                onChange={e => updateSegment(i, "label", e.target.value)}
-                placeholder="Name / Label"
-                className="flex-1 bg-black/40 border-white/10"
-              />
-              <Select value={seg.type} onValueChange={v => updateSegment(i, "type", v)}>
-                <SelectTrigger className="w-28 bg-black/40 border-white/10 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-slate-900 border-slate-700 text-white">
-                  <SelectItem value="custom">Custom</SelectItem>
-                  <SelectItem value="symbol">Symbol</SelectItem>
-                  <SelectItem value="card">Card</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button size="icon" variant="ghost" onClick={() => removeSegment(i)} className="text-red-400 hover:text-red-300 shrink-0">
-                <Trash2 className="w-4 h-4" />
-              </Button>
+              
+              <div className="flex flex-col gap-[4px] flex-1">
+                <input
+                  value={seg.label}
+                  onChange={e => updateSegment(i, "label", e.target.value)}
+                  placeholder="Name / Label"
+                  className="w-full bg-black/40 border border-white/10 rounded-[6px] px-[8px] py-[4px] h-[28px] text-[13px] text-[#e1d7ff] outline-none focus:border-[#c9a84c]/50"
+                  style={{ fontFamily: "'Crimson Text', serif" }}
+                />
+                <select 
+                  value={seg.type} onChange={e => updateSegment(i, "type", e.target.value)}
+                  className="w-full bg-black/40 border border-white/10 rounded-[6px] px-[8px] py-[2px] h-[22px] text-[11px] text-[#e1d7ff] outline-none appearance-none cursor-pointer focus:border-[#c9a84c]/50"
+                  style={{ 
+                    fontFamily: "'Crimson Text', serif",
+                    backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5' fill='none'%3E%3Cpath d='M1 1l3 3L7 1' stroke='%23c9a84c' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E\")",
+                    backgroundRepeat: "no-repeat",
+                    backgroundPosition: "right 8px center",
+                    paddingRight: "20px"
+                  }}
+                >
+                  <option value="custom" style={{ background: "#160f2a" }}>Custom</option>
+                  <option value="symbol" style={{ background: "#160f2a" }}>Symbol</option>
+                  <option value="card" style={{ background: "#160f2a" }}>Card</option>
+                </select>
+              </div>
+
+              <button type="button" onClick={() => removeSegment(i)} className="w-[28px] h-[28px] rounded-[6px] bg-red-900/20 border border-red-900/40 text-red-400 hover:text-red-300 hover:bg-red-900/40 shrink-0 flex items-center justify-center cursor-pointer transition-colors">
+                <Trash2 className="w-[14px] h-[14px]" />
+              </button>
             </div>
 
             {seg.type === "card" && deckCards.length > 0 && (
-              <Select value={seg.card_id || ""} onValueChange={v => updateSegment(i, "card_id", v)}>
-                <SelectTrigger className="bg-black/40 border-white/10 text-xs">
-                  <SelectValue placeholder="Select a card..." />
-                </SelectTrigger>
-                <SelectContent className="bg-slate-900 border-slate-700 text-white max-h-48">
-                  {deckCards.map(c => (
-                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <select 
+                value={seg.card_id || ""} onChange={e => updateSegment(i, "card_id", e.target.value)}
+                className="w-full bg-black/40 border border-white/10 rounded-[6px] px-[8px] py-[6px] text-[12px] text-[#e1d7ff] outline-none appearance-none cursor-pointer focus:border-[#c9a84c]/50"
+                style={{ 
+                  fontFamily: "'Crimson Text', serif",
+                  backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5' fill='none'%3E%3Cpath d='M1 1l3 3L7 1' stroke='%23c9a84c' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E\")",
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "right 8px center"
+                }}
+              >
+                <option value="" disabled style={{ background: "#160f2a", color: "rgba(180,160,220,0.42)" }}>Select a card...</option>
+                {deckCards.map(c => (
+                  <option key={c.id} value={c.id} style={{ background: "#160f2a" }}>{c.name}</option>
+                ))}
+              </select>
             )}
 
-              {seg.type === "symbol" && (
-              <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto p-2 border border-white/5 rounded bg-black/20">
+            {seg.type === "symbol" && (
+              <div className="flex flex-wrap gap-[6px] max-h-[160px] overflow-y-auto p-[8px] border border-white/5 rounded-[6px] bg-black/20 custom-scrollbar">
                 {PRESET_SYMBOLS.map(p => (
                   <button
                     key={p.icon}
                     onClick={() => applyPreset(i, p)}
                     title={`${p.label}: ${p.meaning}`}
-                    className="flex flex-col items-center justify-start p-1 rounded hover:bg-white/10 transition-colors w-16 shrink-0"
+                    className="flex flex-col items-center justify-start p-[4px] rounded-[4px] hover:bg-white/10 transition-colors w-[60px] shrink-0 border-none bg-transparent cursor-pointer"
                   >
                     {isImageSymbol(p.icon) ? (
-                      <img src={getImageUrl(p.icon)} className="w-8 h-8 object-contain filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] bg-black/40 rounded-full border border-white/10" alt={p.label} />
+                      <img src={getImageUrl(p.icon)} className="w-[28px] h-[28px] object-contain filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] bg-black/40 rounded-full border border-white/10" alt={p.label} />
                     ) : (
-                      <span className="text-2xl h-8 flex items-center">{p.icon}</span>
+                      <span className="text-[22px] h-[28px] flex items-center leading-none">{p.icon}</span>
                     )}
-                    <span className="text-[10px] text-amber-200/70 text-center mt-1 w-full truncate leading-tight">{p.label}</span>
+                    <span className="text-[9px] text-[#c9a84c] opacity-70 text-center mt-[4px] w-full truncate leading-tight" style={{ fontFamily: "'Crimson Text', serif" }}>{p.label}</span>
                   </button>
                 ))}
               </div>
             )}
 
-            <Input
+            <input
               value={seg.meaning}
               onChange={e => updateSegment(i, "meaning", e.target.value)}
               placeholder="Full meaning (revealed after spin)"
-              className="bg-black/40 border-white/10 text-sm"
+              className="w-full bg-black/40 border border-white/10 rounded-[6px] px-[8px] py-[6px] text-[13px] text-[#e1d7ff] outline-none focus:border-[#c9a84c]/50"
+              style={{ fontFamily: "'Crimson Text', serif" }}
             />
           </motion.div>
           );
         })}
       </div>
+      <style>{`
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.3); border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(201,168,76,0.5); }
+      `}</style>
     </div>
   );
 }
@@ -637,7 +717,6 @@ function RingEditor({ ringKey, segments, setSegments, deckCards, onOpenGallery }
 import { ROOTED_CARDS_DATA, WHEEL_MIDDLE, WHEEL_INNER } from "@/lib/spiritWheelData";
 import { WHEEL_THEMES } from "@/lib/spiritWheelThemes";
 
-export { RingEditor };
 
 
 export default function SpiritWheelDesigner() {
@@ -860,278 +939,454 @@ export default function SpiritWheelDesigner() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white p-4 md:p-8">
-      <div className="max-w-5xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex items-center gap-4">
-          <Link to={createPageUrl("SpiritWheel")}>
-            <Button variant="ghost" size="icon" className="text-amber-300 hover:text-amber-100">
-              <ChevronLeft className="w-5 h-5" />
-            </Button>
-          </Link>
-          <div className="flex-1">
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl md:text-3xl font-bold text-amber-400 flex items-center gap-2">
-                <Sparkles className="w-6 h-6" /> Spirit Wheel Designer
-              </h1>
-              {editId && (
-                <span className={`px-2 py-1 text-xs font-bold uppercase rounded ${publishStatus === 'published' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40' : 'bg-amber-500/20 text-amber-400 border border-amber-500/40'}`}>
-                  {publishStatus}
-                </span>
-              )}
+    <div className="min-h-screen bg-[#07050f] text-[#e1d7ff] p-0 md:p-8 font-serif" style={{ fontFamily: "'Crimson Text', serif" }}>
+      <div className="max-w-[430px] md:max-w-5xl mx-auto space-y-0 md:space-y-6">
+        
+        {/* Designer Header */}
+        {editingMode && (
+        <div 
+          className="px-[18px] py-[16px] pb-[14px] border-b border-[rgba(160,120,255,0.16)] mb-0 md:mb-6"
+          style={{ background: "linear-gradient(160deg, #1a0f35, #0e0823)" }}
+        >
+          <div className="flex items-start justify-between mb-[14px]">
+            <div>
+              <div 
+                className="text-[16px] tracking-[0.1em] text-[#c9a84c] mb-[3px]"
+                style={{ fontFamily: "'Cinzel', serif" }}
+              >
+                ⊙ Designer
+              </div>
+              <div 
+                className="text-[13px] text-[rgba(180,160,220,0.42)] leading-[1.4]"
+                style={{ fontFamily: "'Crimson Text', serif" }}
+              >
+                Build your custom oracle wheel — form-based with JSON import/export
+              </div>
             </div>
-            <p className="text-sm text-amber-200/60">Build your custom oracle wheel — form-based with JSON import/export</p>
+            
+            <div className="flex flex-col gap-[7px] items-end">
+              <button 
+                onClick={handleCopyJson}
+                className="px-[13px] py-[7px] rounded-[8px] border-[1px] border-[rgba(160,120,255,0.16)] bg-[rgba(255,255,255,0.06)] text-[rgba(225,215,255,0.9)] whitespace-nowrap transition-all duration-200 cursor-pointer flex items-center gap-[5px]"
+                style={{ fontFamily: "'Cinzel', serif", fontSize: "8.5px", letterSpacing: "0.1em", textTransform: "uppercase" }}
+              >
+                📋 Copy JSON
+              </button>
+              <button 
+                onClick={() => handleSave("draft")} disabled={isSaving}
+                className="px-[13px] py-[7px] rounded-[8px] border-[1px] border-[rgba(160,120,255,0.16)] bg-[rgba(255,255,255,0.06)] text-[rgba(225,215,255,0.9)] whitespace-nowrap transition-all duration-200 cursor-pointer flex items-center gap-[5px]"
+                style={{ fontFamily: "'Cinzel', serif", fontSize: "8.5px", letterSpacing: "0.1em", textTransform: "uppercase" }}
+              >
+                💾 Save Draft
+              </button>
+              <button 
+                onClick={() => handleSave("published")} disabled={isSaving}
+                className="px-[13px] py-[7px] rounded-[8px] border-none text-[#1a0f05] font-bold whitespace-nowrap transition-all duration-200 cursor-pointer flex items-center gap-[5px]"
+                style={{ 
+                  fontFamily: "'Cinzel', serif", fontSize: "8.5px", letterSpacing: "0.1em", textTransform: "uppercase",
+                  background: "linear-gradient(135deg, #8B6914, #c9a84c)"
+                }}
+              >
+                ✦ Publish
+              </button>
+            </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2 justify-end">
-            <div className="flex items-center gap-2 bg-slate-900 border border-white/10 px-3 py-1.5 rounded-md mr-2 shadow-inner">
-              <Label className="text-amber-200 text-sm font-semibold cursor-pointer" htmlFor="editing-mode-switch">Editing Mode</Label>
+          
+          <div className="flex justify-between items-center mt-2 border-t border-[rgba(160,120,255,0.16)] pt-3">
+             <div className="flex items-center gap-2">
+              <Label className="text-[#c9a84c] text-xs font-semibold cursor-pointer" style={{ fontFamily: "'Cinzel', serif" }} htmlFor="editing-mode-switch">Editing Mode</Label>
               <Switch id="editing-mode-switch" checked={editingMode} onCheckedChange={(v) => {
                 if (!v && !editId) {
                   alert("Please save the wheel first to preview it.");
                   return;
                 }
                 setEditingMode(v);
-              }} className="data-[state=checked]:bg-amber-500" />
+              }} className="data-[state=checked]:bg-[#c9a84c] scale-75" />
             </div>
-
-            {editingMode && (
-              <>
-                <Button variant="outline" onClick={() => setShowJsonPanel(!showJsonPanel)} className="bg-slate-900 border-amber-600/40 text-amber-300 hover:bg-amber-900/40 hover:text-amber-200">
-                  <Upload className="w-4 h-4 mr-2" /> Import JSON
+            <div className="flex gap-2">
+                <Button variant="ghost" size="sm" onClick={() => setShowJsonPanel(!showJsonPanel)} className="h-6 text-[9px] border border-[rgba(160,120,255,0.16)] text-[#c9a84c] hover:bg-[#c9a84c]/20 rounded" style={{ fontFamily: "'Cinzel', serif", letterSpacing: "0.05em" }}>
+                  JSON IN
                 </Button>
-                <Button variant="outline" onClick={handleExportJson} className="bg-slate-900 border-amber-600/40 text-amber-300 hover:bg-amber-900/40 hover:text-amber-200">
-                  <Download className="w-4 h-4 mr-2" /> Export JSON
+                <Button variant="ghost" size="sm" onClick={handleExportJson} className="h-6 text-[9px] border border-[rgba(160,120,255,0.16)] text-[#c9a84c] hover:bg-[#c9a84c]/20 rounded" style={{ fontFamily: "'Cinzel', serif", letterSpacing: "0.05em" }}>
+                  JSON OUT
                 </Button>
-                <Button variant="outline" onClick={handleCopyJson} className="bg-slate-900 border-amber-600/40 text-amber-300 hover:bg-amber-900/40 hover:text-amber-200">
-                  <Copy className="w-4 h-4 mr-2" /> Copy JSON
-                </Button>
-                {editId && (
-                  <Button variant="outline" onClick={handleDelete} disabled={isSaving} className="bg-slate-900 border-red-600/40 text-red-400 hover:bg-red-900/40 hover:text-red-200">
-                    <Trash2 className="w-4 h-4 mr-2" /> Delete
+                 {editId && (
+                  <Button variant="ghost" size="sm" onClick={handleDelete} disabled={isSaving} className="h-6 text-[9px] border border-red-900/40 text-red-400 hover:bg-red-900/40 rounded" style={{ fontFamily: "'Cinzel', serif", letterSpacing: "0.05em" }}>
+                    DEL
                   </Button>
                 )}
-                <Button variant="outline" onClick={() => handleSave("draft")} disabled={isSaving} className="bg-slate-900 border-amber-600/40 text-amber-300 hover:bg-amber-900/40 hover:text-amber-200">
-                  <Save className="w-4 h-4 mr-2" /> Save Draft
-                </Button>
-                <Button onClick={() => handleSave("published")} disabled={isSaving} className="bg-amber-600 hover:bg-amber-500 text-white">
-                  <Sparkles className="w-4 h-4 mr-2" /> Publish
-                </Button>
-              </>
-            )}
+            </div>
           </div>
         </div>
+        )}
+
+        {/* Back to full app header when NOT editing on desktop to match rest of app, hidden on mobile since tabs take over */}
+        {!editingMode && (
+          <div className="hidden md:flex items-center gap-4 mb-6">
+             <div className="flex items-center gap-2 bg-[#160f2a] border border-[rgba(160,120,255,0.16)] px-3 py-1.5 rounded-md shadow-inner">
+                <Label className="text-[#c9a84c] text-sm font-semibold cursor-pointer" style={{ fontFamily: "'Cinzel', serif" }} htmlFor="editing-mode-switch-desk">Editing Mode</Label>
+                <Switch id="editing-mode-switch-desk" checked={editingMode} onCheckedChange={(v) => {
+                  if (!v && !editId) {
+                    alert("Please save the wheel first to preview it.");
+                    return;
+                  }
+                  setEditingMode(v);
+                }} className="data-[state=checked]:bg-[#c9a84c]" />
+              </div>
+          </div>
+        )}
 
         {!editingMode ? (
-          <div className="bg-slate-900 border border-white/20 rounded-xl overflow-hidden shadow-2xl h-[85vh]">
+          <div className="bg-[#0f0b1e] border border-[rgba(160,120,255,0.16)] rounded-none md:rounded-[14px] overflow-hidden shadow-2xl h-[100vh] md:h-[85vh] -mx-4 md:mx-0">
             <iframe src={`${createPageUrl("SpiritWheel")}?id=${editId}`} className="w-full h-full border-0" />
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-0 md:space-y-6">
 
         {/* JSON Import Panel */}
         {showJsonPanel && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-slate-900 border border-amber-600/30 rounded-xl p-5 space-y-3"
+            className="bg-[#0f0b1e] border border-[rgba(160,120,255,0.16)] rounded-[14px] p-[15px] mb-[13px] mx-[18px] md:mx-0"
           >
-            <h3 className="font-semibold text-amber-300">Paste your JSON configuration below:</h3>
+            <h3 className="font-semibold text-[#c9a84c] mb-2" style={{ fontFamily: "'Cinzel', serif", fontSize: "11px", letterSpacing: "0.14em", textTransform: "uppercase" }}>JSON Import</h3>
             <Textarea
               value={jsonImportText}
               onChange={e => setJsonImportText(e.target.value)}
               placeholder='{"name": "My Wheel", "outer_ring": [...], "middle_ring": [...], "inner_ring": [...]}'
-              className="min-h-[180px] bg-black/50 border-white/10 font-mono text-sm"
+              className="min-h-[180px] bg-[#160f2a] border-[rgba(160,120,255,0.16)] text-[#e1d7ff] font-mono text-xs rounded-[9px] mb-3"
             />
-            {jsonError && <p className="text-red-400 text-sm">{jsonError}</p>}
+            {jsonError && <p className="text-[#ef4444] text-xs mb-3">{jsonError}</p>}
             <div className="flex gap-2">
-              <Button onClick={handleImportJson} className="bg-emerald-600 hover:bg-emerald-500">Import</Button>
-              <Button variant="ghost" onClick={() => setShowJsonPanel(false)} className="text-white/60">Cancel</Button>
+              <Button onClick={handleImportJson} className="bg-[#3d2008] border border-[rgba(201,168,76,0.3)] hover:bg-[#5c3310] text-[rgba(240,220,170,0.9)] rounded-[12px] h-8 text-[10px]" style={{ fontFamily: "'Cinzel', serif", letterSpacing: "0.1em" }}>Import</Button>
+              <Button variant="ghost" onClick={() => setShowJsonPanel(false)} className="text-[rgba(180,160,220,0.42)] hover:bg-white/5 hover:text-white rounded-[12px] h-8 text-[10px]" style={{ fontFamily: "'Cinzel', serif", letterSpacing: "0.1em" }}>Cancel</Button>
             </div>
           </motion.div>
         )}
 
         {/* Basic Info & Theme Preview */}
-        <div className="grid lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-slate-900/70 border border-white/10 rounded-xl p-5 space-y-4">
-          <h2 className="font-semibold text-white text-lg">Wheel Info</h2>
-          <div className="grid md:grid-cols-2 gap-4">
+        <div className="flex flex-col md:grid md:grid-cols-3 gap-0 md:gap-6 px-[18px] md:px-0">
+        
+        <div className="md:col-span-2 bg-[#0f0b1e] border border-[rgba(160,120,255,0.16)] rounded-[14px] p-[15px] mb-[13px] md:mb-0">
+          <div 
+            className="text-[11px] tracking-[0.14em] uppercase text-[#c9a84c] mb-[13px]"
+            style={{ fontFamily: "'Cinzel', serif" }}
+          >
+            Wheel Info
+          </div>
+          
+          <div className="space-y-[11px]">
             <div>
-              <Label className="text-amber-200/80">Wheel Name *</Label>
-              <Input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Love Reading Wheel" className="bg-black/40 border-white/10 mt-1" />
+              <div 
+                className="text-[9px] tracking-[0.18em] uppercase text-[rgba(180,160,220,0.42)] mb-[5px]"
+                style={{ fontFamily: "'Cinzel', serif" }}
+              >
+                Wheel Name <span className="text-[#ef4444] ml-[2px]">*</span>
+              </div>
+              <input 
+                className="w-full bg-[#160f2a] border border-[rgba(160,120,255,0.16)] rounded-[9px] px-[13px] py-[10px] text-[15px] text-[rgba(225,215,255,0.9)] outline-none transition-colors duration-250 placeholder-[rgba(180,160,220,0.42)] focus:border-[rgba(201,168,76,0.4)]"
+                style={{ fontFamily: "'Crimson Text', serif" }}
+                value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Love Reading Wheel" 
+              />
             </div>
+            
             <div>
-              <Label className="text-amber-200/80">Source Deck (for card segments)</Label>
-              <Select value={deckId} onValueChange={setDeckId}>
-                <SelectTrigger className="bg-black/40 border-white/10 mt-1">
-                  <SelectValue placeholder="None" />
-                </SelectTrigger>
-                <SelectContent className="bg-slate-900 border-slate-700 text-white max-h-64">
-                  <SelectItem value="none">None</SelectItem>
-                  {decks.map(d => <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <div 
+                className="text-[9px] tracking-[0.18em] uppercase text-[rgba(180,160,220,0.42)] mb-[5px]"
+                style={{ fontFamily: "'Cinzel', serif" }}
+              >
+                Source Deck (for card segments)
+              </div>
+              <select 
+                className="w-full bg-[#160f2a] border border-[rgba(160,120,255,0.16)] rounded-[9px] px-[13px] py-[10px] text-[15px] text-[rgba(225,215,255,0.9)] outline-none appearance-none cursor-pointer"
+                style={{ 
+                  fontFamily: "'Crimson Text', serif",
+                  backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' fill='none'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%23c9a84c' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E\")",
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "right 13px center"
+                }}
+                value={deckId} onChange={e => setDeckId(e.target.value)}
+              >
+                <option value="none" style={{ background: "#160f2a" }}>None</option>
+                {decks.map(d => <option key={d.id} value={d.id} style={{ background: "#160f2a" }}>{d.name}</option>)}
+              </select>
             </div>
-            <div className="md:col-span-2">
-              <Label className="text-amber-200/80">Description</Label>
-              <Input value={description} onChange={e => setDescription(e.target.value)} placeholder="What is this wheel for?" className="bg-black/40 border-white/10 mt-1" />
-            </div>
+            
             <div>
-              <Label className="text-amber-200/80">Default Visual Theme</Label>
-              <Select value={themeId} onValueChange={setThemeId}>
-                <SelectTrigger className="bg-black/40 border-white/10 mt-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-slate-900 border-slate-700 text-white">
-                  <SelectItem value="wood">Classic Wood</SelectItem>
-                  <SelectItem value="galaxy">Cosmic Galaxy</SelectItem>
-                  <SelectItem value="neon">Cyber Neon</SelectItem>
-                  <SelectItem value="parchment">Ancient Parchment</SelectItem>
-                  <SelectItem value="stone_led">Stone + LED</SelectItem>
-                  <SelectItem value="metatron">Sacred Geometry</SelectItem>
-                  <SelectItem value="custom">Custom Build...</SelectItem>
-                </SelectContent>
-              </Select>
+              <div 
+                className="text-[9px] tracking-[0.18em] uppercase text-[rgba(180,160,220,0.42)] mb-[5px]"
+                style={{ fontFamily: "'Cinzel', serif" }}
+              >
+                Description
+              </div>
+              <textarea 
+                className="w-full bg-[#160f2a] border border-[rgba(160,120,255,0.16)] rounded-[9px] px-[13px] py-[10px] text-[15px] text-[rgba(225,215,255,0.9)] outline-none transition-colors duration-250 placeholder-[rgba(180,160,220,0.42)] focus:border-[rgba(201,168,76,0.4)] min-h-[68px] resize-none leading-[1.5]"
+                style={{ fontFamily: "'Crimson Text', serif" }}
+                value={description} onChange={e => setDescription(e.target.value)} placeholder="What is this wheel for?" 
+              />
             </div>
-              <div className="md:col-span-2 grid grid-cols-2 md:grid-cols-4 gap-4 mt-2 bg-black/30 p-4 rounded-lg border border-[#5c3a21]">
-                <div className="col-span-2 md:col-span-4 flex justify-between items-center mb-2 pb-2 border-b border-[#5c3a21]/50">
-                  <span className="text-amber-300 font-semibold text-sm">Theme Colors & Textures</span>
-                  <span className="text-xs text-amber-200/50 italic">Editing these will switch to Custom theme</span>
+            
+            <div>
+              <div 
+                className="text-[9px] tracking-[0.18em] uppercase text-[rgba(180,160,220,0.42)] mb-[5px]"
+                style={{ fontFamily: "'Cinzel', serif" }}
+              >
+                Default Visual Theme
+              </div>
+              <select 
+                className="w-full bg-[#160f2a] border border-[rgba(160,120,255,0.16)] rounded-[9px] px-[13px] py-[10px] text-[15px] text-[rgba(225,215,255,0.9)] outline-none appearance-none cursor-pointer mb-[12px]"
+                style={{ 
+                  fontFamily: "'Crimson Text', serif",
+                  backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' fill='none'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%23c9a84c' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E\")",
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "right 13px center"
+                }}
+                value={themeId} onChange={e => setThemeId(e.target.value)}
+              >
+                <option value="wood" style={{ background: "#160f2a" }}>Classic Wood</option>
+                <option value="galaxy" style={{ background: "#160f2a" }}>Cosmic Galaxy</option>
+                <option value="neon" style={{ background: "#160f2a" }}>Cyber Neon</option>
+                <option value="parchment" style={{ background: "#160f2a" }}>Ancient Parchment</option>
+                <option value="stone_led" style={{ background: "#160f2a" }}>Stone + LED</option>
+                <option value="metatron" style={{ background: "#160f2a" }}>Sacred Geometry</option>
+                <option value="custom" style={{ background: "#160f2a" }}>Custom Build...</option>
+              </select>
+            </div>
+            
+            {/* Theme Colors Section matching the new design */}
+            <div className="mt-4 pt-4 border-t border-[rgba(160,120,255,0.16)]">
+              <div className="flex items-center gap-2 mb-[12px]">
+                <div 
+                  className="text-[11px] tracking-[0.14em] uppercase text-[#c9a84c]"
+                  style={{ fontFamily: "'Cinzel', serif" }}
+                >
+                  Theme Colors & Textures
                 </div>
+                <span 
+                  className="text-[rgba(180,160,220,0.42)] text-[11px]" 
+                  style={{ fontFamily: "'IM Fell English', serif", fontStyle: "italic" }}
+                >
+                  Editing will switch to Custom theme
+                </span>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-[12px]">
                 <div>
-                  <Label className="text-amber-200/80 text-xs">Outer Ring</Label>
-                  <div className="flex gap-2 mt-1 mb-1">
-                    <input type="color" value={customTheme.outerBg} onChange={e => setCustomTheme({...customTheme, outerBg: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" title="Background" />
-                    <input type="color" value={customTheme.outerGrad} onChange={e => setCustomTheme({...customTheme, outerGrad: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" title="Gradient" />
-                  </div>
-                  <div className="flex gap-1 items-center mt-1">
-                    <Input value={customTheme.outerTextureUrl ?? customTheme.textureUrl ?? ''} onChange={e => setCustomTheme({...customTheme, outerTextureUrl: e.target.value})} placeholder="Texture URL" className="bg-black/40 border-white/10 text-[10px] h-6 px-1 flex-1" />
-                    <Button type="button" variant="ghost" className="w-6 h-6 p-0 text-amber-400 hover:text-amber-300 hover:bg-white/10 shrink-0" onClick={() => setLibraryTargetField('outerTextureUrl')} title="Gallery">
-                      <ImageIcon className="w-3 h-3" />
-                    </Button>
-                  </div>
-                </div>
-                <div>
-                  <Label className="text-amber-200/80 text-xs">Middle Ring</Label>
-                  <div className="flex gap-2 mt-1 mb-1">
-                    <input type="color" value={customTheme.middleBg} onChange={e => setCustomTheme({...customTheme, middleBg: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
-                    <input type="color" value={customTheme.middleGrad} onChange={e => setCustomTheme({...customTheme, middleGrad: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
-                  </div>
-                  <div className="flex gap-1 items-center mt-1">
-                    <Input value={customTheme.middleTextureUrl ?? customTheme.textureUrl ?? ''} onChange={e => setCustomTheme({...customTheme, middleTextureUrl: e.target.value})} placeholder="Texture URL" className="bg-black/40 border-white/10 text-[10px] h-6 px-1 flex-1" />
-                    <Button type="button" variant="ghost" className="w-6 h-6 p-0 text-amber-400 hover:text-amber-300 hover:bg-white/10 shrink-0" onClick={() => setLibraryTargetField('middleTextureUrl')} title="Gallery">
-                      <ImageIcon className="w-3 h-3" />
-                    </Button>
-                  </div>
-                </div>
-                <div>
-                  <Label className="text-amber-200/80 text-xs">Inner Ring</Label>
-                  <div className="flex gap-2 mt-1 mb-1">
-                    <input type="color" value={customTheme.innerBg} onChange={e => setCustomTheme({...customTheme, innerBg: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
-                    <input type="color" value={customTheme.innerGrad} onChange={e => setCustomTheme({...customTheme, innerGrad: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" />
-                  </div>
-                  <div className="flex gap-1 items-center mt-1">
-                    <Input value={customTheme.innerTextureUrl ?? customTheme.textureUrl ?? ''} onChange={e => setCustomTheme({...customTheme, innerTextureUrl: e.target.value})} placeholder="Texture URL" className="bg-black/40 border-white/10 text-[10px] h-6 px-1 flex-1" />
-                    <Button type="button" variant="ghost" className="w-6 h-6 p-0 text-amber-400 hover:text-amber-300 hover:bg-white/10 shrink-0" onClick={() => setLibraryTargetField('innerTextureUrl')} title="Gallery">
-                      <ImageIcon className="w-3 h-3" />
-                    </Button>
-                  </div>
-                </div>
-                <div>
-                  <Label className="text-amber-200/80 text-xs">Text & Dots</Label>
-                  <div className="flex gap-2 mt-1">
-                    <input type="color" value={customTheme.textOuter} onChange={e => setCustomTheme({...customTheme, textOuter: e.target.value, textMiddle: e.target.value, textInner: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" title="Text Color" />
-                    <input type="color" value={customTheme.pin} onChange={e => setCustomTheme({...customTheme, pin: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" title="Pin Color" />
-                  </div>
-                </div>
-                <div>
-                  <Label className="text-amber-200/80 text-xs">Borders</Label>
-                  <div className="flex gap-2 mt-1">
-                    <input type="color" value={customTheme.outerBorder} onChange={e => setCustomTheme({...customTheme, outerBorder: e.target.value, middleBorder: e.target.value, innerBorder: e.target.value, hubBorder: e.target.value, divider: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer shrink-0" title="Border Color" />
-                    <Input type="number" min="0" max="20" value={customTheme.borderThickness ?? 6} onChange={e => setCustomTheme({...customTheme, borderThickness: Number(e.target.value)})} className="w-16 bg-black/40 border-white/10 text-xs h-8" title="Thickness (px)" />
-                    <Select value={customTheme.borderStyle || "solid"} onValueChange={v => setCustomTheme({...customTheme, borderStyle: v})}>
-                      <SelectTrigger className="bg-black/40 border-white/10 text-xs h-8 flex-1">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-slate-900 border-slate-700 text-white">
-                        <SelectItem value="solid">Solid</SelectItem>
-                        <SelectItem value="dashed">Dashed</SelectItem>
-                        <SelectItem value="dotted">Dotted</SelectItem>
-                        <SelectItem value="double">Double</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div>
-                  <Label className="text-amber-200/80 text-xs">Page Bg Color</Label>
-                  <div className="flex gap-2 mt-1">
-                    <input type="color" value={customTheme.pageBg || "#0f172a"} onChange={e => setCustomTheme({...customTheme, pageBg: e.target.value})} className="w-8 h-8 rounded border-none bg-transparent cursor-pointer" title="Page Background Color" />
-                  </div>
-                </div>
-                <div className="col-span-2 hidden">
-                  <Label className="text-amber-200/80 text-xs">Global Texture URL</Label>
-                  <div className="flex gap-2 mt-1">
-                    <Input value={customTheme.textureUrl} onChange={e => setCustomTheme({...customTheme, textureUrl: e.target.value})} placeholder="https://..." className="bg-black/40 border-white/10 text-xs h-8 flex-1" />
-                  </div>
-                </div>
-                <div className="col-span-2">
-                  <Label className="text-amber-200/80 text-xs block mb-1">Layer & Blending Options</Label>
-                  <div className="flex gap-2">
-                    <Select value={customTheme.layerOrder || 'texture_top'} onValueChange={v => setCustomTheme({...customTheme, layerOrder: v})}>
-                      <SelectTrigger className="bg-black/40 border-white/10 text-xs h-8 flex-1" title="Layer Order">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-slate-900 border-slate-700 text-white">
-                        <SelectItem value="texture_top">Texture on Top</SelectItem>
-                        <SelectItem value="color_top">Color on Top</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <div className="flex items-center gap-2 bg-black/40 border border-white/10 rounded-md px-2 h-8">
-                      <span className="text-xs text-amber-200/60 whitespace-nowrap">Top Opacity:</span>
-                      <Input type="number" min="0" max="100" value={customTheme.topLayerOpacity !== undefined ? Math.round(customTheme.topLayerOpacity * 100) : 100} onChange={e => setCustomTheme({...customTheme, topLayerOpacity: Number(e.target.value)/100})} className="w-12 bg-transparent border-none text-xs h-6 p-0 text-center focus-visible:ring-0 outline-none" />
-                      <span className="text-xs text-amber-200/60">%</span>
+                  <div className="text-[8.5px] tracking-[0.14em] uppercase text-[rgba(180,160,220,0.42)] mb-[6px]" style={{ fontFamily: "'Cinzel', serif" }}>Outer Ring</div>
+                  <div className="flex gap-[6px] mb-[6px]">
+                    <div className="w-[30px] h-[30px] rounded-[7px] cursor-pointer border-[2px] border-[rgba(255,255,255,0.15)] transition-transform duration-200 hover:scale-110 overflow-hidden relative" style={{ background: customTheme.outerBg }}>
+                      <input type="color" value={customTheme.outerBg} onChange={e => setCustomTheme({...customTheme, outerBg: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Background" />
                     </div>
-                    <Select value={customTheme.blendMode || 'multiply'} onValueChange={v => setCustomTheme({...customTheme, blendMode: v})}>
-                      <SelectTrigger className="bg-black/40 border-white/10 text-xs h-8 flex-1" title="Blend Mode">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-slate-900 border-slate-700 text-white">
-                        <SelectItem value="normal">Normal</SelectItem>
-                        <SelectItem value="multiply">Multiply</SelectItem>
-                        <SelectItem value="overlay">Overlay</SelectItem>
-                        <SelectItem value="screen">Screen</SelectItem>
-                        <SelectItem value="soft-light">Soft Light</SelectItem>
-                        <SelectItem value="hard-light">Hard Light</SelectItem>
-                        <SelectItem value="color-burn">Color Burn</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <div className="w-[30px] h-[30px] rounded-[7px] cursor-pointer border-[2px] border-[rgba(255,255,255,0.15)] transition-transform duration-200 hover:scale-110 overflow-hidden relative" style={{ background: customTheme.outerGrad }}>
+                      <input type="color" value={customTheme.outerGrad} onChange={e => setCustomTheme({...customTheme, outerGrad: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Gradient" />
+                    </div>
+                  </div>
+                  <div className="flex w-full items-center gap-[6px]">
+                    <input 
+                      value={customTheme.outerTextureUrl ?? customTheme.textureUrl ?? ''} onChange={e => setCustomTheme({...customTheme, outerTextureUrl: e.target.value})} 
+                      placeholder="https://www.transparenttex…" 
+                      className="w-full bg-[#160f2a] border border-[rgba(160,120,255,0.16)] rounded-[7px] px-[8px] py-[6px] text-[12px] text-[rgba(180,160,220,0.42)] outline-none flex-1"
+                      style={{ fontFamily: "'Crimson Text', serif" }}
+                    />
+                    <button type="button" onClick={() => setLibraryTargetField('outerTextureUrl')} className="shrink-0 bg-[#160f2a] border border-[rgba(160,120,255,0.16)] rounded-[7px] w-[30px] h-[30px] flex items-center justify-center text-[rgba(180,160,220,0.8)] cursor-pointer hover:border-[rgba(167,139,250,0.5)] transition-colors">
+                      🖼
+                    </button>
                   </div>
                 </div>
-                <div className="col-span-2">
-                  <Label className="text-amber-200/80 text-xs">Page Background Image URL</Label>
-                  <div className="flex gap-2 mt-1">
-                    <Input value={customTheme.pageBgImage || ""} onChange={e => setCustomTheme({...customTheme, pageBgImage: e.target.value})} placeholder="https://..." className="bg-black/40 border-white/10 text-xs h-8 flex-1" />
-                    <Button type="button" variant="outline" className="border-amber-500/60 text-amber-300 hover:bg-amber-500/20 shrink-0 h-8 text-xs" onClick={() => setLibraryTargetField('pageBgImage')}>
-                      <ImageIcon className="w-3 h-3 mr-1" /> Gallery
-                    </Button>
-                  </div>
-                </div>
-                <div className="col-span-2 md:col-span-4 mt-2">
-                  <Label className="text-amber-200/80 text-xs block mb-2">Advanced Optical Effects</Label>
-                  <div className="flex flex-wrap gap-4">
 
-                    <label className="flex items-center gap-2 text-xs text-amber-200/80 bg-black/40 px-3 py-2 rounded-lg border border-white/10 cursor-pointer hover:bg-white/5 transition-colors">
-                      <input type="checkbox" checked={customTheme.stroboscopic || false} onChange={e => setCustomTheme({...customTheme, stroboscopic: e.target.checked})} className="accent-amber-500 w-4 h-4" />
-                      Stroboscopic Mode (Persistence of Vision Flicker)
-                    </label>
+                <div>
+                  <div className="text-[8.5px] tracking-[0.14em] uppercase text-[rgba(180,160,220,0.42)] mb-[6px]" style={{ fontFamily: "'Cinzel', serif" }}>Middle Ring</div>
+                  <div className="flex gap-[6px] mb-[6px]">
+                    <div className="w-[30px] h-[30px] rounded-[7px] cursor-pointer border-[2px] border-[rgba(255,255,255,0.15)] transition-transform duration-200 hover:scale-110 overflow-hidden relative" style={{ background: customTheme.middleBg }}>
+                      <input type="color" value={customTheme.middleBg} onChange={e => setCustomTheme({...customTheme, middleBg: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" />
+                    </div>
+                    <div className="w-[30px] h-[30px] rounded-[7px] cursor-pointer border-[2px] border-[rgba(255,255,255,0.15)] transition-transform duration-200 hover:scale-110 overflow-hidden relative" style={{ background: customTheme.middleGrad }}>
+                      <input type="color" value={customTheme.middleGrad} onChange={e => setCustomTheme({...customTheme, middleGrad: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" />
+                    </div>
+                  </div>
+                  <div className="flex w-full items-center gap-[6px]">
+                    <input 
+                      value={customTheme.middleTextureUrl ?? customTheme.textureUrl ?? ''} onChange={e => setCustomTheme({...customTheme, middleTextureUrl: e.target.value})} 
+                      placeholder="https://www.transparenttex…" 
+                      className="w-full bg-[#160f2a] border border-[rgba(160,120,255,0.16)] rounded-[7px] px-[8px] py-[6px] text-[12px] text-[rgba(180,160,220,0.42)] outline-none flex-1"
+                      style={{ fontFamily: "'Crimson Text', serif" }}
+                    />
+                    <button type="button" onClick={() => setLibraryTargetField('middleTextureUrl')} className="shrink-0 bg-[#160f2a] border border-[rgba(160,120,255,0.16)] rounded-[7px] w-[30px] h-[30px] flex items-center justify-center text-[rgba(180,160,220,0.8)] cursor-pointer hover:border-[rgba(167,139,250,0.5)] transition-colors">
+                      🖼
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-[8.5px] tracking-[0.14em] uppercase text-[rgba(180,160,220,0.42)] mb-[6px]" style={{ fontFamily: "'Cinzel', serif" }}>Inner Ring</div>
+                  <div className="flex gap-[6px] mb-[6px]">
+                    <div className="w-[30px] h-[30px] rounded-[7px] cursor-pointer border-[2px] border-[rgba(255,255,255,0.15)] transition-transform duration-200 hover:scale-110 overflow-hidden relative" style={{ background: customTheme.innerBg }}>
+                      <input type="color" value={customTheme.innerBg} onChange={e => setCustomTheme({...customTheme, innerBg: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" />
+                    </div>
+                    <div className="w-[30px] h-[30px] rounded-[7px] cursor-pointer border-[2px] border-[rgba(255,255,255,0.15)] transition-transform duration-200 hover:scale-110 overflow-hidden relative" style={{ background: customTheme.innerGrad }}>
+                      <input type="color" value={customTheme.innerGrad} onChange={e => setCustomTheme({...customTheme, innerGrad: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" />
+                    </div>
+                  </div>
+                  <div className="flex w-full items-center gap-[6px]">
+                    <input 
+                      value={customTheme.innerTextureUrl ?? customTheme.textureUrl ?? ''} onChange={e => setCustomTheme({...customTheme, innerTextureUrl: e.target.value})} 
+                      placeholder="https://www.transparenttex…" 
+                      className="w-full bg-[#160f2a] border border-[rgba(160,120,255,0.16)] rounded-[7px] px-[8px] py-[6px] text-[12px] text-[rgba(180,160,220,0.42)] outline-none flex-1"
+                      style={{ fontFamily: "'Crimson Text', serif" }}
+                    />
+                    <button type="button" onClick={() => setLibraryTargetField('innerTextureUrl')} className="shrink-0 bg-[#160f2a] border border-[rgba(160,120,255,0.16)] rounded-[7px] w-[30px] h-[30px] flex items-center justify-center text-[rgba(180,160,220,0.8)] cursor-pointer hover:border-[rgba(167,139,250,0.5)] transition-colors">
+                      🖼
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-[8.5px] tracking-[0.14em] uppercase text-[rgba(180,160,220,0.42)] mb-[6px]" style={{ fontFamily: "'Cinzel', serif" }}>Text & Dots</div>
+                  <div className="flex gap-[6px] mb-[6px]">
+                    <div className="w-[30px] h-[30px] rounded-[7px] cursor-pointer border-[2px] border-[rgba(255,255,255,0.15)] transition-transform duration-200 hover:scale-110 overflow-hidden relative" style={{ background: customTheme.textOuter || "#2a1505" }}>
+                      <input type="color" value={customTheme.textOuter || "#2a1505"} onChange={e => setCustomTheme({...customTheme, textOuter: e.target.value, textMiddle: e.target.value, textInner: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Text Color" />
+                    </div>
+                    <div className="w-[30px] h-[30px] rounded-[7px] cursor-pointer border-[2px] border-[rgba(255,255,255,0.15)] transition-transform duration-200 hover:scale-110 overflow-hidden relative" style={{ background: customTheme.pin || "#f5f5f5" }}>
+                      <input type="color" value={customTheme.pin || "#f5f5f5"} onChange={e => setCustomTheme({...customTheme, pin: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Pin Color" />
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <div className="mt-[12px]">
+                <div className="text-[9px] tracking-[0.18em] uppercase text-[rgba(180,160,220,0.42)] mb-[6px]" style={{ fontFamily: "'Cinzel', serif" }}>Borders</div>
+                <div className="flex gap-[8px] items-center">
+                  <div className="w-[32px] h-[32px] rounded-[7px] cursor-pointer border-[2px] border-[rgba(201,168,76,0.2)] overflow-hidden relative" style={{ background: customTheme.outerBorder || "#2a1505" }}>
+                    <input type="color" value={customTheme.outerBorder || "#2a1505"} onChange={e => setCustomTheme({...customTheme, outerBorder: e.target.value, middleBorder: e.target.value, innerBorder: e.target.value, hubBorder: e.target.value, divider: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Border Color" />
+                  </div>
+                  <input 
+                    type="number" min="0" max="20" 
+                    value={customTheme.borderThickness ?? 6} 
+                    onChange={e => setCustomTheme({...customTheme, borderThickness: Number(e.target.value)})} 
+                    className="w-[52px] bg-[#160f2a] border border-[rgba(160,120,255,0.16)] rounded-[7px] px-[9px] py-[7px] text-[14px] text-[rgba(225,215,255,0.9)] outline-none text-center"
+                    style={{ fontFamily: "'Crimson Text', serif" }}
+                  />
+                  <select 
+                    value={customTheme.borderStyle || "solid"} 
+                    onChange={e => setCustomTheme({...customTheme, borderStyle: e.target.value})}
+                    className="flex-1 bg-[#160f2a] border border-[rgba(160,120,255,0.16)] rounded-[7px] px-[10px] py-[7px] text-[14px] text-[rgba(225,215,255,0.9)] outline-none appearance-none cursor-pointer"
+                    style={{ 
+                      fontFamily: "'Crimson Text', serif",
+                      backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' fill='none'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%23c9a84c' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E\")",
+                      backgroundRepeat: "no-repeat",
+                      backgroundPosition: "right 10px center"
+                    }}
+                  >
+                    <option value="solid" style={{ background: "#160f2a" }}>Solid</option>
+                    <option value="dashed" style={{ background: "#160f2a" }}>Dashed</option>
+                    <option value="dotted" style={{ background: "#160f2a" }}>Dotted</option>
+                    <option value="double" style={{ background: "#160f2a" }}>Double</option>
+                  </select>
+                  
+                  <div className="flex-1"></div>
+                  <div>
+                    <div className="text-[9px] tracking-[0.18em] uppercase text-[rgba(180,160,220,0.42)] mb-[4px]" style={{ fontFamily: "'Cinzel', serif" }}>Page Bg</div>
+                    <div className="w-[32px] h-[32px] rounded-[7px] cursor-pointer border-[2px] border-[rgba(255,255,255,0.15)] overflow-hidden relative" style={{ background: customTheme.pageBg || "#0d0e1a" }}>
+                      <input type="color" value={customTheme.pageBg || "#0f172a"} onChange={e => setCustomTheme({...customTheme, pageBg: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Page Background Color" />
+                    </div>
                   </div>
                 </div>
               </div>
-            <div className="flex flex-col gap-3 mt-6">
-              <div className="flex items-center gap-3">
-                <input type="checkbox" id="public-check" checked={isPublic} onChange={e => setIsPublic(e.target.checked)} className="accent-amber-500 w-4 h-4" />
-                <Label htmlFor="public-check" className="text-amber-200/80 cursor-pointer">Make this wheel publicly available</Label>
+
+              <div className="mt-[12px]">
+                <div className="text-[9px] tracking-[0.18em] uppercase text-[rgba(180,160,220,0.42)] mb-[6px]" style={{ fontFamily: "'Cinzel', serif" }}>Layer & Blending Options</div>
+                <div className="flex gap-[8px] items-center flex-wrap">
+                  <select 
+                    value={customTheme.layerOrder || 'texture_top'} 
+                    onChange={e => setCustomTheme({...customTheme, layerOrder: e.target.value})}
+                    className="bg-[#160f2a] border border-[rgba(160,120,255,0.16)] rounded-[7px] px-[10px] py-[7px] text-[13px] text-[rgba(225,215,255,0.9)] outline-none appearance-none cursor-pointer"
+                    style={{ 
+                      fontFamily: "'Crimson Text', serif",
+                      backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' fill='none'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%23c9a84c' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E\")",
+                      backgroundRepeat: "no-repeat",
+                      backgroundPosition: "right 10px center",
+                      paddingRight: "28px"
+                    }}
+                  >
+                    <option value="texture_top" style={{ background: "#160f2a" }}>Texture on Top</option>
+                    <option value="color_top" style={{ background: "#160f2a" }}>Color on Top</option>
+                  </select>
+                  
+                  <span className="text-[8.5px] tracking-[0.1em] text-[rgba(180,160,220,0.42)] uppercase" style={{ fontFamily: "'Cinzel', serif" }}>TOP OPACITY:</span>
+                  
+                  <input 
+                    type="number" min="0" max="100" 
+                    value={customTheme.topLayerOpacity !== undefined ? Math.round(customTheme.topLayerOpacity * 100) : 100} 
+                    onChange={e => setCustomTheme({...customTheme, topLayerOpacity: Number(e.target.value)/100})} 
+                    className="w-[60px] bg-[#160f2a] border border-[rgba(160,120,255,0.16)] rounded-[7px] px-[9px] py-[7px] text-[14px] text-[rgba(225,215,255,0.9)] outline-none text-center"
+                    style={{ fontFamily: "'Crimson Text', serif" }}
+                  />
+                  <span className="text-[10px] text-[rgba(180,160,220,0.42)]" style={{ fontFamily: "'Cinzel', serif" }}>%</span>
+                  
+                  <select 
+                    value={customTheme.blendMode || 'multiply'} 
+                    onChange={e => setCustomTheme({...customTheme, blendMode: e.target.value})}
+                    className="bg-[#160f2a] border border-[rgba(160,120,255,0.16)] rounded-[7px] px-[10px] py-[7px] text-[13px] text-[rgba(225,215,255,0.9)] outline-none appearance-none cursor-pointer"
+                    style={{ 
+                      fontFamily: "'Crimson Text', serif",
+                      backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' fill='none'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%23c9a84c' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E\")",
+                      backgroundRepeat: "no-repeat",
+                      backgroundPosition: "right 10px center",
+                      paddingRight: "28px"
+                    }}
+                  >
+                    <option value="normal" style={{ background: "#160f2a" }}>Normal</option>
+                    <option value="multiply" style={{ background: "#160f2a" }}>Multiply</option>
+                    <option value="overlay" style={{ background: "#160f2a" }}>Overlay</option>
+                    <option value="screen" style={{ background: "#160f2a" }}>Screen</option>
+                    <option value="soft-light" style={{ background: "#160f2a" }}>Soft Light</option>
+                    <option value="hard-light" style={{ background: "#160f2a" }}>Hard Light</option>
+                    <option value="color-burn" style={{ background: "#160f2a" }}>Color Burn</option>
+                  </select>
+                </div>
               </div>
-              <div className="text-amber-200/60 text-xs italic">
+
+              <div className="mt-[12px]">
+                <div className="text-[9px] tracking-[0.18em] uppercase text-[rgba(180,160,220,0.42)] mb-[4px]" style={{ fontFamily: "'Cinzel', serif" }}>Page Background Image URL</div>
+                <div className="flex gap-[8px] mt-[6px]">
+                  <input 
+                    className="flex-1 bg-[#160f2a] border border-[rgba(160,120,255,0.16)] rounded-[9px] px-[12px] py-[9px] text-[14px] text-[rgba(225,215,255,0.9)] outline-none"
+                    style={{ fontFamily: "'Crimson Text', serif" }}
+                    value={customTheme.pageBgImage || ""} onChange={e => setCustomTheme({...customTheme, pageBgImage: e.target.value})} placeholder="https://..." 
+                  />
+                  <button 
+                    type="button" onClick={() => setLibraryTargetField('pageBgImage')}
+                    className="px-[14px] py-[9px] rounded-[9px] border-[1px] border-[rgba(201,168,76,0.3)] bg-[rgba(201,168,76,0.08)] text-[#c9a84c] cursor-pointer hover:bg-[rgba(201,168,76,0.15)] transition-colors whitespace-nowrap flex items-center gap-[5px]"
+                    style={{ fontFamily: "'Cinzel', serif", fontSize: "9px", letterSpacing: "0.1em", textTransform: "uppercase" }}
+                  >
+                    🖼 Gallery
+                  </button>
+                </div>
+              </div>
+
+              <div className="mt-[12px]">
+                <div className="text-[9px] tracking-[0.18em] uppercase text-[#c9a84c] mb-[4px]" style={{ fontFamily: "'Cinzel', serif" }}>Advanced Optical Effects</div>
+                <div className="flex items-center gap-[10px] py-[10px]">
+                  <input 
+                    type="checkbox" 
+                    checked={customTheme.stroboscopic || false} onChange={e => setCustomTheme({...customTheme, stroboscopic: e.target.checked})}
+                    className="w-[18px] h-[18px] accent-[#c9a84c] cursor-pointer" 
+                  />
+                  <span className="text-[10px] tracking-[0.07em] text-[rgba(225,215,255,0.9)]" style={{ fontFamily: "'Cinzel', serif" }}>Stroboscopic Mode (Persistence of Vision Flicker)</span>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-[10px] py-[10px] pb-[4px]">
+                <input 
+                  type="checkbox" id="public-check" 
+                  checked={isPublic} onChange={e => setIsPublic(e.target.checked)}
+                  className="w-[20px] h-[20px] accent-[#c9a84c] cursor-pointer" 
+                />
+                <span className="text-[11px] tracking-[0.07em] text-[#c9a84c]" style={{ fontFamily: "'Cinzel', serif" }}>Make this wheel publicly available</span>
+              </div>
+              <div className="text-[12px] text-[rgba(180,160,220,0.42)] leading-[1.4] pl-[30px] -mt-[2px]" style={{ fontFamily: "'Crimson Text', serif", fontStyle: "italic" }}>
                 (Changes are saved automatically as a Draft while Editing Mode is on)
               </div>
             </div>
@@ -1139,30 +1394,58 @@ export default function SpiritWheelDesigner() {
         </div>
 
         {/* Visual Preview */}
-        <div className="bg-slate-900/70 border border-white/10 rounded-xl p-5 flex flex-col items-center justify-center">
-          <h2 className="font-semibold text-white text-lg mb-4 self-start w-full">Visual Preview</h2>
-          <WheelThemePreview activeTheme={themeId === 'custom' ? customTheme : WHEEL_THEMES[themeId]} />
-          <p className="text-xs text-amber-200/50 text-center mt-4 max-w-[200px]">
-            Preview of colors, textures, and borders. Segments and icons are populated during the reading.
-          </p>
+        <div className="bg-[#0f0b1e] border border-[rgba(160,120,255,0.16)] rounded-[14px] p-[16px] mb-[13px] text-center mx-[18px] md:mx-0 px-[18px] md:px-[16px]">
+          <div 
+            className="text-[11px] tracking-[0.14em] uppercase text-[#c9a84c] mb-[14px] text-left"
+            style={{ fontFamily: "'Cinzel', serif" }}
+          >
+            Visual Preview
+          </div>
+          <div className="flex justify-center my-4">
+             <WheelThemePreview activeTheme={themeId === 'custom' ? customTheme : WHEEL_THEMES[themeId]} />
+          </div>
+          <div 
+            className="text-[12px] text-[rgba(180,160,220,0.42)] mt-[10px] leading-[1.5]"
+            style={{ fontFamily: "'IM Fell English', serif", fontStyle: "italic" }}
+          >
+            Preview of colors, textures, and borders.<br/>Segments and icons are populated during the reading.
+          </div>
         </div>
         </div>
 
+        <div className="px-[18px] md:px-0 space-y-[12px]">
         {/* Ring Editors */}
         <RingEditor ringKey="outer_ring" segments={outerRing} setSegments={setOuterRing} deckCards={deckCards} onOpenGallery={(idx, field = 'icon') => setLibraryTargetField({ring: 'outer_ring', index: idx, field})} />
         <RingEditor ringKey="middle_ring" segments={middleRing} setSegments={setMiddleRing} deckCards={deckCards} onOpenGallery={(idx, field = 'icon') => setLibraryTargetField({ring: 'middle_ring', index: idx, field})} />
         <RingEditor ringKey="inner_ring" segments={innerRing} setSegments={setInnerRing} deckCards={deckCards} onOpenGallery={(idx, field = 'icon') => setLibraryTargetField({ring: 'inner_ring', index: idx, field})} />
 
         {/* Bottom save */}
-        <div className="flex justify-end gap-3 pb-8">
-          <Button variant="outline" onClick={() => handleSave("draft")} disabled={isSaving} className="bg-slate-900 border-amber-600/40 text-amber-300 hover:bg-amber-900/40 hover:text-amber-200 px-8 py-6 text-lg">
-            <Save className="w-5 h-5 mr-2" /> Save Draft
-          </Button>
-          <Button onClick={() => handleSave("published")} disabled={isSaving} className="bg-amber-600 hover:bg-amber-500 text-white px-8 py-6 text-lg">
-            <Sparkles className="w-5 h-5 mr-2" /> Publish Wheel
-          </Button>
+        <div className="flex gap-[10px] pb-[20px] md:pb-[30px] px-[18px] md:px-0 mt-4">
+          <button 
+            onClick={() => handleSave("draft")} disabled={isSaving}
+            className="flex-1 py-[13px] rounded-[50px] border border-[rgba(160,120,255,0.16)] bg-[#160f2a] text-[rgba(225,215,255,0.9)] cursor-pointer flex items-center justify-center gap-[7px] transition-all duration-200 uppercase tracking-[0.14em] text-[10px]"
+            style={{ fontFamily: "'Cinzel', serif" }}
+            onMouseOver={(e) => e.currentTarget.style.borderColor = "rgba(201,168,76,0.3)"}
+            onMouseOut={(e) => e.currentTarget.style.borderColor = "rgba(160,120,255,0.16)"}
+          >
+            💾 Save Draft
+          </button>
+          <button 
+            onClick={() => handleSave("published")} disabled={isSaving}
+            className="flex-[1.4] py-[13px] rounded-[50px] border-none text-[#1a0f05] font-bold cursor-pointer flex items-center justify-center gap-[7px] transition-transform duration-200 uppercase tracking-[0.14em] text-[10px]"
+            style={{ 
+              fontFamily: "'Cinzel', serif",
+              background: "linear-gradient(135deg, #6b4a0a, #c9a84c)",
+              boxShadow: "0 4px 16px rgba(201,168,76,0.35)"
+            }}
+            onMouseOver={(e) => e.currentTarget.style.transform = "translateY(-1px)"}
+            onMouseOut={(e) => e.currentTarget.style.transform = "translateY(0)"}
+          >
+            ✦ Publish Wheel
+          </button>
         </div>
         
+        </div>
         </div>
       )}
       </div>

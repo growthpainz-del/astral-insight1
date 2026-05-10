@@ -382,50 +382,90 @@ export default function SpiritWheel() {
       <div className="max-w-[100rem] mx-auto flex flex-col lg:flex-row gap-8">
         
         {/* Left Column: Visual Wheel & Controls */}
-        <div className="flex-[1.5] flex flex-col items-center justify-start p-2 lg:p-4 relative min-h-[350px] lg:min-h-[600px] order-1 overflow-hidden lg:overflow-visible">
-          
-          {/* Zoom Controls */}
-          <div data-html2canvas-ignore="true" className="absolute top-4 right-4 z-50 flex flex-col gap-2 bg-black/50 p-1.5 rounded-lg border border-[#8b5a2b] shadow-lg backdrop-blur-sm">
-            <Button size="icon" variant="ghost" onClick={() => setZoomLevel(z => Math.min(z + 0.25, 3))} className="text-amber-300 hover:text-amber-100 hover:bg-[#8b5a2b]/50 h-8 w-8">
-              <ZoomIn className="w-5 h-5" />
-            </Button>
-            <Button size="icon" variant="ghost" onClick={() => setZoomLevel(1)} className="text-amber-300 hover:text-amber-100 hover:bg-[#8b5a2b]/50 h-8 w-8 text-[10px] font-bold">
-              {Math.round(zoomLevel * 100)}%
-            </Button>
-            <Button size="icon" variant="ghost" onClick={() => setZoomLevel(z => Math.max(z - 0.25, 0.25))} className="text-amber-300 hover:text-amber-100 hover:bg-[#8b5a2b]/50 h-8 w-8">
-              <ZoomOut className="w-5 h-5" />
-            </Button>
-          </div>
-
+        <div className="flex-[1.5] flex flex-col items-center justify-start p-0 md:p-2 lg:p-4 relative min-h-[350px] lg:min-h-[600px] order-1 overflow-hidden lg:overflow-visible">
           <div 
-            className="relative w-[340px] h-[340px] sm:w-[450px] sm:h-[450px] md:w-[500px] md:h-[500px] lg:w-[600px] lg:h-[600px] xl:w-[700px] xl:h-[700px] shrink-0 mt-6 lg:mt-0 transition-transform duration-300 origin-center"
-            style={{ transform: `scale(${zoomLevel})` }}
+            className="relative w-full flex flex-col items-center pb-[20px] pt-[24px] border-b border-[rgba(201,168,76,0.15)] overflow-hidden"
+            style={{
+              background: "linear-gradient(180deg, #0a0618 0%, #140d28 40%, #1a1008 100%)",
+            }}
           >
-            <div className="absolute inset-0 cursor-pointer" onClick={() => !isSpinning && spinWheel()}>
-              <CanvasSpiritWheel 
-                wheelData={wheelData}
-                rotations={rotations}
-                activeTheme={activeTheme}
-                metatron={{ 
-                  enabled: activeTheme.metatron?.enabled ?? true, 
-                  color: activeTheme.metatron?.color || 'rgba(212, 175, 55, 0.4)', 
-                  rotation: activeTheme.metatron?.rotation || 0 
-                }}
-                zoomLevel={1}
-                isSpinning={isSpinning}
-              />
+            {/* cosmic bg dots */}
+            <div 
+              className="absolute inset-0 pointer-events-none opacity-40"
+              style={{
+                backgroundImage: "radial-gradient(circle, rgba(201,168,76,0.15) 1px, transparent 1px)",
+                backgroundSize: "24px 24px"
+              }}
+            ></div>
+            
+            {/* Zoom Controls */}
+            <div data-html2canvas-ignore="true" className="absolute top-4 right-4 z-50 flex flex-col gap-[6px] bg-[rgba(2,1,10,0.5)] p-[6px] rounded-[10px] border border-[rgba(201,168,76,0.2)] shadow-[0_4px_16px_rgba(0,0,0,0.6)] backdrop-blur-md">
+              <button onClick={() => setZoomLevel(z => Math.min(z + 0.25, 3))} className="w-[30px] h-[30px] rounded-[6px] text-[#c9a84c] hover:text-[#fff] hover:bg-[rgba(201,168,76,0.2)] transition-colors flex items-center justify-center cursor-pointer border-none bg-transparent">
+                <ZoomIn className="w-4 h-4" />
+              </button>
+              <button onClick={() => setZoomLevel(1)} className="w-[30px] h-[30px] rounded-[6px] text-[#c9a84c] hover:text-[#fff] hover:bg-[rgba(201,168,76,0.2)] transition-colors flex items-center justify-center text-[9px] font-bold cursor-pointer border-none bg-transparent" style={{ fontFamily: "'Cinzel', serif" }}>
+                {Math.round(zoomLevel * 100)}%
+              </button>
+              <button onClick={() => setZoomLevel(z => Math.max(z - 0.25, 0.25))} className="w-[30px] h-[30px] rounded-[6px] text-[#c9a84c] hover:text-[#fff] hover:bg-[rgba(201,168,76,0.2)] transition-colors flex items-center justify-center cursor-pointer border-none bg-transparent">
+                <ZoomOut className="w-4 h-4" />
+              </button>
             </div>
-          </div>
 
-          {/* Spin controls underneath the wheel */}
-          <SpiritWheelControls
-            intentionPhrase={intentionPhrase}
-            setIntentionPhrase={setIntentionPhrase}
-            spinSpeed={spinSpeed}
-            setSpinSpeed={setSpinSpeed}
-            spinState={spinState}
-            spinWheel={spinWheel}
-          />
+            <div 
+              className="relative w-[260px] h-[260px] sm:w-[320px] sm:h-[320px] md:w-[450px] md:h-[450px] lg:w-[500px] lg:h-[500px] shrink-0 transition-transform duration-300 origin-center"
+              style={{ transform: `scale(${zoomLevel})` }}
+            >
+              <div 
+                className="absolute top-[-14px] left-1/2 z-10 w-0 h-0"
+                style={{
+                  transform: "translateX(-50%)",
+                  borderLeft: "10px solid transparent",
+                  borderRight: "10px solid transparent",
+                  borderTop: "20px solid #c9a84c",
+                  filter: "drop-shadow(0 0 6px rgba(201,168,76,0.8))",
+                  animation: "pointerBob 2s ease-in-out infinite"
+                }}
+              ></div>
+              <style>{`
+                @keyframes pointerBob {
+                  0%, 100% { transform: translateX(-50%) translateY(0); }
+                  50% { transform: translateX(-50%) translateY(-4px); }
+                }
+                @keyframes glowPulse {
+                  0%, 100% { filter: drop-shadow(0 0 8px rgba(201,168,76,0.4)); }
+                  50% { filter: drop-shadow(0 0 18px rgba(201,168,76,0.7)); }
+                }
+              `}</style>
+              <div 
+                className={`absolute inset-0 cursor-pointer rounded-full transition-all duration-300 ${isSpinning ? 'animate-[glowPulse_0.5s_ease-in-out_infinite]' : 'hover:drop-shadow-[0_0_30px_rgba(201,168,76,0.5)]'}`} 
+                style={{ filter: isSpinning ? "none" : "drop-shadow(0 0 20px rgba(201,168,76,0.3)) drop-shadow(0 8px 30px rgba(0,0,0,0.6))" }}
+                onClick={() => !isSpinning && spinWheel()}
+              >
+                <CanvasSpiritWheel 
+                  wheelData={wheelData}
+                  rotations={rotations}
+                  activeTheme={activeTheme}
+                  metatron={{ 
+                    enabled: activeTheme.metatron?.enabled ?? true, 
+                    color: activeTheme.metatron?.color || 'rgba(212, 175, 55, 0.4)', 
+                    rotation: activeTheme.metatron?.rotation || 0 
+                  }}
+                  zoomLevel={1}
+                  isSpinning={isSpinning}
+                />
+              </div>
+            </div>
+
+            {/* Spin controls underneath the wheel */}
+            <SpiritWheelControls
+              intentionPhrase={intentionPhrase}
+              setIntentionPhrase={setIntentionPhrase}
+              spinSpeed={spinSpeed}
+              setSpinSpeed={setSpinSpeed}
+              spinState={spinState}
+              spinWheel={spinWheel}
+            />
+          </div>
         </div>
 
         {/* Right Column: Results */}
@@ -453,8 +493,8 @@ export default function SpiritWheel() {
       </div>
 
       <div className="max-w-[100rem] mx-auto pb-12 mt-8 z-10 relative">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-slate-900/90 p-4 md:p-6 rounded-xl border border-[#8b5a2b] shadow-[0_4px_20px_rgba(0,0,0,0.5)] space-y-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-[18px] md:px-0">
+          <div className="bg-[#0f0b1e] p-[16px] rounded-[14px] border border-[rgba(160,120,255,0.16)] space-y-[14px]">
               <SpiritWheelThemeSelector
                 themeId={themeId}
                 setThemeId={setThemeId}
@@ -463,7 +503,7 @@ export default function SpiritWheel() {
               />
           </div>
           
-          <div className="bg-slate-900/90 p-4 md:p-6 rounded-xl border border-[#8b5a2b] shadow-[0_4px_20px_rgba(0,0,0,0.5)] space-y-5">
+          <div className="bg-[#0f0b1e] p-[16px] rounded-[14px] border border-[rgba(160,120,255,0.16)] space-y-[14px]">
               <SpiritWheelConfigSelector
                 selectedWheelId={selectedWheelId}
                 setSelectedWheelId={setSelectedWheelId}
@@ -473,7 +513,7 @@ export default function SpiritWheel() {
                 currentUser={currentUser}
               />
               
-              <div className="pt-4 border-t border-[#5c3a21] space-y-4">
+              <div className="pt-[11px] border-t border-[rgba(160,120,255,0.06)] space-y-[11px]">
                 <SpiritWheelDisplayOptions
                   blankMode={blankMode}
                   setBlankMode={setBlankMode}
