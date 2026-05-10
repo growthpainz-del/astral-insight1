@@ -69,7 +69,6 @@ import FusionRecipeEditor from './pages/FusionRecipeEditor';
 import Fusions from './pages/Fusions';
 import Help from './pages/Help';
 import History from './pages/History';
-import Home from './pages/Home';
 import Journal from './pages/Journal';
 import ManualsLibrary from './pages/ManualsLibrary';
 import MyFusions from './pages/MyFusions';
@@ -119,7 +118,6 @@ export const PAGES = {
     "Fusions": Fusions,
     "Help": Help,
     "History": History,
-    "Home": Home,
     "Journal": Journal,
     "ManualsLibrary": ManualsLibrary,
     "MyFusions": MyFusions,

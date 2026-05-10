@@ -332,10 +332,11 @@ export default function CosmicHub() {
             <div style={{
               position: "absolute", bottom: "14%", left: 0, right: 0,
               display: "flex", justifyContent: "space-around", alignItems: "flex-end",
-              padding: "0 8%",
+              padding: "0 2%",
             }}>
-              <Portal to={createPageUrl("Home")}        icon="🌙" label="Read Mode"  sub="Readings & community decks"    accent="#a78bfa" delay={0.7} />
-              <Portal to={createPageUrl("SpiritWheel")} icon="⚗️" label="Build Mode" sub="Spirit Wheel & deck designer"  accent="#67e8f9" delay={1.0} />
+              <Portal to={createPageUrl("ReadingRoom")} icon="🌙" label="Reading Room" sub="Readings & community" accent="#a78bfa" delay={0.7} />
+              <Portal to={createPageUrl("Studio")} icon="🎨" label="Studio" sub="Build oracle decks" accent="#f472b6" delay={0.9} />
+              <Portal to={createPageUrl("SpiritWheel")} icon="⚗️" label="Spirit Wheel" sub="Instant cosmic guidance" accent="#67e8f9" delay={1.1} />
             </div>
           </div>
 

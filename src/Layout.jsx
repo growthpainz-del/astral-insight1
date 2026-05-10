@@ -296,7 +296,7 @@ export default function Layout({ children, currentPageName }) {
                           // Removed automatic redirect to Home so CosmicHub can render on "/"
 
   const handleLogout = async () => {
-    await base44.auth.logout(createPageUrl('Home'));
+    await base44.auth.logout('/');
   };
 
   const handleMobileBack = () => {
@@ -385,7 +385,7 @@ export default function Layout({ children, currentPageName }) {
     return <div className="min-h-screen flex items-center justify-center text-white/80">Redirecting to login…</div>;
   }
 
-  if (currentPageName === 'Home' || currentPageName === 'CosmicHub') {
+  if (currentPageName === 'CosmicHub') {
     return (
       <div className="bg-gray-900 text-white min-h-screen">
         <NetworkBanner />
@@ -736,7 +736,7 @@ export default function Layout({ children, currentPageName }) {
             } transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:flex`}
           >
             <div className="flex items-center justify-between h-16 px-4 border-b border-purple-800/40 flex-shrink-0">
-              <Link to={createPageUrl('Home')} className="flex items-center gap-2">
+              <Link to="/" className="flex items-center gap-2">
                 <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d2a300021f94d0f312c039/4cde5ffdd_IMG_6738.jpg" alt="Logo" className="h-8 w-8" />
                 <span className="font-bold text-lg text-white">Astral Insight</span>
               </Link>
@@ -750,7 +750,7 @@ export default function Layout({ children, currentPageName }) {
 
             <nav className="flex-1 px-4 py-4 space-y-2 overflow-y-auto">
               <p className="px-4 pt-2 pb-1 text-xs font-semibold text-purple-400 uppercase tracking-wider">Main</p>
-              <NavLink to={createPageUrl("Home")}>
+              <NavLink to="/">
                 <Home className="w-5 h-5 mr-3" />
                 Home
               </NavLink>
@@ -876,7 +876,7 @@ export default function Layout({ children, currentPageName }) {
           <div className="flex-1 flex flex-col">
             <header className="md:hidden bg-slate-900/95 backdrop-blur-lg border-b border-purple-800/40 h-16 pt-[env(safe-area-inset-top)] flex items-center px-4 justify-between flex-shrink-0 sticky top-0 z-40">
               <div className="flex items-center">
-                {['Home','ReadingRoom','Studio','Journal', 'Dashboard'].includes(currentPageName) ? (
+                {['CosmicHub','ReadingRoom','Studio','Journal', 'Dashboard'].includes(currentPageName) ? (
                   <button 
                     onClick={() => setIsSidebarOpen(true)} 
                     className="text-purple-300 hover:text-purple-100 active:scale-95 transition-all p-2 -ml-2 touch-manipulation"
@@ -894,7 +894,7 @@ export default function Layout({ children, currentPageName }) {
                   </button>
                 )}
               </div>
-              <Link to={createPageUrl('Home')} className="flex items-center justify-center absolute left-1/2 -translate-x-1/2">
+              <Link to="/" className="flex items-center justify-center absolute left-1/2 -translate-x-1/2">
                 <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d2a300021f94d0f312c039/4cde5ffdd_IMG_6738.jpg" alt="Logo" className="h-8 w-8" />
               </Link>
               <div className="flex items-center justify-end">
