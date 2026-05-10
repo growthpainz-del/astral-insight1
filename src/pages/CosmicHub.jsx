@@ -247,6 +247,7 @@ function CrescentTable({ children }) {
 // ─── Portal Card ─────────────────────────────────────────────────────────────
 function PortalCard({ to, icon: Icon, title, subtitle, items, color, delay, glowColor }) {
   const [hovered, setHovered] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <motion.div
@@ -257,7 +258,7 @@ function PortalCard({ to, icon: Icon, title, subtitle, items, color, delay, glow
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      <Link to={to}>
+      <div className="cursor-pointer" onClick={() => navigate(to)}>
         <motion.div
           animate={{ y: hovered ? -6 : 0, scale: hovered ? 1.04 : 1 }}
           transition={{ duration: 0.3 }}
@@ -317,11 +318,17 @@ function PortalCard({ to, icon: Icon, title, subtitle, items, color, delay, glow
               {items.map((item, i) => (
                 <div
                   key={i}
-                  className="flex items-center gap-2 text-xs px-3 py-1.5 rounded-lg"
+                  onClick={(e) => {
+                    if (item.to) {
+                      e.stopPropagation();
+                      navigate(item.to);
+                    }
+                  }}
+                  className={`flex items-center gap-2 text-xs px-3 py-1.5 rounded-lg transition-colors ${item.to ? 'hover:bg-white/10' : ''}`}
                   style={{ background: `${color}12`, border: `1px solid ${color}20` }}
                 >
                   <ChevronRight className="w-3 h-3 opacity-50" style={{ color }} />
-                  <span className="text-white/70">{item}</span>
+                  <span className="text-white/70">{item.label || item}</span>
                 </div>
               ))}
             </div>
@@ -335,7 +342,7 @@ function PortalCard({ to, icon: Icon, title, subtitle, items, color, delay, glow
             </motion.div>
           </div>
         </motion.div>
-      </Link>
+      </div>
     </motion.div>
   );
 }
@@ -405,7 +412,12 @@ export default function CosmicHub() {
               icon={BookOpen}
               title="Read Mode"
               subtitle="Readings & Community Decks"
-              items={["Start a Reading", "Community Decks", "Oracle Chat", "Reading History"]}
+              items={[
+                { label: "Start a Reading", to: createPageUrl("Reading") },
+                { label: "Community Decks", to: createPageUrl("ReadingRoom") },
+                { label: "Oracle Chat", to: createPageUrl("AgentChat") },
+                { label: "Reading History", to: createPageUrl("History") },
+              ]}
               color="#a78bfa"
               glowColor="#7c3aed"
               delay={0.5}
@@ -441,7 +453,12 @@ export default function CosmicHub() {
               icon={Wand2}
               title="Build Mode"
               subtitle="Spirit Wheel & Deck Designer"
-              items={["Spirit Wheel", "Deck Designer", "Spread Builder", "Card Library"]}
+              items={[
+                { label: "Spirit Wheel Designer", to: createPageUrl("SpiritWheelDesigner") },
+                { label: "Deck Designer", to: createPageUrl("Studio") },
+                { label: "Spread Builder", to: createPageUrl("SpreadManager") },
+                { label: "Card Library", to: createPageUrl("CardLibrary") },
+              ]}
               color="#34d399"
               glowColor="#10b981"
               delay={0.65}
