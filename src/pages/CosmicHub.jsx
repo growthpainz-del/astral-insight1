@@ -359,7 +359,6 @@ export default function CosmicHub() {
               <Portal to={createPageUrl("ReadingRoom")} icon="🌙" label="Reading Room" sub="Readings & community" accent="#a78bfa" delay={0.7} />
               <Portal to={createPageUrl("Studio")} icon="🎨" label="Studio" sub="Build oracle decks" accent="#f472b6" delay={0.9} />
               <Portal to={createPageUrl("SpiritWheel")} icon="⚗️" label="Spirit Wheel" sub="Instant cosmic guidance" accent="#67e8f9" delay={1.1} />
-              <Portal to={createPageUrl("SigilForge")} icon="✨" label="Sigil Forge" sub="Draw custom symbols" accent="#fbbf24" delay={1.3} />
             </div>
           </div>
 

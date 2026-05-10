@@ -962,6 +962,7 @@ export default function SpiritWheelDesigner() {
         <button className="mode-tab" onClick={() => navigate(createPageUrl(`SpiritWheel${editId ? "?id=" + editId : ""}`))}>Spin</button>
         <button className="mode-tab" onClick={() => navigate(createPageUrl(`SpiritWheel?tab=config${editId ? "&id=" + editId : ""}`))}>Configure</button>
         <button className="mode-tab on">Designer</button>
+        <button className="mode-tab" onClick={() => navigate(createPageUrl(`SigilForge`))}>Forge</button>
       </div>
 
       <div className="max-w-[430px] md:max-w-5xl mx-auto space-y-0 md:space-y-6">
