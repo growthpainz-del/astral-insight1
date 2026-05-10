@@ -22,7 +22,7 @@ export default function CardDetailsPanel({ card, isReversed = false, title = "Ca
   const overall = card.overall_meaning || "";
   const uprightMeaning = card.upright_meaning || "";
   const reversedMeaning = card.reversed_meaning || "";
-  const meaning = isReversed ? (reversedMeaning || overall) : (uprightMeaning || overall);
+  const meaning = isReversed ? reversedMeaning : uprightMeaning;
 
   const uprightAction = card.upright_action || "";
   const reversedAction = card.reversed_action || "";

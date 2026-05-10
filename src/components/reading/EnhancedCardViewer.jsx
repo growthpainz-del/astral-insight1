@@ -254,10 +254,10 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
                         {isReversed ? (
                           <TrendingDown className="w-5 h-5 text-purple-400" />
                         ) : (
-                          <TrendingUp className="w-5 h-5 text-cyan-400" />
+                          (card.reversed_meaning || card.upright_meaning) ? <TrendingUp className="w-5 h-5 text-cyan-400" /> : <Sparkles className="w-5 h-5 text-cyan-400" />
                         )}
                         <h3 className={`font-bold ${isReversed ? 'text-purple-300' : 'text-cyan-300'}`}>
-                          {isReversed ? 'Reversed Meaning' : 'Upright Meaning'}
+                          {isReversed ? 'Reversed Meaning' : (card.reversed_meaning || card.upright_meaning ? 'Upright Meaning' : 'Meaning')}
                         </h3>
                       </div>
                       <p className="text-white/90 leading-relaxed">{getMeaningText()}</p>
@@ -379,10 +379,10 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
                       {isReversed ? (
                         <TrendingDown className="w-5 h-5 text-purple-400" />
                       ) : (
-                        <TrendingUp className="w-5 h-5 text-cyan-400" />
+                        (card.reversed_meaning || card.upright_meaning) ? <TrendingUp className="w-5 h-5 text-cyan-400" /> : <Sparkles className="w-5 h-5 text-cyan-400" />
                       )}
                       <h3 className={`font-bold ${isReversed ? 'text-purple-300' : 'text-cyan-300'}`}>
-                        {isReversed ? 'Reversed Meaning' : 'Upright Meaning'}
+                        {isReversed ? 'Reversed Meaning' : (card.reversed_meaning || card.upright_meaning ? 'Upright Meaning' : 'Meaning')}
                       </h3>
                     </div>
                     <p className="text-white/90 leading-relaxed">{getMeaningText()}</p>
