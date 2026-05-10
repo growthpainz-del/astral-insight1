@@ -215,6 +215,11 @@ export default function CosmicHub() {
           from { opacity: 0; transform: translateY(10px); }
           to   { opacity: 1; transform: translateY(0); }
         }
+        @keyframes logoFloat {
+          0% { transform: translateY(0px); }
+          50% { transform: translateY(-10px); }
+          100% { transform: translateY(0px); }
+        }
       `}</style>
 
       <div style={{
@@ -234,12 +239,7 @@ export default function CosmicHub() {
           padding: "18px 36px",
           background: "linear-gradient(to bottom, rgba(2,2,8,0.85) 0%, transparent 100%)",
         }}>
-          <div style={{
-            fontFamily: "'Cinzel', serif", fontSize: 11, letterSpacing: "0.28em",
-            textTransform: "uppercase", color: "rgba(180,150,255,0.6)",
-          }}>
-            Rooted Crescent
-          </div>
+          <img src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/dceb9973f_FFC86774-57E4-432D-9291-05752E7FDC5A.png" alt="Rooted Crescent" style={{ width: 36, borderRadius: 9 }} />
 
           <div style={{ display: "flex", gap: 28, alignItems: "center" }}>
             {[
@@ -272,6 +272,7 @@ export default function CosmicHub() {
         }}>
           {/* Title */}
           <div style={{ textAlign: "center", marginBottom: 52 }}>
+            <img src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/dceb9973f_FFC86774-57E4-432D-9291-05752E7FDC5A.png" alt="" style={{ width: 88, borderRadius: 22, animation: "logoFloat 5s ease-in-out infinite", marginBottom: 16 }} />
             <h1 style={{
               fontFamily: "'Cinzel', serif", fontWeight: 700,
               fontSize: "clamp(28px, 5vw, 52px)", letterSpacing: "0.22em",
