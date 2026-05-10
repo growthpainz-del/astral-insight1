@@ -126,10 +126,10 @@ export default function SigilForge() {
     const startA = data[startPos + 3];
 
     // If filling same color, do nothing
-    if (Math.abs(startR - fillColorArray[0]) < tolerance && 
-        Math.abs(startG - fillColorArray[1]) < tolerance && 
-        Math.abs(startB - fillColorArray[2]) < tolerance && 
-        Math.abs(startA - fillColorArray[3]) < tolerance) {
+    if (Math.abs(startR - fillColorArray[0]) <= tolerance && 
+        Math.abs(startG - fillColorArray[1]) <= tolerance && 
+        Math.abs(startB - fillColorArray[2]) <= tolerance && 
+        Math.abs(startA - fillColorArray[3]) <= tolerance) {
         return;
     }
 
