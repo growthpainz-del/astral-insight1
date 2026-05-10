@@ -5,6 +5,7 @@ import { CARD_ASPECT_RATIO, calculateCardSize, calculateContainerHeight, getDesi
 import { Move, Bug } from "lucide-react";
 import ScratchRevealCard from "@/components/reading/ScratchRevealCard";
 import { getThumbnailUrl } from "@/lib/utils";
+import CardRevealEffect from "@/components/reading/CardRevealEffect";
 
 // FIXED: Larger card size for better visibility
 const DEFAULT_CARD_WIDTH = 140; // Increased for better card viewing
@@ -1250,61 +1251,69 @@ export default function SpreadLayout(props) {
                         }}
                         className="w-full h-full flex flex-col"
                       >
-                        {useScratchReveal && !revealedCards.has(idx) ? (
-                          <div
-                                                        onClick={() => !allowReposition && onCardClick(card, idx)}
-                                                        className="relative w-full h-full rounded-lg group"
-                                                      >
-                                                        <div className="pointer-events-none absolute inset-0 rounded-lg ring-2 ring-amber-400/20 shadow-[0_0_20px_rgba(251,191,36,0.35)] group-hover:ring-amber-400/40 group-hover:shadow-[0_0_30px_rgba(251,191,36,0.55)] transition-all" />
-                                                        <ScratchRevealCard
-                              frontImage={card.image_url}
-                              backImage={deck?.back_image_url}
-                              cardName={card.name}
-                              isReversed={(card.isReversed || card.is_reversed)}
-                              onReveal={() => onCardReveal(idx)}
-                              width="100%"
-                              height="100%"
-                            />
-                          </div>
-                        ) : !revealedCards.has(idx) ? (
-                                                        <button
-                                                          type="button"
-                                                          onMouseDown={(e) => allowReposition && handleCardDragStart(e, idx)}
-                                                          onTouchStart={(e) => allowReposition && handleCardDragStart(e, idx)}
-                                                          onTouchEnd={(e) => {
-                                                            if (allowReposition) return;
-                                                            e.preventDefault();
-                                                            onCardReveal(idx);
-                                                            setTimeout(() => onCardClick(card, idx), 300);
-                                                          }}
-                                                          onClick={() => {
-                                                            if (allowReposition && isDragging) return;
-                                                            onCardReveal(idx);
-                                                            setTimeout(() => onCardClick(card, idx), 300);
-                                                          }}
-                                                          className="relative w-full h-full rounded-lg overflow-hidden ring-2 ring-amber-400/20 shadow-[0_0_20px_rgba(251,191,36,0.35)] hover:ring-amber-400/40 hover:shadow-[0_0_30px_rgba(251,191,36,0.55)] hover:scale-110 transition-all group"
-                                                          style={{ touchAction: 'manipulation' }}
-                                                        >
-                            {deck?.back_image_url ? (
-                              <img
-                                src={deck.back_image_url}
-                                alt="Card back"
-                                className="w-full h-full object-cover"
-                                draggable={false}
-                              />
-                            ) : (
-                              <div className="w-full h-full bg-gradient-to-br from-purple-800 to-indigo-800 flex items-center justify-center">
-                                <span className="text-white/70 text-[10px]">Tap to reveal</span>
+                        <CardRevealEffect
+                          card={card}
+                          isRevealed={revealedCards.has(idx)}
+                          delay={0.1}
+                          className="w-full h-full rounded-lg"
+                          backContent={
+                            useScratchReveal ? (
+                              <div
+                                onClick={() => !allowReposition && onCardClick(card, idx)}
+                                className="relative w-full h-full rounded-lg group"
+                              >
+                                <div className="pointer-events-none absolute inset-0 rounded-lg ring-2 ring-amber-400/20 shadow-[0_0_20px_rgba(251,191,36,0.35)] group-hover:ring-amber-400/40 group-hover:shadow-[0_0_30px_rgba(251,191,36,0.55)] transition-all" />
+                                <ScratchRevealCard
+                                  frontImage={card.image_url}
+                                  backImage={deck?.back_image_url}
+                                  cardName={card.name}
+                                  isReversed={(card.isReversed || card.is_reversed)}
+                                  onReveal={() => onCardReveal(idx)}
+                                  width="100%"
+                                  height="100%"
+                                />
                               </div>
-                            )}
-                          </button>
-                        ) : (
+                            ) : (
+                              <button
+                                type="button"
+                                onMouseDown={(e) => allowReposition && handleCardDragStart(e, idx)}
+                                onTouchStart={(e) => allowReposition && handleCardDragStart(e, idx)}
+                                onTouchEnd={(e) => {
+                                  if (allowReposition) return;
+                                  e.preventDefault();
+                                  onCardReveal(idx);
+                                  setTimeout(() => onCardClick(card, idx), 300);
+                                }}
+                                onClick={() => {
+                                  if (allowReposition && isDragging) return;
+                                  onCardReveal(idx);
+                                  setTimeout(() => onCardClick(card, idx), 300);
+                                }}
+                                className="relative w-full h-full rounded-lg overflow-hidden ring-2 ring-amber-400/20 shadow-[0_0_20px_rgba(251,191,36,0.35)] hover:ring-amber-400/40 hover:shadow-[0_0_30px_rgba(251,191,36,0.55)] hover:scale-110 transition-all group"
+                                style={{ touchAction: 'manipulation' }}
+                              >
+                                {deck?.back_image_url ? (
+                                  <img
+                                    src={deck.back_image_url}
+                                    alt="Card back"
+                                    className="w-full h-full object-cover"
+                                    draggable={false}
+                                  />
+                                ) : (
+                                  <div className="w-full h-full bg-gradient-to-br from-purple-800 to-indigo-800 flex items-center justify-center">
+                                    <span className="text-white/70 text-[10px]">Tap to reveal</span>
+                                  </div>
+                                )}
+                              </button>
+                            )
+                          }
+                        >
                           <button
                             type="button"
                             onClick={() => onCardClick(card, idx)}
-                                                      onMouseDown={(e) => allowReposition && handleCardDragStart(e, idx)}
-                                                      onTouchStart={(e) => allowReposition && handleCardDragStart(e, idx)}
-                                                      className={`relative w-full h-full rounded-lg overflow-hidden ring-2 ring-amber-400/20 shadow-[0_0_20px_rgba(251,191,36,0.35)] transition-all duration-300 group ${isCurrentDragged ? 'shadow-purple-500/80 scale-110' : 'hover:ring-amber-400/40 hover:shadow-[0_0_30px_rgba(251,191,36,0.55)] hover:scale-110'}`}
+                            onMouseDown={(e) => allowReposition && handleCardDragStart(e, idx)}
+                            onTouchStart={(e) => allowReposition && handleCardDragStart(e, idx)}
+                            className={`relative w-full h-full rounded-lg overflow-hidden ring-2 ring-amber-400/20 shadow-[0_0_20px_rgba(251,191,36,0.35)] transition-all duration-300 group ${isCurrentDragged ? 'shadow-purple-500/80 scale-110' : 'hover:ring-amber-400/40 hover:shadow-[0_0_30px_rgba(251,191,36,0.55)] hover:scale-110'}`}
                             role="button"
                             aria-label={`${card?.name || 'Card'} details`}
                             style={{
@@ -1336,7 +1345,7 @@ export default function SpreadLayout(props) {
                               </div>
                             )}
                           </button>
-                        )}
+                        </CardRevealEffect>
 
                         {showPositionLabels && (
                           <div
