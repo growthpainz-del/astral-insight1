@@ -273,7 +273,7 @@ export default function SigilForge() {
       }[meaningTone] || "poetic";
 
       const res = await base44.integrations.Core.InvokeLLM({
-        prompt: `You are the Rooted Crescent Oracle. Study this mirrored drawing carefully. ${nameContext}Identify the single primary spirit symbol that emerges (one or two words). Then write exactly 3 sentences as a ${toneText} oracle reading focused on ${focusText}.`,
+        prompt: `You are the Rooted Crescent Oracle. Study this mirrored drawing carefully. ${nameContext}Identify the single primary spirit symbol that emerges (one or two words). Then write exactly 3 sentences as a ${toneText} oracle reading focused on ${focusText}. Provide only an upright, balanced, or positive meaning, as sigils do not have reversed meanings.`,
         file_urls: [file_url],
         model: 'claude_sonnet_4_6',
         response_json_schema: {
