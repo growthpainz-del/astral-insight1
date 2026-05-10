@@ -44,6 +44,8 @@ export default function SigilForge() {
   const [errorMsg, setErrorMsg] = useState("");
   const [symbolName, setSymbolName] = useState("");
   const [oracleReading, setOracleReading] = useState("");
+  const [meaningFocus, setMeaningFocus] = useState("general");
+  const [meaningTone, setMeaningTone] = useState("poetic");
 
   const [paletteId, setPaletteId] = useState('rustic');
   const [stoneTexture, setStoneTexture] = useState(null);
@@ -256,8 +258,22 @@ export default function SigilForge() {
       
       const nameContext = originalName ? `The user has named this sigil "${originalName}". Use this name or incorporate its concept. ` : "";
       
+      const focusText = {
+        general: "general life guidance",
+        love: "love, relationships, and emotional connections",
+        career: "career, ambitions, and life purpose",
+        spiritual: "spiritual growth and inner shadow work"
+      }[meaningFocus] || "general life guidance";
+
+      const toneText = {
+        poetic: "poetic, mystical, and grounded",
+        direct: "direct, clear, and actionable",
+        cryptic: "cryptic, shadowy, and mysterious",
+        encouraging: "warm, uplifting, and encouraging"
+      }[meaningTone] || "poetic";
+
       const res = await base44.integrations.Core.InvokeLLM({
-        prompt: `You are the Rooted Crescent Oracle — a mystical guide blending I Ching wisdom with cosmic intuition. Study this mirrored drawing carefully. ${nameContext}Identify the single primary spirit symbol that emerges (one or two words — e.g. Moon, Serpent, Tree, Eye, Bird, Frog, Lion, Hand, Flame, Spiral, Star, Wolf, Bear). Then write exactly 3 sentences as a poetic, affirming oracle reading in the style of the Rooted Crescent deck — grounded, cosmic, and transformative.`,
+        prompt: `You are the Rooted Crescent Oracle. Study this mirrored drawing carefully. ${nameContext}Identify the single primary spirit symbol that emerges (one or two words). Then write exactly 3 sentences as a ${toneText} oracle reading focused on ${focusText}.`,
         file_urls: [file_url],
         model: 'claude_sonnet_4_6',
         response_json_schema: {
@@ -461,23 +477,47 @@ export default function SigilForge() {
               onChange={e => setOracleReading(e.target.value)}
               placeholder="Enter its meaning manually or let the Oracle define it..."
             />
-            <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
-              <button 
-                onClick={forgeSigil} 
-                disabled={isForging}
-                className="px-3 py-1.5 rounded-lg border border-[#67e8f9]/40 text-[#67e8f9] hover:bg-[#67e8f9]/10 text-xs tracking-wider uppercase font-['Cinzel'] transition-all flex items-center justify-center gap-2"
-              >
-                {isForging ? <Loader2 className="w-3 h-3 animate-spin" /> : '✨'} Ask Oracle
-              </button>
-              {(symbolName || oracleReading) && (
+            <div className="flex flex-col gap-3">
+              <div className="flex gap-2 w-full">
+                 <select 
+                   value={meaningFocus} 
+                   onChange={e => setMeaningFocus(e.target.value)}
+                   className="flex-1 bg-[#160f2a] border border-[#C17A3A]/40 rounded p-1.5 text-[#C17A3A] text-xs outline-none cursor-pointer"
+                 >
+                   <option value="general">General Guidance</option>
+                   <option value="love">Love & Relationships</option>
+                   <option value="career">Career & Purpose</option>
+                   <option value="spiritual">Spiritual Growth</option>
+                 </select>
+                 <select 
+                   value={meaningTone} 
+                   onChange={e => setMeaningTone(e.target.value)}
+                   className="flex-1 bg-[#160f2a] border border-[#C17A3A]/40 rounded p-1.5 text-[#C17A3A] text-xs outline-none cursor-pointer"
+                 >
+                   <option value="poetic">Poetic & Mystical</option>
+                   <option value="direct">Direct & Clear</option>
+                   <option value="cryptic">Cryptic & Shadowy</option>
+                   <option value="encouraging">Warm & Encouraging</option>
+                 </select>
+              </div>
+              <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
                 <button 
-                  onClick={saveToWheel} 
-                  disabled={isSavingToWheel}
-                  className="px-3 py-1.5 rounded-lg border border-[#C17A3A]/40 text-[#E8A857] hover:bg-[#C17A3A]/10 text-xs tracking-wider uppercase font-['Cinzel'] transition-all flex items-center justify-center gap-2"
+                  onClick={forgeSigil} 
+                  disabled={isForging}
+                  className="px-3 py-1.5 rounded-lg border border-[#67e8f9]/40 text-[#67e8f9] hover:bg-[#67e8f9]/10 text-xs tracking-wider uppercase font-['Cinzel'] transition-all flex items-center justify-center gap-2"
                 >
-                  {isSavingToWheel ? <Loader2 className="w-3 h-3 animate-spin" /> : '✦'} Save to Wheel
+                  {isForging ? <Loader2 className="w-3 h-3 animate-spin" /> : '✨'} Ask Oracle
                 </button>
-              )}
+                {(symbolName || oracleReading) && (
+                  <button 
+                    onClick={saveToWheel} 
+                    disabled={isSavingToWheel}
+                    className="px-3 py-1.5 rounded-lg border border-[#C17A3A]/40 text-[#E8A857] hover:bg-[#C17A3A]/10 text-xs tracking-wider uppercase font-['Cinzel'] transition-all flex items-center justify-center gap-2"
+                  >
+                    {isSavingToWheel ? <Loader2 className="w-3 h-3 animate-spin" /> : '✦'} Save to Wheel
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
