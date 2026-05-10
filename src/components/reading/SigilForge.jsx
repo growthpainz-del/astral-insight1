@@ -251,7 +251,17 @@ export default function SigilForge() {
 
     try {
       const mc = mirrorCanvasRef.current;
-      const blob = await new Promise(res => mc.toBlob(res, 'image/jpeg', 0.85));
+      
+      // Create a canvas with a solid background so the drawing isn't lost in transparency
+      const tmp = document.createElement('canvas');
+      tmp.width = mc.width;
+      tmp.height = mc.height;
+      const ctx = tmp.getContext('2d');
+      ctx.fillStyle = '#07050f'; // Dark background so light strokes are clearly visible
+      ctx.fillRect(0, 0, tmp.width, tmp.height);
+      ctx.drawImage(mc, 0, 0);
+
+      const blob = await new Promise(res => tmp.toBlob(res, 'image/jpeg', 0.95));
       const file = new File([blob], "sigil.jpg", { type: "image/jpeg" });
       
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
