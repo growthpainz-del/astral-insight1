@@ -379,7 +379,7 @@ export default function Dashboard() {
             Your mystical journey into oracle readings, tarot, and cosmic guidance
           </p>
           <div className="flex gap-4 items-center">
-            <Link to={createPageUrl("ReadingRoom")}>
+            <Link to={createPageUrl("Reading")}>
               <Button size="lg" className="bg-white hover:bg-white/90 font-bold force-dark">
                 <Play className="w-5 h-5 mr-2" />
                 Start Reading
@@ -391,7 +391,7 @@ export default function Dashboard() {
               </Button>
             </Link>
             <div className="ml-2 md:ml-4" title="Quick Read">
-              <AudioOrb variant="link" to={createPageUrl("ReadingRoom")} />
+              <AudioOrb variant="link" to={createPageUrl("Reading")} />
             </div>
           </div>
         </div>
@@ -471,7 +471,7 @@ export default function Dashboard() {
           <QuickAction
             label="Explore Decks"
             icon={Sparkles}
-            to={createPageUrl("ReadingRoom")}
+            to={createPageUrl("Reading")}
             gradient="bg-gradient-to-br from-cyan-600 to-blue-600"
           />
           <QuickAction
@@ -497,7 +497,7 @@ export default function Dashboard() {
             {publicDecks.map(deck => (
               <DeckCard key={deck.id} deck={deck} isOwned={isOwnedByUser(deck)} />
             ))}
-            <Link to={createPageUrl("ReadingRoom")} className="group flex-shrink-0">
+            <Link to={createPageUrl("Reading")} className="group flex-shrink-0">
               <div className="flex flex-col items-center justify-center w-48 aspect-[2/3] rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 hover:border-cyan-400/30 transition-all duration-300">
                 <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform group-hover:bg-cyan-500/20">
                    <ChevronRight className="w-6 h-6 text-white group-hover:text-cyan-400" />
