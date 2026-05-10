@@ -1,0 +1,462 @@
+import React, { useRef, useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { base44 } from '@/api/base44Client';
+import { Loader2 } from 'lucide-react';
+
+const PALETTES = {
+  rustic: {
+    stone: ['#B5A48A', '#8B7D6B', '#3A2F26'],
+    stoneStroke: '#1a1410',
+    glyph: 'rgba(20,10,2,0.92)',
+    glyphShadow: 'rgba(193,122,58,0.75)',
+    bg: '#07050f',
+  },
+  futuristic: {
+    stone: ['#4b6b78', '#2b4b58', '#0b1b28'],
+    stoneStroke: '#071020',
+    glyph: 'rgba(103,232,249,0.92)',
+    glyphShadow: 'rgba(103,232,249,0.75)',
+    bg: '#07050f',
+  }
+};
+
+export default function SigilForge() {
+  const drawCanvasRef = useRef(null);
+  const mirrorCanvasRef = useRef(null);
+  const stoneCanvasRef = useRef(null);
+  const tmpCanvasRef = useRef(document.createElement('canvas'));
+
+  const [brushColor, setBrushColor] = useState('#ffffff');
+  const [brushSize, setBrushSize] = useState(5);
+  const [mirrorAmount, setMirrorAmount] = useState(50);
+  const [brushOpacity, setBrushOpacity] = useState(100);
+  const [erasing, setErasing] = useState(false);
+
+  const [isForging, setIsForging] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [symbolName, setSymbolName] = useState("— awaiting your mark —");
+  const [oracleReading, setOracleReading] = useState("");
+
+  const [paletteId, setPaletteId] = useState('rustic');
+  const [stoneTexture, setStoneTexture] = useState(null);
+  const [texMirror, setTexMirror] = useState(0);
+
+  const isDrawingRef = useRef(false);
+  const lastPosRef = useRef({ x: 0, y: 0 });
+
+  const palette = PALETTES[paletteId];
+
+  useEffect(() => {
+    // init canvases
+    const W = 160, H = 180;
+    const dc = drawCanvasRef.current;
+    const mc = mirrorCanvasRef.current;
+    if (!dc || !mc) return;
+
+    dc.width = W; dc.height = H;
+    mc.width = W; mc.height = H;
+
+    const dctx = dc.getContext('2d');
+    dctx.fillStyle = '#111';
+    dctx.fillRect(0, 0, W, H);
+
+    updateMirror();
+  }, []);
+
+  const getXY = (e, canvas) => {
+    const rect = canvas.getBoundingClientRect();
+    const sx = canvas.width / rect.width;
+    const sy = canvas.height / rect.height;
+    let clientX, clientY;
+    if (e.touches && e.touches.length > 0) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    } else {
+      clientX = e.clientX;
+      clientY = e.clientY;
+    }
+    return { x: (clientX - rect.left) * sx, y: (clientY - rect.top) * sy };
+  };
+
+  const startDraw = (e) => {
+    e.preventDefault();
+    isDrawingRef.current = true;
+    const pos = getXY(e, drawCanvasRef.current);
+    lastPosRef.current = pos;
+
+    const ctx = drawCanvasRef.current.getContext('2d');
+    ctx.globalCompositeOperation = erasing ? 'destination-out' : 'source-over';
+    ctx.globalAlpha = brushOpacity / 100;
+    ctx.beginPath();
+    ctx.arc(pos.x, pos.y, brushSize / 2, 0, Math.PI * 2);
+    ctx.fillStyle = brushColor;
+    ctx.fill();
+    updateMirror();
+  };
+
+  const doDraw = (e) => {
+    if (!isDrawingRef.current) return;
+    e.preventDefault();
+    const pos = getXY(e, drawCanvasRef.current);
+    const ctx = drawCanvasRef.current.getContext('2d');
+
+    ctx.globalCompositeOperation = erasing ? 'destination-out' : 'source-over';
+    ctx.globalAlpha = brushOpacity / 100;
+    ctx.strokeStyle = brushColor;
+    ctx.lineWidth = brushSize;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    ctx.beginPath();
+    ctx.moveTo(lastPosRef.current.x, lastPosRef.current.y);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+
+    lastPosRef.current = pos;
+    updateMirror();
+  };
+
+  const stopDraw = () => {
+    isDrawingRef.current = false;
+    const ctx = drawCanvasRef.current.getContext('2d');
+    ctx.globalAlpha = 1;
+  };
+
+  const updateMirror = () => {
+    const dc = drawCanvasRef.current;
+    const mc = mirrorCanvasRef.current;
+    if (!dc || !mc) return;
+
+    const W = mc.width, H = mc.height;
+    const mctx = mc.getContext('2d');
+    const tmp = tmpCanvasRef.current;
+    tmp.width = W; tmp.height = H;
+    const tmpCtx = tmp.getContext('2d');
+
+    mctx.fillStyle = '#0a0a0a';
+    mctx.fillRect(0, 0, W, H);
+    mctx.globalAlpha = 1;
+    mctx.drawImage(dc, 0, 0, W, H);
+
+    const mAmt = mirrorAmount / 100;
+    if (mAmt > 0) {
+      tmpCtx.clearRect(0, 0, W, H);
+      tmpCtx.save();
+      tmpCtx.translate(W, 0);
+      tmpCtx.scale(-1, 1);
+      tmpCtx.drawImage(dc, 0, 0, W, H);
+      tmpCtx.restore();
+      mctx.globalAlpha = mAmt;
+      mctx.drawImage(tmp, 0, 0);
+      mctx.globalAlpha = 1;
+    }
+
+    if (mAmt > 0.2 && mAmt < 0.8) {
+      mctx.globalAlpha = 0.12;
+      mctx.fillStyle = '#000';
+      mctx.fillRect(W / 2 - 1, 0, 2, H);
+      mctx.globalAlpha = 1;
+    }
+  };
+
+  const clearCanvas = () => {
+    const dc = drawCanvasRef.current;
+    const ctx = dc.getContext('2d');
+    ctx.fillStyle = '#111';
+    ctx.fillRect(0, 0, dc.width, dc.height);
+    updateMirror();
+    setSymbolName("— awaiting your mark —");
+    setOracleReading("");
+    setErrorMsg("");
+    
+    const sc = stoneCanvasRef.current;
+    if (sc) {
+      sc.getContext('2d').clearRect(0, 0, sc.width, sc.height);
+    }
+  };
+
+  const handleTexUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      setStoneTexture(ev.target.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const forgeSigil = async () => {
+    setIsForging(true);
+    setSymbolName("— forging the sigil —");
+    setOracleReading("");
+    setErrorMsg("");
+
+    try {
+      const mc = mirrorCanvasRef.current;
+      const blob = await new Promise(res => mc.toBlob(res, 'image/jpeg', 0.85));
+      const file = new File([blob], "sigil.jpg", { type: "image/jpeg" });
+      
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      
+      const res = await base44.integrations.Core.InvokeLLM({
+        prompt: `You are the Rooted Crescent Oracle — a mystical guide blending I Ching wisdom with cosmic intuition. Study this mirrored drawing carefully. Identify the single primary spirit symbol that emerges (one or two words — e.g. Moon, Serpent, Tree, Eye, Bird, Frog, Lion, Hand, Flame, Spiral, Star, Wolf, Bear). Then write exactly 3 sentences as a poetic, affirming oracle reading in the style of the Rooted Crescent deck — grounded, cosmic, and transformative.`,
+        file_urls: [file_url],
+        model: 'claude_sonnet_4_6',
+        response_json_schema: {
+          type: "object",
+          properties: {
+            symbol: { type: "string" },
+            reading: { type: "string" },
+            keywords: { type: "array", items: { type: "string" } }
+          },
+          required: ["symbol", "reading"]
+        }
+      });
+
+      setSymbolName(res.symbol.toUpperCase());
+      setOracleReading(res.reading);
+      drawSymbolOnStone(res.symbol);
+
+    } catch (err) {
+      console.error(err);
+      setSymbolName("— the forge grows cold —");
+      setErrorMsg("Error: " + err.message);
+    } finally {
+      setIsForging(false);
+    }
+  };
+
+  const drawSymbolOnStone = (name) => {
+    const c = stoneCanvasRef.current;
+    if (!c) return;
+    const ctx = c.getContext('2d');
+    ctx.clearRect(0, 0, 200, 200);
+    const cx = 100, cy = 100;
+    ctx.strokeStyle = palette.glyph;
+    ctx.fillStyle = palette.glyph;
+    ctx.lineWidth = 2.8;
+    ctx.lineCap = ctx.lineJoin = 'round';
+    ctx.shadowColor = palette.glyphShadow;
+    ctx.shadowBlur = 10;
+    
+    const s = name.toLowerCase();
+    ctx.beginPath();
+    if(s.includes('moon')||s.includes('crescent')){
+      ctx.arc(cx-6,cy,34,.4,Math.PI*2-.4);ctx.stroke();
+      ctx.save();ctx.globalCompositeOperation='destination-out';
+      ctx.beginPath();ctx.arc(cx+14,cy-8,26,0,Math.PI*2);ctx.fill();ctx.restore();
+    }else if(s.includes('eye')||s.includes('vision')){
+      ctx.moveTo(cx-44,cy);ctx.quadraticCurveTo(cx,cy-34,cx+44,cy);
+      ctx.quadraticCurveTo(cx,cy+34,cx-44,cy);ctx.stroke();
+      ctx.beginPath();ctx.arc(cx,cy,14,0,Math.PI*2);ctx.stroke();
+      ctx.beginPath();ctx.arc(cx,cy,5,0,Math.PI*2);ctx.fill();
+    }else if(s.includes('sun')||s.includes('star')||s.includes('light')){
+      ctx.arc(cx,cy,18,0,Math.PI*2);ctx.stroke();
+      for(let i=0;i<8;i++){const a=(i/8)*Math.PI*2;ctx.beginPath();ctx.moveTo(cx+Math.cos(a)*22,cy+Math.sin(a)*22);ctx.lineTo(cx+Math.cos(a)*40,cy+Math.sin(a)*40);ctx.stroke();}
+    }else if(s.includes('tree')||s.includes('root')){
+      ctx.moveTo(cx,cy+52);ctx.lineTo(cx,cy-18);ctx.stroke();
+      [[-30,-28],[-14,-36],[14,-36],[30,-28]].forEach(([dx,dy])=>{ctx.beginPath();ctx.moveTo(cx,cy-18);ctx.lineTo(cx+dx,cy+dy);ctx.stroke();});
+      [[-22,28],[-8,38],[8,38],[22,28]].forEach(([dx,dy])=>{ctx.beginPath();ctx.moveTo(cx,cy+52);ctx.quadraticCurveTo(cx+dx/2,cy+52+dy/2,cx+dx,cy+52+dy);ctx.stroke();});
+    }else if(s.includes('snake')||s.includes('serpent')){
+      for(let t=.3;t<Math.PI*3.8;t+=.04){const r=5+t*7.5;t<.35?ctx.moveTo(cx+Math.cos(t)*r,cy+Math.sin(t)*r):ctx.lineTo(cx+Math.cos(t)*r,cy+Math.sin(t)*r);}
+      ctx.stroke();
+    }else if(s.includes('bird')||s.includes('wing')||s.includes('eagle')||s.includes('butterfly')){
+      ctx.moveTo(cx,cy);ctx.bezierCurveTo(cx-14,cy-34,cx-54,cy-20,cx-54,cy+10);ctx.bezierCurveTo(cx-54,cy+36,cx-18,cy+28,cx,cy+8);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(cx,cy);ctx.bezierCurveTo(cx+14,cy-34,cx+54,cy-20,cx+54,cy+10);ctx.bezierCurveTo(cx+54,cy+36,cx+18,cy+28,cx,cy+8);ctx.stroke();
+    }else if(s.includes('hand')||s.includes('palm')){
+      ctx.arc(cx,cy+10,22,0,Math.PI*2);ctx.stroke();
+      [[-16,-28],[-6,-35],[6,-35],[16,-28],[24,-20]].forEach(([dx,dy])=>{ctx.beginPath();ctx.moveTo(cx+dx/2,cy+dy/2+10);ctx.lineTo(cx+dx,cy+dy+10);ctx.stroke();});
+    }else if(s.includes('wolf')||s.includes('lion')||s.includes('bear')){
+      ctx.arc(cx,cy,30,0,Math.PI*2);ctx.stroke();
+      ctx.beginPath();ctx.arc(cx,cy,16,0,Math.PI*2);ctx.stroke();
+      for(let i=0;i<8;i++){const a=(i/8)*Math.PI*2;ctx.beginPath();ctx.moveTo(cx+Math.cos(a)*18,cy+Math.sin(a)*18);ctx.lineTo(cx+Math.cos(a)*34,cy+Math.sin(a)*34);ctx.stroke();}
+    }else if(s.includes('flame')||s.includes('fire')){
+      ctx.moveTo(cx,cy+40);ctx.bezierCurveTo(cx-30,cy+10,cx-20,cy-20,cx,cy-40);ctx.bezierCurveTo(cx+20,cy-20,cx+30,cy+10,cx,cy+40);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(cx,cy+20);ctx.bezierCurveTo(cx-14,cy+5,cx-10,cy-10,cx,cy-20);ctx.bezierCurveTo(cx+10,cy-10,cx+14,cy+5,cx,cy+20);ctx.fill();
+    }else{
+      for(let t=0;t<Math.PI*5.5;t+=.04){const r=t*6;const x=cx+Math.cos(t)*r,y=cy+Math.sin(t)*r;t===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}
+      ctx.stroke();
+    }
+  };
+
+  const getStoneTexturePattern = () => {
+    if (!stoneTexture) return null;
+    return (
+      <pattern id="stoneTex" patternUnits="userSpaceOnUse" width="200" height="200" patternTransform={`scale(${texMirror < 50 ? 1 : -1}, 1) translate(${texMirror < 50 ? 0 : -200}, 0)`}>
+        <image href={stoneTexture} x="0" y="0" width="200" height="200" preserveAspectRatio="xMidYMid slice" />
+      </pattern>
+    );
+  };
+
+  return (
+    <div className="w-full max-w-2xl mx-auto space-y-6">
+      <style>{`
+        .v-panel { background: #0f0b1e; border: 1px solid rgba(160,120,255,.16); border-radius: 14px; padding: 14px; margin-bottom: 14px; }
+        .v-panel-title { font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: .24em; text-transform: uppercase; color: #C17A3A; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .v-panel-title::after { content: ''; flex: 1; height: 1px; background: rgba(193,122,58,.3); }
+        .canvas-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .canvas-col { display: flex; flex-direction: column; gap: 6px; }
+        .col-label { font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: #C17A3A; }
+        .canvas-wrap { width: 100%; height: 180px; position: relative; background: #111; border: 1px solid rgba(139,125,107,.3); border-radius: 8px; overflow: hidden; }
+        canvas.surface { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+        #drawing-canvas { cursor: crosshair; }
+        #mirror-canvas { cursor: default; }
+        .color-swatch { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: border-color .15s; flex-shrink: 0; }
+        .color-swatch.active { border-color: #E8A857; }
+        .v-slider-group { display: flex; align-items: center; gap: 8px; font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: #8B7D6B; white-space: nowrap; }
+        .v-btn { background: transparent; border: 1px solid rgba(139,125,107,.4); color: #C4B49A; padding: 6px 14px; font-family: 'Crimson Text', serif; font-size: 14px; cursor: pointer; border-radius: 6px; transition: all .2s; }
+        .v-btn:hover, .v-btn.active { background: rgba(193,122,58,.15); border-color: #C17A3A; color: #E8A857; }
+        
+        .oracle-btn { width: 100%; margin-top: 16px; padding: 14px; background: linear-gradient(135deg, rgba(193,122,58,.2), rgba(123,184,196,.1)); border: 1px solid #C17A3A; color: #E8A857; font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: .15em; text-transform: uppercase; cursor: pointer; border-radius: 8px; transition: all .3s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .oracle-btn:hover:not(:disabled) { background: linear-gradient(135deg, rgba(193,122,58,.35), rgba(123,184,196,.2)); box-shadow: 0 0 20px rgba(193,122,58,.3); }
+        .oracle-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        
+        .stone-row-wrap { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+        @media (min-width: 640px) { .stone-row-wrap { flex-wrap: nowrap; } }
+        .stone-wrap { position: relative; width: 180px; height: 180px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin: 0 auto; }
+        .stone-svg { position: absolute; width: 100%; height: 100%; filter: drop-shadow(0 6px 18px rgba(0,0,0,.8)); }
+        .stone-svg.glowing { animation: stonePulse 2.5s ease infinite; }
+        @keyframes stonePulse { 0%, 100% { filter: drop-shadow(0 6px 18px rgba(0,0,0,.8)); } 50% { filter: drop-shadow(0 6px 18px rgba(0,0,0,.8)) drop-shadow(0 0 20px rgba(193,122,58,.7)); } }
+        #stone-canvas { position: absolute; width: 52%; height: 52%; border-radius: 50%; z-index: 1; }
+        .stone-text { flex: 1; text-align: center; }
+        @media (min-width: 640px) { .stone-text { text-align: left; } }
+        
+        .pal-btn { flex: 1; padding: 10px; border-radius: 9px; border: none; cursor: pointer; font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; transition: all .25s; }
+        .pal-btn.rustic { background: rgba(193,122,58,.12); border: 1px solid rgba(193,122,58,.3); color: #C17A3A; }
+        .pal-btn.rustic.on { background: rgba(193,122,58,.28); border-color: #C17A3A; color: #E8A857; }
+        .pal-btn.futuristic { background: rgba(103,232,249,.08); border: 1px solid rgba(103,232,249,.25); color: #67e8f9; }
+        .pal-btn.futuristic.on { background: rgba(103,232,249,.2); border-color: #67e8f9; color: #fff; }
+        
+        .upload-area { border: 1.5px dashed rgba(193,122,58,.3); border-radius: 10px; padding: 18px; text-align: center; cursor: pointer; transition: border-color .25s; margin-bottom: 14px; }
+        .upload-area:hover { border-color: rgba(193,122,58,.6); }
+      `}</style>
+
+      {/* Draw & Mirror */}
+      <div className="v-panel">
+        <div className="v-panel-title">Sigil Forge</div>
+        <div className="canvas-row">
+          <div className="canvas-col">
+            <div className="col-label">Draw</div>
+            <div className="canvas-wrap" id="draw-wrap">
+              <canvas 
+                ref={drawCanvasRef} 
+                id="drawing-canvas" 
+                className="surface"
+                onMouseDown={startDraw}
+                onMouseMove={doDraw}
+                onMouseUp={stopDraw}
+                onMouseLeave={stopDraw}
+                onTouchStart={startDraw}
+                onTouchMove={doDraw}
+                onTouchEnd={stopDraw}
+              ></canvas>
+            </div>
+          </div>
+          <div className="canvas-col">
+            <div className="col-label">Mirror</div>
+            <div className="canvas-wrap" id="mirror-wrap">
+              <canvas ref={mirrorCanvasRef} id="mirror-canvas" className="surface"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-4 mt-4">
+          <div className="flex flex-wrap gap-2 items-center">
+            {['#ffffff', '#C17A3A', '#7BB8C4', '#9B7FBE', '#6BAF6B', '#C44B4B', '#67e8f9', '#a78bfa'].map(c => (
+              <div 
+                key={c}
+                className={`color-swatch ${brushColor === c ? 'active' : ''}`}
+                style={{ background: c }}
+                onClick={() => { setBrushColor(c); setErasing(false); }}
+              />
+            ))}
+          </div>
+
+          <div className="flex flex-wrap gap-4 items-center">
+            <div className="v-slider-group">
+              Brush <input type="range" min="1" max="28" value={brushSize} onChange={e => setBrushSize(Number(e.target.value))} className="w-20" />
+            </div>
+            <div className="v-slider-group">
+              Mirror <input type="range" min="0" max="100" value={mirrorAmount} onChange={e => { setMirrorAmount(Number(e.target.value)); updateMirror(); }} className="w-20" />
+              <span className="text-[#C17A3A] min-w-[30px]">{mirrorAmount}%</span>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-4 items-center">
+            <div className="v-slider-group">
+              Opacity <input type="range" min="10" max="100" value={brushOpacity} onChange={e => setBrushOpacity(Number(e.target.value))} className="w-20" />
+              <span className="text-[#C17A3A] min-w-[30px]">{brushOpacity}%</span>
+            </div>
+            <button className={`v-btn ${erasing ? 'active' : ''}`} onClick={() => setErasing(!erasing)}>Erase</button>
+            <button className="v-btn" onClick={clearCanvas}>Clear</button>
+          </div>
+        </div>
+
+        <button className="oracle-btn" onClick={forgeSigil} disabled={isForging}>
+          {isForging ? <Loader2 className="w-4 h-4 animate-spin" /> : '⚔'} Forge the Sigil ✦
+        </button>
+        {errorMsg && <div className="text-red-500 text-xs italic mt-2">{errorMsg}</div>}
+      </div>
+
+      {/* The Stone */}
+      <div className="v-panel">
+        <div className="v-panel-title">The Stone</div>
+        <div className="stone-row-wrap">
+          <div className="stone-wrap">
+            <svg className={`stone-svg ${isForging || oracleReading ? 'glowing' : ''}`} viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                {getStoneTexturePattern()}
+                <radialGradient id="sg" cx="38%" cy="32%" r="65%">
+                  <stop offset="0%" stopColor={palette.stone[0]}/>
+                  <stop offset="40%" stopColor={palette.stone[1]}/>
+                  <stop offset="100%" stopColor={palette.stone[2]}/>
+                </radialGradient>
+                <filter id="stf">
+                  <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" result="noise"/>
+                  <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+                </filter>
+              </defs>
+              <ellipse cx="100" cy="105" rx="88" ry="82" fill={stoneTexture ? "url(#stoneTex)" : "url(#sg)"} filter="url(#stf)"/>
+              <ellipse cx="72" cy="68" rx="28" ry="18" fill="rgba(255,255,255,0.07)" transform="rotate(-20,72,68)"/>
+              <ellipse cx="100" cy="105" rx="88" ry="82" fill="none" stroke={palette.stoneStroke} strokeWidth="4"/>
+            </svg>
+            <canvas ref={stoneCanvasRef} id="stone-canvas" width="200" height="200"></canvas>
+          </div>
+          <div className="stone-text">
+            {isForging && <Loader2 className="w-6 h-6 animate-spin text-[#C17A3A] mx-auto sm:mx-0 mb-2" />}
+            <div className="font-['Cinzel'] text-[#C17A3A] text-lg tracking-[0.16em] mb-2" style={{ textShadow: '0 0 15px rgba(193,122,58,0.5)' }}>
+              {symbolName}
+            </div>
+            <div className="italic text-[#8B7D6B] text-base leading-relaxed">
+              {oracleReading}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Texture Studio */}
+      <div className="v-panel">
+        <div className="v-panel-title">Texture Studio</div>
+
+        <div className="flex gap-2 mb-4">
+          <button className={`pal-btn rustic ${paletteId === 'rustic' ? 'on' : ''}`} onClick={() => setPaletteId('rustic')}>🪵 Rustic</button>
+          <button className={`pal-btn futuristic ${paletteId === 'futuristic' ? 'on' : ''}`} onClick={() => setPaletteId('futuristic')}>🌌 Futuristic</button>
+        </div>
+
+        <div className="upload-area" onClick={() => document.getElementById('tex-file-input').click()}>
+          <span className="text-2xl block mb-1 opacity-50">🖼</span>
+          <span className="font-['Cinzel'] text-[10px] tracking-[0.18em] uppercase text-[#C17A3A] block mb-1">Upload Stone Texture</span>
+          <span className="font-serif italic text-xs text-[#8B7D6B]">JPG, PNG or WebP — applied to the stone</span>
+        </div>
+        <input type="file" id="tex-file-input" accept="image/*" onChange={handleTexUpload} className="hidden" />
+
+        {stoneTexture && (
+          <div className="v-slider-group mt-2">
+            Texture Mirror <input type="range" min="0" max="100" value={texMirror} onChange={e => setTexMirror(Number(e.target.value))} className="w-24" />
+            <span className="text-[#C17A3A] min-w-[30px]">{texMirror}%</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
