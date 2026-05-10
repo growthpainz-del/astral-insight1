@@ -252,8 +252,10 @@ export default function CosmicHub() {
               src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/dceb9973f_FFC86774-57E4-432D-9291-05752E7FDC5A.png" 
               alt="Rooted Crescent" 
               style={{ 
-                width: 36, 
-                borderRadius: 9, 
+                width: 32,
+                height: 32,
+                borderRadius: 8,
+                objectFit: 'cover',
                 transition: "transform 0.25s, filter 0.25s",
                 filter: "brightness(0.9)"
               }} 
@@ -293,7 +295,6 @@ export default function CosmicHub() {
         }}>
           {/* Title */}
           <div style={{ textAlign: "center", marginBottom: 52 }}>
-            <img src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/dceb9973f_FFC86774-57E4-432D-9291-05752E7FDC5A.png" alt="" style={{ width: 88, borderRadius: 22, animation: "logoFloat 5s ease-in-out infinite", marginBottom: 16 }} />
             <h1 style={{
               fontFamily: "'Cinzel', serif", fontWeight: 700,
               fontSize: "clamp(28px, 5vw, 52px)", letterSpacing: "0.22em",
