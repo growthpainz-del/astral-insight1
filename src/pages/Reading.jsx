@@ -239,12 +239,43 @@ const [showShareModal, setShowShareModal] = useState(false);
   const [revealedCards, setRevealedCards] = useState(new Set());
 
 
+  // Deck picker state when no deck is selected
+  const [pickerDecks, setPickerDecks] = useState({ publicDecks: [], myDecks: [] });
+  const [pickerLoading, setPickerLoading] = useState(false);
+
   // Load curated spreads only (disable custom spreads for now)
   useEffect(() => {
     setCustomSpreads([]);
     setAllSpreads(BUILT_IN_SPREADS);
     setSpreadsLoading(false);
   }, []);
+
+  // When no deck is selected, load decks for in-page picker
+  useEffect(() => {
+    if (deckIdFromUrl) return;
+    let cancelled = false;
+    const loadPicker = async () => {
+      try {
+        setPickerLoading(true);
+        const [publicDecks, user] = await Promise.all([
+          queueApiCall(() => base44.entities.Deck.filter({ is_public: true, publish_status: 'published' }, '-created_date', 100), 3, 800),
+          queueApiCall(() => base44.auth.me(), 1, 500).catch(() => null),
+        ]);
+        let myDecks = [];
+        if (user?.email) {
+          const mine = await queueApiCall(() => base44.entities.Deck.filter({ created_by: user.email }, '-updated_date', 100), 2, 800);
+          myDecks = Array.isArray(mine) ? mine.filter(d => d.publish_status !== 'draft' && d.publish_status !== 'pending_review') : [];
+        }
+        if (!cancelled) setPickerDecks({ publicDecks: publicDecks || [], myDecks });
+      } catch (e) {
+        if (!cancelled) setPickerDecks({ publicDecks: [], myDecks: [] });
+      } finally {
+        if (!cancelled) setPickerLoading(false);
+      }
+    };
+    loadPicker();
+    return () => { cancelled = true; };
+  }, [deckIdFromUrl]);
 
   // Load deck and cards - MAIN LOAD
   useEffect(() => {
@@ -449,10 +480,94 @@ const [showShareModal, setShowShareModal] = useState(false);
 
 
 
-  // If no deck chosen, immediately redirect to Dashboard
+  // If no deck chosen, show an in-page deck picker
   if (!deckIdFromUrl) {
-    navigate(createPageUrl("Dashboard"));
-    return null;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-indigo-950 to-purple-950 text-white">
+        <div className="max-w-6xl mx-auto p-4 md:p-8">
+          <div className="flex items-center justify-between mb-6">
+            <Link to="/">
+              <Button variant="ghost" className="text-purple-200">
+                <ChevronLeft className="w-4 h-4 mr-2" /> Back to Hub
+              </Button>
+            </Link>
+            <div className="text-center flex-1">
+              <h1 className="text-2xl font-bold">Choose a deck</h1>
+              <p className="text-purple-300 text-sm mt-1">Pick a deck to start your reading</p>
+            </div>
+            <div className="w-[84px]" />
+          </div>
+
+          {pickerLoading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="w-8 h-8 animate-spin text-purple-400" />
+            </div>
+          ) : (
+            <div className="space-y-10">
+              {pickerDecks.myDecks?.length > 0 && (
+                <div>
+                  <h2 className="text-xl font-semibold mb-3">My Decks</h2>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    {pickerDecks.myDecks.map((d) => (
+                      <div key={d.id} className="group">
+                        <Button asChild variant="ghost" className="p-0 h-auto">
+                          <Link to={createPageUrl(`Reading?deckId=${d.id}`)}>
+                            <div className="aspect-[2/3] rounded-lg overflow-hidden border border-white/10 bg-white/5 hover:border-purple-400/60 transition">
+                            {d.cover_image ? (
+                              <img src={d.cover_image} alt={d.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-white/40">
+                                <BookOpen className="w-8 h-8" />
+                              </div>
+                            )}
+                          </div>
+                        </Link>
+                        </Button>
+                        <div className="mt-2 text-sm truncate">{d.name}</div>
+                        <Button asChild size="sm" className="mt-2 w-full bg-purple-600 hover:bg-purple-700">
+                          <Link to={createPageUrl(`Reading?deckId=${d.id}`)}>Use Deck</Link>
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <h2 className="text-xl font-semibold mb-3">Official Decks</h2>
+                {pickerDecks.publicDecks?.length === 0 ? (
+                  <div className="text-white/70 text-sm">No public decks available.</div>
+                ) : (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    {pickerDecks.publicDecks.map((d) => (
+                      <div key={d.id} className="group">
+                        <Button asChild variant="ghost" className="p-0 h-auto">
+                          <Link to={createPageUrl(`Reading?deckId=${d.id}`)}>
+                            <div className="aspect-[2/3] rounded-lg overflow-hidden border border-white/10 bg-white/5 hover:border-purple-400/60 transition">
+                            {d.cover_image ? (
+                              <img src={d.cover_image} alt={d.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-white/40">
+                                <BookOpen className="w-8 h-8" />
+                              </div>
+                            )}
+                          </div>
+                        </Link>
+                        </Button>
+                        <div className="mt-2 text-sm truncate">{d.name}</div>
+                        <Button asChild size="sm" className="mt-2 w-full bg-purple-600 hover:bg-purple-700">
+                          <Link to={createPageUrl(`Reading?deckId=${d.id}`)}>Use Deck</Link>
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
   }
 
   if (error && !deck) {
