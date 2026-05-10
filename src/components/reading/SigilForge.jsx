@@ -402,7 +402,15 @@ export default function SigilForge() {
       const entropy = Math.random().toString(36).substring(7);
 
       const res = await base44.integrations.Core.InvokeLLM({
-        prompt: `You are the Rooted Crescent Oracle. Carefully analyze the visual shapes and patterns in this mirrored drawing to see what symbols emerge. ${nameContext}Identify the single primary spirit symbol that appears (one or two words) and connect it to its deep, ancient, and common symbolic meanings. Then, write exactly 3 sentences as a ${toneText} oracle reading focused on ${focusText}. The meaning MUST be inspired by the spiritual and universal symbolism of the shape you recognized, bringing forth its mystical significance rather than just describing lines and symmetry. Provide only an upright, balanced, or positive meaning. Make sure this reading is completely unique. (Seed: ${entropy})`,
+        prompt: `You are the Rooted Crescent Oracle. Carefully analyze the visual shapes and patterns in this mirrored drawing to see what symbols emerge. ${nameContext}Identify the single primary spirit symbol that appears (one or two words) and connect it to its deep, ancient, and common symbolic meanings. Then, write exactly 3 sentences as a ${toneText} oracle reading focused on ${focusText}. 
+        
+CRITICAL RULES FOR VARIETY: 
+1. The meaning MUST be inspired by the spiritual and universal symbolism of the shape, but NEVER just describe lines or symmetry. 
+2. DO NOT use clichés, repetitive phrasing, or standard fortune-teller tropes. 
+3. Draw from a vast and diverse pool of obscure mythology, alchemy, esoteric traditions, and highly specific symbolic archetypes. 
+4. Every reading MUST feel completely distinct and highly specific to the unique energy of this exact drawing. 
+5. NEVER start sentences with repetitive structures like "This symbol represents", "The curves suggest", or "This sigil brings".
+6. Provide only an upright, balanced, or positive meaning. (Randomization Seed: ${entropy})`,
         file_urls: [file_url],
         model: 'gpt_5_4',
         response_json_schema: {
