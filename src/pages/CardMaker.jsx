@@ -76,8 +76,10 @@ export default function CardMaker() {
       const selectedDeck = decks.find(d => d.id === selectedDeckId);
       const deckContext = selectedDeck ? `The deck theme is "${selectedDeck.name}". Category: ${selectedDeck.category}. Description: ${selectedDeck.description || "N/A"}.` : "No specific deck theme, make it a general mystical oracle card.";
       
+      const nameGuideline = cardName && cardName !== "The Fool" && cardName.trim() !== "" ? `The user has explicitly set the card name to "${cardName}". Please keep this exact name and generate interpretations tailored to this name and the image.` : "";
+
       const res = await base44.integrations.Core.InvokeLLM({
-        prompt: `Analyze this image. Suggest a suitable oracle/tarot card name and meaningful interpretations. ${deckContext}`,
+        prompt: `Analyze this image. Suggest a suitable oracle/tarot card name and meaningful interpretations. ${deckContext} ${nameGuideline}`,
         file_urls: [file_url],
         response_json_schema: {
           type: "object",
@@ -170,8 +172,10 @@ export default function CardMaker() {
       const selectedDeck = decks.find(d => d.id === selectedDeckId);
       const deckContext = selectedDeck ? `The deck theme is "${selectedDeck.name}". Category: ${selectedDeck.category}. Description: ${selectedDeck.description || "N/A"}.` : "No specific deck theme, make it a general mystical oracle card.";
       
+      const nameGuideline = cardName && cardName !== "The Fool" && cardName.trim() !== "" ? `The user has explicitly set the card name to "${cardName}". Please keep this exact name and generate interpretations tailored to this name and the image.` : "";
+
       const res = await base44.integrations.Core.InvokeLLM({
-        prompt: `Analyze this image. Suggest a suitable oracle/tarot card name and meaningful interpretations. ${deckContext}`,
+        prompt: `Analyze this image. Suggest a suitable oracle/tarot card name and meaningful interpretations. ${deckContext} ${nameGuideline}`,
         file_urls: [file_url],
         response_json_schema: {
           type: "object",
