@@ -30,6 +30,7 @@ import AIReading from "@/components/reading/AIReading";
 import IdeomotorCanvas from "@/components/reading/IdeomotorCanvas";
 import SpreadLayout from "@/components/reading/SpreadLayout";
 import CompactSpread from "@/components/reading/CompactSpread";
+import RootedCrescentStage from "@/components/reading/RootedCrescentStage";
 import { queueApiCall } from "@/components/utils/apiQueue";
 import CardRelationshipVisualizer from "@/components/deck/CardRelationshipVisualizer";
 import { Badge } from "@/components/ui/badge";
@@ -613,7 +614,27 @@ const [showShareModal, setShowShareModal] = useState(false);
             </Link>
           </Button>
           
-          {deck && (
+          {deck && deck?.name?.toLowerCase().includes('rooted crescent') ? (
+            <div className="text-center flex-1">
+              <h1 
+                className="text-xl md:text-3xl font-bold uppercase tracking-[0.1em] mx-auto"
+                style={{
+                  fontFamily: "'Cinzel', serif",
+                  background: "linear-gradient(90deg, #c8a8ff, #fff, #a0c8ff)",
+                  backgroundSize: "200% auto",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  animation: "shimmer 4s linear infinite",
+                  maxWidth: "300px"
+                }}
+              >
+                {deck.name}
+              </h1>
+              <p className="mt-1" style={{ fontFamily: "'IM Fell English', serif", fontStyle: "italic", fontSize: "14px", color: "rgba(180,160,220,0.6)" }}>
+                {selectedSpread?.name}
+              </p>
+            </div>
+          ) : deck && (
             <div className="text-center flex-1">
               <h1 className="text-xl md:text-2xl font-bold text-white">{deck.name}</h1>
             </div>
@@ -873,6 +894,16 @@ const [showShareModal, setShowShareModal] = useState(false);
                )}
 
                <div className="mt-2">
+                 {deck?.name?.toLowerCase().includes('rooted crescent') ? (
+                   <RootedCrescentStage 
+                     spread={selectedSpread}
+                     positions={readingPositions}
+                     cards={placedCards}
+                     deck={deck}
+                     onCardClick={handleCardClick}
+                     revealedCards={revealedCards}
+                   />
+                 ) : (
                   <CompactSpread
                     spread={selectedSpread}
                     positions={readingPositions}
@@ -883,6 +914,7 @@ const [showShareModal, setShowShareModal] = useState(false);
                     onCardClick={handleCardClick}
                     onCardReveal={handleCardReveal}
                   />
+                 )}
                 </div>
 
                </div>
@@ -922,7 +954,54 @@ const [showShareModal, setShowShareModal] = useState(false);
             )}
 
             {/* AI Insight Button */}
-            {!showAI && !showStructuredReading && (
+            {!showAI && !showStructuredReading && deck?.name?.toLowerCase().includes('rooted crescent') ? (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="flex flex-col sm:flex-row items-center justify-center gap-4 text-center px-4"
+                style={{ fontFamily: "'Cinzel', serif" }}
+              >
+                <button
+                  onClick={() => setShowAI(true)}
+                  className="w-full max-w-[280px] p-4 rounded-[13px] border-none cursor-pointer flex items-center justify-center gap-3 transition-transform duration-200"
+                  style={{
+                    background: "linear-gradient(135deg, #5b21b6, #7c3aed, #a78bfa)",
+                    boxShadow: "0 4px 22px rgba(124,58,237,0.4)",
+                    color: "#fff"
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.transform = "translateY(-2px)"}
+                  onMouseOut={(e) => e.currentTarget.style.transform = "translateY(0)"}
+                >
+                  <span className="text-lg shrink-0">✦</span>
+                  <div className="text-left">
+                    <div className="text-[13px] tracking-[0.12em] uppercase font-bold">Unlock Deep Insight</div>
+                    <div className="text-[11px] opacity-75 mt-0.5" style={{ fontFamily: "'IM Fell English', serif", fontStyle: "italic" }}>
+                      AI-powered interpretation
+                    </div>
+                  </div>
+                </button>
+                <button
+                  onClick={() => setShowStructuredReading(true)}
+                  className="w-full max-w-[280px] p-4 rounded-[13px] cursor-pointer flex items-center justify-center gap-3 transition-transform duration-200"
+                  style={{
+                    background: "linear-gradient(135deg, rgba(6,182,212,0.15), rgba(103,232,249,0.08))",
+                    border: "1px solid rgba(103,232,249,0.3)",
+                    color: "#67e8f9",
+                    boxShadow: "0 4px 16px rgba(6,182,212,0.15)"
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.transform = "translateY(-2px)"}
+                  onMouseOut={(e) => e.currentTarget.style.transform = "translateY(0)"}
+                >
+                  <span className="text-lg shrink-0">📖</span>
+                  <div className="text-left">
+                    <div className="text-[13px] tracking-[0.12em] uppercase font-bold">Structured Reading</div>
+                    <div className="text-[11px] opacity-65 mt-0.5" style={{ fontFamily: "'IM Fell English', serif", fontStyle: "italic" }}>
+                      Rules-based interpretation
+                    </div>
+                  </div>
+                </button>
+              </motion.div>
+            ) : !showAI && !showStructuredReading && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
