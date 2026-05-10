@@ -172,19 +172,47 @@ export default function CanvasSpiritWheel({
     ctx.fillText(t.hubIcon || '👁️', 0, 0);
     ctx.restore();
 
-    // 5. Target Needle
+    // 5. Roulette Track and Marble
     ctx.save();
     ctx.translate(cx, cy);
+    
+    // Draw subtle outer track for marble
     ctx.beginPath();
-    ctx.moveTo(0, -maxRadius - 15);
-    ctx.lineTo(-12, -maxRadius + 10);
-    ctx.lineTo(12, -maxRadius + 10);
+    ctx.arc(0, 0, maxRadius + 14, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(201, 168, 76, 0.15)';
+    ctx.lineWidth = 16;
+    ctx.stroke();
+    
+    // Draw marble
+    ctx.save();
+    const marbleRot = rotations.marble || 0;
+    ctx.rotate((marbleRot - 90) * Math.PI / 180);
+    
+    // Marble body
+    ctx.beginPath();
+    ctx.arc(maxRadius + 14, 0, 8, 0, Math.PI * 2);
+    ctx.fillStyle = '#E2E8F0'; // silver marble base
+    ctx.fill();
+    ctx.strokeStyle = '#64748B';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    
+    // Highlight / reflection
+    ctx.beginPath();
+    ctx.arc(maxRadius + 12, -2, 2.5, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255,255,255,0.9)';
+    ctx.fill();
+    ctx.restore();
+    
+    // Keep a subtle indicator at the top to mark the "reading point"
+    ctx.beginPath();
+    ctx.moveTo(0, -maxRadius - 26);
+    ctx.lineTo(-8, -maxRadius - 38);
+    ctx.lineTo(8, -maxRadius - 38);
     ctx.closePath();
     ctx.fillStyle = '#D4AF37';
     ctx.fill();
-    ctx.strokeStyle = '#000';
-    ctx.lineWidth = 1;
-    ctx.stroke();
+
     ctx.restore();
 
   }, [wheelData, rotations, activeTheme, metatron, zoomLevel]);

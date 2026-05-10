@@ -36,7 +36,7 @@ export default function SpiritWheel() {
   const [isRevealed, setIsRevealed] = useState(false);
   const [spinState, setSpinState] = useState("idle"); // idle, spinning
   const [spinSpeed, setSpinSpeed] = useState(1);
-  const [rotations, setRotations] = useState({ outer1: 0, outer2: 0, middle: 0, inner: 0, rune: 0 });
+  const [rotations, setRotations] = useState({ outer1: 0, outer2: 0, middle: 0, inner: 0, rune: 0, marble: 0 });
   const [selectedIndices, setSelectedIndices] = useState({ outer1: 0, outer2: 0, middle: 0, inner: 0, rune: 0 });
   const [intentionPhrase, setIntentionPhrase] = useState("");
   const [metatronResult, setMetatronResult] = useState(null);
@@ -216,7 +216,8 @@ export default function SpiritWheel() {
       outer2: -calculateTargetAngle(Math.abs(rotations.outer2), extraSpins + 2, outer2Winner, wheelData.outer2.length), 
       middle: calculateTargetAngle(rotations.middle, extraSpins + 3, middleWinner, wheelData.middle.length),
       inner: -calculateTargetAngle(Math.abs(rotations.inner), extraSpins + 4, innerWinner, wheelData.inner.length),
-      rune: calculateTargetAngle(rotations.rune || 0, extraSpins + 5, runeWinner, wheelData.rune?.length || 0)
+      rune: calculateTargetAngle(rotations.rune || 0, extraSpins + 5, runeWinner, wheelData.rune?.length || 0),
+      marble: (rotations.marble || 0) - 360 * (extraSpins + 6) // Spins in opposite direction like roulette
     };
 
     // Calculate Metatron zone based on outer1 target angle
@@ -240,7 +241,8 @@ export default function SpiritWheel() {
         outer2: startRots.outer2 + (targetRotations.outer2 - startRots.outer2) * ease,
         middle: startRots.middle + (targetRotations.middle - startRots.middle) * ease,
         inner: startRots.inner + (targetRotations.inner - startRots.inner) * ease,
-        rune: (startRots.rune || 0) + (targetRotations.rune - (startRots.rune || 0)) * ease
+        rune: (startRots.rune || 0) + (targetRotations.rune - (startRots.rune || 0)) * ease,
+        marble: (startRots.marble || 0) + (targetRotations.marble - (startRots.marble || 0)) * ease
       };
 
       setRotations(currentRots);
@@ -402,12 +404,12 @@ export default function SpiritWheel() {
         <button className="mode-tab" onClick={() => navigate(createPageUrl(`SpiritWheelDesigner${selectedWheelId !== "default" ? "?id=" + selectedWheelId : ""}`))}>Designer</button>
       </div>
 
-      <div className="max-w-[100rem] mx-auto flex flex-col lg:flex-row gap-8" style={{ display: activeTab === 'spin' ? 'flex' : 'none' }}>
+      <div className="max-w-[100rem] mx-auto flex flex-col gap-8" style={{ display: activeTab === 'spin' ? 'flex' : 'none' }}>
         
-        {/* Left Column: Visual Wheel & Controls */}
-        <div className="flex-[1.5] flex flex-col items-center justify-start p-0 md:p-2 lg:p-4 relative min-h-[350px] lg:min-h-[600px] order-1 overflow-hidden lg:overflow-visible">
+        {/* Top/Full Width Column: Visual Wheel & Controls */}
+        <div className="w-full flex flex-col items-center justify-start p-0 md:p-2 lg:p-4 relative min-h-[350px] lg:min-h-[600px] order-1 overflow-hidden lg:overflow-visible">
           <div 
-            className="relative w-full flex flex-col items-center pb-[20px] pt-[24px] border-b border-[rgba(201,168,76,0.15)] overflow-hidden"
+            className="relative w-full flex flex-col items-center pb-[20px] pt-[24px] border-b border-[rgba(201,168,76,0.15)] overflow-hidden rounded-xl shadow-2xl"
             style={{
               background: "linear-gradient(180deg, #0a0618 0%, #140d28 40%, #1a1008 100%)",
             }}
@@ -435,7 +437,7 @@ export default function SpiritWheel() {
             </div>
 
             <div 
-              className="relative w-[260px] h-[260px] sm:w-[320px] sm:h-[320px] md:w-[450px] md:h-[450px] lg:w-[500px] lg:h-[500px] shrink-0 transition-transform duration-300 origin-center"
+              className="relative w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] md:w-[500px] md:h-[500px] lg:w-[650px] lg:h-[650px] xl:w-[800px] xl:h-[800px] shrink-0 transition-transform duration-300 origin-center my-4"
               style={{ transform: `scale(${zoomLevel})` }}
             >
               <div 
