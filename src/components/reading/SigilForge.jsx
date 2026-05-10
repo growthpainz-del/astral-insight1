@@ -17,6 +17,13 @@ const PALETTES = {
     glyph: 'rgba(103,232,249,0.92)',
     glyphShadow: 'rgba(103,232,249,0.75)',
     bg: '#07050f',
+  },
+  obsidian: {
+    stone: ['#2a2030', '#1a1428', '#0a0810'],
+    stoneStroke: '#0a0818',
+    glyph: 'rgba(167,139,250,0.95)',
+    glyphShadow: 'rgba(167,139,250,0.7)',
+    bg: '#07050f',
   }
 };
 
@@ -372,6 +379,8 @@ export default function SigilForge() {
         .pal-btn.rustic.on { background: rgba(193,122,58,.28); border-color: #C17A3A; color: #E8A857; }
         .pal-btn.futuristic { background: rgba(103,232,249,.08); border: 1px solid rgba(103,232,249,.25); color: #67e8f9; }
         .pal-btn.futuristic.on { background: rgba(103,232,249,.2); border-color: #67e8f9; color: #fff; }
+        .pal-btn.obsidian { background: rgba(120,80,200,.08); border: 1px solid rgba(120,80,200,.2); color: #a78bfa; }
+        .pal-btn.obsidian.on { background: rgba(120,80,200,.2); border-color: #a78bfa; color: #fff; box-shadow: 0 0 12px rgba(120,80,200,.2); }
         
         .upload-area { border: 1.5px dashed rgba(193,122,58,.3); border-radius: 10px; padding: 18px; text-align: center; cursor: pointer; transition: border-color .25s; margin-bottom: 14px; }
         .upload-area:hover { border-color: rgba(193,122,58,.6); }
@@ -495,7 +504,8 @@ export default function SigilForge() {
 
         <div className="flex gap-2 mb-4">
           <button className={`pal-btn rustic ${paletteId === 'rustic' ? 'on' : ''}`} onClick={() => setPaletteId('rustic')}>🪵 Rustic</button>
-          <button className={`pal-btn futuristic ${paletteId === 'futuristic' ? 'on' : ''}`} onClick={() => setPaletteId('futuristic')}>🌌 Futuristic</button>
+          <button className={`pal-btn futuristic ${paletteId === 'futuristic' ? 'on' : ''}`} onClick={() => setPaletteId('futuristic')}>🌌 Cosmic</button>
+          <button className={`pal-btn obsidian ${paletteId === 'obsidian' ? 'on' : ''}`} onClick={() => setPaletteId('obsidian')}>🖤 Obsidian</button>
         </div>
 
         <div className="upload-area" onClick={() => document.getElementById('tex-file-input').click()}>
