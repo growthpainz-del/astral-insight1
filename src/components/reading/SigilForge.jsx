@@ -298,14 +298,31 @@ export default function SigilForge() {
           required: ["symbol", "reading"]
         }
       });
+      
+      console.log("Oracle AI Response:", res);
+      
+      let parsedRes = res;
+      if (typeof res === 'string') {
+        try {
+            parsedRes = JSON.parse(res.replace(/```json/g, '').replace(/```/g, '').trim());
+        } catch(e) {
+            console.error("Parse error:", e);
+        }
+      }
 
-      const finalSymbol = res?.symbol || originalName || "Mystic Mark";
+      const finalSymbol = parsedRes?.symbol || parsedRes?.data?.symbol || originalName || "Mystic Mark";
       setSymbolName(finalSymbol.toUpperCase());
-      setOracleReading(res?.reading || "The oracle's whispers are clouded.");
+
+      if (!parsedRes || (!parsedRes.symbol && !parsedRes.data?.symbol && !parsedRes.reading && !parsedRes.data?.reading)) {
+          setOracleReading("Error/Raw response: " + (typeof res === 'string' ? res : JSON.stringify(res)).substring(0, 300));
+      } else {
+          setOracleReading(parsedRes?.reading || parsedRes?.data?.reading || "The oracle's whispers are clouded.");
+      }
       drawSymbolOnStone();
 
     } catch (err) {
       console.error(err);
+      setOracleReading("Error: " + err.message);
       setErrorMsg("Error: " + err.message);
     } finally {
       setIsForging(false);
