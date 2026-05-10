@@ -1,3 +1,5 @@
+import { base44 } from "@/api/base44Client";
+
 export const isImageSymbol = (id) => {
   if (!id || typeof id !== 'string') return false;
   const s = id.trim().toLowerCase();
@@ -13,18 +15,16 @@ export const getImageUrl = (id) => {
   return url;
 };
 
-export const getCardRelationship = (id1, id2) => {
+export const getCardRelationship = async (id1, id2) => {
   if (!id1 || !id2) return null;
-  const pair = [String(id1), String(id2)].sort((a, b) => parseInt(a) - parseInt(b)).join("|");
-  const relationships = {
-    "1|53": "The Rooted Journey and The Rooted Tree indicate complete grounding and an unshakeable foundation.",
-    "7|29": "The Seer's Gaze and Echoes of the Mind reveal that your inner guidance is offering profound clarity.",
-    "10|36": "Between the Folds and With Chains Unbound suggest that patience will soon break your old patterns.",
-    "13|39": "The Wild Embrace and Veins of the Void urge you to unleash your passions to claim your true self.",
-    "20|44": "Illuminating Insight and Cascading Illumination indicate a massive flow of inspiration lighting your path.",
-    "21|40": "Luna Duala and The Triad of Synergy point to ultimate harmonization of mind, body, and spirit.",
-    "23|39": "The 4 Shadows and Veins of the Void challenge you to embrace your shadows to find true freedom.",
-    "25|48": "The Cosmic Vision and Harmonic Gates of Ascension mean you are aligning with cosmic flow for a major transformation."
-  };
-  return relationships[pair] || null;
+  const pair = [String(id1), String(id2)].sort().join("|");
+  try {
+    const relations = await base44.entities.CardRelationship.filter({ relationship_key: pair });
+    if (relations && relations.length > 0 && relations[0].custom_notes) {
+      return relations[0].custom_notes;
+    }
+  } catch (e) {
+    console.error("Failed to fetch card relationship", e);
+  }
+  return null;
 };

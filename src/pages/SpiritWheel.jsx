@@ -283,7 +283,7 @@ export default function SpiritWheel() {
       
       let staticReading = `Your reading focuses on ${categoryName}. The core themes are ${coreTheme1} and ${coreTheme2}. `;
       
-      const relationshipInsight = selectedWheelId === "default" ? getCardRelationship(outerItem1.id, outerItem2.id) : null;
+      const relationshipInsight = selectedWheelId === "default" ? await getCardRelationship(outerItem1.id, outerItem2.id) : null;
       
       if (outerItem1.meaning || outerItem1.general?.includes(":")) {
         staticReading += `\n(${outerItem1.meaning || outerItem1.general.split(":")[1]?.trim()}) \n`;
