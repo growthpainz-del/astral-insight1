@@ -17,6 +17,7 @@ import PrivacyPolicy from '@/pages/PrivacyPolicy';
 import CardMaker from '@/pages/CardMaker';
 import CardLibrary from '@/pages/CardLibrary';
 import SpiritWheelCanvasTest from '@/pages/SpiritWheelCanvasTest';
+import SigilForge from '@/pages/SigilForge';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = "CosmicHub";
@@ -76,6 +77,7 @@ const AuthenticatedApp = () => {
       <Route path="/CardMaker" element={<LayoutWrapper currentPageName="CardMaker"><CardMaker /></LayoutWrapper>} />
       <Route path="/CardLibrary" element={<LayoutWrapper currentPageName="CardLibrary"><CardLibrary /></LayoutWrapper>} />
       <Route path="/SpiritWheelCanvasTest" element={<LayoutWrapper currentPageName="SpiritWheelCanvasTest"><SpiritWheelCanvasTest /></LayoutWrapper>} />
+      <Route path="/SigilForge" element={<LayoutWrapper currentPageName="SigilForge"><SigilForge /></LayoutWrapper>} />
     </Routes>
   );
 };

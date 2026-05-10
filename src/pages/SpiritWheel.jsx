@@ -18,7 +18,6 @@ import SpiritWheelThemeSelector from '@/components/reading/SpiritWheelThemeSelec
 import SpiritWheelConfigSelector from '@/components/reading/SpiritWheelConfigSelector';
 import SpiritWheelDisplayOptions from '@/components/reading/SpiritWheelDisplayOptions';
 import SpiritWheelResults from '@/components/reading/SpiritWheelResults';
-import SigilForge from '@/components/reading/SigilForge';
 
 import { ROOTED_CARDS_DATA, WHEEL_MIDDLE, WHEEL_INNER, CATEGORIES } from '@/lib/spiritWheelData';
 import { WHEEL_THEMES } from '@/lib/spiritWheelThemes';
@@ -460,7 +459,6 @@ export default function SpiritWheel() {
       <div className="mode-tabs" data-html2canvas-ignore="true">
         <button className={`mode-tab ${activeTab === 'spin' ? 'on' : ''}`} onClick={() => setActiveTab('spin')}>Spin</button>
         <button className={`mode-tab ${activeTab === 'config' ? 'on' : ''}`} onClick={() => setActiveTab('config')}>Configure</button>
-        <button className={`mode-tab ${activeTab === 'vision' ? 'on' : ''}`} onClick={() => setActiveTab('vision')}>Sigil Forge</button>
         <button className="mode-tab" onClick={() => navigate(createPageUrl(`SpiritWheelDesigner${selectedWheelId !== "default" ? "?id=" + selectedWheelId : ""}`))}>Designer</button>
       </div>
 
@@ -585,10 +583,6 @@ export default function SpiritWheel() {
             setShowReportDialog={setShowReportDialog}
           />
         </div>
-      </div>
-
-      <div className="max-w-[100rem] mx-auto pb-12 mt-8 z-10 relative" style={{ display: activeTab === 'vision' ? 'flex' : 'none' }}>
-        <SigilForge />
       </div>
 
       <div className="max-w-[100rem] mx-auto pb-12 mt-8 z-10 relative" style={{ display: activeTab === 'config' ? 'block' : 'none' }}>
