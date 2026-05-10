@@ -266,9 +266,10 @@ export default function SigilForge() {
         }
       });
 
-      setSymbolName(res.symbol.toUpperCase());
-      setOracleReading(res.reading);
-      drawSymbolOnStone(res.symbol);
+      const finalSymbol = res?.symbol || "Mystic Mark";
+      setSymbolName(finalSymbol.toUpperCase());
+      setOracleReading(res?.reading || "The oracle's whispers are clouded.");
+      drawSymbolOnStone(finalSymbol);
 
     } catch (err) {
       console.error(err);
