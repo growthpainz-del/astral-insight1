@@ -33,6 +33,7 @@ export default function SigilForge() {
   const [erasing, setErasing] = useState(false);
 
   const [isForging, setIsForging] = useState(false);
+  const [isSavingToWheel, setIsSavingToWheel] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [symbolName, setSymbolName] = useState("— awaiting your mark —");
   const [oracleReading, setOracleReading] = useState("");
@@ -183,6 +184,51 @@ export default function SigilForge() {
       setStoneTexture(ev.target.result);
     };
     reader.readAsDataURL(file);
+  };
+
+  const saveToWheel = async () => {
+    try {
+      setIsSavingToWheel(true);
+      const c = stoneCanvasRef.current;
+      if (!c) return;
+      const blob = await new Promise(res => c.toBlob(res, 'image/png'));
+      const file = new File([blob], `sigil-${symbolName.toLowerCase().replace(/[^a-z0-9]/g, '')}.png`, { type: "image/png" });
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      
+      const user = await base44.auth.me();
+      if (!user) {
+        alert("Please log in to save sigils.");
+        return;
+      }
+
+      let decks = await base44.entities.Deck.filter({ name: "Forged Sigils", created_by: user.email });
+      let deckId;
+      if (decks && decks.length > 0) {
+        deckId = decks[0].id;
+      } else {
+        const newDeck = await base44.entities.Deck.create({
+          name: "Forged Sigils",
+          category: "custom",
+          description: "Sigils forged in the Astral Insight Sigil Forge"
+        });
+        deckId = newDeck.id;
+      }
+
+      await base44.entities.Card.create({
+        deck_id: deckId,
+        name: symbolName,
+        overall_meaning: oracleReading,
+        spirit_wheel_icon_url: file_url,
+        image_url: file_url
+      });
+      
+      alert("Sigil saved to 'Forged Sigils' deck! You can now select it in the Spirit Wheel Designer as a card.");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to save: " + err.message);
+    } finally {
+      setIsSavingToWheel(false);
+    }
   };
 
   const forgeSigil = async () => {
@@ -430,6 +476,15 @@ export default function SigilForge() {
             <div className="italic text-[#8B7D6B] text-base leading-relaxed">
               {oracleReading}
             </div>
+            {oracleReading && (
+              <button 
+                onClick={saveToWheel} 
+                disabled={isSavingToWheel}
+                className="mt-4 px-4 py-2 rounded-lg border border-[#C17A3A]/40 text-[#E8A857] hover:bg-[#C17A3A]/10 text-xs tracking-wider uppercase font-['Cinzel'] transition-all flex items-center justify-center gap-2 mx-auto sm:mx-0"
+              >
+                {isSavingToWheel ? <Loader2 className="w-3 h-3 animate-spin" /> : '✦'} Save to Wheel
+              </button>
+            )}
           </div>
         </div>
       </div>
