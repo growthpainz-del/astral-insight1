@@ -272,8 +272,10 @@ export default function SigilForge() {
         encouraging: "warm, uplifting, and encouraging"
       }[meaningTone] || "poetic";
 
+      const entropy = Math.random().toString(36).substring(7);
+
       const res = await base44.integrations.Core.InvokeLLM({
-        prompt: `You are the Rooted Crescent Oracle. Study this mirrored drawing carefully. ${nameContext}Identify the single primary spirit symbol that emerges (one or two words). Then write exactly 3 sentences as a ${toneText} oracle reading focused on ${focusText}. Provide only an upright, balanced, or positive meaning, as sigils do not have reversed meanings.`,
+        prompt: `You are the Rooted Crescent Oracle. Study this mirrored drawing carefully. ${nameContext}Identify the single primary spirit symbol that emerges (one or two words). Then write exactly 3 sentences as a ${toneText} oracle reading focused on ${focusText}. Provide only an upright, balanced, or positive meaning, as sigils do not have reversed meanings. Make sure this reading is completely unique and different from any previous readings. (Seed: ${entropy})`,
         file_urls: [file_url],
         model: 'claude_sonnet_4_6',
         response_json_schema: {
