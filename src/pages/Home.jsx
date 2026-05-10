@@ -79,7 +79,7 @@ export default function HomePage() {
                     <p className="text-white/70 mt-1 text-sm md:text-base w-full line-clamp-3 sm:line-clamp-none">{spotlight.description}</p>
                   )}
                   <div className="mt-4 flex flex-col sm:flex-row flex-wrap justify-center sm:justify-start items-center gap-4 w-full">
-                    <Link to={createPageUrl(`Reading?deckId=${spotlight.id}`)} className="w-full sm:w-auto">
+                    <Link to={createPageUrl(`ReadingRoom`)} className="w-full sm:w-auto">
                       <Button className="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white font-semibold h-12 px-6">
                         Read with this deck
                       </Button>
