@@ -10,6 +10,7 @@ import { queueApiCall } from "@/components/utils/apiQueue";
 import AudioOrb from "@/components/reading/AudioOrb";
 import MoonPhaseWidget from "@/components/dashboard/MoonPhaseWidget";
 import { getThumbnailUrl } from "@/lib/utils";
+import DisablePullToRefresh from "@/components/common/DisablePullToRefresh";
 
 function DeckCard({ deck, isOwned = false }) {
   const navigate = useNavigate();
@@ -117,15 +118,6 @@ function QuickAction({ label, icon: Icon, to, gradient }) {
 }
 
 export default function Dashboard() {
-  // Pull-to-refresh (mobile)
-  const containerRef = React.useRef(null);
-  const [pull, setPull] = React.useState(0);
-  const [refreshing, setRefreshing] = React.useState(false);
-  const startYRef = React.useRef(0);
-  const atTop = () => (window.scrollY === 0) || ((containerRef.current && containerRef.current.scrollTop === 0));
-  const onTouchStart = (e) => { if (!atTop()) return; startYRef.current = e.touches[0].clientY; setPull(0); };
-  const onTouchMove = (e) => { if (!atTop()) return; const dy = e.touches[0].clientY - startYRef.current; if (dy>0) { e.preventDefault(); setPull(Math.min(120, dy)); } };
-  const onTouchEnd = () => { if (pull>80 && !refreshing) { setRefreshing(true); window.location.reload(); } setPull(0); }
   const [publicDecks, setPublicDecks] = useState([]);
   const [myDecks, setMyDecks] = useState([]);
   const [draftDecks, setDraftDecks] = useState([]);
@@ -355,11 +347,8 @@ export default function Dashboard() {
   }
 
   return (
-    <div ref={containerRef} onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd} className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-black text-white">
-      {/* Pull-to-refresh indicator */}
-      <div style={{height: pull, transition: pull===0 ? 'height .2s ease' : 'none'}} className="flex items-center justify-center text-white/70">
-        {pull>0 && (refreshing ? 'Refreshing…' : 'Pull to refresh')}
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-black text-white">
+      <DisablePullToRefresh targetSelector="body" />
 
       {/* NETFLIX-STYLE HERO SECTION */}
       <div className="relative h-[70vh] mb-8">
