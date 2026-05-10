@@ -42,7 +42,7 @@ export default function SigilForge() {
   const [isForging, setIsForging] = useState(false);
   const [isSavingToWheel, setIsSavingToWheel] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
-  const [symbolName, setSymbolName] = useState("— awaiting your mark —");
+  const [symbolName, setSymbolName] = useState("");
   const [oracleReading, setOracleReading] = useState("");
 
   const [paletteId, setPaletteId] = useState('rustic');
@@ -53,6 +53,10 @@ export default function SigilForge() {
   const lastPosRef = useRef({ x: 0, y: 0 });
 
   const palette = PALETTES[paletteId];
+
+  useEffect(() => {
+    drawSymbolOnStone();
+  }, [paletteId, stoneTexture, texMirror]);
 
   useEffect(() => {
     // init canvases
@@ -163,6 +167,7 @@ export default function SigilForge() {
       mctx.fillRect(W / 2 - 1, 0, 2, H);
       mctx.globalAlpha = 1;
     }
+    drawSymbolOnStone();
   };
 
   const clearCanvas = () => {
@@ -170,7 +175,7 @@ export default function SigilForge() {
     const ctx = dc.getContext('2d');
     ctx.clearRect(0, 0, dc.width, dc.height);
     updateMirror();
-    setSymbolName("— awaiting your mark —");
+    setSymbolName("");
     setOracleReading("");
     setErrorMsg("");
     
@@ -195,8 +200,9 @@ export default function SigilForge() {
       setIsSavingToWheel(true);
       const c = stoneCanvasRef.current;
       if (!c) return;
+      const safeName = symbolName.trim() || "Unnamed Sigil";
       const blob = await new Promise(res => c.toBlob(res, 'image/png'));
-      const file = new File([blob], `sigil-${symbolName.toLowerCase().replace(/[^a-z0-9]/g, '')}.png`, { type: "image/png" });
+      const file = new File([blob], `sigil-${safeName.toLowerCase().replace(/[^a-z0-9]/g, '') || 'sigil'}.png`, { type: "image/png" });
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
       
       const user = await base44.auth.me();
@@ -220,7 +226,7 @@ export default function SigilForge() {
 
       await base44.entities.Card.create({
         deck_id: deckId,
-        name: symbolName,
+        name: safeName,
         overall_meaning: oracleReading,
         spirit_wheel_icon_url: file_url,
         image_url: file_url
@@ -237,8 +243,8 @@ export default function SigilForge() {
 
   const forgeSigil = async () => {
     setIsForging(true);
-    setSymbolName("— forging the sigil —");
-    setOracleReading("");
+    const originalName = symbolName;
+    setOracleReading("... channeling the cosmos ...");
     setErrorMsg("");
 
     try {
@@ -248,8 +254,10 @@ export default function SigilForge() {
       
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
       
+      const nameContext = originalName ? `The user has named this sigil "${originalName}". Use this name or incorporate its concept. ` : "";
+      
       const res = await base44.integrations.Core.InvokeLLM({
-        prompt: `You are the Rooted Crescent Oracle — a mystical guide blending I Ching wisdom with cosmic intuition. Study this mirrored drawing carefully. Identify the single primary spirit symbol that emerges (one or two words — e.g. Moon, Serpent, Tree, Eye, Bird, Frog, Lion, Hand, Flame, Spiral, Star, Wolf, Bear). Then write exactly 3 sentences as a poetic, affirming oracle reading in the style of the Rooted Crescent deck — grounded, cosmic, and transformative.`,
+        prompt: `You are the Rooted Crescent Oracle — a mystical guide blending I Ching wisdom with cosmic intuition. Study this mirrored drawing carefully. ${nameContext}Identify the single primary spirit symbol that emerges (one or two words — e.g. Moon, Serpent, Tree, Eye, Bird, Frog, Lion, Hand, Flame, Spiral, Star, Wolf, Bear). Then write exactly 3 sentences as a poetic, affirming oracle reading in the style of the Rooted Crescent deck — grounded, cosmic, and transformative.`,
         file_urls: [file_url],
         model: 'claude_sonnet_4_6',
         response_json_schema: {
@@ -263,14 +271,13 @@ export default function SigilForge() {
         }
       });
 
-      const finalSymbol = res?.symbol || "Mystic Mark";
+      const finalSymbol = res?.symbol || originalName || "Mystic Mark";
       setSymbolName(finalSymbol.toUpperCase());
       setOracleReading(res?.reading || "The oracle's whispers are clouded.");
-      drawSymbolOnStone(finalSymbol);
+      drawSymbolOnStone();
 
     } catch (err) {
       console.error(err);
-      setSymbolName("— the forge grows cold —");
       setErrorMsg("Error: " + err.message);
     } finally {
       setIsForging(false);
@@ -412,9 +419,6 @@ export default function SigilForge() {
           </div>
         </div>
 
-        <button className="oracle-btn" onClick={forgeSigil} disabled={isForging}>
-          {isForging ? <Loader2 className="w-4 h-4 animate-spin" /> : '⚔'} Forge the Sigil ✦
-        </button>
         {errorMsg && <div className="text-red-500 text-xs italic mt-2">{errorMsg}</div>}
       </div>
 
@@ -442,23 +446,39 @@ export default function SigilForge() {
             </svg>
             <canvas ref={stoneCanvasRef} id="stone-canvas" width="200" height="200"></canvas>
           </div>
-          <div className="stone-text">
+          <div className="stone-text flex flex-col gap-3">
             {isForging && <Loader2 className="w-6 h-6 animate-spin text-[#C17A3A] mx-auto sm:mx-0 mb-2" />}
-            <div className="font-['Cinzel'] text-[#C17A3A] text-lg tracking-[0.16em] mb-2" style={{ textShadow: '0 0 15px rgba(193,122,58,0.5)' }}>
-              {symbolName}
-            </div>
-            <div className="italic text-[#8B7D6B] text-base leading-relaxed">
-              {oracleReading}
-            </div>
-            {oracleReading && (
+            <input 
+              className="font-['Cinzel'] bg-transparent border-b border-[#C17A3A]/40 text-[#C17A3A] text-lg tracking-[0.16em] outline-none text-center sm:text-left placeholder-[#C17A3A]/50 w-full"
+              style={{ textShadow: '0 0 15px rgba(193,122,58,0.5)' }}
+              value={symbolName}
+              onChange={e => setSymbolName(e.target.value)}
+              placeholder="Name your sigil..."
+            />
+            <textarea 
+              className="italic bg-transparent border border-[#C17A3A]/20 rounded p-2 text-[#8B7D6B] text-base leading-relaxed outline-none focus:border-[#C17A3A]/50 w-full resize-none h-24"
+              value={oracleReading}
+              onChange={e => setOracleReading(e.target.value)}
+              placeholder="Enter its meaning manually or let the Oracle define it..."
+            />
+            <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
               <button 
-                onClick={saveToWheel} 
-                disabled={isSavingToWheel}
-                className="mt-4 px-4 py-2 rounded-lg border border-[#C17A3A]/40 text-[#E8A857] hover:bg-[#C17A3A]/10 text-xs tracking-wider uppercase font-['Cinzel'] transition-all flex items-center justify-center gap-2 mx-auto sm:mx-0"
+                onClick={forgeSigil} 
+                disabled={isForging}
+                className="px-3 py-1.5 rounded-lg border border-[#67e8f9]/40 text-[#67e8f9] hover:bg-[#67e8f9]/10 text-xs tracking-wider uppercase font-['Cinzel'] transition-all flex items-center justify-center gap-2"
               >
-                {isSavingToWheel ? <Loader2 className="w-3 h-3 animate-spin" /> : '✦'} Save to Wheel
+                {isForging ? <Loader2 className="w-3 h-3 animate-spin" /> : '✨'} Ask Oracle
               </button>
-            )}
+              {(symbolName || oracleReading) && (
+                <button 
+                  onClick={saveToWheel} 
+                  disabled={isSavingToWheel}
+                  className="px-3 py-1.5 rounded-lg border border-[#C17A3A]/40 text-[#E8A857] hover:bg-[#C17A3A]/10 text-xs tracking-wider uppercase font-['Cinzel'] transition-all flex items-center justify-center gap-2"
+                >
+                  {isSavingToWheel ? <Loader2 className="w-3 h-3 animate-spin" /> : '✦'} Save to Wheel
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
