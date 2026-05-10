@@ -239,7 +239,28 @@ export default function CosmicHub() {
           padding: "18px 36px",
           background: "linear-gradient(to bottom, rgba(2,2,8,0.85) 0%, transparent 100%)",
         }}>
-          <img src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/dceb9973f_FFC86774-57E4-432D-9291-05752E7FDC5A.png" alt="Rooted Crescent" style={{ width: 36, borderRadius: 9 }} />
+          <Link 
+            to="/" 
+            style={{ 
+              animation: "communityPop 0.8s 1.6s both",
+              display: "flex", 
+              alignItems: "center",
+              textDecoration: "none"
+            }}
+          >
+            <img 
+              src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/dceb9973f_FFC86774-57E4-432D-9291-05752E7FDC5A.png" 
+              alt="Rooted Crescent" 
+              style={{ 
+                width: 36, 
+                borderRadius: 9, 
+                transition: "transform 0.25s, filter 0.25s",
+                filter: "brightness(0.9)"
+              }} 
+              onMouseEnter={(e) => { e.currentTarget.style.transform = "scale(1.05)"; e.currentTarget.style.filter = "brightness(1.2)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.filter = "brightness(0.9)"; }}
+            />
+          </Link>
 
           <div style={{ display: "flex", gap: 28, alignItems: "center" }}>
             {[
