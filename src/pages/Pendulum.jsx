@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { base44 } from '@/api/base44Client';
-import { ROOTED_CARDS_DATA, WHEEL_MIDDLE, WHEEL_INNER } from "./SpiritWheel";
+import { ROOTED_CARDS_DATA, WHEEL_MIDDLE, WHEEL_INNER } from "@/lib/spiritWheelData";
 
 const WHEEL_DATA = {
   outer: ROOTED_CARDS_DATA.map(c => ({

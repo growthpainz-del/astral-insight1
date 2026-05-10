@@ -9,6 +9,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
+import CosmicHub from '@/pages/CosmicHub';
 import SpiritWheel from '@/pages/SpiritWheel';
 import SpiritWheelDesigner from '@/pages/SpiritWheelDesigner';
 import Pendulum from '@/pages/Pendulum';
@@ -18,8 +19,8 @@ import CardLibrary from '@/pages/CardLibrary';
 import SpiritWheelCanvasTest from '@/pages/SpiritWheelCanvasTest';
 
 const { Pages, Layout, mainPage } = pagesConfig;
-const mainPageKey = mainPage ?? Object.keys(Pages)[0];
-const MainPage = mainPageKey ? Pages[mainPageKey] : <></>;
+const mainPageKey = "CosmicHub";
+const MainPage = CosmicHub;
 
 const LayoutWrapper = ({ children, currentPageName }) => Layout ?
   <Layout currentPageName={currentPageName}>{children}</Layout>
