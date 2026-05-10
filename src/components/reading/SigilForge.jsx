@@ -65,8 +65,7 @@ export default function SigilForge() {
     mc.width = W; mc.height = H;
 
     const dctx = dc.getContext('2d');
-    dctx.fillStyle = '#111';
-    dctx.fillRect(0, 0, W, H);
+    dctx.clearRect(0, 0, W, H);
 
     updateMirror();
   }, []);
@@ -141,8 +140,7 @@ export default function SigilForge() {
     tmp.width = W; tmp.height = H;
     const tmpCtx = tmp.getContext('2d');
 
-    mctx.fillStyle = '#0a0a0a';
-    mctx.fillRect(0, 0, W, H);
+    mctx.clearRect(0, 0, W, H);
     mctx.globalAlpha = 1;
     mctx.drawImage(dc, 0, 0, W, H);
 
@@ -170,8 +168,7 @@ export default function SigilForge() {
   const clearCanvas = () => {
     const dc = drawCanvasRef.current;
     const ctx = dc.getContext('2d');
-    ctx.fillStyle = '#111';
-    ctx.fillRect(0, 0, dc.width, dc.height);
+    ctx.clearRect(0, 0, dc.width, dc.height);
     updateMirror();
     setSymbolName("— awaiting your mark —");
     setOracleReading("");
@@ -282,55 +279,22 @@ export default function SigilForge() {
 
   const drawSymbolOnStone = (name) => {
     const c = stoneCanvasRef.current;
-    if (!c) return;
+    const mc = mirrorCanvasRef.current;
+    if (!c || !mc) return;
     const ctx = c.getContext('2d');
     ctx.clearRect(0, 0, 200, 200);
-    const cx = 100, cy = 100;
-    ctx.strokeStyle = palette.glyph;
-    ctx.fillStyle = palette.glyph;
-    ctx.lineWidth = 2.8;
-    ctx.lineCap = ctx.lineJoin = 'round';
+
     ctx.shadowColor = palette.glyphShadow;
     ctx.shadowBlur = 10;
     
-    const s = name.toLowerCase();
-    ctx.beginPath();
-    if(s.includes('moon')||s.includes('crescent')){
-      ctx.arc(cx-6,cy,34,.4,Math.PI*2-.4);ctx.stroke();
-      ctx.save();ctx.globalCompositeOperation='destination-out';
-      ctx.beginPath();ctx.arc(cx+14,cy-8,26,0,Math.PI*2);ctx.fill();ctx.restore();
-    }else if(s.includes('eye')||s.includes('vision')){
-      ctx.moveTo(cx-44,cy);ctx.quadraticCurveTo(cx,cy-34,cx+44,cy);
-      ctx.quadraticCurveTo(cx,cy+34,cx-44,cy);ctx.stroke();
-      ctx.beginPath();ctx.arc(cx,cy,14,0,Math.PI*2);ctx.stroke();
-      ctx.beginPath();ctx.arc(cx,cy,5,0,Math.PI*2);ctx.fill();
-    }else if(s.includes('sun')||s.includes('star')||s.includes('light')){
-      ctx.arc(cx,cy,18,0,Math.PI*2);ctx.stroke();
-      for(let i=0;i<8;i++){const a=(i/8)*Math.PI*2;ctx.beginPath();ctx.moveTo(cx+Math.cos(a)*22,cy+Math.sin(a)*22);ctx.lineTo(cx+Math.cos(a)*40,cy+Math.sin(a)*40);ctx.stroke();}
-    }else if(s.includes('tree')||s.includes('root')){
-      ctx.moveTo(cx,cy+52);ctx.lineTo(cx,cy-18);ctx.stroke();
-      [[-30,-28],[-14,-36],[14,-36],[30,-28]].forEach(([dx,dy])=>{ctx.beginPath();ctx.moveTo(cx,cy-18);ctx.lineTo(cx+dx,cy+dy);ctx.stroke();});
-      [[-22,28],[-8,38],[8,38],[22,28]].forEach(([dx,dy])=>{ctx.beginPath();ctx.moveTo(cx,cy+52);ctx.quadraticCurveTo(cx+dx/2,cy+52+dy/2,cx+dx,cy+52+dy);ctx.stroke();});
-    }else if(s.includes('snake')||s.includes('serpent')){
-      for(let t=.3;t<Math.PI*3.8;t+=.04){const r=5+t*7.5;t<.35?ctx.moveTo(cx+Math.cos(t)*r,cy+Math.sin(t)*r):ctx.lineTo(cx+Math.cos(t)*r,cy+Math.sin(t)*r);}
-      ctx.stroke();
-    }else if(s.includes('bird')||s.includes('wing')||s.includes('eagle')||s.includes('butterfly')){
-      ctx.moveTo(cx,cy);ctx.bezierCurveTo(cx-14,cy-34,cx-54,cy-20,cx-54,cy+10);ctx.bezierCurveTo(cx-54,cy+36,cx-18,cy+28,cx,cy+8);ctx.stroke();
-      ctx.beginPath();ctx.moveTo(cx,cy);ctx.bezierCurveTo(cx+14,cy-34,cx+54,cy-20,cx+54,cy+10);ctx.bezierCurveTo(cx+54,cy+36,cx+18,cy+28,cx,cy+8);ctx.stroke();
-    }else if(s.includes('hand')||s.includes('palm')){
-      ctx.arc(cx,cy+10,22,0,Math.PI*2);ctx.stroke();
-      [[-16,-28],[-6,-35],[6,-35],[16,-28],[24,-20]].forEach(([dx,dy])=>{ctx.beginPath();ctx.moveTo(cx+dx/2,cy+dy/2+10);ctx.lineTo(cx+dx,cy+dy+10);ctx.stroke();});
-    }else if(s.includes('wolf')||s.includes('lion')||s.includes('bear')){
-      ctx.arc(cx,cy,30,0,Math.PI*2);ctx.stroke();
-      ctx.beginPath();ctx.arc(cx,cy,16,0,Math.PI*2);ctx.stroke();
-      for(let i=0;i<8;i++){const a=(i/8)*Math.PI*2;ctx.beginPath();ctx.moveTo(cx+Math.cos(a)*18,cy+Math.sin(a)*18);ctx.lineTo(cx+Math.cos(a)*34,cy+Math.sin(a)*34);ctx.stroke();}
-    }else if(s.includes('flame')||s.includes('fire')){
-      ctx.moveTo(cx,cy+40);ctx.bezierCurveTo(cx-30,cy+10,cx-20,cy-20,cx,cy-40);ctx.bezierCurveTo(cx+20,cy-20,cx+30,cy+10,cx,cy+40);ctx.stroke();
-      ctx.beginPath();ctx.moveTo(cx,cy+20);ctx.bezierCurveTo(cx-14,cy+5,cx-10,cy-10,cx,cy-20);ctx.bezierCurveTo(cx+10,cy-10,cx+14,cy+5,cx,cy+20);ctx.fill();
-    }else{
-      for(let t=0;t<Math.PI*5.5;t+=.04){const r=t*6;const x=cx+Math.cos(t)*r,y=cy+Math.sin(t)*r;t===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}
-      ctx.stroke();
-    }
+    // Draw the user's doodle scaled to fit the stone
+    const scale = Math.min(180 / mc.width, 180 / mc.height);
+    const sw = mc.width * scale;
+    const sh = mc.height * scale;
+    const dx = (200 - sw) / 2;
+    const dy = (200 - sh) / 2;
+    
+    ctx.drawImage(mc, dx, dy, sw, sh);
   };
 
   const getStoneTexturePattern = () => {
