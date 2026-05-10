@@ -756,6 +756,7 @@ export default function SpiritWheelDesigner() {
   const [jsonError, setJsonError] = useState("");
   const [libraryTargetField, setLibraryTargetField] = useState(null);
   const [editingMode, setEditingMode] = useState(true);
+  const [activeTab, setActiveTab] = useState('designer');
 
   useEffect(() => {
     const load = async () => {
@@ -940,6 +941,29 @@ export default function SpiritWheelDesigner() {
 
   return (
     <div className="min-h-screen bg-[#07050f] text-[#e1d7ff] p-0 md:p-8 font-serif" style={{ fontFamily: "'Crimson Text', serif" }}>
+      <style>{`
+        .mode-tabs {
+          display: flex; gap: 0; background: rgba(22,15,42,0.8); border-bottom: 1px solid rgba(160,120,255,0.16);
+          position: sticky; top: 0; z-index: 90; backdrop-filter: blur(10px); margin-bottom: 24px;
+        }
+        @media (max-width: 768px) {
+          .mode-tabs { margin: 0; }
+        }
+        .mode-tab {
+          flex: 1; padding: 14px 0; font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.16em;
+          text-transform: uppercase; color: rgba(180,160,220,0.6); border: none; background: none; cursor: pointer;
+          border-bottom: 2px solid transparent; transition: all 0.25s; text-align: center;
+        }
+        .mode-tab.on { color: #c9a84c; border-bottom-color: #c9a84c; background: rgba(201,168,76,0.05); }
+        .mode-tab:hover:not(.on) { color: rgba(201,168,76,0.8); background: rgba(201,168,76,0.02); }
+      `}</style>
+      
+      <div className="mode-tabs">
+        <button className="mode-tab" onClick={() => navigate(createPageUrl(`SpiritWheel${editId ? "?id=" + editId : ""}`))}>Spin</button>
+        <button className="mode-tab" onClick={() => navigate(createPageUrl(`SpiritWheel?tab=config${editId ? "&id=" + editId : ""}`))}>Configure</button>
+        <button className="mode-tab on">Designer</button>
+      </div>
+
       <div className="max-w-[430px] md:max-w-5xl mx-auto space-y-0 md:space-y-6">
         
         {/* Designer Header */}

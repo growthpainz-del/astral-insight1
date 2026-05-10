@@ -28,6 +28,7 @@ export default function SpiritWheel() {
   const navigate = useNavigate();
   const urlParams = new URLSearchParams(location.search);
   const initialWheelId = urlParams.get("id");
+  const tabFromUrl = urlParams.get("tab") || 'spin';
 
   const [category, setCategory] = useState("General");
   const [blankMode, setBlankMode] = useState(false);
@@ -49,6 +50,7 @@ export default function SpiritWheel() {
   const [isCapturing, setIsCapturing] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [showReportDialog, setShowReportDialog] = useState(false);
+  const [activeTab, setActiveTab] = useState(tabFromUrl);
 
   const handleDownloadImage = async () => {
     setIsCapturing(true);
@@ -334,6 +336,21 @@ export default function SpiritWheel() {
       }}
     >
       <style>{`
+        .mode-tabs {
+          display: flex; gap: 0; background: rgba(22,15,42,0.8); border-bottom: 1px solid rgba(160,120,255,0.16);
+          position: sticky; top: 0; z-index: 90; margin: 0 -16px 24px -16px; backdrop-filter: blur(10px);
+        }
+        @media (min-width: 768px) {
+          .mode-tabs { margin: 0 -32px 24px -32px; }
+        }
+        .mode-tab {
+          flex: 1; padding: 14px 0; font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.16em;
+          text-transform: uppercase; color: rgba(180,160,220,0.6); border: none; background: none; cursor: pointer;
+          border-bottom: 2px solid transparent; transition: all 0.25s; text-align: center;
+        }
+        .mode-tab.on { color: #c9a84c; border-bottom-color: #c9a84c; background: rgba(201,168,76,0.05); }
+        .mode-tab:hover:not(.on) { color: rgba(201,168,76,0.8); background: rgba(201,168,76,0.02); }
+
         @keyframes stoneBounce {
           0% { transform: translateX(-50%) scale(1); }
           100% { transform: translateX(-50%) scale(1.3); }
@@ -379,7 +396,13 @@ export default function SpiritWheel() {
         </div>
       </div>
 
-      <div className="max-w-[100rem] mx-auto flex flex-col lg:flex-row gap-8">
+      <div className="mode-tabs" data-html2canvas-ignore="true">
+        <button className={`mode-tab ${activeTab === 'spin' ? 'on' : ''}`} onClick={() => setActiveTab('spin')}>Spin</button>
+        <button className={`mode-tab ${activeTab === 'config' ? 'on' : ''}`} onClick={() => setActiveTab('config')}>Configure</button>
+        <button className="mode-tab" onClick={() => navigate(createPageUrl(`SpiritWheelDesigner${selectedWheelId !== "default" ? "?id=" + selectedWheelId : ""}`))}>Designer</button>
+      </div>
+
+      <div className="max-w-[100rem] mx-auto flex flex-col lg:flex-row gap-8" style={{ display: activeTab === 'spin' ? 'flex' : 'none' }}>
         
         {/* Left Column: Visual Wheel & Controls */}
         <div className="flex-[1.5] flex flex-col items-center justify-start p-0 md:p-2 lg:p-4 relative min-h-[350px] lg:min-h-[600px] order-1 overflow-hidden lg:overflow-visible">
@@ -492,7 +515,7 @@ export default function SpiritWheel() {
         </div>
       </div>
 
-      <div className="max-w-[100rem] mx-auto pb-12 mt-8 z-10 relative">
+      <div className="max-w-[100rem] mx-auto pb-12 mt-8 z-10 relative" style={{ display: activeTab === 'config' ? 'block' : 'none' }}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-[18px] md:px-0">
           <div className="bg-[#0f0b1e] p-[16px] rounded-[14px] border border-[rgba(160,120,255,0.16)] space-y-[14px]">
               <SpiritWheelThemeSelector
