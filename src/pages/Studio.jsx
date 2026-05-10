@@ -13,7 +13,8 @@ import {
   Layers,
   Upload,
   Wand2,
-  Send
+  Send,
+  Sparkles
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -405,6 +406,13 @@ export default function Studio() {
               icon={ImageIcon}
               to={createPageUrl("CardMaker")}
               color="pink"
+            />
+            <ToolCard
+              title="Wheel Designer"
+              description="Build custom oracle wheels"
+              icon={Sparkles}
+              to={createPageUrl("SpiritWheelDesigner")}
+              color="green"
             />
             <ToolCard
               title="Spread Designer"

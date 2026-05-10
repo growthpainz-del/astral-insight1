@@ -401,10 +401,10 @@ export default function SpiritWheel() {
       <div className="max-w-[100rem] mx-auto mb-6 flex justify-between items-center">
         <div className="flex items-center gap-4">
           <div data-html2canvas-ignore="true">
-            <Link to={createPageUrl("Dashboard")}>
+            <Link to={createPageUrl("Studio")}>
               <Button variant="ghost" className="text-amber-200 hover:text-amber-100 hover:bg-amber-900/50 pl-2 pr-4">
                 <ChevronLeft className="w-6 h-6 mr-1" />
-                <span className="hidden sm:inline font-semibold">Dashboard</span>
+                <span className="hidden sm:inline font-semibold">Studio</span>
               </Button>
             </Link>
           </div>
