@@ -243,44 +243,69 @@ export default function SpiritWheel() {
     });
 
     // 3. Calculate target angles
-    const extraSpins = 4 * spinSpeed;
+    const baseSpins = 4 * spinSpeed;
     const targetRotations = {
-      outer1: calculateTargetAngle(rotations.outer1, extraSpins + 1, outer1Winner, wheelData.outer1.length),
-      outer2: -calculateTargetAngle(Math.abs(rotations.outer2), extraSpins + 2, outer2Winner, wheelData.outer2.length), 
-      middle: calculateTargetAngle(rotations.middle, extraSpins + 3, middleWinner, wheelData.middle.length),
-      inner: -calculateTargetAngle(Math.abs(rotations.inner), extraSpins + 4, innerWinner, wheelData.inner.length),
-      rune: calculateTargetAngle(rotations.rune || 0, extraSpins + 5, runeWinner, wheelData.rune?.length || 0),
-      marble: (rotations.marble || 0) - 360 * (extraSpins + 6) // Spins in opposite direction like roulette
+      outer1: calculateTargetAngle(rotations.outer1, baseSpins + 1, outer1Winner, wheelData.outer1.length),
+      outer2: -calculateTargetAngle(Math.abs(rotations.outer2), baseSpins + 3, outer2Winner, wheelData.outer2.length), 
+      middle: calculateTargetAngle(rotations.middle, baseSpins + 5, middleWinner, wheelData.middle.length),
+      inner: -calculateTargetAngle(Math.abs(rotations.inner), baseSpins + 7, innerWinner, wheelData.inner.length),
+      rune: calculateTargetAngle(rotations.rune || 0, baseSpins + 9, runeWinner, wheelData.rune?.length || 0),
+      marble: (rotations.marble || 0) - 360 * (baseSpins + 12) // Spins in opposite direction like roulette
     };
 
     // Calculate Metatron zone based on outer1 target angle
     const finalOuter1Angle = targetRotations.outer1 % 360;
     const zoneInfo = calculateMetatronZone(finalOuter1Angle, activeTheme.metatron?.rotation || 0);
 
-    // 4. Animate to targets
-    const duration = 4000;
+    // 4. Animate to targets with independent physics
+    const ringPhysics = {
+      outer1: { duration: 4000, ease: (t) => 1 - Math.pow(1 - t, 3) },
+      outer2: { duration: 4800, ease: (t) => 1 - Math.pow(1 - t, 4) },
+      middle: { duration: 5600, ease: (t) => { const c1 = 0.5; return 1 + (c1 + 1) * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); } },
+      inner:  { duration: 6400, ease: (t) => { const c1 = 0.8; return 1 + (c1 + 1) * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); } },
+      rune:   { duration: 7200, ease: (t) => 1 - Math.pow(1 - t, 5) },
+      marble: { duration: 8000, ease: (t) => 1 - Math.pow(1 - t, 3) }
+    };
+
     const startRots = { ...rotations };
     const startTime = performance.now();
+    let lastTicks = { outer1: 0, outer2: 0, middle: 0, inner: 0, rune: 0, marble: 0 };
 
     const animate = (time) => {
-      let progress = (time - startTime) / duration;
-      if (progress > 1) progress = 1;
-      
-      // Ease out cubic
-      const ease = 1 - Math.pow(1 - progress, 3);
-      
-      const currentRots = {
-        outer1: startRots.outer1 + (targetRotations.outer1 - startRots.outer1) * ease,
-        outer2: startRots.outer2 + (targetRotations.outer2 - startRots.outer2) * ease,
-        middle: startRots.middle + (targetRotations.middle - startRots.middle) * ease,
-        inner: startRots.inner + (targetRotations.inner - startRots.inner) * ease,
-        rune: (startRots.rune || 0) + (targetRotations.rune - (startRots.rune || 0)) * ease,
-        marble: (startRots.marble || 0) + (targetRotations.marble - (startRots.marble || 0)) * ease
-      };
+      let isDone = true;
+      const currentRots = { ...startRots };
+      let tickOccurred = false;
+
+      Object.keys(ringPhysics).forEach(key => {
+        const { duration, ease } = ringPhysics[key];
+        let progress = (time - startTime) / duration;
+        
+        if (progress < 1) {
+          isDone = false;
+        } else {
+          progress = 1;
+        }
+        
+        const eased = ease(progress);
+        const currentRot = startRots[key] + (targetRotations[key] - startRots[key]) * eased;
+        currentRots[key] = currentRot;
+
+        // Collision/tick effect
+        const segmentsCount = wheelData[key]?.length || (key === 'marble' ? 36 : 1);
+        const tickVal = Math.floor(Math.abs(currentRot) / (360 / Math.max(1, segmentsCount)));
+        if (tickVal !== lastTicks[key] && progress > 0.05 && progress < 0.99) {
+           lastTicks[key] = tickVal;
+           tickOccurred = true;
+        }
+      });
+
+      if (tickOccurred && typeof navigator !== 'undefined' && navigator.vibrate) {
+         navigator.vibrate(2);
+      }
 
       setRotations(currentRots);
 
-      if (progress < 1) {
+      if (!isDone) {
         requestAnimationFrame(animate);
       } else {
         setSpinState("idle");
