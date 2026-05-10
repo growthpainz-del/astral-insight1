@@ -16,6 +16,8 @@ export default function CardMaker() {
   const [frameStyle, setFrameStyle] = useState("classic_white");
   const [titleSize, setTitleSize] = useState("medium");
   const [titleFont, setTitleFont] = useState("serif");
+  const [textureSrc, setTextureSrc] = useState(null);
+  const [textureOpacity, setTextureOpacity] = useState(50);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedUrl, setUploadedUrl] = useState("");
   const [cardMeaning, setCardMeaning] = useState("");
@@ -61,7 +63,7 @@ export default function CardMaker() {
     if (imageSrc) {
       drawCanvas();
     }
-  }, [imageSrc, cardName, frameStyle, titleSize, titleFont]);
+  }, [imageSrc, cardName, frameStyle, titleSize, titleFont, textureSrc, textureOpacity]);
 
   const handleAiSuggest = async () => {
     if (!originalImageFileUrl && !canvasRef.current) return;
@@ -209,7 +211,7 @@ export default function CardMaker() {
     }
   };
 
-  const drawCanvas = () => {
+  const drawCanvas = async () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -220,96 +222,107 @@ export default function CardMaker() {
     canvas.width = width;
     canvas.height = height;
 
-    const img = new Image();
-    img.onload = () => {
-      // Clear canvas
-      ctx.clearRect(0, 0, width, height);
+    const loadImage = (src) => new Promise(resolve => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => resolve(img);
+      img.onerror = () => resolve(null);
+      img.src = src;
+    });
 
-      // Draw background based on frame style
-      if (frameStyle === "classic_white") {
-        ctx.fillStyle = "#ffffff";
-        ctx.fillRect(0, 0, width, height);
-      } else if (frameStyle === "dark_magic") {
-        ctx.fillStyle = "#1a1a2e";
-        ctx.fillRect(0, 0, width, height);
-      } else if (frameStyle === "vintage") {
-        ctx.fillStyle = "#f4ebd0";
-        ctx.fillRect(0, 0, width, height);
-      } else if (frameStyle === "gold_border") {
-        ctx.fillStyle = "#000000";
-        ctx.fillRect(0, 0, width, height);
-      }
+    const img = await loadImage(imageSrc);
+    if (!img) return;
 
-      // Calculate image placement (leave margin for border and text)
-      let marginX = 40;
-      let marginY = 40;
-      let textSpace = 180;
-      
-      if (frameStyle === "gold_border") {
-        marginX = 60;
-        marginY = 60;
-        textSpace = 200;
-        
-        // Draw gold border
-        ctx.strokeStyle = "#d4af37";
-        ctx.lineWidth = 10;
-        ctx.strokeRect(30, 30, width - 60, height - 60);
-        ctx.strokeRect(45, 45, width - 90, height - 90);
-      }
+    let textureImg = null;
+    if (textureSrc) {
+      textureImg = await loadImage(textureSrc);
+    }
 
-      const drawWidth = width - (marginX * 2);
-      const drawHeight = height - marginY - textSpace;
+    // Clear canvas
+    ctx.clearRect(0, 0, width, height);
 
-      // Draw image (cover object-fit style)
-      const scale = Math.max(drawWidth / img.width, drawHeight / img.height);
-      const scaledWidth = img.width * scale;
-      const scaledHeight = img.height * scale;
-      const offsetX = marginX + (drawWidth - scaledWidth) / 2;
-      const offsetY = marginY + (drawHeight - scaledHeight) / 2;
+    // Background color setup
+    let bgColor = "#ffffff";
+    let fontColor = "#000000";
+    let textFontStyle = "bold";
 
+    if (frameStyle === "classic_white") { bgColor = "#ffffff"; fontColor = "#000000"; }
+    else if (frameStyle === "dark_magic") { bgColor = "#1a1a2e"; fontColor = "#e0e7ff"; textFontStyle = "italic"; }
+    else if (frameStyle === "vintage") { bgColor = "#f4ebd0"; fontColor = "#3e2723"; }
+    else if (frameStyle === "gold_border") { bgColor = "#000000"; fontColor = "#d4af37"; }
+    else if (frameStyle === "deep_crimson") { bgColor = "#4a0404"; fontColor = "#ffb3b3"; }
+    else if (frameStyle === "emerald_green") { bgColor = "#022c16"; fontColor = "#a7f3d0"; }
+    else if (frameStyle === "sapphire_blue") { bgColor = "#0f172a"; fontColor = "#bfdbfe"; }
+    else if (frameStyle === "amethyst_purple") { bgColor = "#2e1065"; fontColor = "#e9d5ff"; }
+    else if (frameStyle === "onyx_black") { bgColor = "#09090b"; fontColor = "#f4f4f5"; }
+
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(0, 0, width, height);
+
+    if (textureImg) {
       ctx.save();
-      ctx.beginPath();
-      ctx.rect(marginX, marginY, drawWidth, drawHeight);
-      ctx.clip();
-      ctx.drawImage(img, offsetX, offsetY, scaledWidth, scaledHeight);
+      ctx.globalAlpha = textureOpacity / 100;
+      // fill texture over the whole card background
+      ctx.drawImage(textureImg, 0, 0, width, height);
       ctx.restore();
+    }
 
-      // Inner border around image
-      if (frameStyle === "classic_white" || frameStyle === "vintage") {
-        ctx.strokeStyle = "#000000";
-        ctx.lineWidth = 4;
-        ctx.strokeRect(marginX, marginY, drawWidth, drawHeight);
-      }
-
-      // Draw Text
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      const textY = height - (textSpace / 2);
+    // Calculate image placement (leave margin for border and text)
+    let marginX = 40;
+    let marginY = 40;
+    let textSpace = 180;
+    
+    if (frameStyle === "gold_border") {
+      marginX = 60;
+      marginY = 60;
+      textSpace = 200;
       
-      let baseFontSize = 60;
-      if (titleSize === "small") baseFontSize = 45;
-      if (titleSize === "large") baseFontSize = 75;
+      // Draw gold border
+      ctx.strokeStyle = "#d4af37";
+      ctx.lineWidth = 10;
+      ctx.strokeRect(30, 30, width - 60, height - 60);
+      ctx.strokeRect(45, 45, width - 90, height - 90);
+    }
 
-      let fontStyle = "bold";
-      
-      if (frameStyle === "classic_white") {
-        ctx.fillStyle = "#000000";
-      } else if (frameStyle === "dark_magic") {
-        ctx.fillStyle = "#e0e7ff";
-        fontStyle = "italic";
-      } else if (frameStyle === "vintage") {
-        ctx.fillStyle = "#3e2723";
-        if (titleSize === "medium") baseFontSize = 70; // keep vintage slightly larger by default
-      } else if (frameStyle === "gold_border") {
-        ctx.fillStyle = "#d4af37";
-        if (titleSize === "medium") baseFontSize = 65;
-      }
+    const drawWidth = width - (marginX * 2);
+    const drawHeight = height - marginY - textSpace;
 
-      ctx.font = `${fontStyle} ${baseFontSize}px ${titleFont}`;
+    // Draw image (cover object-fit style)
+    const scale = Math.max(drawWidth / img.width, drawHeight / img.height);
+    const scaledWidth = img.width * scale;
+    const scaledHeight = img.height * scale;
+    const offsetX = marginX + (drawWidth - scaledWidth) / 2;
+    const offsetY = marginY + (drawHeight - scaledHeight) / 2;
 
-      ctx.fillText(cardName.toUpperCase(), width / 2, textY);
-    };
-    img.src = imageSrc;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(marginX, marginY, drawWidth, drawHeight);
+    ctx.clip();
+    ctx.drawImage(img, offsetX, offsetY, scaledWidth, scaledHeight);
+    ctx.restore();
+
+    // Inner border around image
+    if (frameStyle === "classic_white" || frameStyle === "vintage") {
+      ctx.strokeStyle = "#000000";
+      ctx.lineWidth = 4;
+      ctx.strokeRect(marginX, marginY, drawWidth, drawHeight);
+    }
+
+    // Draw Text
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    const textY = height - (textSpace / 2);
+    
+    let baseFontSize = 60;
+    if (titleSize === "small") baseFontSize = 45;
+    if (titleSize === "large") baseFontSize = 75;
+
+    if (frameStyle === "vintage" && titleSize === "medium") baseFontSize = 70;
+    if (frameStyle === "gold_border" && titleSize === "medium") baseFontSize = 65;
+
+    ctx.fillStyle = fontColor;
+    ctx.font = `${textFontStyle} ${baseFontSize}px ${titleFont}`;
+    ctx.fillText(cardName.toUpperCase(), width / 2, textY);
   };
 
   const handleExportAndUpload = async () => {
@@ -501,16 +514,21 @@ export default function CardMaker() {
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                      <Label className="text-white/70">Frame Style</Label>
+                      <Label className="text-white/70">Frame Style / Color</Label>
                       <Select value={frameStyle} onValueChange={setFrameStyle}>
                         <SelectTrigger className="bg-black/40 border-white/20 mt-1">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="classic_white">Classic White Border</SelectItem>
-                          <SelectItem value="dark_magic">Dark Magic (Midnight)</SelectItem>
+                          <SelectItem value="classic_white">Classic White</SelectItem>
+                          <SelectItem value="dark_magic">Midnight Blue</SelectItem>
                           <SelectItem value="vintage">Vintage Parchment</SelectItem>
                           <SelectItem value="gold_border">Opulent Gold</SelectItem>
+                          <SelectItem value="deep_crimson">Deep Crimson</SelectItem>
+                          <SelectItem value="emerald_green">Emerald Green</SelectItem>
+                          <SelectItem value="sapphire_blue">Sapphire Blue</SelectItem>
+                          <SelectItem value="amethyst_purple">Amethyst Purple</SelectItem>
+                          <SelectItem value="onyx_black">Onyx Black</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -541,6 +559,35 @@ export default function CardMaker() {
                           <SelectItem value="'Courier New', Courier, monospace">Courier (Vintage)</SelectItem>
                         </SelectContent>
                       </Select>
+                    </div>
+                    <div>
+                      <Label className="text-white/70">Custom Texture</Label>
+                      <Input 
+                        type="file" 
+                        accept="image/*" 
+                        className="bg-black/40 border-white/20 mt-1 text-xs" 
+                        onChange={(e) => {
+                          const file = e.target.files[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onload = (ev) => setTextureSrc(ev.target.result);
+                            reader.readAsDataURL(file);
+                          } else {
+                            setTextureSrc(null);
+                          }
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-white/70">Texture Opacity ({textureOpacity}%)</Label>
+                      <input 
+                        type="range" 
+                        min="0" 
+                        max="100" 
+                        value={textureOpacity} 
+                        onChange={(e) => setTextureOpacity(Number(e.target.value))}
+                        className="w-full mt-3 accent-purple-500"
+                      />
                     </div>
                   </div>
                 </div>
