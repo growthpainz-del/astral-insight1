@@ -8,11 +8,11 @@ export default function MobileBottomNav() {
   const navigate = useNavigate();
 
   const tabs = [
-    { key: "Home", root: createPageUrl("Home"), label: "Home", icon: Home },
-    { key: "Read", root: createPageUrl("Reading"), label: "Read", icon: BookOpen },
+    { key: "Home", root: "/", label: "Hub", icon: Home },
+    { key: "Read", root: createPageUrl("Dashboard"), label: "Read", icon: BookOpen },
     { key: "Studio", root: createPageUrl("Studio"), label: "Studio", icon: Palette },
     { key: "Journal", root: createPageUrl("Journal"), label: "Journal", icon: BookOpen },
-    { key: "Agent", root: createPageUrl("LiveAgent"), label: "Agent", icon: Sparkles },
+    { key: "Agent", root: createPageUrl("AgentChat"), label: "Agent", icon: Sparkles },
   ];
 
   const getTabFromPath = (pathname) => {

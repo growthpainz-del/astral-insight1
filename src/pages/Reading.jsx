@@ -469,16 +469,14 @@ const [showShareModal, setShowShareModal] = useState(false);
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-950 to-purple-950 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#07050f' }}>
         <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin text-purple-400 mx-auto mb-4" />
-          <p className="text-purple-200">Loading deck...</p>
+          <Sparkles className="w-12 h-12 text-[#a78bfa] mx-auto mb-4 animate-pulse" />
+          <div className="text-[rgba(225,215,255,.9)] font-serif">Channeling deck energies...</div>
         </div>
       </div>
     );
   }
-
-
 
   // If no deck chosen, show an in-page deck picker
   if (!deckIdFromUrl) {
@@ -488,15 +486,15 @@ const [showShareModal, setShowShareModal] = useState(false);
 
   if (error && !deck) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-950 to-purple-950 flex items-center justify-center p-6">
-        <div className="bg-red-900/20 border border-red-500 rounded-lg p-6 max-w-md text-center">
-          <AlertTriangle className="w-12 h-12 text-red-400 mx-auto mb-4" />
-          <p className="text-red-200 mb-4">{error}</p>
+      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#07050f' }}>
+        <div className="max-w-md w-full bg-[#160f2a] border border-[#ef4444] rounded-xl p-6 text-center">
+          <AlertTriangle className="w-12 h-12 text-[#ef4444] mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-[rgba(225,215,255,.9)] font-serif mb-2">Cosmic Interference</h2>
+          <p className="text-[rgba(180,160,220,.42)] mb-6">{error}</p>
           <Link to={createPageUrl("Dashboard")}>
-            <Button variant="outline" className="border-red-500 text-white">
-              <ChevronLeft className="w-4 h-4 mr-2" />
-              Back
-            </Button>
+            <button className="w-full p-[14px] rounded-full border border-[rgba(160,120,255,.3)] bg-[#160f2a] text-[rgba(225,215,255,.9)] text-[11.5px] tracking-[0.18em] uppercase cursor-pointer transition-all hover:bg-[rgba(160,120,255,.2)]" style={{ fontFamily: "'Cinzel', serif" }}>
+              Return to Reading Room
+            </button>
           </Link>
         </div>
       </div>
@@ -505,232 +503,162 @@ const [showShareModal, setShowShareModal] = useState(false);
 
   return (
     <>
-      <DisablePullToRefresh targetSelector="main" threshold={30} />
-      <div className="min-h-screen pb-32 md:pb-24 bg-gradient-to-br from-indigo-950 via-purple-950 to-slate-900">
-      {/* Exit button (hidden/disabled when overlays open) */}
-      <div className={`fixed top-3 left-3 md:hidden z-[100] ${showEnhancedViewer || showRelationshipsOverlay || showCompactSpreadOverlay || showSessionManager ? 'pointer-events-none opacity-60' : 'pointer-events-auto'}`}>
-        <Link to={createPageUrl("Dashboard")}>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => { navigate(createPageUrl('Dashboard')); }}
-            className="bg-black/60 text-white border-white/30 hover:bg-black/80"
-            disabled={showEnhancedViewer || showRelationshipsOverlay || showCompactSpreadOverlay || showSessionManager}
-          >
-            Exit
-          </Button>
-        </Link>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between py-6 relative z-50">
-          <Button asChild variant="ghost" className="text-purple-200">
-            <Link to={createPageUrl("Dashboard")}> 
-              <ChevronLeft className="w-4 h-4 mr-2" />
-              Back
-            </Link>
-          </Button>
-          
-          {deck && deck?.name?.toLowerCase().includes('rooted crescent') ? (
-            <div className="text-center flex-1">
-              <h1 
-                className="text-xl md:text-3xl font-bold uppercase tracking-[0.1em] mx-auto"
-                style={{
-                  fontFamily: "'Cinzel', serif",
-                  background: "linear-gradient(90deg, #c8a8ff, #fff, #a0c8ff)",
-                  backgroundSize: "200% auto",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  animation: "shimmer 4s linear infinite",
-                  maxWidth: "300px"
-                }}
-              >
-                {deck.name}
-              </h1>
-              <p className="mt-1" style={{ fontFamily: "'IM Fell English', serif", fontStyle: "italic", fontSize: "14px", color: "rgba(180,160,220,0.6)" }}>
-                {selectedSpread?.name}
-              </p>
-            </div>
-          ) : deck && (
-            <div className="text-center flex-1">
-              <h1 className="text-xl md:text-2xl font-bold text-white">{deck.name}</h1>
-            </div>
-          )}
-
-          {/* NEW: Debug Toggle Button */}
-          <Button
-            size="sm"
-            variant="outline"
+      <DisablePullToRefresh targetSelector="body" />
+      <div className="min-h-screen font-serif flex flex-col" style={{ background: '#07050f', color: 'rgba(225,215,255,.9)', paddingBottom: '72px' }}>
+      
+      {/* Header */}
+      {!drawnCards.length && (
+        <div className="flex items-center justify-between px-[18px] py-[13px] sticky top-0 z-50 bg-[#07050f]/80 backdrop-blur-md border-b border-[rgba(160,120,255,.16)]">
+          <Link to={createPageUrl("Dashboard")} className="flex items-center gap-[6px] text-[rgba(180,160,220,.6)] hover:text-[#a78bfa] transition-colors" style={{ textDecoration: 'none' }}>
+            <ChevronLeft className="w-5 h-5" />
+            <span className="text-[10px] tracking-[0.14em] uppercase" style={{ fontFamily: "'Cinzel', serif" }}>Back</span>
+          </Link>
+          <div className="text-center">
+            <h1 className="text-[14px] tracking-[0.1em] text-transparent bg-clip-text bg-gradient-to-r from-[#c8a8ff] via-[#fff] to-[#a0c8ff] uppercase" style={{ fontFamily: "'Cinzel', serif" }}>
+              {deck?.name || 'Reading'}
+            </h1>
+          </div>
+          <button 
             onClick={() => setShowDebugPanel(!showDebugPanel)}
-            className="border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/10"
+            className="w-8 h-8 rounded-full flex items-center justify-center border border-[rgba(160,120,255,.3)] text-[rgba(180,160,220,.6)] hover:text-[#a78bfa] hover:border-[#a78bfa] transition-colors bg-transparent cursor-pointer"
           >
             <Bug className="w-4 h-4" />
-          </Button>
+          </button>
         </div>
+      )}
 
-        {/* NEW: Debug Panel - Mobile Friendly */}
+      {/* Main Content Area */}
+      <div className="flex-1 w-full max-w-[430px] mx-auto flex flex-col">
+        {/* Debug Panel */}
         {showDebugPanel && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-cyan-900/20 border-2 border-cyan-500/50 rounded-xl p-4 text-xs space-y-3"
-          >
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <Bug className="w-5 h-5 text-cyan-300" />
-                <span className="font-bold text-cyan-200 text-sm">Debug Panel</span>
-              </div>
-              <button onClick={() => setShowDebugPanel(false)} className="text-cyan-300">
-                <X className="w-4 h-4" />
-              </button>
+          <div className="mx-[18px] mt-[14px] p-[14px] bg-[#160f2a] border border-[#67e8f9] rounded-[14px] text-[12px] text-[rgba(180,160,220,.8)] font-sans">
+            <div className="flex justify-between items-center mb-2 text-[#67e8f9] font-bold">
+              <span className="flex items-center gap-2"><Bug className="w-4 h-4"/> Debug Info</span>
+              <button onClick={() => setShowDebugPanel(false)} className="text-[#67e8f9] bg-transparent border-none cursor-pointer"><X className="w-4 h-4"/></button>
             </div>
-
-            <div className="bg-black/30 rounded p-3 space-y-2 text-cyan-100">
-              <div className="font-semibold text-cyan-200">📦 Data Loaded:</div>
-              <div>• Deck: {deck?.name || '❌ Not loaded'}</div>
-              <div>• Cards in deck: {cards?.length || 0}</div>
-              <div>• Selected spread: {selectedSpread?.name}</div>
-              <div>• Spread positions: {selectedSpread?.positions?.length || 0}</div>
+            <div className="space-y-1 opacity-80">
+              <div>Cards loaded: {cards.length}</div>
+              <div>Selected spread: {selectedSpread?.name} ({selectedSpread?.positions?.length} pos)</div>
+              <div>Drawn cards: {drawnCards.length}</div>
             </div>
+          </div>
+        )}
 
-            {drawnCards.length > 0 && (
-              <div className="bg-black/30 rounded p-3 space-y-2 text-cyan-100">
-                <div className="font-semibold text-cyan-200">🎴 Drawn Cards:</div>
-                <div>• Total drawn: {drawnCards.length}</div>
-                <div>• Cards with data: {drawnCards.filter(c => c && c.name).length}</div>
-                <div className="mt-2 max-h-40 overflow-y-auto space-y-1">
-                  {drawnCards.map((card, idx) => (
-                    <div key={idx} className="text-[10px] border-l-2 border-cyan-500/30 pl-2">
-                      {idx + 1}. {card?.name || '❌ No name'} 
-                      {card?.position && ` (${card.position})`}
-                      {card?.image_url ? ' ✅ Has image' : ' ⚠️ No image'}
-                    </div>
-                  ))}
+        {error && (
+          <div className="mx-[18px] mt-[14px] p-[14px] bg-[#1a0f14] border border-[#ef4444] rounded-[14px] text-[#ef4444] text-[13px] flex items-center gap-[10px]">
+            <AlertTriangle className="w-4 h-4 shrink-0" />
+            <div className="flex-1 leading-[1.4]">{error}</div>
+            <button onClick={() => setError("")} className="text-[#ef4444] bg-transparent border-none cursor-pointer"><X className="w-4 h-4"/></button>
+          </div>
+        )}
+
+        {/* Pre-Draw State */}
+        {!drawnCards.length && !isDrawing && (
+          <div className="flex-1 flex flex-col pt-[18px]">
+            {/* Deck Header Card */}
+            {deck && (
+              <div className="mx-[18px] mb-[20px] p-[14px] bg-[#0f0b1e] border border-[rgba(160,120,255,.16)] rounded-[14px] flex items-center gap-[14px]">
+                <div className="w-[50px] h-[75px] rounded-[6px] overflow-hidden border border-[rgba(160,120,255,.3)] shrink-0 bg-[#160f2a]">
+                  {deck.cover_image ? <img src={deck.cover_image} alt="Cover" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-[20px]">📖</div>}
+                </div>
+                <div className="flex-1">
+                  <div className="text-[10px] tracking-[0.14em] uppercase text-[#a78bfa] mb-[4px]" style={{ fontFamily: "'Cinzel', serif" }}>Selected Deck</div>
+                  <div className="text-[14px] text-[rgba(225,215,255,.9)] leading-[1.3]">{deck.name}</div>
+                  <div className="text-[11px] italic text-[rgba(180,160,220,.42)] mt-[4px]" style={{ fontFamily: "'IM Fell English', serif" }}>{deck.category || 'Oracle'}</div>
                 </div>
               </div>
             )}
 
-            <div className="bg-black/30 rounded p-3 space-y-2 text-cyan-100">
-              <div className="font-semibold text-cyan-200">🔍 Component State:</div>
-              <div>• isLoading: {isLoading ? '⏳ Yes' : '✅ No'}</div>
-              <div>• isDrawing: {isDrawing ? '⏳ Yes' : '✅ No'}</div>
-              <div>• showAI: {showAI ? '✅ Yes' : '❌ No'}</div>
-              <div>• Error: {error || '✅ None'}</div>
+            <div className="mx-[18px] p-[17px] bg-[#0f0b1e] border border-[rgba(160,120,255,.16)] rounded-[14px] flex flex-col gap-[16px] mb-[24px]">
+              <div>
+                <div className="text-[9px] uppercase tracking-[0.2em] text-[rgba(180,160,220,.42)] mb-[8px]" style={{ fontFamily: "'Cinzel', serif" }}>Your Intent</div>
+                <textarea 
+                  className="w-full bg-[#160f2a] border border-[rgba(160,120,255,.16)] rounded-[10px] p-[14px] text-[16px] text-[rgba(225,215,255,.9)] font-serif resize-none outline-none min-h-[90px] leading-[1.5] transition-colors focus:border-[rgba(167,139,250,.45)] placeholder:text-[rgba(180,160,220,.3)]"
+                  placeholder="What guidance do you seek?"
+                  value={question}
+                  onChange={(e) => setQuestion(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <div className="text-[9px] uppercase tracking-[0.2em] text-[rgba(180,160,220,.42)] mb-[8px]" style={{ fontFamily: "'Cinzel', serif" }}>Spread Selection</div>
+                <div className="relative">
+                  <select 
+                    className="w-full bg-[#160f2a] border border-[rgba(160,120,255,.16)] rounded-[10px] py-[13px] px-[14px] text-[15px] text-[rgba(225,215,255,.9)] font-serif outline-none cursor-pointer appearance-none transition-colors focus:border-[rgba(167,139,250,.45)]"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' fill='none'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%23a78bfa' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E")`,
+                      backgroundRepeat: 'no-repeat',
+                      backgroundPosition: 'right 14px center'
+                    }}
+                    value={selectedSpreadId}
+                    onChange={(e) => setSelectedSpreadId(e.target.value)}
+                  >
+                    {BUILT_IN_SPREADS.map(spread => (
+                      <option key={spread.id} value={spread.id}>
+                        {spread.name} — {spread.positions.length} card{spread.positions.length !== 1 ? 's' : ''}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
             </div>
 
-            <div className="text-cyan-300 text-[10px] italic">
-              💡 If cards show here but not on screen, the issue is in SpreadLayout rendering
+            <div className="px-[18px] mt-auto pb-[20px]">
+              <button 
+                onClick={handleDrawCards}
+                disabled={isDrawing || cards.length === 0}
+                className="w-full p-[16px] rounded-full border-none cursor-pointer text-[13px] tracking-[0.18em] uppercase text-white flex items-center justify-center gap-[10px] transition-all active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ 
+                  background: 'linear-gradient(135deg,#6d28d9,#7c3aed,#a78bfa)', 
+                  boxShadow: '0 6px 24px rgba(124,58,237,.35)',
+                  fontFamily: "'Cinzel', serif"
+                }}
+              >
+                ✦ Channel Cards
+              </button>
+              <div className="text-center italic text-[11px] text-[rgba(160,140,200,.3)] mt-[14px]" style={{ fontFamily: "'Crimson Text', serif" }}>
+                {cards.length} cards available in this deck.
+              </div>
             </div>
-          </motion.div>
-        )}
-
-        {error && (
-          <div className="mb-4 bg-red-900/20 border border-red-500/40 rounded-lg p-3 text-red-200 flex items-center gap-2">
-            <AlertTriangle className="w-5 h-5 flex-shrink-0" />
-            <span>{error}</span>
-            <button onClick={() => setError("")} className="ml-auto text-red-300">✕</button>
           </div>
         )}
 
-        {/* Doodle Canvas During Drawing */}
+        {/* Shuffling State */}
         {isDrawing && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            className="mb-6"
-          >
-            <div className="rounded-xl border border-purple-400/40 overflow-hidden bg-black/30">
+          <div className="flex-1 flex flex-col items-center justify-center px-[18px] pt-[20px]">
+            <div className="w-full bg-[#0f0b1e] border border-[rgba(160,120,255,.16)] rounded-[18px] overflow-hidden">
               {!disableHeavyAnimations && deck?.shuffle_animation_url && (
-                <div className="relative w-full h-[320px] md:h-[420px]">
+                <div className="relative w-full aspect-square border-b border-[rgba(160,120,255,.16)]">
                   <ShuffleAnimation
                     url={deck.shuffle_animation_url}
                     className="absolute inset-0 w-full h-full"
                     style={{ objectFit: 'cover' }}
                   />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0f0b1e] to-transparent" />
                 </div>
               )}
 
-              <div className="px-4 md:px-6 py-4">
-                <h3 className="text-center text-purple-200 mb-4 font-semibold">
-                  ✨ Channeling cosmic energy while shuffling...
-                </h3>
-                <div className="mx-auto w-full max-w-sm">
+              <div className="p-[20px] text-center flex flex-col items-center">
+                <Sparkles className="w-8 h-8 text-[#a78bfa] mb-[12px] animate-pulse" />
+                <div className="text-[12px] tracking-[0.14em] uppercase text-[rgba(225,215,255,.9)] mb-[8px]" style={{ fontFamily: "'Cinzel', serif" }}>
+                  Channeling Energies
+                </div>
+                <div className="text-[13px] italic text-[rgba(180,160,220,.6)] leading-[1.5]" style={{ fontFamily: "'IM Fell English', serif" }}>
+                  The cards are aligning to your intent...
+                </div>
+                
+                <div className="w-[180px] h-[180px] mx-auto mt-[20px] rounded-full border border-[rgba(160,120,255,.16)] bg-[#160f2a] overflow-hidden relative" style={{ boxShadow: 'inset 0 0 20px rgba(0,0,0,0.5)' }}>
                   <IdeomotorCanvas
-                    question={question || "What guidance do you seek?"}
+                    question={question || "Focus on your intent..."}
                     onComplete={() => {}}
                     autoCompleteAfter={2500}
                     showInstructions={true}
-                    instructionText="Draw or doodle while the cards are being shuffled"
+                    instructionText="Doodle to focus intent"
                   />
                 </div>
               </div>
             </div>
-          </motion.div>
-        )}
-
-        {/* Question & Spread Selection (when no cards drawn) */}
-        {!drawnCards.length && !isDrawing && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 p-4 md:p-6"
-          >
-            <div className="space-y-4">
-              <div>
-                <Label className="text-white mb-2 block">Your Question</Label>
-                <Textarea
-                  value={question}
-                  onChange={(e) => setQuestion(e.target.value)}
-                  placeholder="What guidance do you seek?"
-                  className="bg-black/30 border-white/20 text-white"
-                  rows={3}
-                />
-              </div>
-
-              <div>
-                <Label className="text-white mb-2 block">
-                  Spread
-                  {spreadsLoading && <span className="text-xs text-purple-300 ml-2">(Loading custom spreads...)</span>}
-                </Label>
-                <Select value={selectedSpreadId} onValueChange={setSelectedSpreadId}>
-                  <SelectTrigger className="bg-black/30 border-white/20 text-white">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-slate-900 border-white/20 text-white max-h-[400px] overflow-y-auto">
-                    {BUILT_IN_SPREADS.map(spread => (
-                      <SelectItem key={spread.id} value={spread.id}>
-                        {spread.name} - {spread.positions.length} cards
-                      </SelectItem>
-                    ))}
-                    
-
-                  </SelectContent>
-                </Select>
-                
- 
-              </div>
-
-              <Button
-                onClick={handleDrawCards}
-                disabled={isDrawing || cards.length === 0}
-                className="w-full bg-purple-600 hover:bg-purple-700 py-6 text-lg"
-              >
-                {isDrawing ? (
-                  <>
-                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    Drawing...
-                  </>
-                ) : (
-                  <>
-                    <Shuffle className="w-5 h-5 mr-2" />
-                    Draw Cards {cards.length > 0 && `(${cards.length} available)`}
-                  </>
-                )}
-              </Button>
-            </div>
-          </motion.div>
+          </div>
         )}
 
         {/* Display for Drawn Cards */}
@@ -1009,9 +937,6 @@ const [showShareModal, setShowShareModal] = useState(false);
       ) : null}
 
       {/* Session Manager Modal */}
-      <div className="mt-8 text-center text-xs text-white/70 bg-white/5 border border-white/10 rounded-lg p-3">
-        Disclaimer: The readings and guidance provided are for entertainment purposes only and do not constitute professional advice.
-      </div>
       {typeof document !== 'undefined' ? createPortal(
         <ReadingSessionManager
           isOpen={showSessionManager}

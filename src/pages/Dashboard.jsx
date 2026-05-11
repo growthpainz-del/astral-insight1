@@ -12,110 +12,7 @@ import MoonPhaseWidget from "@/components/dashboard/MoonPhaseWidget";
 import { getThumbnailUrl } from "@/lib/utils";
 import DisablePullToRefresh from "@/components/common/DisablePullToRefresh";
 
-function DeckCard({ deck, isOwned = false }) {
-  const navigate = useNavigate();
-  const goToReading = () => navigate(createPageUrl(`Reading?deckId=${deck.id}`));
-  const onKey = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); goToReading(); } };
-  return (
-    <div className="group block cursor-pointer" onClick={goToReading} role="button" tabIndex={0} onKeyDown={onKey}>
-      <div className="relative flex-shrink-0 w-48 aspect-[2/3] rounded-lg overflow-hidden bg-gradient-to-br from-purple-900/40 to-slate-900/40 border border-white/10 hover:border-purple-400/60 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-purple-500/30">
-        {deck.cover_image ? (
-          <img
-            src={getThumbnailUrl(deck.cover_image, 400)}
-            alt={deck.name}
-            loading="lazy"
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-white/40">
-            <Sparkles className="w-12 h-12" />
-          </div>
-        )}
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-          <div className="absolute bottom-0 left-0 right-0 p-4">
-            <div className="flex items-center gap-2 text-white">
-              <Play className="w-5 h-5 mr-1" />
-              <span className="font-semibold">Read Now</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="absolute top-2 left-2">
-          {deck.is_premium && (
-            <div className="bg-amber-500 text-xs font-bold px-2 py-1 rounded">PREMIUM</div>
-          )}
-        </div>
-
-        <div className="absolute top-2 right-2 flex flex-col gap-2 opacity-0 group-hover:opacity-100 md:opacity-100 transition-opacity">
-          <Link
-            to={createPageUrl(`DeckGallery?deckId=${deck.id}`)}
-            onClick={(e) => e.stopPropagation()}
-            className="bg-black/70 hover:bg-black/90 backdrop-blur-sm p-2 rounded-lg border border-white/20 transition-all hover:scale-110"
-            title="View Gallery"
-          >
-            <Eye className="w-4 h-4 text-white" />
-          </Link>
-
-          {isOwned && (
-            <Link
-              to={createPageUrl(`DeckView?id=${deck.id}`)}
-              onClick={(e) => e.stopPropagation()}
-              className="bg-black/70 hover:bg-black/90 backdrop-blur-sm p-2 rounded-lg border border-purple-400/40 transition-all hover:scale-110"
-              title="Edit Deck Settings"
-            >
-              <Settings className="w-4 h-4 text-purple-300" />
-            </Link>
-          )}
-        </div>
-      </div>
-      <div className="mt-2">
-        <h4 className="text-white font-semibold truncate">{deck.name}</h4>
-        <p className="text-white/60 text-sm">{deck.category || 'Oracle'}</p>
-      </div>
-    </div>
-  );
-}
-
-function ReadingCard({ reading, deck }) {
-  return (
-    <Link to={createPageUrl(`History`)} className="group">
-      <div className="relative flex-shrink-0 w-48 aspect-[2/3] rounded-lg overflow-hidden bg-gradient-to-br from-indigo-900/40 to-slate-900/40 border border-white/10 hover:border-indigo-400/60 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-indigo-500/30">
-        {deck?.cover_image ? (
-          <img
-            src={getThumbnailUrl(deck.cover_image, 400)}
-            alt={reading.title}
-            loading="lazy"
-            className="w-full h-full object-cover opacity-70"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-white/40">
-            <Clock className="w-12 h-12" />
-          </div>
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent">
-          <div className="absolute bottom-0 left-0 right-0 p-4">
-            <p className="text-white/70 text-xs mb-1">{new Date(reading.created_date).toLocaleDateString()}</p>
-            <h4 className="text-white font-semibold text-sm line-clamp-2">{reading.title}</h4>
-          </div>
-        </div>
-      </div>
-    </Link>
-  );
-}
-
-function QuickAction({ label, icon: Icon, to, gradient }) {
-  return (
-    <Link to={to} className="group">
-      <div className={`relative flex-shrink-0 w-48 h-32 rounded-lg overflow-hidden ${gradient} border border-white/10 hover:border-white/30 transition-all duration-300 hover:scale-105 hover:shadow-xl`}>
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-white force-white p-4">
-          <Icon className="w-10 h-10 mb-2 group-hover:scale-110 transition-transform" />
-          <span className="font-bold text-center">{label}</span>
-        </div>
-      </div>
-    </Link>
-  );
-}
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -512,7 +409,7 @@ export default function Dashboard() {
             <select 
               className="w-full bg-[#160f2a] border border-[rgba(160,120,255,.16)] rounded-[10px] py-[11px] px-[14px] text-[15px] text-[rgba(225,215,255,.9)] font-serif outline-none cursor-pointer appearance-none transition-colors focus:border-[rgba(167,139,250,.45)]"
               style={{
-                backgroundImage: \`url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' fill='none'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%23a78bfa' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E")\`,
+                backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'11\' height=\'7\' fill=\'none\'%3E%3Cpath d=\'M1 1l4.5 4.5L10 1\' stroke=\'%23a78bfa\' stroke-width=\'1.5\' stroke-linecap=\'round\'/%3E%3C/svg%3E")',
                 backgroundRepeat: 'no-repeat',
                 backgroundPosition: 'right 13px center'
               }}

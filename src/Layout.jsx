@@ -411,7 +411,6 @@ export default function Layout({ children, currentPageName }) {
             <Link to={createPageUrl('Dashboard')}>
               <Button size="sm" className="btn-dark-outline">Reading Room</Button>
             </Link>
-
           </div>
         )}
       </div>
@@ -422,15 +421,13 @@ export default function Layout({ children, currentPageName }) {
     <AppErrorBoundary>
       <div className="min-h-screen flex flex-col">
         <NetworkBanner />
-        <div className="fixed inset-0 -z-10 overflow-hidden bg-slate-900">
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-950/40 via-slate-900 to-blue-950/60"></div>
+        <div className="fixed inset-0 -z-10 overflow-hidden" style={{ background: '#07050f' }}>
+          <div className="absolute inset-0 bg-gradient-to-br from-[#100b2a]/40 via-[#07050f] to-[#0a0f1e]/60"></div>
+          {/* Subtle slow floating motes instead of bright fast particles */}
           <div className="absolute inset-0 pointer-events-none" style={{ display: disableBgParticles ? 'none' : 'block' }}>
-            <div className="particle" style={{'--d': '25s', '--x': '10vw', '--y': '15vh', '--s': '2px'}}></div>
-            <div className="particle" style={{'--d': '45s', '--x': '90vw', '--y': '80vh', '--s': '3px'}}></div>
-            <div className="particle" style={{'--d': '35s', '--x': '50vw', '--y': '30vh', '--s': '1px'}}></div>
-            <div className="particle" style={{'--d': '55s', '--x': '25vw', '--y': '90vh', '--s': '2.5px'}}></div>
-            <div className="particle" style={{'--d': '40s', '--x': '75vw', '--y': '10vh', '--s': '1.5px'}}></div>
-            <div className="particle" style={{'--d': '60s', '--x': '5vw', '--y': '60vh', '--s': '2px'}}></div>
+            <div className="particle opacity-30" style={{'--d': '35s', '--x': '15vw', '--y': '25vh', '--s': '1.5px', background: '#67e8f9'}}></div>
+            <div className="particle opacity-20" style={{'--d': '45s', '--x': '85vw', '--y': '75vh', '--s': '2px', background: '#a78bfa'}}></div>
+            <div className="particle opacity-20" style={{'--d': '55s', '--x': '40vw', '--y': '40vh', '--s': '1px', background: '#f472b6'}}></div>
           </div>
         </div>
         <style>
@@ -728,11 +725,11 @@ export default function Layout({ children, currentPageName }) {
         </style>
 
         <div className="flex flex-1 bg-transparent">
-          {/* Sidebar hidden on mobile; bottom nav used instead */}
+          {/* Sidebar hidden on mobile AND desktop by default to provide an immersive app experience */}
           <aside
-            className={`bg-slate-900/80 backdrop-blur-lg border-r border-purple-800/40 w-64 flex flex-col overflow-hidden fixed inset-y-0 left-0 z-50 transform ${
+            className={`bg-[#07050f]/90 backdrop-blur-xl border-r border-[#67e8f9]/10 w-64 flex flex-col overflow-hidden fixed inset-y-0 left-0 z-50 transform ${
               isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-            } transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:flex`}
+            } transition-transform duration-300 ease-in-out`}
           >
             <div className="flex items-center justify-between h-16 px-4 border-b border-purple-800/40 flex-shrink-0">
               <Link to="/" className="flex items-center gap-2">
@@ -873,7 +870,8 @@ export default function Layout({ children, currentPageName }) {
           </aside>
 
           <div className="flex-1 flex flex-col">
-            <header className="md:hidden bg-slate-900/95 backdrop-blur-lg border-b border-purple-800/40 h-16 pt-[env(safe-area-inset-top)] flex items-center px-4 justify-between flex-shrink-0 sticky top-0 z-40">
+            {/* Header visible on both mobile and desktop for hamburger access */}
+            <header className="bg-[#07050f]/80 backdrop-blur-md border-b border-[#67e8f9]/10 h-16 pt-[env(safe-area-inset-top)] flex items-center px-4 justify-between flex-shrink-0 sticky top-0 z-40">
               <div className="flex items-center">
                 {['CosmicHub','Studio','Journal', 'Dashboard'].includes(currentPageName) ? (
                   <button 
