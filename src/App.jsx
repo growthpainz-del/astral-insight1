@@ -95,6 +95,7 @@ const AuthenticatedApp = () => {
           </LayoutWrapper>
         }
       />
+      <Route path="/Home" element={<Navigate to="/" replace />} />
 
       {Object.entries(Pages).map(([path, Page]) => (
         <Route
