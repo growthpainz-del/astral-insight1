@@ -293,14 +293,14 @@ export default function Layout({ children, currentPageName }) {
     applyTheme(newT);
   };
 
-  // Redirect "/" to Home
+  // Redirect "/" to CosmicHub
   useEffect(() => {
     try {
       if (
         window.location.pathname === "/" ||
         window.location.pathname === ""
       ) {
-        navigate(createPageUrl("Home"), { replace: true });
+        navigate(createPageUrl("CosmicHub"), { replace: true });
       }
     } catch (_) {}
   }, []);
@@ -313,7 +313,7 @@ export default function Layout({ children, currentPageName }) {
   }, [currentPageName, isAdmin]);
 
   const handleLogout = async () => {
-    await base44.auth.logout(createPageUrl("Home"));
+    await base44.auth.logout(createPageUrl("CosmicHub"));
   };
 
   // Mobile back button — uses React Router location instead of window.location
@@ -423,7 +423,7 @@ export default function Layout({ children, currentPageName }) {
     );
   }
 
-  if (currentPageName === "Home") {
+  if (currentPageName === "CosmicHub") {
     return (
       <div className="bg-gray-900 text-white min-h-screen">
         <NetworkBanner />
@@ -485,7 +485,7 @@ export default function Layout({ children, currentPageName }) {
             } transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:flex`}
           >
             <div className="flex items-center justify-between h-16 px-4 border-b border-purple-800/40 flex-shrink-0">
-              <Link to={createPageUrl("Home")} className="flex items-center gap-2">
+              <Link to={createPageUrl("CosmicHub")} className="flex items-center gap-2">
                 <img
                   src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d2a300021f94d0f312c039/4cde5ffdd_IMG_6738.jpg"
                   alt="Logo"
@@ -505,7 +505,7 @@ export default function Layout({ children, currentPageName }) {
               <p className="px-4 pt-2 pb-1 text-xs font-semibold text-purple-400 uppercase tracking-wider">
                 Main
               </p>
-              <NavLink to={createPageUrl("Home")}>
+              <NavLink to={createPageUrl("CosmicHub")}>
                 <Home className="w-5 h-5 mr-3" />
                 Home
               </NavLink>
@@ -666,18 +666,18 @@ export default function Layout({ children, currentPageName }) {
               >
                 <LayoutGrid className="w-6 h-6" />
               </button>
-              <Link to={createPageUrl("Home")} className="flex items-center gap-2">
+              <Link to={createPageUrl("CosmicHub")} className="flex items-center gap-2">
                 <img
                   src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d2a300021f94d0f312c039/4cde5ffdd_IMG_6738.jpg"
                   alt="Logo"
                   className="h-8 w-8"
                 />
               </Link>
-              {["Home", "ReadingRoom", "Studio", "Journal"].includes(
+              {["CosmicHub", "ReadingRoom", "Studio", "Journal"].includes(
                 currentPageName
               ) ? (
                 <Link
-                  to={createPageUrl("Home")}
+                  to={createPageUrl("CosmicHub")}
                   className="text-purple-300 hover:text-purple-100 active:scale-95 transition-all p-2 -mr-2 touch-manipulation"
                   style={{ WebkitTapHighlightColor: "transparent" }}
                 >

@@ -92,6 +92,7 @@ import WebhookTester from './pages/WebhookTester';
 import WiccanSeeder from './pages/WiccanSeeder';
 import ZodiacReading from './pages/ZodiacReading';
 import AgentChat from './pages/AgentChat';
+import CosmicHub from './pages/CosmicHub';
 import __Layout from './Layout.jsx';
 
 
@@ -141,6 +142,7 @@ export const PAGES = {
     "WiccanSeeder": WiccanSeeder,
     "ZodiacReading": ZodiacReading,
     "AgentChat": AgentChat,
+    "CosmicHub": CosmicHub,
 }
 
 export const pagesConfig = {
