@@ -442,7 +442,7 @@ export default function ReadingRoom() {
 
   return (
     <PullToRefresh onRefresh={loadData}>
-      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-black text-white">
+      <div className="min-h-screen relative bg-gradient-to-br from-gray-950 via-slate-900 to-black text-white">
         <div id="did-agent-container" className="fixed right-4 bottom-24 z-[60] w-[360px] max-w-[90vw] min-h-[520px] pointer-events-auto" />
         <DidAgentEmbed mode="full" targetId="did-agent-container" forceInPreview />
       {/* Crystal Ball Reading Modal */}
@@ -452,6 +452,43 @@ export default function ReadingRoom() {
           onClose={() => setShowCrystalBall(false)}
         />
       )}
+
+      {/* Top Navigation Bar */}
+      <nav className="absolute top-0 left-0 right-0 z-20 flex justify-between items-center p-4 md:px-12 md:py-6 bg-gradient-to-b from-black/80 via-black/40 to-transparent">
+        <Link 
+          to="/" 
+          className="flex items-center gap-2 group"
+        >
+          <img 
+            src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/dceb9973f_FFC86774-57E4-432D-9291-05752E7FDC5A.png" 
+            alt="Rooted Crescent" 
+            style={{ filter: "brightness(0.9)" }}
+            className="w-8 h-8 rounded-lg object-cover transition-transform group-hover:scale-105 group-hover:brightness-110" 
+          />
+        </Link>
+        <div className="flex gap-6 md:gap-8 items-center overflow-x-auto scrollbar-hide">
+          {[
+            { label: "Community", to: createPageUrl("Explore") },
+            { label: "My Decks",  to: createPageUrl("Studio") },
+            { label: "History",   to: createPageUrl("History") },
+          ].map((item) => (
+            <Link
+              key={item.label}
+              to={item.to}
+              style={{
+                fontFamily: "'Cinzel', serif", fontSize: 10.5, letterSpacing: "0.2em",
+                textTransform: "uppercase", color: "rgba(200,180,255,0.55)",
+                textDecoration: "none", transition: "color 0.25s",
+              }}
+              onMouseEnter={(e) => (e.target.style.color = "rgba(200,170,255,1)")}
+              onMouseLeave={(e) => (e.target.style.color = "rgba(200,180,255,0.55)")}
+              className="whitespace-nowrap hover:text-purple-300"
+            >
+              {item.label}
+            </Link>
+          ))}
+        </div>
+      </nav>
 
       {/* Hero Section */}
       <div className="relative h-[50vh] mb-8">
