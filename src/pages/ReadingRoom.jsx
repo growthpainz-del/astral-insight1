@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Deck, Reading as ReadingEntity, Card } from "@/entities/all";
+import { base44 } from "@/api/base44Client";
 import { Play, Clock, Sparkles, ChevronRight, Eye, Combine, Star, Heart, TrendingUp, Users, Wand2, RefreshCw } from "lucide-react";
-import { User } from "@/entities/User";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { queueApiCall } from "@/components/utils/apiQueue";
@@ -126,7 +125,7 @@ function CrystalBallReading({ decks, onClose }) {
   useEffect(() => {
     // Load cards when deck is selected
     if (selectedDeckId) {
-      queueApiCall(() => Card.filter({ deck_id: selectedDeckId }))
+      queueApiCall(() => base44.entities.Card.filter({ deck_id: selectedDeckId }))
         .then(cards => setDeckCards(cards))
         .catch(() => {});
     }
@@ -388,18 +387,18 @@ export default function ReadingRoom() {
 
       let user = null;
       try {
-        user = await queueApiCall(() => User.me());
+        user = await queueApiCall(() => base44.auth.me());
         setCurrentUser(user);
       } catch (e) {
       }
 
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      const allDecks = await queueApiCall(() => Deck.list("-created_date", 200));
+      const allDecks = await queueApiCall(() => base44.entities.Deck.list("-created_date", 200));
       
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      const readings = await queueApiCall(() => ReadingEntity.list("-created_date", 10));
+      const readings = await queueApiCall(() => base44.entities.Reading.list("-created_date", 10));
 
       const publicDecksList = (allDecks || []).filter(d => d.is_public && d.publish_status === "published");
       const myDecksList = user 
