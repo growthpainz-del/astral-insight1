@@ -2,78 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
-/* :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
-} */
-
-
-
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -110,6 +38,7 @@ button:focus-visible {
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
+
   .dark {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
@@ -146,13 +75,268 @@ button:focus-visible {
   }
 }
 
-
-
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
+    overscroll-behavior-y: none;
   }
 }
+
+/* ─── Neon / dark theme design tokens ─────────────────────────────────────── */
+:root {
+  --neon-bg: #000000;
+  --neon-panel: #06070a;
+  --neon-text: #c8fff9;
+  --neon-text-90: rgba(200, 255, 249, 0.9);
+  --neon-text-80: rgba(200, 255, 249, 0.8);
+  --neon-text-70: rgba(200, 255, 249, 0.7);
+  --neon-text-60: rgba(200, 255, 249, 0.6);
+  --neon-text-50: rgba(200, 255, 249, 0.5);
+  --neon-text-40: rgba(200, 255, 249, 0.4);
+  --neon-text-30: rgba(200, 255, 249, 0.3);
+  --neon-text-20: rgba(200, 255, 249, 0.2);
+  --neon-text-10: rgba(200, 255, 249, 0.1);
+  --neon-accent: #00ffd1;
+  --neon-accent-2: #a855f7;
+  --neon-accent-3: #ff2bd6;
+  --neon-edge-10: rgba(0, 255, 209, 0.1);
+  --neon-edge-20: rgba(0, 255, 209, 0.2);
+  --neon-edge-30: rgba(0, 255, 209, 0.3);
+  --neon-edge-40: rgba(0, 255, 209, 0.4);
+  --neon-panel-5: rgba(0, 0, 0, 0.5);
+  --neon-panel-8: rgba(0, 0, 0, 0.8);
+
+  /* Override shadcn tokens with neon palette */
+  --background: #000000;
+  --foreground: var(--neon-text);
+  --card: #06070a;
+  --card-foreground: var(--neon-text);
+  --popover: #06070a;
+  --popover-foreground: var(--neon-text);
+  --primary: #7c3aed;
+  --primary-foreground: #e0e7ff;
+  --secondary: #0b0c10;
+  --secondary-foreground: var(--neon-text);
+  --muted: #0b0c10;
+  --muted-foreground: var(--neon-text-60);
+  --accent: var(--neon-accent-2);
+  --accent-foreground: var(--neon-text);
+  --border: var(--neon-edge-20);
+  --input: #12131a;
+  --ring: var(--neon-accent);
+}
+
+/* ─── Light theme overrides ──────────────────────────────────────────────── */
+[data-theme='light'] {
+  --neon-bg: #f7f5ff;
+  --neon-panel: #ffffff;
+  --neon-text: #111827;
+  --neon-text-90: rgba(17, 24, 39, 0.9);
+  --neon-text-80: rgba(17, 24, 39, 0.8);
+  --neon-text-70: rgba(17, 24, 39, 0.7);
+  --neon-text-60: rgba(17, 24, 39, 0.6);
+  --neon-text-50: rgba(17, 24, 39, 0.5);
+  --neon-text-40: rgba(17, 24, 39, 0.4);
+  --neon-text-30: rgba(17, 24, 39, 0.3);
+  --neon-text-20: rgba(17, 24, 39, 0.2);
+  --neon-text-10: rgba(17, 24, 39, 0.1);
+  --neon-accent: #7c3aed;
+  --neon-accent-2: #7c3aed;
+  --neon-accent-3: #a78bfa;
+  --neon-edge-10: rgba(124, 58, 237, 0.1);
+  --neon-edge-20: rgba(124, 58, 237, 0.2);
+  --neon-edge-30: rgba(124, 58, 237, 0.3);
+  --neon-edge-40: rgba(124, 58, 237, 0.4);
+  --neon-panel-5: rgba(255, 255, 255, 0.5);
+  --neon-panel-8: rgba(255, 255, 255, 0.8);
+}
+
+/* ─── Global base styles ─────────────────────────────────────────────────── */
+html,
+body,
+#root {
+  background-color: var(--neon-bg) !important;
+  color: var(--neon-text) !important;
+  min-height: 100dvh;
+}
+
+/* ─── Neon colour utility overrides ─────────────────────────────────────── */
+.text-white           { color: var(--neon-text)    !important; }
+.text-white\/90       { color: var(--neon-text-90) !important; }
+.text-white\/80       { color: var(--neon-text-80) !important; }
+.text-white\/70       { color: var(--neon-text-70) !important; }
+.text-white\/60       { color: var(--neon-text-60) !important; }
+.text-white\/50       { color: var(--neon-text-50) !important; }
+.text-white\/40       { color: var(--neon-text-40) !important; }
+.text-white\/30       { color: var(--neon-text-30) !important; }
+.text-white\/20       { color: var(--neon-text-20) !important; }
+.text-white\/10       { color: var(--neon-text-10) !important; }
+
+.text-black,
+.text-gray-900,
+.text-zinc-900,
+.text-slate-900,
+.text-neutral-900     { color: var(--neon-text) !important; }
+
+.bg-white             { background-color: var(--neon-panel)              !important; }
+.bg-white\/5          { background-color: rgba(0, 255, 209, 0.06)        !important; }
+.bg-white\/10         { background-color: rgba(0, 255, 209, 0.10)        !important; }
+.bg-white\/20         { background-color: rgba(0, 255, 209, 0.16)        !important; }
+.bg-white\/30         { background-color: rgba(0, 255, 209, 0.22)        !important; }
+.bg-white\/40         { background-color: rgba(0, 255, 209, 0.28)        !important; }
+.bg-white\/50         { background-color: rgba(0, 255, 209, 0.34)        !important; }
+
+.bg-gray-50,
+.bg-gray-100,
+.bg-zinc-50,
+.bg-neutral-50        { background-color: var(--neon-panel) !important; }
+
+.bg-slate-800,
+.bg-slate-800\/30,
+.bg-slate-800\/50,
+.bg-slate-900,
+.bg-slate-900\/50,
+.bg-slate-900\/80     { background-color: var(--neon-panel) !important; }
+
+.hover\:bg-white:hover,
+.hover\:bg-white\/5:hover,
+.hover\:bg-white\/10:hover,
+.hover\:bg-white\/20:hover,
+.hover\:bg-white\/30:hover,
+.hover\:bg-gray-50:hover,
+.hover\:bg-gray-100:hover { background-color: rgba(0, 255, 209, 0.12) !important; }
+
+.border-white\/10     { border-color: var(--neon-edge-10) !important; }
+.border-white\/20     { border-color: var(--neon-edge-20) !important; }
+.border-white\/30     { border-color: var(--neon-edge-30) !important; }
+.border-white\/40     { border-color: var(--neon-edge-40) !important; }
+.border-white,
+.hover\:border-white:hover { border-color: var(--neon-edge-30) !important; }
+
+.border-slate-700,
+.border-slate-600     { border-color: var(--neon-edge-20) !important; }
+.border-purple-800\/40 { border-color: var(--neon-edge-40) !important; }
+.border-purple-700    { border-color: var(--neon-edge-30) !important; }
+
+.ring-white,
+.focus\:ring-white:focus,
+.focus-visible\:ring-white:focus-visible,
+.ring-gray-200,
+.focus\:ring-gray-200:focus,
+.focus-visible\:ring-gray-200:focus-visible { --tw-ring-color: var(--neon-accent) !important; }
+
+button,
+.btn,
+.shadcn-button,
+.ui-button            { color: var(--neon-text) !important; }
+
+a:hover,
+button:hover          { text-shadow: 0 0 6px var(--neon-accent-2); }
+
+/* ─── Particle animation ─────────────────────────────────────────────────── */
+@keyframes float {
+  0%   { transform: translateY(0);      opacity: 1; }
+  100% { transform: translateY(-100vh); opacity: 0; }
+}
+
+.particle {
+  position: absolute;
+  left: var(--x);
+  top: 100vh;
+  width: var(--s);
+  height: var(--s);
+  background-color: rgba(192, 132, 252, 0.6);
+  border-radius: 50%;
+  animation: float linear infinite;
+  animation-duration: var(--d);
+  box-shadow: 0 0 5px rgba(192, 132, 252, 0.8);
+}
+
+/* ─── Custom button variants ─────────────────────────────────────────────── */
+.btn-dark-outline {
+  background-color: rgba(0, 0, 0, 0.6) !important;
+  border: 2px solid rgba(255, 255, 255, 0.7) !important;
+  color: var(--neon-text) !important;
+  font-weight: 800 !important;
+  border-radius: 9999px !important;
+  padding: 0.5rem 1rem !important;
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.25) inset, 0 2px 10px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(6px);
+}
+.btn-dark-outline:hover {
+  background-color: rgba(0, 0, 0, 0.8) !important;
+  box-shadow: 0 0 14px rgba(168, 85, 247, 0.4) inset, 0 4px 16px rgba(0, 0, 0, 0.6);
+}
+.btn-dark-outline .lucide { stroke-width: 2.5px; }
+
+.deck-read-button {
+  background-color: rgba(0, 0, 0, 0.6) !important;
+  border: 2px solid rgba(255, 255, 255, 0.7) !important;
+  color: var(--neon-text) !important;
+  font-weight: 800 !important;
+  border-radius: 9999px !important;
+}
+.deck-read-button:hover { background-color: rgba(0, 0, 0, 0.8) !important; }
+
+/* ─── Reading bottom sheet ───────────────────────────────────────────────── */
+.reading-bottom-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 96px);
+  z-index: 100;
+  pointer-events: auto;
+  overscroll-behavior: contain;
+}
+@media (min-width: 768px) {
+  .reading-bottom-sheet {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
+  }
+}
+
+/* ─── Scrollbar styles ───────────────────────────────────────────────────── */
+::-webkit-scrollbar         { width: 10px; height: 10px; }
+::-webkit-scrollbar-track   { background: #000; }
+::-webkit-scrollbar-thumb   {
+  background: linear-gradient(180deg, var(--neon-accent), var(--neon-accent-2));
+  border-radius: 10px;
+}
+
+/* Hide scrollbars on mobile while keeping scroll */
+@media (max-width: 767px) {
+  *::-webkit-scrollbar { display: none; width: 0; height: 0; }
+  *                    { scrollbar-width: none; }
+}
+
+/* scrollbar-hide utility (replaces Dashboard inline style) */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* pan-2d: independent 2D scroll areas for mobile */
+.pan-2d {
+  touch-action: pan-x pan-y;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ─── Touch / interaction hardening ─────────────────────────────────────── */
+button,
+[role="button"],
+.lucide,
+.shadcn-button,
+.ui-button,
+a                     { user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+
+/* Keep text inputs selectable */
+input,
+textarea,
+select                { user-select: text; -webkit-user-select: text; }
+
+/* Prevent icon layers from stealing taps */
+.lucide               { pointer-events: none; }

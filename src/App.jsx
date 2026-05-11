@@ -1,14 +1,14 @@
-import './App.css'
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
 import VisualEditAgent from '@/lib/VisualEditAgent'
 import NavigationTracker from '@/lib/NavigationTracker'
 import { pagesConfig } from './pages.config'
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import PageNotFound from './lib/PageNotFound';
-import { AuthProvider, useAuth } from '@/lib/AuthContext';
-import UserNotRegisteredError from '@/components/UserNotRegisteredError';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom'
+import PageNotFound from './lib/PageNotFound'
+import { AuthProvider, useAuth } from '@/lib/AuthContext'
+import UserNotRegisteredError from '@/components/UserNotRegisteredError'
+
 import CosmicHub from '@/pages/CosmicHub';
 import SpiritWheel from '@/pages/SpiritWheel';
 import SpiritWheelDesigner from '@/pages/SpiritWheelDesigner';
@@ -19,57 +19,109 @@ import CardLibrary from '@/pages/CardLibrary';
 import SpiritWheelCanvasTest from '@/pages/SpiritWheelCanvasTest';
 import SigilForge from '@/pages/SigilForge';
 
-const { Pages, Layout, mainPage } = pagesConfig;
-const mainPageKey = "CosmicHub";
-const MainPage = CosmicHub;
+const { Pages, Layout, mainPage } = pagesConfig
 
-const LayoutWrapper = ({ children, currentPageName }) => Layout ?
-  <Layout currentPageName={currentPageName}>{children}</Layout>
-  : <>{children}</>;
+const mainPageKey = mainPage ?? Object.keys(Pages)[0]
+const MainPage = mainPageKey ? Pages[mainPageKey] : null
+
+// Pages that require admin role — guarded at route level
+const ADMIN_ONLY_PAGES = new Set([
+  'AdminUsers',
+  'AdminDeckReview',
+  'AdminTokenGrant',
+  'AdminTokenGrant',
+  'AIWorkspace',
+  'WebhookTester',
+  'SpreadSeeder',
+  'WiccanSeeder',
+])
+
+const LayoutWrapper = ({ children, currentPageName }) =>
+  Layout
+    ? <Layout currentPageName={currentPageName}>{children}</Layout>
+    : <>{children}</>
+
+/**
+ * Wraps a page in an admin guard.
+ * Redirects non-admins to Dashboard instead of silently showing an empty page.
+ */
+const AdminRoute = ({ Page, pageName, user }) => {
+  if (!user) return <Navigate to="/Dashboard" replace />
+  if (user.role !== 'admin') {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-6">
+        <div className="max-w-md text-center bg-red-900/20 border border-red-500/40 rounded-xl p-8">
+          <h2 className="text-2xl font-bold text-white mb-2">Access Denied</h2>
+          <p className="text-red-200 mb-4">
+            You need admin privileges to view this page.
+          </p>
+          <a href="/Dashboard" className="text-purple-300 underline">
+            Go to Dashboard
+          </a>
+        </div>
+      </div>
+    )
+  }
+  return (
+    <LayoutWrapper currentPageName={pageName}>
+      <Page />
+    </LayoutWrapper>
+  )
+}
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, isAuthenticated, navigateToLogin } = useAuth();
+  const {
+    isLoadingAuth,
+    isLoadingPublicSettings,
+    authError,
+    user,
+    navigateToLogin,
+  } = useAuth()
 
-  // Show loading spinner while checking app public settings or auth
   if (isLoadingPublicSettings || isLoadingAuth) {
     return (
       <div className="fixed inset-0 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin" />
       </div>
-    );
+    )
   }
 
-  // Handle authentication errors
   if (authError) {
     if (authError.type === 'user_not_registered') {
-      return <UserNotRegisteredError />;
+      return <UserNotRegisteredError />
     } else if (authError.type === 'auth_required') {
-      // Redirect to login automatically
-      navigateToLogin();
-      return null;
+      navigateToLogin()
+      return null
     }
   }
 
-  // Render the main app
   return (
     <Routes>
-      <Route path="/" element={
-        <LayoutWrapper currentPageName={mainPageKey}>
-          <MainPage />
-        </LayoutWrapper>
-      } />
+      <Route
+        path="/"
+        element={
+          <LayoutWrapper currentPageName={mainPageKey}>
+            {MainPage && <MainPage />}
+          </LayoutWrapper>
+        }
+      />
+
       {Object.entries(Pages).map(([path, Page]) => (
         <Route
           key={path}
           path={`/${path}`}
           element={
-            <LayoutWrapper currentPageName={path}>
-              <Page />
-            </LayoutWrapper>
+            ADMIN_ONLY_PAGES.has(path)
+              ? <AdminRoute Page={Page} pageName={path} user={user} />
+              : (
+                <LayoutWrapper currentPageName={path}>
+                  <Page />
+                </LayoutWrapper>
+              )
           }
         />
       ))}
-      <Route path="*" element={<PageNotFound />} />
+
       <Route path="/SpiritWheel" element={<LayoutWrapper currentPageName="SpiritWheel"><SpiritWheel /></LayoutWrapper>} />
       <Route path="/SpiritWheelDesigner" element={<LayoutWrapper currentPageName="SpiritWheelDesigner"><SpiritWheelDesigner /></LayoutWrapper>} />
       <Route path="/Pendulum" element={<LayoutWrapper currentPageName="Pendulum"><Pendulum /></LayoutWrapper>} />
@@ -78,13 +130,13 @@ const AuthenticatedApp = () => {
       <Route path="/CardLibrary" element={<LayoutWrapper currentPageName="CardLibrary"><CardLibrary /></LayoutWrapper>} />
       <Route path="/SpiritWheelCanvasTest" element={<LayoutWrapper currentPageName="SpiritWheelCanvasTest"><SpiritWheelCanvasTest /></LayoutWrapper>} />
       <Route path="/SigilForge" element={<LayoutWrapper currentPageName="SigilForge"><SigilForge /></LayoutWrapper>} />
-    </Routes>
-  );
-};
 
+      <Route path="*" element={<PageNotFound />} />
+    </Routes>
+  )
+}
 
 function App() {
-
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
