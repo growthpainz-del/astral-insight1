@@ -455,11 +455,11 @@ export default function ReadingRoom() {
 
       {/* Top Navigation Bar */}
       <nav className="sticky top-0 z-50 flex items-center justify-between px-[17px] py-[11px] bg-[#07050f]/95 border-b border-[#a078ff]/15 backdrop-blur-[16px]">
-        <div className="w-[34px] h-[34px] rounded-[9px] bg-[#160f2a] border border-[#a078ff]/15 flex flex-col items-center justify-center gap-[4px] cursor-pointer transition-colors hover:border-purple-400/40">
+        <Link to={createPageUrl("CosmicHub")} className="w-[34px] h-[34px] rounded-[9px] bg-[#160f2a] border border-[#a078ff]/15 flex flex-col items-center justify-center gap-[4px] cursor-pointer transition-colors hover:border-purple-400/40">
           <div className="w-[16px] h-[1.5px] bg-purple-200/60 rounded-[2px]"></div>
           <div className="w-[16px] h-[1.5px] bg-purple-200/60 rounded-[2px]"></div>
           <div className="w-[16px] h-[1.5px] bg-purple-200/60 rounded-[2px]"></div>
-        </div>
+        </Link>
         <div className="flex items-center gap-[9px]">
           <div className="w-[30px] h-[30px] rounded-[7px] bg-gradient-to-br from-[#1a0f35] to-[#0a0618] border border-[#a78bfa]/25 flex items-center justify-center text-[15px] shadow-[0_0_12px_rgba(167,139,250,0.2)]">
             🌙
