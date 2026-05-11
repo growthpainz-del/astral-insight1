@@ -577,7 +577,35 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
         </div>
       </nav>
 
-      <div className="max-w-7xl mx-auto px-4 space-y-6">
+      <div className="max-w-7xl mx-auto space-y-0 pb-12">
+        {/* Top bar (Replaces old header) */}
+        <div className="flex items-center justify-between p-[14px_18px_10px]">
+          <div>
+            <div className="font-['Cinzel'] text-[14px] tracking-[0.1em] bg-gradient-to-r from-[#c8a8ff] via-[#fff] to-[#a0c8ff] bg-[length:200%_auto] text-transparent bg-clip-text animate-[shimmer_4s_linear_infinite]">
+              {deck?.name || "Reading"}
+            </div>
+            <div className="font-['IM_Fell_English'] italic text-[12px] text-[#b4a0dc]/45 mt-[2px]">
+              {selectedSpread?.name || "Custom Spread"}
+            </div>
+          </div>
+          <div className="flex gap-[7px]">
+            <button 
+              onClick={() => {
+                setDrawnCards([]);
+                setPlacedCards([]);
+              }}
+              className="font-['Cinzel'] text-[8.5px] tracking-[0.12em] uppercase p-[7px_12px] rounded-full border border-[#a078ff]/25 bg-[#160f2a] text-[#e1d7ff]/90 cursor-pointer transition-all hover:border-[#a78bfa] hover:text-[#a78bfa] flex items-center gap-[5px] whitespace-nowrap"
+            >
+              ↺ New
+            </button>
+            <button 
+              onClick={handleSaveReading}
+              className="font-['Cinzel'] text-[8.5px] tracking-[0.12em] uppercase p-[7px_12px] rounded-full border border-[#34d399]/35 bg-[#34d399]/10 text-[#34d399] cursor-pointer transition-all hover:bg-[#34d399]/20 flex items-center gap-[5px] whitespace-nowrap"
+            >
+              ⬡ Save
+            </button>
+          </div>
+        </div>
 
         {/* NEW: Debug Panel - Mobile Friendly */}
         {showDebugPanel && (
@@ -748,83 +776,49 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
           <div className="space-y-6">
             {/* Compact preview removed — using a single main compact view */}
 
-             {/* Enhanced Spread Visualization */}
-             <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-               <div className="flex items-center justify-between mb-6">
-                 <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400">
-                   Your Reading
-                 </h2>
-                 <div className="flex gap-2 flex-wrap justify-end">
-                   {/* Compact-only: removed view toggle */}
-                   <Button
-                     size="sm"
-                     variant="outline"
-                     onClick={() => {
-                       setDrawnCards([]);
-                     }}
-                     className="border-white/20 text-white hover:bg-white/10"
+             {/* Moon Stage with Cards */}
+             <div className="relative mx-[12px] rounded-[18px] overflow-hidden bg-gradient-to-br from-[#0d0822] via-[#1a0f35] to-[#0a0618] border border-[#a078ff]/15 min-h-[280px] flex items-center justify-center mb-6">
+               <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
+                 <div className="absolute w-[320px] h-[320px] rounded-full bg-[radial-gradient(circle,rgba(167,139,250,0.06),transparent_70%)] animate-[moonGlow_6s_1s_ease-in-out_infinite]" />
+                 <div className="w-[240px] h-[240px] rounded-full border border-[#c9a84c]/10 bg-[radial-gradient(circle_at_40%_35%,rgba(201,168,76,0.18),rgba(120,80,200,0.08)_55%,transparent_75%)] animate-[moonGlow_5s_ease-in-out_infinite]" />
+               </div>
+               
+               <div className="relative z-10 flex items-end justify-center gap-[10px] p-[28px_16px_24px] w-full flex-wrap">
+                 {(placedCards.some(Boolean) ? placedCards : drawnCards).filter(Boolean).map((card, idx) => (
+                   <div 
+                     key={idx} 
+                     className="flex-1 max-w-[110px] flex flex-col items-center gap-[8px] animate-in slide-in-from-bottom-8 fade-in duration-500 fill-mode-both"
+                     style={{ animationDelay: `${idx * 0.18}s` }}
                    >
-                     <RefreshCw className="w-4 h-4 mr-2" />
-                     New Reading
-                   </Button>
-                   <Button
-                     size="sm"
-                     onClick={handleSaveReading}
-                     className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700"
-                   >
-                     <Save className="w-4 h-4 mr-2" />
-                     Save Session
-                   </Button>
-                   <Button
-                       size="sm"
-                       variant="outline"
-                       onClick={() => setShowRelationshipsOverlay(true)}
-                       className="border-purple-500/40 text-purple-300 hover:bg-purple-500/10"
+                     <div 
+                       onClick={() => handleCardClick(card, idx)}
+                       className="w-full aspect-[2/3] rounded-[10px] bg-gradient-to-br from-[#1e1438] to-[#0d0822] border-[1.5px] border-[#a78bfa]/35 flex items-center justify-center text-[28px] overflow-hidden shadow-[0_6px_20px_rgba(0,0,0,0.5),0_0_20px_rgba(100,50,200,0.2)] animate-[float_4s_ease-in-out_infinite] cursor-pointer relative"
+                       style={{ animationDelay: `${idx * 0.8}s` }}
                      >
-                       <Sparkles className="w-4 h-4 mr-2" />
-                       Relationships
-                     </Button>
-                     {/* Compact-only: removed extra overlay button */}
-                     {selectedSpread?.isCustom && selectedSpread?.id ? (
-                       <Link to={createPageUrl(`SpreadDesigner?id=${selectedSpread.id}`)}>
-                         <Button size="sm" variant="outline" className="border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10">
-                           Edit Spread
-                         </Button>
-                       </Link>
-                     ) : (
-                       <Link to={createPageUrl('SpreadManager')}>
-                         <Button size="sm" variant="outline" className="border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10">
-                           Edit Spread
-                         </Button>
-                       </Link>
-                     )}
-                 </div>
-               </div>
-
-               {selectedSpread?.isCustom && (
-                 <div className="mb-4 bg-cyan-900/20 border border-cyan-500/30 rounded-lg p-3 text-xs text-cyan-200">
-                   <div className="font-semibold mb-1">Custom Spread: {selectedSpread.name}</div>
-                   <div className="text-cyan-300/80">
-                     {selectedSpread.positions.length} positions • 
-                     {selectedSpread.positions.filter(p => typeof p.x === 'number').length} with coordinates
+                       {card.image_url ? (
+                         <img src={card.image_url} alt={card.name} className="w-full h-full object-cover rounded-[8px]" />
+                       ) : (
+                         <span className="text-white/40 font-['IM_Fell_English']">Card</span>
+                       )}
+                       <div className="absolute inset-0 rounded-[8px] bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
+                     </div>
+                     <div className="font-['Cinzel'] text-[7.5px] tracking-[0.1em] uppercase text-[#dcd2ff]/80 text-center leading-[1.4] line-clamp-2">
+                       {card.name}
+                     </div>
+                     <div className="font-['Cinzel'] text-[7px] tracking-[0.1em] uppercase p-[3px_8px] rounded-full bg-[#a78bfa]/15 border border-[#a78bfa]/30 text-[#a78bfa]">
+                       {idx + 1}. {card.position || "Card"}
+                     </div>
+                     <div className="font-['IM_Fell_English'] italic text-[10px] text-[#b4a0dc]/45 text-center leading-[1.4] line-clamp-2">
+                       {card.position_meaning || "Guidance"}
+                     </div>
                    </div>
-                 </div>
-               )}
-
-               <div className="mt-2">
-                  <CompactSpread
-                    spread={selectedSpread}
-                    positions={readingPositions}
-                    cards={placedCards}
-                    deck={deck}
-                    viewMode={viewMode}
-                    revealedCards={revealedCards}
-                    onCardClick={handleCardClick}
-                    onCardReveal={handleCardReveal}
-                  />
-                </div>
-
+                 ))}
                </div>
+             </div>
+             
+             <div className="text-center font-['IM_Fell_English'] italic text-[11px] text-[#a78bfa]/35 p-[4px_0_10px]">
+               Tap a card to explore its meaning
+             </div>
 
             {/* Session Notes - Quick Input */}
             {!disableHeavyAnimations && (
@@ -860,26 +854,21 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
               </div>
             )}
 
-            {/* AI Insight Button */}
-            {!showAI && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="text-center"
-              >
-                <Button
+            {/* Insight buttons */}
+            <div className="p-[6px_18px_0]">
+              {!showAI && (
+                <button 
                   onClick={() => setShowAI(true)}
-                  className="bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 hover:from-purple-700 hover:via-pink-700 hover:to-blue-700 text-white font-bold py-6 px-8 text-lg shadow-lg shadow-purple-500/50"
+                  className="w-full p-[14px_18px] rounded-[13px] border-none cursor-pointer flex items-center justify-center gap-[10px] mb-[10px] transition-all hover:-translate-y-[2px] active:scale-[0.97] bg-gradient-to-br from-[#5b21b6] via-[#7c3aed] to-[#a78bfa] shadow-[0_4px_22px_rgba(124,58,237,0.4)] text-white font-['Cinzel']"
                 >
-                  <Sparkles className="w-6 h-6 mr-3" />
-                  Unlock Deep Insight
-                  <Sparkles className="w-6 h-6 ml-3" />
-                </Button>
-                <p className="text-purple-300 text-sm mt-3">
-                  Get AI-powered interpretation of your reading
-                </p>
-              </motion.div>
-            )}
+                  <span className="text-[18px] shrink-0">✦</span>
+                  <div className="text-left">
+                    <div className="text-[13px] tracking-[0.12em] uppercase font-bold">Unlock Deep Insight</div>
+                    <div className="font-['IM_Fell_English'] italic text-[11px] opacity-75 mt-[1px]">AI-powered interpretation of your reading</div>
+                  </div>
+                </button>
+              )}
+            </div>
 
             {/* AI Reading Section */}
             <AIReading
@@ -894,22 +883,34 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
 
             {/* Card Relationships Section */}
             {(placedCards.filter(Boolean).length >= 2 || drawnCards.length >= 2) && (
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 p-4 md:p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <Badge className="bg-purple-600/80 text-white">
-                    <Sparkles className="w-3 h-3 mr-1" />
-                    Card Relationships
-                  </Badge>
-                  <span className="text-purple-200 text-sm">
-                    Discover connections in your reading
-                  </span>
+              <div className="m-[6px_18px_0]">
+                <div className="flex items-center gap-[10px] p-[10px_0_12px]">
+                  <div className="font-['Cinzel'] text-[8.5px] tracking-[0.12em] uppercase p-[5px_12px] rounded-full bg-[#a78bfa]/15 border border-[#a78bfa]/30 text-[#a78bfa] flex items-center gap-[5px]">
+                    ✦ Card Relationships
+                  </div>
+                  <div className="font-['Crimson_Text'] text-[14px] text-[#b4a0dc]/45">
+                    Discover connections
+                  </div>
                 </div>
                 
-                <CardRelationshipVisualizer
-                  deckId={deck.id}
-                  cards={(placedCards.some(Boolean) ? placedCards : drawnCards).filter(Boolean)}
-                  selectedCards={(placedCards.some(Boolean) ? placedCards : drawnCards).filter(Boolean)}
-                />
+                <div className="bg-[#0f0b1e] border border-[#a078ff]/15 rounded-[14px] overflow-hidden">
+                  <div className="p-[14px_16px] flex items-center justify-between border-b border-[#a078ff]/15">
+                    <div className="font-['Cinzel'] text-[13px] tracking-[0.08em] text-white flex items-center gap-[8px]">
+                      <span>⬡</span> Connections
+                    </div>
+                    <div className="flex gap-[7px]">
+                      <button className="font-['Cinzel'] text-[7.5px] tracking-[0.1em] uppercase p-[6px_11px] rounded-full border border-[#67e8f9]/35 bg-[#160f2a] text-[#67e8f9] cursor-pointer transition-colors hover:border-[#67e8f9]">AI Suggest</button>
+                      <button className="font-['Cinzel'] text-[7.5px] tracking-[0.1em] uppercase p-[6px_11px] rounded-full border border-[#34d399]/35 bg-[#160f2a] text-[#34d399] cursor-pointer transition-colors hover:border-[#34d399]">+ Add</button>
+                    </div>
+                  </div>
+                  <div className="p-[16px]">
+                    <CardRelationshipVisualizer
+                      deckId={deck.id}
+                      cards={(placedCards.some(Boolean) ? placedCards : drawnCards).filter(Boolean)}
+                      selectedCards={(placedCards.some(Boolean) ? placedCards : drawnCards).filter(Boolean)}
+                    />
+                  </div>
+                </div>
               </div>
             )}
           </div>

@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import PullToRefresh from "@/components/common/PullToRefresh";
 import { Label } from "@/components/ui/label";
 import DidAgentEmbed from "@/components/integrations/DidAgentEmbed";
+import CoverflowDeckSelector from "@/components/reading/CoverflowDeckSelector";
 
 function DeckCard({ deck, isOwned = false }) {
   return (
@@ -471,154 +472,14 @@ export default function ReadingRoom() {
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <div className="relative h-[50vh] mb-8">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-900/40 to-blue-900/40">
-          <img
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d2a300021f94d0f312c039/700bd7a34_0DC18799-794E-447B-AD87-0A5B20D22CE5.png"
-            alt="Hero"
-            className="w-full h-full object-cover opacity-30"
-          />
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
-        <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12">
-          <h1 className="text-4xl md:text-6xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400">
-            🔮 Reading Room
-          </h1>
-          <p className="text-xl md:text-2xl text-white/80 mb-6 max-w-2xl">
-            Explore mystical decks and receive cosmic guidance
-          </p>
-          <div className="flex gap-4 flex-wrap">
-            <Button 
-              onClick={() => setShowCrystalBall(true)}
-              size="lg" 
-              className="bg-gradient-to-r from-purple-600 via-pink-600 to-cyan-600 hover:from-purple-700 hover:via-pink-700 hover:to-cyan-700 text-white font-bold shadow-xl shadow-purple-500/30"
-            >
-              <Wand2 className="w-5 h-5 mr-2" />
-              Crystal Ball Oracle
-            </Button>
-            <Link to={createPageUrl("Reading")}>
-              <Button size="lg" className="bg-white text-black hover:bg-white/90 font-bold">
-                <Play className="w-5 h-5 mr-2" />
-                Full Reading
-              </Button>
-            </Link>
-            <Link to={createPageUrl("History")}>
-              <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10">
-                <Clock className="w-5 h-5 mr-2" />
-                View History
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="px-8 mb-12">
-        <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
-          <TrendingUp className="w-6 h-6 text-purple-400" />
-          Quick Start
-        </h2>
-        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-          <button
-            onClick={() => setShowCrystalBall(true)}
-            className="group flex-shrink-0"
-          >
-            <div className="relative w-48 h-32 rounded-lg overflow-hidden bg-gradient-to-br from-purple-600 to-cyan-600 border border-white/10 hover:border-white/30 transition-all duration-300 hover:scale-105 hover:shadow-xl">
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-4">
-                <Wand2 className="w-10 h-10 mb-2 group-hover:scale-110 transition-transform" />
-                <span className="font-bold text-center">Crystal Ball</span>
-              </div>
-            </div>
-          </button>
-          <QuickAction
-            label="Fusion Reading"
-            icon={Combine}
-            to={createPageUrl("FusionReading")}
-            gradient="bg-gradient-to-br from-pink-600 to-purple-600"
-          />
-          <QuickAction
-            label="Zodiac Reading"
-            icon={Star}
-            to={createPageUrl("ZodiacReading")}
-            gradient="bg-gradient-to-br from-indigo-600 to-blue-600"
-          />
-          <QuickAction
-            label="Rebel 8-Ball"
-            icon={Heart}
-            to={createPageUrl("Rebel8Ball")}
-            gradient="bg-gradient-to-br from-red-600 to-pink-600"
-          />
-          <QuickAction
-            label="Explore Creators"
-            icon={Users}
-            to={createPageUrl("Explore")}
-            gradient="bg-gradient-to-br from-cyan-600 to-teal-600"
-          />
-        </div>
-      </div>
-
-      {/* Official Decks */}
-      {publicDecks.length > 0 && (
-        <div className="px-8 mb-12">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold flex items-center gap-2">
-              <Sparkles className="w-6 h-6 text-cyan-400" />
-              Official Decks ({publicDecks.length})
-            </h2>
-            <Link to={createPageUrl("ReadingRoom?all=1")} className="text-white/60 hover:text-white flex items-center gap-1 text-sm">
-              View All Decks <ChevronRight className="w-4 h-4" />
-            </Link>
-          </div>
-          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-            {(showAllOfficial ? publicDecks : publicDecks.slice(0, 12)).map(deck => (
-              <DeckCard key={deck.id} deck={deck} isOwned={false} />
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* My Decks */}
-      {myDecks.length > 0 && (
-        <div className="px-8 mb-12">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold">My Decks ({myDecks.length})</h2>
-            <Link to={createPageUrl("Studio")} className="text-white/60 hover:text-white flex items-center gap-1 text-sm">
-              Manage in Studio <ChevronRight className="w-4 h-4" />
-            </Link>
-          </div>
-          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-            {myDecks.map(deck => (
-              <DeckCard key={deck.id} deck={deck} isOwned={true} />
-            ))}
-          </div>
-        </div>
-      )}
-
-
-      {/* Recent Readings */}
-      {recentReadings.length > 0 && (
-        <div className="px-8 mb-12">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold flex items-center gap-2">
-              <Clock className="w-6 h-6 text-indigo-400" />
-              Continue Your Journey
-            </h2>
-            <Link to={createPageUrl("History")} className="text-white/60 hover:text-white flex items-center gap-1 text-sm">
-              View All <ChevronRight className="w-4 h-4" />
-            </Link>
-          </div>
-          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-            {recentReadings.slice(0, 8).map(reading => (
-              <ReadingCard
-                key={reading.id}
-                reading={reading}
-                deck={publicDecks.find(d => d.id === reading.deck_id) || myDecks.find(d => d.id === reading.deck_id)}
-              />
-            ))}
-          </div>
-        </div>
-      )}
+      {/* Deck Selector Coverflow Design */}
+      <CoverflowDeckSelector 
+        publicDecks={publicDecks} 
+        myDecks={myDecks} 
+        onDrawCards={(deck, spread, question) => {
+          window.location.href = createPageUrl(`Reading?deckId=${deck.id}&spread=${encodeURIComponent(spread)}&question=${encodeURIComponent(question)}`);
+        }} 
+      />
 
           </div>
           </PullToRefresh>

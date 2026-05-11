@@ -66,24 +66,36 @@ export default function MobileBottomNav() {
   // replaced by tabs above
 
   return (
-    <nav className="md:hidden fixed inset-x-0 bottom-0 z-50">
-      <div className="backdrop-blur-lg bg-black/70 border-t border-white/10 flex items-stretch justify-around pb-[calc(env(safe-area-inset-bottom,0px)+8px)] pt-2">
-        {tabs.map((tab) => {
-          const Icon = tab.icon;
+    <>
+      <nav className="md:hidden fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-[#07050f]/95 border-t border-[#a078ff]/15 backdrop-blur-[16px] flex justify-around p-[8px_0_12px] z-[100] pb-[calc(env(safe-area-inset-bottom,0px)+12px)]">
+        {[
+          { key: "Home", icon: "⌂" },
+          { key: "Read", icon: "◎" },
+          { key: "Studio", icon: "⬡" },
+          { key: "Journal", icon: "◈" },
+          { key: "Agent", icon: "✦" },
+        ].map(tab => {
           const active = activeTab === tab.key;
           return (
             <button
               key={tab.key}
-              onClick={() => handleTabClick(tab)}
-              className="flex flex-col items-center gap-1 px-3 py-1 text-xs"
-              aria-label={tab.label}
+              onClick={() => handleTabClick(tabs.find(t => t.key === tab.key))}
+              className={`flex flex-col items-center gap-[3px] cursor-pointer transition-colors font-['Cinzel'] text-[8px] tracking-[0.1em] uppercase bg-transparent border-none p-[4px_8px] ${active ? 'text-[#a78bfa]' : 'text-[#b4a0dc]/45 hover:text-[#c8b4ff]/80'}`}
             >
-              <Icon className={`w-5 h-5 ${active ? 'text-purple-400' : 'text-white/70'}`} />
-              <span className={`${active ? 'text-purple-300' : 'text-white/60'}`}>{tab.label}</span>
+              <span className="text-[18px] leading-[1]">{tab.icon}</span>
+              {tab.key}
             </button>
-          );
+          )
         })}
-      </div>
-    </nav>
+      </nav>
+      {/* FAB - Global for mobile */}
+      <button 
+        onClick={() => handleTabClick(tabs.find(t => t.key === "Read"))}
+        className="md:hidden fixed bottom-[72px] right-[20px] z-[99] w-[50px] h-[50px] rounded-full bg-gradient-to-br from-[#7c3aed] to-[#a78bfa] border-none cursor-pointer flex items-center justify-center text-[20px] text-white shadow-[0_4px_18px_rgba(124,58,237,0.5)] transition-all hover:scale-[1.08] hover:shadow-[0_6px_24px_rgba(124,58,237,0.65)] animate-[pulse_3s_ease_infinite]"
+        style={{ marginBottom: "env(safe-area-inset-bottom, 0px)" }}
+      >
+        ✦
+      </button>
+    </>
   );
 }
