@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Deck, User } from "@/entities/all";
@@ -6,6 +5,26 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
 import { 
   Loader2, 
   CheckCircle2, 
@@ -15,7 +34,7 @@ import {
   FileText,
   User as UserIcon,
   Calendar,
-  Mail // NEW: Import Mail icon
+  Mail,
 } from "lucide-react";
 
 export default function AdminDeckReview() {
@@ -25,7 +44,14 @@ export default function AdminDeckReview() {
   const [user, setUser] = useState(null);
   const [approving, setApproving] = useState(null);
   const [rejecting, setRejecting] = useState(null);
-  const [testingEmail, setTestingEmail] = useState(false); // NEW
+  const [testingEmail, setTestingEmail] = useState(false);
+
+  // Dialog state
+  const [deckToApprove, setDeckToApprove] = useState(null);
+  const [deckToReject, setDeckToReject] = useState(null);
+  const [rejectReason, setRejectReason] = useState("");
+  const [testEmailAddress, setTestEmailAddress] = useState("");
+  const [testEmailDialogOpen, setTestEmailDialogOpen] = useState(false);
 
   useEffect(() => {
     User.me().then(setUser).catch(() => setUser(null));
@@ -46,107 +72,79 @@ export default function AdminDeckReview() {
   };
 
   const approveDeck = async (deck) => {
-    if (!confirm(`Approve "${deck.name}" for publication?`)) return;
-    
+    setDeckToApprove(deck);
+  };
+
+  const confirmApproveDeck = async (deck) => {
     setApproving(deck.id);
     setError("");
-    
     try {
-      // Call backend function to approve deck and send email
-      const response = await base44.functions.invoke('adminDeckAction', {
+      const response = await base44.functions.invoke("adminDeckAction", {
         deckId: deck.id,
-        action: 'approve'
+        action: "approve",
       });
-
-      if (response.data?.success) {
-        console.log(`✅ Deck approved: ${response.data.message}`);
-      } else {
-        // Handle cases where the backend function might return success: false but not throw an error
-        console.error(`❌ Backend reported failure for approval: ${response.data?.message || 'Unknown reason'}`);
-        setError("Failed to approve deck: " + (response.data?.message || "Unknown error from backend"));
-        setApproving(null); // Ensure loading state is cleared
-        return; // Exit if backend indicated failure
+      if (!response.data?.success) {
+        setError("Failed to approve deck: " + (response.data?.message || "Unknown error"));
+        return;
       }
-
+      toast.success(`"${deck.name}" approved and published.`);
       await loadDecks();
     } catch (error) {
-      console.error("Failed to approve deck:", error);
       setError("Failed to approve deck: " + (error.message || "Unknown error"));
     } finally {
       setApproving(null);
+      setDeckToApprove(null);
     }
   };
 
-  const rejectDeck = async (deck) => {
-    const reason = prompt(`Why are you rejecting "${deck.name}"? (This will be sent to the creator)`);
-    if (!reason) return;
-    
-    setRejecting(deck.id);
+  const rejectDeck = (deck) => {
+    setDeckToReject(deck);
+    setRejectReason("");
+  };
+
+  const confirmRejectDeck = async () => {
+    if (!deckToReject || !rejectReason.trim()) return;
+    setRejecting(deckToReject.id);
     setError("");
-    
     try {
-      // Call backend function to reject deck and send email
-      const response = await base44.functions.invoke('adminDeckAction', {
-        deckId: deck.id,
-        action: 'reject',
-        reason: reason
+      const response = await base44.functions.invoke("adminDeckAction", {
+        deckId: deckToReject.id,
+        action: "reject",
+        reason: rejectReason.trim(),
       });
-
-      if (response.data?.success) {
-        console.log(`✅ Deck rejected: ${response.data.message}`);
-      } else {
-        // Handle cases where the backend function might return success: false but not throw an error
-        console.error(`❌ Backend reported failure for rejection: ${response.data?.message || 'Unknown reason'}`);
-        setError("Failed to reject deck: " + (response.data?.message || "Unknown error from backend"));
-        setRejecting(null); // Ensure loading state is cleared
-        return; // Exit if backend indicated failure
+      if (!response.data?.success) {
+        setError("Failed to reject deck: " + (response.data?.message || "Unknown error"));
+        return;
       }
-
+      toast.success(`"${deckToReject.name}" rejected. Creator notified.`);
       await loadDecks();
     } catch (error) {
-      console.error("Failed to reject deck:", error);
       setError("Failed to reject deck: " + (error.message || "Unknown error"));
     } finally {
       setRejecting(null);
+      setDeckToReject(null);
+      setRejectReason("");
     }
   };
 
-  // NEW: Test email functionality
   const sendTestEmail = async () => {
-    const testEmail = prompt("Enter email address to send test notification to:", user?.email);
-    if (!testEmail) return;
-
+    if (!testEmailAddress.trim()) return;
     setTestingEmail(true);
     setError("");
-
     try {
       await base44.integrations.Core.SendEmail({
-        to: testEmail,
+        to: testEmailAddress.trim(),
         subject: "🧪 Test Email - Astral Insight Publishing System",
         body: `This is a test email from the Astral Insight publishing system.
 
 Your email notifications are working correctly! ✅
 
-When deck approvals/rejections happen, creators will receive emails like this one with:
-- Subject: Relevant status update
-- Body: Full details about the action
-- Links: Direct links to view their decks
-- Next steps: Clear instructions on what to do
-
-Test Details:
-- Sent by: ${user?.email}
-- Sent at: ${new Date().toLocaleString()}
-- Test successful: Yes
-
-If you received this email, everything is configured correctly!
-
-Best regards,
-The Astral Insight Team`
+Sent by: ${user?.email}
+Sent at: ${new Date().toLocaleString()}`,
       });
-
-      alert(`✅ Test email sent successfully to ${testEmail}!\n\nCheck the inbox (and spam folder) to confirm delivery.`);
+      toast.success(`Test email sent to ${testEmailAddress}.`);
+      setTestEmailDialogOpen(false);
     } catch (err) {
-      console.error("Failed to send test email:", err);
       setError("Failed to send test email: " + (err.message || "Unknown error"));
     } finally {
       setTestingEmail(false);
@@ -184,7 +182,7 @@ The Astral Insight Team`
           </p>
         </div>
         <Button
-          onClick={sendTestEmail}
+          onClick={() => { setTestEmailAddress(user?.email || ""); setTestEmailDialogOpen(true); }}
           disabled={testingEmail}
           variant="outline"
           className="border-blue-500/40 text-blue-300 hover:bg-blue-900/30"
@@ -312,6 +310,88 @@ The Astral Insight Team`
           </div>
         </div>
       )}
+
+      {/* Approve confirmation */}
+      <AlertDialog open={!!deckToApprove} onOpenChange={(open) => !open && setDeckToApprove(null)}>
+        <AlertDialogContent className="bg-slate-900 border border-white/10 text-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Approve Deck</AlertDialogTitle>
+            <AlertDialogDescription className="text-white/70">
+              Approve <span className="font-semibold text-white">"{deckToApprove?.name}"</span> for publication? The creator will be notified.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-white/20 text-white hover:bg-white/10">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => confirmApproveDeck(deckToApprove)} className="bg-emerald-600 hover:bg-emerald-700">
+              Approve & Publish
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Reject dialog with reason */}
+      <Dialog open={!!deckToReject} onOpenChange={(open) => !open && setDeckToReject(null)}>
+        <DialogContent className="bg-slate-900 border border-white/10 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle>Reject Deck</DialogTitle>
+          </DialogHeader>
+          <div className="py-2 space-y-3">
+            <p className="text-sm text-white/70">
+              Rejecting <span className="font-semibold text-white">"{deckToReject?.name}"</span>.
+              Provide a reason — this will be sent to the creator.
+            </p>
+            <Textarea
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              placeholder="Explain why this deck is being rejected..."
+              className="bg-white/10 border-white/20 text-white min-h-[100px]"
+              autoFocus
+            />
+          </div>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setDeckToReject(null)} className="border-white/20 text-white hover:bg-white/10">
+              Cancel
+            </Button>
+            <Button
+              onClick={confirmRejectDeck}
+              disabled={!rejectReason.trim() || !!rejecting}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {rejecting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+              Reject
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Test email dialog */}
+      <Dialog open={testEmailDialogOpen} onOpenChange={setTestEmailDialogOpen}>
+        <DialogContent className="bg-slate-900 border border-white/10 text-white max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Send Test Email</DialogTitle>
+          </DialogHeader>
+          <div className="py-2 space-y-3">
+            <p className="text-sm text-white/70">Enter an email address to send a test notification.</p>
+            <Input
+              value={testEmailAddress}
+              onChange={(e) => setTestEmailAddress(e.target.value)}
+              placeholder="email@example.com"
+              className="bg-white/10 border-white/20 text-white"
+              autoFocus
+              onKeyDown={(e) => e.key === "Enter" && sendTestEmail()}
+            />
+          </div>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setTestEmailDialogOpen(false)} className="border-white/20 text-white hover:bg-white/10">
+              Cancel
+            </Button>
+            <Button onClick={sendTestEmail} disabled={testingEmail || !testEmailAddress.trim()} className="bg-blue-600 hover:bg-blue-700">
+              {testingEmail ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Mail className="w-4 h-4 mr-2" />}
+              Send
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
