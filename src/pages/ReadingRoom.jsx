@@ -454,39 +454,22 @@ export default function ReadingRoom() {
       )}
 
       {/* Top Navigation Bar */}
-      <nav className="absolute top-0 left-0 right-0 z-20 flex justify-between items-center p-4 md:px-12 md:py-6 bg-gradient-to-b from-black/80 via-black/40 to-transparent">
-        <Link 
-          to="/" 
-          className="flex items-center gap-2 group"
-        >
-          <img 
-            src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/dceb9973f_FFC86774-57E4-432D-9291-05752E7FDC5A.png" 
-            alt="Rooted Crescent" 
-            style={{ filter: "brightness(0.9)" }}
-            className="w-8 h-8 rounded-lg object-cover transition-transform group-hover:scale-105 group-hover:brightness-110" 
-          />
-        </Link>
-        <div className="flex gap-6 md:gap-8 items-center overflow-x-auto scrollbar-hide">
-          {[
-            { label: "Community", to: createPageUrl("Explore") },
-            { label: "My Decks",  to: createPageUrl("Studio") },
-            { label: "History",   to: createPageUrl("History") },
-          ].map((item) => (
-            <Link
-              key={item.label}
-              to={item.to}
-              style={{
-                fontFamily: "'Cinzel', serif", fontSize: 10.5, letterSpacing: "0.2em",
-                textTransform: "uppercase", color: "rgba(200,180,255,0.55)",
-                textDecoration: "none", transition: "color 0.25s",
-              }}
-              onMouseEnter={(e) => (e.target.style.color = "rgba(200,170,255,1)")}
-              onMouseLeave={(e) => (e.target.style.color = "rgba(200,180,255,0.55)")}
-              className="whitespace-nowrap hover:text-purple-300"
-            >
-              {item.label}
-            </Link>
-          ))}
+      <nav className="sticky top-0 z-50 flex items-center justify-between px-[17px] py-[11px] bg-[#07050f]/95 border-b border-[#a078ff]/15 backdrop-blur-[16px]">
+        <div className="w-[34px] h-[34px] rounded-[9px] bg-[#160f2a] border border-[#a078ff]/15 flex flex-col items-center justify-center gap-[4px] cursor-pointer transition-colors hover:border-purple-400/40">
+          <div className="w-[16px] h-[1.5px] bg-purple-200/60 rounded-[2px]"></div>
+          <div className="w-[16px] h-[1.5px] bg-purple-200/60 rounded-[2px]"></div>
+          <div className="w-[16px] h-[1.5px] bg-purple-200/60 rounded-[2px]"></div>
+        </div>
+        <div className="flex items-center gap-[9px]">
+          <div className="w-[30px] h-[30px] rounded-[7px] bg-gradient-to-br from-[#1a0f35] to-[#0a0618] border border-[#a78bfa]/25 flex items-center justify-center text-[15px] shadow-[0_0_12px_rgba(167,139,250,0.2)]">
+            🌙
+          </div>
+          <span className="font-['Cinzel'] text-[11px] tracking-[0.18em] uppercase text-purple-200/70">
+            Reading Room
+          </span>
+        </div>
+        <div className="w-[30px] h-[30px] rounded-full bg-gradient-to-br from-[#7c3aed] to-[#67e8f9] flex items-center justify-center font-['Cinzel'] text-[10px] font-bold text-white shadow-[0_0_10px_rgba(103,232,249,0.2)] cursor-pointer">
+          {currentUser ? (currentUser.full_name?.[0] || currentUser.email?.[0] || 'U').toUpperCase() : 'GR'}
         </div>
       </nav>
 
