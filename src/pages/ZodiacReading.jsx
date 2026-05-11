@@ -86,7 +86,7 @@ const elderFutharkRunes = [
     reversed_meaning: "Suggests vulnerability, blocked progress, or fear of change, advising inner fortification.",
     facedown_meaning: "Indicates hidden resilience or a challenge not yet confronted; further insight may unlock this strength." },
   { number: 14, symbol: "ᛈ", name: "Perthro", keywords: ["Mystery", "fate", "insight"], element: "Water",
-    upright_meaning: "Reveals secrets, enhancements psychic abilities, and guides you toward your fate with trust in the unknown.",
+    upright_meaning: "Reveals secrets, enhances psychic abilities, and guides you toward your fate with trust in the unknown.",
     reversed_meaning: "Indicates confusion, resistance to fate, or hidden dangers, suggesting caution and introspection.",
     facedown_meaning: "Suggests a hidden destiny or insight not yet accessible; time or intuition may clarify the path." },
   { number: 15, symbol: "ᛉ", name: "Algiz", keywords: ["Protection", "divinity", "guidance"], element: "Air",
