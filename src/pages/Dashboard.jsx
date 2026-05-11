@@ -237,6 +237,26 @@ export default function Dashboard() {
     }
   }, [activePool.length, focusIdx]);
 
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Don't trigger if user is typing in an input or textarea
+      if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return;
+      
+      if (activePool.length === 0) return;
+      
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        setFocusIdx(prev => Math.max(0, prev - 1));
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        setFocusIdx(prev => Math.min(activePool.length - 1, prev + 1));
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activePool.length]);
+
   const selectedDeck = activePool[focusIdx] || null;
 
   const handleDrawCards = () => {
