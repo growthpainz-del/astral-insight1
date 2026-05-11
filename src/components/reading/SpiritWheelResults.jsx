@@ -218,9 +218,9 @@ export default function SpiritWheelResults({
 
             {aiInterpretation && (
               <div className="mt-[16px] p-[20px] bg-[#0a0502] rounded-[12px] border border-[#8b5a2b] whitespace-pre-wrap text-[15px] text-[rgba(240,225,190,0.9)] leading-relaxed shadow-[inset_0_0_20px_rgba(0,0,0,0.8)] relative">
-                <div className="flex justify-between items-center mb-[14px]">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-[14px]">
                   <div className="text-[#c9a84c] text-[11px] font-bold uppercase tracking-[0.1em]" style={{ fontFamily: "'Cinzel', serif" }}>Oracle Interpretation</div>
-                  <div data-html2canvas-ignore="true" className="flex gap-[6px]">
+                  <div data-html2canvas-ignore="true" className="flex flex-wrap gap-[6px] justify-start sm:justify-end mt-2 sm:mt-0">
                     <button 
                       onClick={() => setShowReportDialog(true)}
                       className="px-[10px] py-[6px] rounded-[6px] border border-[rgba(239,68,68,0.3)] bg-[rgba(239,68,68,0.1)] text-[#ef4444] text-[9px] tracking-[0.1em] uppercase cursor-pointer hover:bg-[rgba(239,68,68,0.2)] transition-colors flex items-center gap-[4px]"

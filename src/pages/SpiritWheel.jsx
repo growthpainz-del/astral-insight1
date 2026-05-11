@@ -399,7 +399,9 @@ export default function SpiritWheel() {
         .mode-tabs {
           display: flex; gap: 0; background: rgba(22,15,42,0.8); border-bottom: 1px solid rgba(160,120,255,0.16);
           position: sticky; top: 0; z-index: 90; margin: 0 -16px 24px -16px; backdrop-filter: blur(10px);
+          scrollbar-width: none;
         }
+        .mode-tabs::-webkit-scrollbar { display: none; }
         @media (min-width: 768px) {
           .mode-tabs { margin: 0 -32px 24px -32px; }
         }
@@ -423,23 +425,23 @@ export default function SpiritWheel() {
           animation: strobeFlicker 0.08s infinite linear !important;
         }
       `}</style>
-      <div className="max-w-[100rem] mx-auto mb-6 flex justify-between items-center">
-        <div className="flex items-center gap-4">
+      <div className="max-w-[100rem] mx-auto mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-0">
+        <div className="flex items-center gap-2 md:gap-4">
           <div data-html2canvas-ignore="true">
             <Link to={createPageUrl("Studio")}>
-              <Button variant="ghost" className="text-amber-200 hover:text-amber-100 hover:bg-amber-900/50 pl-2 pr-4">
-                <ChevronLeft className="w-6 h-6 mr-1" />
+              <Button variant="ghost" className="text-amber-200 hover:text-amber-100 hover:bg-amber-900/50 pl-1 pr-2 sm:pl-2 sm:pr-4">
+                <ChevronLeft className="w-6 h-6 sm:mr-1" />
                 <span className="hidden sm:inline font-semibold">Studio</span>
               </Button>
             </Link>
           </div>
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-amber-500 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">Spirit Wheel</h1>
-            <p className="text-sm md:text-base text-amber-200/80">Astro Insights Digital Reading Room</p>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-amber-500 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">Spirit Wheel</h1>
+            <p className="text-xs sm:text-sm md:text-base text-amber-200/80">Astro Insights Digital Reading Room</p>
           </div>
         </div>
 
-        <div data-html2canvas-ignore="true" className="flex flex-wrap items-center gap-2 justify-end">
+        <div data-html2canvas-ignore="true" className="flex flex-wrap items-center gap-2 justify-start md:justify-end w-full md:w-auto mt-2 md:mt-0">
           <CelestialMapWidget onApplyEnergy={() => {
             setCategory("Astrology");
             // If they are on a custom wheel, maybe switch to the default one to use categories
@@ -456,11 +458,11 @@ export default function SpiritWheel() {
         </div>
       </div>
 
-      <div className="mode-tabs" data-html2canvas-ignore="true">
-        <button className={`mode-tab ${activeTab === 'spin' ? 'on' : ''}`} onClick={() => setActiveTab('spin')}>Spin</button>
-        <button className={`mode-tab ${activeTab === 'config' ? 'on' : ''}`} onClick={() => setActiveTab('config')}>Configure</button>
-        <button className="mode-tab" onClick={() => navigate(createPageUrl(`SpiritWheelDesigner${selectedWheelId !== "default" ? "?id=" + selectedWheelId : ""}`))}>Designer</button>
-        <button className="mode-tab" onClick={() => navigate(createPageUrl(`SigilForge`))}>Forge</button>
+      <div className="mode-tabs overflow-x-auto whitespace-nowrap" data-html2canvas-ignore="true">
+        <button className={`mode-tab px-4 ${activeTab === 'spin' ? 'on' : ''}`} onClick={() => setActiveTab('spin')}>Spin</button>
+        <button className={`mode-tab px-4 ${activeTab === 'config' ? 'on' : ''}`} onClick={() => setActiveTab('config')}>Configure</button>
+        <button className="mode-tab px-4" onClick={() => navigate(createPageUrl(`SpiritWheelDesigner${selectedWheelId !== "default" ? "?id=" + selectedWheelId : ""}`))}>Designer</button>
+        <button className="mode-tab px-4" onClick={() => navigate(createPageUrl(`SigilForge`))}>Forge</button>
       </div>
 
       <div className="max-w-[100rem] mx-auto flex flex-col gap-8" style={{ display: activeTab === 'spin' ? 'flex' : 'none' }}>
@@ -468,7 +470,7 @@ export default function SpiritWheel() {
         {/* Top/Full Width Column: Visual Wheel & Controls */}
         <div className="w-full flex flex-col items-center justify-start p-0 md:p-2 lg:p-4 relative min-h-[350px] lg:min-h-[600px] order-1 overflow-hidden lg:overflow-visible">
           <div 
-            className="relative w-full flex flex-col items-center pb-[20px] pt-[24px] border-b border-[rgba(201,168,76,0.15)] overflow-hidden rounded-xl shadow-2xl"
+            className="relative w-full flex flex-col items-center pb-[20px] pt-[24px] border-y sm:border border-[rgba(201,168,76,0.15)] overflow-hidden sm:rounded-xl shadow-2xl"
             style={{
               background: "linear-gradient(180deg, #0a0618 0%, #140d28 40%, #1a1008 100%)",
             }}
@@ -483,7 +485,7 @@ export default function SpiritWheel() {
             ></div>
             
             {/* Zoom Controls */}
-            <div data-html2canvas-ignore="true" className="absolute top-4 right-4 z-50 flex flex-col gap-[6px] bg-[rgba(2,1,10,0.5)] p-[6px] rounded-[10px] border border-[rgba(201,168,76,0.2)] shadow-[0_4px_16px_rgba(0,0,0,0.6)] backdrop-blur-md">
+            <div data-html2canvas-ignore="true" className="absolute top-2 right-2 md:top-4 md:right-4 z-50 flex flex-row md:flex-col gap-[6px] bg-[rgba(2,1,10,0.5)] p-[6px] rounded-[10px] border border-[rgba(201,168,76,0.2)] shadow-[0_4px_16px_rgba(0,0,0,0.6)] backdrop-blur-md">
               <button onClick={() => setZoomLevel(z => Math.min(z + 0.25, 3))} className="w-[30px] h-[30px] rounded-[6px] text-[#c9a84c] hover:text-[#fff] hover:bg-[rgba(201,168,76,0.2)] transition-colors flex items-center justify-center cursor-pointer border-none bg-transparent">
                 <ZoomIn className="w-4 h-4" />
               </button>
@@ -496,7 +498,7 @@ export default function SpiritWheel() {
             </div>
 
             <div 
-              className="relative w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] md:w-[500px] md:h-[500px] lg:w-[650px] lg:h-[650px] xl:w-[800px] xl:h-[800px] shrink-0 origin-center my-4"
+              className="relative w-[90vw] h-[90vw] max-w-[320px] max-h-[320px] sm:max-w-none sm:max-h-none sm:w-[400px] sm:h-[400px] md:w-[500px] md:h-[500px] lg:w-[650px] lg:h-[650px] xl:w-[800px] xl:h-[800px] shrink-0 origin-center my-4"
               style={{ 
                 transform: `translate(${panPos.x}px, ${panPos.y}px) scale(${zoomLevel})`,
                 transition: isDragging ? 'none' : 'transform 0.3s ease-in-out',
