@@ -963,8 +963,8 @@ export default function Layout({ children, currentPageName }) {
         </div>
         
         
-        {/* Mobile Bottom Navigation */}
-        <MobileBottomNav />
+        {/* Mobile Bottom Navigation - only show if not on CosmicHub landing page */}
+        {currentPageName !== 'CosmicHub' && <MobileBottomNav />}
         {/* Always-accessible Login button at top-right when unauthenticated (helps in builder preview) */}
         {!user && !redirectingToLogin && (
           <div className="fixed z-[60] top-3 right-3">
