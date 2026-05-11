@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
-import { Combine, Sparkles, Wand2, Loader2, AlertTriangle, ArrowLeft, RefreshCcw, Save } from "lucide-react";
+import { Combine, Sparkles, Wand2, Loader2, AlertTriangle, ArrowLeft, RefreshCcw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { queueApiCall } from "@/components/utils/apiQueue";
@@ -27,34 +27,6 @@ export default function FusionReading() {
   const [isLoading, setIsLoading] = useState(false);
   const [reading, setReading] = useState(null);
   const [error, setError] = useState(null);
-  const [isSaving, setIsSaving] = useState(false);
-
-  const handleSaveReading = async () => {
-    setIsSaving(true);
-    try {
-      await base44.entities.Reading.create({
-        title: `Fusion: ${reading.deck1} & ${reading.deck2}`,
-        spread_type: selectedSpread,
-        deck_id: "fusion",
-        cards_drawn: reading.cards.map(c => ({
-          card_id: c.id || "0",
-          card_name: c.name,
-          image_url: c.image_url,
-          position: c.position.toString(),
-          is_reversed: c.is_reversed
-        })),
-        interpretation: typeof reading.interpretation === 'object' ? reading.interpretation.text || JSON.stringify(reading.interpretation) : reading.interpretation,
-        date: new Date().toISOString().split('T')[0],
-        category: "Fusion Reading"
-      });
-      alert("Reading saved successfully!");
-    } catch (e) {
-      console.error(e);
-      alert("Failed to save reading.");
-    } finally {
-      setIsSaving(false);
-    }
-  };
   const [allDecks, setAllDecks] = useState([]);
   const [isLoadingDecks, setIsLoadingDecks] = useState(true);
   const [user, setUser] = useState(null);
@@ -82,7 +54,6 @@ export default function FusionReading() {
         }
 
       } catch (err) {
-        console.error("Error loading decks:", err);
         if (isNetworkError(err)) {
           setError("Network connection issue. Please check your internet and try again.");
         } else {
@@ -218,7 +189,6 @@ Remember: Weave the wisdom of both decks together seamlessly for a unique, balan
           const newCount = (user.total_ai_readings_count || 0) + 1;
           await queueApiCall(() => User.update(user.id, { total_ai_readings_count: newCount }));
         } catch (updateError) {
-          console.error("Failed to update user reading count:", updateError);
         }
       }
 
@@ -233,7 +203,6 @@ Remember: Weave the wisdom of both decks together seamlessly for a unique, balan
       });
 
     } catch (err) {
-      console.error("Error generating fusion reading:", err);
       if (isNetworkError(err)) {
         setError("Network connection issue. Failed to generate reading. Please try again.");
       } else {
@@ -245,7 +214,12 @@ Remember: Weave the wisdom of both decks together seamlessly for a unique, balan
   };
 
   const handleRetry = () => {
-    window.location.reload();
+    setError(null);
+    setIsLoadingDecks(true);
+    // Re-trigger the useEffect by resetting dependent state
+    setAllDecks([]);
+    setSelectedDeck1("");
+    setSelectedDeck2("");
   };
 
   const availableDecks = allDecks.filter(d => 
@@ -448,17 +422,6 @@ Remember: Weave the wisdom of both decks together seamlessly for a unique, balan
                 animate={{ opacity: 1, y: 0 }}
                 className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6"
               >
-                <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-xl font-bold text-white">Your Fusion Reading</h3>
-                  <Button 
-                    onClick={handleSaveReading}
-                    disabled={isSaving}
-                    className="bg-purple-600 hover:bg-purple-700 text-white"
-                  >
-                    <Save className="w-4 h-4 mr-2" />
-                    {isSaving ? "Saving..." : "Save Reading"}
-                  </Button>
-                </div>
                 <div className="prose prose-invert max-w-none">
                   <ReactMarkdown>{reading.interpretation}</ReactMarkdown>
                 </div>

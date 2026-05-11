@@ -1,7 +1,7 @@
-
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card as UICard, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -134,9 +134,9 @@ If you propose spreads, use 3-7 positions with short, clear labels.`;
         deck_id_2: deck2Id,
         recipe_content: JSON.stringify(analysis, null, 2)
       });
-      alert("Fusion recipe saved!");
+      toast.success("Fusion recipe saved!");
     } catch (e) {
-      alert("Failed to save recipe: " + (e?.message || "unknown error"));
+      toast.error("Failed to save recipe: " + (e?.message || "unknown error"));
     } finally {
       setSaving(false);
     }

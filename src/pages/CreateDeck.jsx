@@ -201,8 +201,6 @@ export default function CreateDeck() {
             const result = JSON.stringify(obj);
             const sizeKB = (result.length / 1024).toFixed(2);
             
-            if (result.length > 100000) {
-            }
             
             // Validate that the stringified result can be parsed back
             try {
@@ -614,6 +612,7 @@ export default function CreateDeck() {
       }
       
     } catch (e) {
+      
       const errorMsg = e.message || String(e);
       
       const lineMatch = errorMsg.match(/line (\d+)/i) || errorMsg.match(/position (\d+)/i);

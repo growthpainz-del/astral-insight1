@@ -1,14 +1,14 @@
 import React from "react";
+import { useSearchParams, Link } from "react-router-dom";
 import { Deck as DeckEntity } from "@/entities/Deck";
 import CardGallery from "@/components/deck/CardGallery";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
 export default function DeckGallery() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const deckId = urlParams.get("deckId") || urlParams.get("id");
+  const [searchParams] = useSearchParams();
+  const deckId = searchParams.get("deckId") || searchParams.get("id");
 
   const [deck, setDeck] = React.useState(null);
 
@@ -21,7 +21,10 @@ export default function DeckGallery() {
     <div className="min-h-screen px-4 md:px-8 lg:px-12 py-6">
       <div className="flex items-center gap-3 mb-6">
         <Link to={createPageUrl("Dashboard")}>
-          <Button variant="secondary" className="bg-white/10 border border-white/10 text-white">
+          <Button
+            variant="secondary"
+            className="bg-white/10 border border-white/10 text-white"
+          >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back
           </Button>

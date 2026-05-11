@@ -1,5 +1,7 @@
 import React from "react";
+import { useSearchParams } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
+import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -7,8 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import SpreadDesignCanvas from "@/components/spread/SpreadDesignCanvas";
 
 export default function FusionRecipeEditor() {
-  const url = new URLSearchParams(window.location.search);
-  const recipeId = url.get("id");
+  const [searchParams] = useSearchParams();
+  const recipeId = searchParams.get("id");
 
   const [loading, setLoading] = React.useState(true);
   const [saving, setSaving] = React.useState(false);
@@ -71,7 +73,7 @@ export default function FusionRecipeEditor() {
     });
 
     setSaving(false);
-    alert("Fusion recipe spread saved and linked!");
+    toast.success("Fusion recipe spread saved and linked!");
   };
 
   if (loading) {

@@ -4,6 +4,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 import { 
   BookOpen, 
   Plus, 
@@ -29,12 +40,13 @@ export default function JournalPage() {
   
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTags, setSelectedTags] = useState([]);
-  const [sortBy, setSortBy] = useState("date_desc"); // date_desc, date_asc, favorites
-  const [viewMode, setViewMode] = useState("all"); // all, favorites, recent
+  const [sortBy, setSortBy] = useState("date_desc");
+  const [viewMode, setViewMode] = useState("all");
   
   const [showEditor, setShowEditor] = useState(false);
   const [editingEntry, setEditingEntry] = useState(null);
   const [showAIAssistant, setShowAIAssistant] = useState(false);
+  const [entryToDelete, setEntryToDelete] = useState(null);
 
   // Load journal entries
   useEffect(() => {
@@ -52,11 +64,9 @@ export default function JournalPage() {
         1000
       );
       
-      console.log(`✅ Loaded ${loadedEntries.length} journal entries`);
       setEntries(loadedEntries);
       
     } catch (err) {
-      console.error("Failed to load journal entries:", err);
       setError("Failed to load journal entries. Please try again.");
     } finally {
       setLoading(false);
@@ -160,45 +170,50 @@ export default function JournalPage() {
       setEditingEntry(null);
       
     } catch (err) {
-      console.error("Failed to save entry:", err);
       throw err;
     }
   };
 
   const handleDeleteEntry = async (entryId) => {
-    if (!confirm("Are you sure you want to delete this journal entry? This cannot be undone.")) {
-      return;
-    }
+    // Find entry for dialog display, then open dialog
+    const entry = entries.find(e => e.id === entryId);
+    setEntryToDelete(entry || { id: entryId });
+  };
 
+  const confirmDeleteEntry = async () => {
+    if (!entryToDelete) return;
     try {
       await queueApiCall(
-        () => base44.entities.JournalEntry.delete(entryId),
+        () => base44.entities.JournalEntry.delete(entryToDelete.id),
         3,
         1000
       );
-      
+      setEntryToDelete(null);
       await loadEntries();
-      
     } catch (err) {
-      console.error("Failed to delete entry:", err);
       setError("Failed to delete entry. Please try again.");
     }
   };
 
   const handleToggleFavorite = async (entry) => {
+    // Optimistic update — flip locally first, revert on failure
+    setEntries(prev =>
+      prev.map(e => e.id === entry.id ? { ...e, is_favorite: !e.is_favorite } : e)
+    );
     try {
       await queueApiCall(
         () => base44.entities.JournalEntry.update(entry.id, {
-          is_favorite: !entry.is_favorite
+          is_favorite: !entry.is_favorite,
         }),
         3,
         1000
       );
-      
-      await loadEntries();
-      
     } catch (err) {
-      console.error("Failed to toggle favorite:", err);
+      // Revert on failure
+      setEntries(prev =>
+        prev.map(e => e.id === entry.id ? { ...e, is_favorite: entry.is_favorite } : e)
+      );
+      toast.error("Failed to update favourite. Please try again.");
     }
   };
 
@@ -436,6 +451,35 @@ export default function JournalPage() {
           />
         )}
       </AnimatePresence>
+
+      {/* Delete confirmation dialog */}
+      <AlertDialog
+        open={!!entryToDelete}
+        onOpenChange={(open) => !open && setEntryToDelete(null)}
+      >
+        <AlertDialogContent className="bg-slate-900 border border-white/10 text-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Journal Entry</AlertDialogTitle>
+            <AlertDialogDescription className="text-white/70">
+              {entryToDelete?.title
+                ? <>Are you sure you want to delete <span className="font-semibold text-white">"{entryToDelete.title}"</span>? This cannot be undone.</>
+                : "Are you sure you want to delete this journal entry? This cannot be undone."
+              }
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-white/20 text-white hover:bg-white/10">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteEntry}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

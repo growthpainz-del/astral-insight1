@@ -5,11 +5,11 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Card as UICard, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { queueApiCall } from "@/components/utils/apiQueue";
 import { isNetworkError } from "@/components/utils/isNetworkError";
-import { getThumbnailUrl } from "@/lib/utils";
+import { toast } from "sonner";
 import {
   Loader2,
   Play,
@@ -33,8 +33,7 @@ import {
   FileText, // ADDED: FileText icon for PDF manuals
   Send, // NEW: Added Send icon for Publishing
   Palette, // NEW: Added Palette icon for Style Extractor
-  AlertTriangle, // ADDED: AlertTriangle for error state in Publishing tab
-  ListPlus
+  AlertTriangle // ADDED: AlertTriangle for error state in Publishing tab
 } from "lucide-react";
 import {
   Accordion,
@@ -42,8 +41,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 // Inline controllers (already in codebase)
 import AIManualBuilder from "@/components/deck/AIManualBuilder";
@@ -70,12 +67,10 @@ import AICoachEditor from "@/components/deck/AICoachEditor";
 import PublishingDashboard from "@/components/deck/PublishingDashboard";
 // NEW: Import StyleExtractor
 import StyleExtractor from "@/components/deck/StyleExtractor";
-import ReadingEngineEditor from "@/components/deck/ReadingEngineEditor";
 import ImageUrlDiagnostics from "@/components/deck/ImageUrlDiagnostics";
 import CardRelationshipVisualizer from "@/components/deck/CardRelationshipVisualizer";
 import DeckInsightsAnalyzer from "@/components/deck/DeckInsightsAnalyzer";
 import PersonaFromInsights from "@/components/deck/PersonaFromInsights";
-import PrintReadyPDFExport from "@/components/deck/PrintReadyPDFExport";
 
 
 function ToolButton({ label, icon: Icon, onClick, className = "", asLink = false, to = "#" }) {
@@ -103,8 +98,8 @@ function ToolButton({ label, icon: Icon, onClick, className = "", asLink = false
 }
 
 export default function DeckView() {
-  const params = new URLSearchParams(window.location.search);
-  const deckIdFromUrl = params.get("id") || params.get("deckId");
+  const [searchParams] = useSearchParams();
+  const deckIdFromUrl = searchParams.get("id") || searchParams.get("deckId");
   const [deck, setDeck] = useState(null);
   const [cards, setCards] = useState([]); // ADD: State for cards
   const [loading, setLoading] = useState(!!deckIdFromUrl);
@@ -113,8 +108,6 @@ export default function DeckView() {
   const [activeTab, setActiveTab] = useState("cards"); // cards, insights, relationships, settings, manual, publishing
 
   const [isMobileView, setIsMobileView] = useState(false);
-  const [showJsonModal, setShowJsonModal] = useState(false);
-  const [jsonContent, setJsonContent] = useState("");
 
   useEffect(() => {
     const checkMobile = () => setIsMobileView(window.innerWidth < 768);
@@ -144,11 +137,9 @@ export default function DeckView() {
         if (active) {
           setDeck(d);
           setCards(cardsList || []);
-          console.log(`✅ Loaded deck "${d.name}" with ${cardsList?.length || 0} cards`);
         }
       } catch (e) {
         if (active) {
-          console.error("Failed to load deck:", e);
           
           if (isNetworkError(e)) {
             setError("Network connection issue. Please check your internet and try refreshing the page.");
@@ -180,104 +171,13 @@ export default function DeckView() {
       );
       setCards(cardsList || []);
     } catch (e) {
-      console.error("Failed to reload cards:", e);
-    }
-  };
-
-  const handleViewJson = async () => {
-    if (!deck?.id) return;
-    try {
-      const cards = await queueApiCall(() => Card.filter({ deck_id: deck.id }, null, 1000), 3, 1000);
-      let relationships = [];
-      try {
-        relationships = await queueApiCall(() => base44.entities.CardRelationship.filter({ deck_id: deck.id }, null, 1000), 3, 1000);
-      } catch (e) {
-        console.warn("Failed to fetch relationships for view", e);
-      }
-
-      const exportData = {
-        deck: {
-          name: deck.name,
-          description: deck.description,
-          author: deck.author,
-          category: deck.category,
-          cover_image: deck.cover_image,
-          back_image_url: deck.back_image_url,
-          is_public: deck.is_public,
-          is_premium: deck.is_premium,
-          ai_reading_coach: deck.ai_reading_coach,
-          manual_url: deck.manual_url,
-          manual_content: deck.manual_content,
-          censor_mode: deck.censor_mode,
-          suggested_questions: deck.suggested_questions,
-        },
-        cards: cards.map(c => ({
-          name: c.name,
-          number: c.number,
-          subtitle: c.subtitle,
-          image_url: c.image_url,
-          video_url: c.video_url,
-          frame_style: c.frame_style,
-          element: c.element,
-          keywords: c.keywords,
-          ancient_wisdom: c.ancient_wisdom,
-          overall_meaning: c.overall_meaning,
-          upright_meaning: c.upright_meaning,
-          upright_insight: c.upright_insight,
-          upright_action: c.upright_action,
-          reversed_meaning: c.reversed_meaning,
-          reversed_insight: c.reversed_insight,
-          reversed_action: c.reversed_action,
-          interaction: c.interaction,
-          musician_quote: c.musician_quote,
-          facedown_meaning: c.facedown_meaning,
-          custom: c.custom,
-          custom_ai_notes: c.custom_ai_notes,
-          custom_ai_helper: c.custom_ai_helper,
-          custom_fields: c.custom_fields,
-          ai_image_prompt: c.ai_image_prompt,
-          ai_image_negative_prompt: c.ai_image_negative_prompt,
-          ai_prompt_style: c.ai_prompt_style,
-          ai_reference_image_url: c.ai_reference_image_url,
-        })),
-        card_relationships: (relationships || []).map(r => ({
-          card_id_1: r.card_id_1,
-          card_1_name: cards.find(c => c.id === r.card_id_1)?.name,
-          card_id_2: r.card_id_2,
-          card_2_name: cards.find(c => c.id === r.card_id_2)?.name,
-          relationship_key: r.relationship_key,
-          relationship_type: r.relationship_type,
-          strength: r.strength,
-          custom_notes: r.custom_notes,
-          auto_detected: r.auto_detected,
-          detection_reasons: r.detection_reasons,
-          shared_keywords: r.shared_keywords,
-          shared_themes: r.shared_themes,
-          element_relationship: r.element_relationship,
-          number_sequence: r.number_sequence,
-          is_favorite: r.is_favorite
-        })),
-        exported_date: new Date().toISOString(),
-      };
-
-      setJsonContent(JSON.stringify(exportData, null, 2));
-      setShowJsonModal(true);
-    } catch (e) {
-      alert("Failed to generate JSON: " + (e.message || "Unknown error"));
     }
   };
 
   const handleExportJson = async () => {
     if (!deck?.id) return;
     try {
-      const cards = await queueApiCall(() => Card.filter({ deck_id: deck.id }, null, 1000), 3, 1000);
-      let relationships = [];
-      try {
-        relationships = await queueApiCall(() => base44.entities.CardRelationship.filter({ deck_id: deck.id }, null, 1000), 3, 1000);
-      } catch (e) {
-        console.warn("Failed to fetch relationships for export", e);
-      }
-
+      const cards = await Card.filter({ deck_id: deck.id }); // Changed to Card entity
       const exportData = {
         deck: {
           name: deck.name,
@@ -323,23 +223,6 @@ export default function DeckView() {
           ai_image_negative_prompt: c.ai_image_negative_prompt,
           ai_prompt_style: c.ai_prompt_style,
           ai_reference_image_url: c.ai_reference_image_url,
-        })),
-        card_relationships: (relationships || []).map(r => ({
-          card_id_1: r.card_id_1,
-          card_1_name: cards.find(c => c.id === r.card_id_1)?.name,
-          card_id_2: r.card_id_2,
-          card_2_name: cards.find(c => c.id === r.card_id_2)?.name,
-          relationship_key: r.relationship_key,
-          relationship_type: r.relationship_type,
-          strength: r.strength,
-          custom_notes: r.custom_notes,
-          auto_detected: r.auto_detected,
-          detection_reasons: r.detection_reasons,
-          shared_keywords: r.shared_keywords,
-          shared_themes: r.shared_themes,
-          element_relationship: r.element_relationship,
-          number_sequence: r.number_sequence,
-          is_favorite: r.is_favorite
         })),
         exported_date: new Date().toISOString(),
       };
@@ -354,7 +237,7 @@ export default function DeckView() {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     } catch (e) {
-      alert("Failed to export deck: " + (e.message || "Unknown error"));
+      toast.error("Failed to export deck: " + (e.message || "Unknown error"));
     }
   };
 
@@ -366,10 +249,10 @@ export default function DeckView() {
     try {
       const { data } = await base44.functions.invoke("deleteDeckCascade", { deckId: deck.id });
       if (data?.error) throw new Error(data.error);
-      alert("Deck deleted successfully.");
+      toast.success("Deck deleted successfully.");
       window.location.href = createPageUrl("Dashboard");
     } catch (e) {
-      alert(`Delete failed: ${e.message || "Unknown error"}`);
+      toast.error(`Delete failed: ${e.message || "Unknown error"}`);
     }
   };
 
@@ -422,7 +305,6 @@ export default function DeckView() {
           <Button
             variant={activeTab === "cards" ? "default" : "ghost"}
             onClick={() => {
-              console.log('🎯 Switching to Cards tab');
               setActiveTab("cards");
             }}
             className={`${activeTab === "cards" ? "bg-purple-600" : "text-white/70 hover:text-white"} whitespace-nowrap`}
@@ -433,7 +315,6 @@ export default function DeckView() {
           <Button
             variant={activeTab === "insights" ? "default" : "ghost"}
             onClick={() => {
-              console.log('🎯 Switching to Insights tab');
               setActiveTab("insights");
             }}
             className={`${activeTab === "insights" ? "bg-purple-600" : "text-white/70 hover:text-white"} whitespace-nowrap`}
@@ -444,7 +325,6 @@ export default function DeckView() {
           <Button
             variant={activeTab === "relationships" ? "default" : "ghost"}
             onClick={() => {
-              console.log('🎯 Switching to Relationships tab');
               setActiveTab("relationships");
             }}
             className={`${activeTab === "relationships" ? "bg-purple-600" : "text-white/70 hover:text-white"} whitespace-nowrap`}
@@ -457,7 +337,6 @@ export default function DeckView() {
           <Button
             variant={activeTab === "manual" ? "default" : "ghost"}
             onClick={() => {
-              console.log('🎯 Switching to Manual tab');
               setActiveTab("manual");
             }}
             className={`${activeTab === "manual" ? "bg-purple-600" : "text-white/70 hover:text-white"} relative whitespace-nowrap`}
@@ -472,7 +351,6 @@ export default function DeckView() {
           <Button
             variant={activeTab === "settings" ? "default" : "ghost"}
             onClick={() => {
-              console.log('🎯 Switching to Settings tab');
               setActiveTab("settings");
             }}
             className={`${activeTab === "settings" ? "bg-purple-600" : "text-white/70 hover:text-white"} whitespace-nowrap`}
@@ -485,25 +363,12 @@ export default function DeckView() {
           <Button
             variant={activeTab === "publishing" ? "default" : "ghost"}
             onClick={() => {
-              console.log('🎯 Switching to Publishing tab');
-              console.log('Deck data for Publishing tab:', { id: deck?.id, name: deck?.name });
               setActiveTab("publishing");
             }}
             className={`${activeTab === "publishing" ? "bg-purple-600" : "text-white/70 hover:text-white"} whitespace-nowrap`}
           >
             <Send className="w-4 h-4 mr-2" />
             Publishing
-          </Button>
-          <Button
-            variant={activeTab === "structuredReading" ? "default" : "ghost"}
-            onClick={() => {
-              console.log('🎯 Switching to Structured Reading tab');
-              setActiveTab("structuredReading");
-            }}
-            className={`${activeTab === "structuredReading" ? "bg-purple-600" : "text-white/70 hover:text-white"} whitespace-nowrap`}
-          >
-            <ListPlus className="w-4 h-4 mr-2" />
-            Reading Rules
           </Button>
         </div>
 
@@ -514,7 +379,7 @@ export default function DeckView() {
               <div>
                 <div className="relative rounded-xl overflow-hidden border border-white/10 bg-white/5">
                   {deck.cover_image ? (
-                    <img src={getThumbnailUrl(deck.cover_image, 600)} alt={deck.name} className="w-full h-auto object-cover" loading="lazy" />
+                    <img src={deck.cover_image} alt={deck.name} className="w-full h-auto object-cover" />
                   ) : (
                     <div className="aspect-[3/4] flex items-center justify-center text-white/60">
                       No cover image
@@ -523,7 +388,7 @@ export default function DeckView() {
                   <Link to={galleryUrl}>
                     <Button
                       size="sm"
-                      className="absolute bottom-3 right-3 bg-black/70 hover:bg-black/80 text-white backdrop-blur border border-white/40 force-white"
+                      className="absolute bottom-3 right-3 bg-black/70 hover:bg-black/80 backdrop-blur border border-white/20"
                     >
                       <Eye className="w-4 h-4 mr-2" /> Gallery
                     </Button>
@@ -563,33 +428,24 @@ export default function DeckView() {
                 <p className="text-white/80 mb-4">{deck.description || "No description yet."}</p>
                 <div className="flex flex-wrap gap-2">
                   <Link to={createPageUrl(`Reading?deckId=${deck.id}`)}>
-                    <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold shadow-lg shadow-purple-500/30 force-white">
+                    <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
                       <Play className="w-4 h-4 mr-2" />
                       Start Reading
                     </Button>
                   </Link>
                   <Link to={galleryUrl}>
-                    <Button variant="outline" className="border-white/50 text-white hover:bg-white/10 force-white">
+                    <Button variant="outline" className="border-white/20 text-white hover:bg-white/10">
                       <Eye className="w-4 h-4 mr-2" /> Browse Cards
                     </Button>
                   </Link>
                   <Button
-                    onClick={handleViewJson}
-                    variant="outline"
-                    className="border-blue-400/60 text-blue-200 hover:bg-blue-500/10 font-semibold"
-                  >
-                    <FileJson className="w-4 h-4 mr-2" />
-                    View JSON
-                  </Button>
-                  <Button
                     onClick={handleExportJson}
                     variant="outline"
-                    className="border-emerald-400/60 text-emerald-200 hover:bg-emerald-500/10 font-semibold"
+                    className="border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
                   >
                     <Download className="w-4 h-4 mr-2" />
                     Export JSON
                   </Button>
-                  <PrintReadyPDFExport deck={deck} cards={cards} />
                 </div>
               </div>
             </div>
@@ -669,7 +525,6 @@ export default function DeckView() {
                       <ToolButton label="Bulk Spreads" icon={Layers} onClick={() => setSelectedTool("bulkSpreads")} className="bg-indigo-700" />
                       <ToolButton label="Deck Settings" icon={Settings} onClick={() => setSelectedTool("settingsInline")} className="bg-slate-700" />
                       <ToolButton label="Spread Designer" icon={Layers} asLink to={createPageUrl(`SpreadDesigner?deckId=${deck?.id || ""}`)} className="bg-indigo-600/30" />
-                      <ToolButton label="View Deck JSON" icon={FileJson} onClick={handleViewJson} className="bg-blue-700" />
                       <ToolButton label="Export Deck JSON" icon={Download} onClick={handleExportJson} className="bg-emerald-700" />
                       <ToolButton label="Delete Deck" icon={Trash2} onClick={handleDeleteDeck} className="bg-red-700" />
                     </AccordionContent>
@@ -732,7 +587,6 @@ export default function DeckView() {
                     <StyleExtractor
                       deckId={deck.id}
                       onStyleExtracted={(profile) => {
-                        console.log("Style profile extracted:", profile);
                         // No onDone prop to call directly here from DeckView,
                         // this callback handles the extracted profile
                       }}
@@ -997,23 +851,9 @@ export default function DeckView() {
           </div>
         )}
 
-        {activeTab === "structuredReading" && (
-          <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-            <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
-              <ListPlus className="w-6 h-6 text-purple-400" />
-              Reading Rules Engine
-            </h2>
-            <p className="text-white/60 mb-6 text-sm">
-              Define the categories, symbols, and logic for your deck's deterministic readings.
-            </p>
-            <ReadingEngineEditor deckId={deck.id} deck={deck} />
-          </div>
-        )}
-
         {/* FIXED: Publishing Tab - Added error boundary and loading state */}
         {activeTab === "publishing" && (
           <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-            {console.log('📋 Rendering Publishing tab, deck:', deck?.name)}
             <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
               <Send className="w-6 h-6 text-purple-400" />
               Publishing Dashboard
@@ -1030,7 +870,6 @@ export default function DeckView() {
               <PublishingDashboard
                 deck={deck}
                 onUpdate={async () => {
-                  console.log('🔄 Refreshing deck after publish action...');
                   const refreshed = await Deck.get(deckIdFromUrl);
                   setDeck(refreshed);
                 }}
@@ -1050,37 +889,6 @@ export default function DeckView() {
         )}
       </div>
 
-      <Dialog open={showJsonModal} onOpenChange={setShowJsonModal}>
-        <DialogContent className="bg-slate-900 border-purple-500/30 text-white max-w-4xl w-[90vw] h-[80vh] flex flex-col p-4 sm:p-6">
-          <DialogHeader>
-            <DialogTitle className="flex items-center justify-between">
-              <span className="flex items-center gap-2">
-                <FileJson className="w-5 h-5 text-purple-400" />
-                Deck JSON Data
-              </span>
-              <Button
-                size="sm"
-                variant="outline"
-                className="border-white/20 hover:bg-white/10"
-                onClick={() => {
-                  navigator.clipboard.writeText(jsonContent);
-                  alert("Copied to clipboard!");
-                }}
-              >
-                Copy to Clipboard
-              </Button>
-            </DialogTitle>
-          </DialogHeader>
-          <div className="flex-1 overflow-hidden mt-4 rounded-md border border-white/10 bg-black/50">
-            <ScrollArea className="h-full">
-              <pre className="p-4 text-[10px] sm:text-xs text-purple-200 font-mono whitespace-pre-wrap break-all">
-                {jsonContent}
-              </pre>
-            </ScrollArea>
-          </div>
-        </DialogContent>
-      </Dialog>
-
       {/* Mount the cover editor modal and open it when selectedTool is updateCover */}
       {deck && (
         <DeckCoverEditor
@@ -1095,24 +903,6 @@ export default function DeckView() {
           }}
         />
       )}
-      
-      {/* NEW: Add scrollbar hiding styles */}
-      <style>{`
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-        .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-        /* Enable two-axis swipe/pan on Mobile Chrome */
-        .pan-2d {
-          touch-action: pan-x pan-y;
-          -ms-touch-action: pan-x pan-y;
-          overscroll-behavior: contain;
-          -webkit-overflow-scrolling: touch;
-        }
-      `}</style>
     </div>
   );
 }

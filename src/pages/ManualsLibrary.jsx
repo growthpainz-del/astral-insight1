@@ -1,6 +1,6 @@
-
 import React, { useState, useEffect } from "react";
 import { Deck } from "@/entities/Deck";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -41,7 +41,6 @@ export default function ManualsLibrary() {
       setAllManuals(Array.from(manualsMap.values()));
     } catch (e) {
       setError("Failed to load manuals library. Please try again.");
-      console.error(e);
     } finally {
       setIsLoading(false);
     }
@@ -61,7 +60,7 @@ export default function ManualsLibrary() {
   const handleAssign = async (manual) => {
     const { deckId } = processingState[manual.url] || {};
     if (!deckId) {
-      alert("Please select a deck to assign the manual to.");
+      toast.error("Please select a deck to assign the manual to.");
       return;
     }
     
@@ -72,17 +71,16 @@ export default function ManualsLibrary() {
         const existingManuals = targetDeck.manual_files || [];
 
         if (existingManuals.some(m => m.url === manual.url)) {
-            alert("This manual is already assigned to the selected deck.");
+            toast.info("This manual is already assigned to the selected deck.");
             return;
         }
 
         const newManuals = [...existingManuals, { name: manual.name, url: manual.url, content: manual.content, uploaded_date: manual.uploaded_date }];
         await Deck.update(deckId, { manual_files: newManuals });
-        alert(`Successfully assigned "${manual.name}" to "${targetDeck.name}".`);
+        toast.success(`Successfully assigned "${manual.name}" to "${targetDeck.name}".`);
 
     } catch (e) {
-        console.error("Assignment failed:", e);
-        alert("Failed to assign manual. Please try again.");
+        toast.error("Failed to assign manual. Please try again.");
     } finally {
         setProcessingState(prev => ({ ...prev, [manual.url]: { ...prev[manual.url], isAssigning: false } }));
     }
@@ -91,7 +89,7 @@ export default function ManualsLibrary() {
   const handleSync = (manual) => {
     const { deckId } = processingState[manual.url] || {};
     if (!deckId) {
-      alert("Please select a deck to sync with.");
+      toast.error("Please select a deck to sync with.");
       return;
     }
     const targetUrl = createPageUrl(`DeckView?id=${deckId}&openBuilderForManual=${encodeURIComponent(manual.url)}`);

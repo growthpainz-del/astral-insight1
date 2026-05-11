@@ -40,7 +40,6 @@ export default function ExplorePage() {
         deck.publish_status === "published"
       );
 
-      console.log(`📊 Found ${publicDecks.length} published public decks from ${allDecks.length} total decks`);
       
       // Group by creator email
       const creatorMap = new Map();
@@ -62,7 +61,6 @@ export default function ExplorePage() {
         if (deck.category) creator.categories.add(deck.category);
       });
 
-      console.log(`👥 Found ${creatorMap.size} creators with published decks`);
 
       // Convert to array and sort by deck count
       const creatorsList = Array.from(creatorMap.values())
@@ -77,7 +75,6 @@ export default function ExplorePage() {
 
       setCreators(creatorsList);
     } catch (e) {
-      console.error("Failed to load creators:", e);
       setError("Failed to load creators. Please refresh the page.");
     } finally {
       setLoading(false);

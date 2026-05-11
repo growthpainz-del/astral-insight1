@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Deck, Card as CardEntity } from "@/entities/all";
@@ -102,7 +101,6 @@ Make the cards diverse, meaningful, and true to the theme.`;
       }
 
     } catch (err) {
-      console.error("Generation error:", err);
       setError(err.message || "Failed to generate deck");
     } finally {
       setIsGenerating(false);
@@ -134,7 +132,6 @@ Make the cards diverse, meaningful, and true to the theme.`;
       navigate(createPageUrl(`DeckManualManager?deckId=${newDeck.id}&startAi=true`));
 
     } catch (err) {
-      console.error("Save error:", err);
       setError(err.message || "Failed to save deck");
     } finally {
       setIsGenerating(false);
