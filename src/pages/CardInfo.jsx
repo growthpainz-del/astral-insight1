@@ -1,26 +1,30 @@
-
 import React from "react";
+import { useSearchParams } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { Card as UICard, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import {
+  Card as UICard,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import CardDetailsPanel from "@/components/cards/CardDetailsPanel";
 import { Loader2, RefreshCw } from "lucide-react";
 import { createPageUrl } from "@/utils";
 
 export default function CardInfo() {
-  const params = new URLSearchParams(window.location.search);
-  const idParam = params.get("id");
-  const deckIdParam = params.get("deckId");
-  const numberParam = params.get("number");
-  const nameParam = params.get("name");
-  const reversedParam = params.get("reversed") === "true";
+  const [searchParams] = useSearchParams();
+  const idParam      = searchParams.get("id");
+  const deckIdParam  = searchParams.get("deckId");
+  const numberParam  = searchParams.get("number");
+  const nameParam    = searchParams.get("name");
+  const reversedParam = searchParams.get("reversed") === "true";
 
   const [card, setCard] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState("");
   const [isAdmin, setIsAdmin] = React.useState(false);
 
-  // Detect admin to decide if AI notes should be visible
   React.useEffect(() => {
     (async () => {
       try {
@@ -38,7 +42,6 @@ export default function CardInfo() {
     try {
       let c = null;
 
-      // 1) Try by id
       if (idParam) {
         try {
           c = await base44.entities.Card.get(idParam);
@@ -48,7 +51,6 @@ export default function CardInfo() {
         }
       }
 
-      // 2) Try by deck + number
       if (!c && deckIdParam && numberParam) {
         const byNum = await base44.entities.Card.filter(
           { deck_id: deckIdParam, number: Number(numberParam) },
@@ -58,7 +60,6 @@ export default function CardInfo() {
         c = byNum?.[0] || null;
       }
 
-      // 3) Try by deck + name
       if (!c && deckIdParam && nameParam) {
         const byName = await base44.entities.Card.filter(
           { deck_id: deckIdParam, name: nameParam },
@@ -68,9 +69,12 @@ export default function CardInfo() {
         c = byName?.[0] || null;
       }
 
-      // 4) last resort: by number alone (dangerous but helpful for quick check)
       if (!c && numberParam) {
-        const byNumOnly = await base44.entities.Card.filter({ number: Number(numberParam) }, "-updated_date", 1);
+        const byNumOnly = await base44.entities.Card.filter(
+          { number: Number(numberParam) },
+          "-updated_date",
+          1
+        );
         c = byNumOnly?.[0] || null;
       }
 
@@ -105,20 +109,30 @@ export default function CardInfo() {
           <CardHeader className="flex-row items-center justify-between">
             <CardTitle>Card Info</CardTitle>
             <div className="flex gap-2">
-              <Button variant="outline" className="border-white/20 text-white hover:bg-white/10" onClick={fetchCard}>
+              <Button
+                variant="outline"
+                className="border-white/20 text-white hover:bg-white/10"
+                onClick={fetchCard}
+              >
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Refresh
               </Button>
               {card?.deck_id ? (
                 <a href={createPageUrl(`DeckView?id=${card.deck_id}`)}>
-                  <Button className="bg-purple-600 hover:bg-purple-700">Open Deck</Button>
+                  <Button className="bg-purple-600 hover:bg-purple-700">
+                    Open Deck
+                  </Button>
                 </a>
               ) : null}
             </div>
           </CardHeader>
           <CardContent>
             {error ? <div className="text-red-300">{error}</div> : null}
-            <CardDetailsPanel card={card} isReversed={reversedParam} showAiNotes={isAdmin} />
+            <CardDetailsPanel
+              card={card}
+              isReversed={reversedParam}
+              showAiNotes={isAdmin}
+            />
           </CardContent>
         </UICard>
       </div>

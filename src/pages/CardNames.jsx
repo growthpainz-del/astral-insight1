@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,24 +11,19 @@ function normalizeName(s) {
   if (!s) return "";
   return String(s)
     .toLowerCase()
-    .replace(/[\u2018\u2019]/g, "'") // smart single quotes → '
-    .replace(/[\u201C\u201D]/g, '"') // smart double quotes → "
-    .replace(/[^a-z0-9\s'"&().:+\-_/]/g, "") // strip exotic punctuation but keep common symbols
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201C\u201D]/g, '"')
+    .replace(/[^a-z0-9\s'"&().:+\-_/]/g, "")
     .replace(/\s+/g, " ")
     .trim();
 }
 
-function getParamName() {
-  try {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get("name") || "";
-  } catch {
-    return "";
-  }
-}
-
 export default function CardNames() {
-  const [deckName, setDeckName] = useState(getParamName() || "it’s not the end of the world");
+  const [searchParams] = useSearchParams();
+
+  const [deckName, setDeckName] = useState(
+    searchParams.get("name") || "it's not the end of the world"
+  );
   const [loading, setLoading] = useState(false);
   const [decks, setDecks] = useState([]);
   const [targetDeck, setTargetDeck] = useState(null);
@@ -39,23 +35,26 @@ export default function CardNames() {
 
   const resultText = useMemo(() => {
     if (!cards?.length) return "";
-    const sorted = [...cards].sort((a, b) => {
-      const na = a.number ?? 0;
-      const nb = b.number ?? 0;
-      if (na !== nb) return na - nb;
-      return (a.name || "").localeCompare(b.name || "");
-    });
-    return sorted.map(c => c.name || "").join("\n");
+    return [...cards]
+      .sort((a, b) => {
+        const na = a.number ?? 0;
+        const nb = b.number ?? 0;
+        if (na !== nb) return na - nb;
+        return (a.name || "").localeCompare(b.name || "");
+      })
+      .map((c) => c.name || "")
+      .join("\n");
   }, [cards]);
 
   const candidates = useMemo(() => {
     if (!decks?.length || !desiredNorm) return [];
-    const withNorms = decks.map(d => ({ d, n: normalizeName(d.name) }));
-    // exact normalized match first
-    const exact = withNorms.filter(x => x.n === desiredNorm).map(x => x.d);
+    const withNorms = decks.map((d) => ({ d, n: normalizeName(d.name) }));
+    const exact = withNorms.filter((x) => x.n === desiredNorm).map((x) => x.d);
     if (exact.length) return exact;
-    // else loose contains
-    return withNorms.filter(x => x.n.includes(desiredNorm)).map(x => x.d).slice(0, 10);
+    return withNorms
+      .filter((x) => x.n.includes(desiredNorm))
+      .map((x) => x.d)
+      .slice(0, 10);
   }, [decks, desiredNorm]);
 
   const fetchData = async () => {
@@ -65,20 +64,21 @@ export default function CardNames() {
     setCards([]);
     setCopied(false);
     try {
-      // Fetch a reasonable number of decks, newest first
       const list = await base44.entities.Deck.filter({}, "-created_date", 200);
       setDecks(list || []);
-      // Pick target deck
-      const chosen = (list || []).find(d => normalizeName(d.name) === desiredNorm)
-        || (list || []).find(d => normalizeName(d.name).includes(desiredNorm))
-        || null;
+      const chosen =
+        (list || []).find((d) => normalizeName(d.name) === desiredNorm) ||
+        (list || []).find((d) => normalizeName(d.name).includes(desiredNorm)) ||
+        null;
       if (!chosen) {
         setError("Deck not found. Try adjusting the name below.");
         setLoading(false);
         return;
       }
       setTargetDeck(chosen);
-      const fetchedCards = await base44.entities.Card.filter({ deck_id: chosen.id });
+      const fetchedCards = await base44.entities.Card.filter({
+        deck_id: chosen.id,
+      });
       setCards(fetchedCards || []);
     } catch (e) {
       setError(e?.message || "Failed to load deck or cards.");
@@ -86,6 +86,15 @@ export default function CardNames() {
       setLoading(false);
     }
   };
+
+  // Auto-search on mount when name param is present.
+  // Depends on deckName so it doesn't capture a stale closure value.
+  useEffect(() => {
+    if (deckName && !cards.length && !targetDeck && !loading) {
+      fetchData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deckName]);
 
   const copyToClipboard = async () => {
     try {
@@ -102,21 +111,16 @@ export default function CardNames() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    const safeName = (targetDeck?.name || "deck").replace(/[^a-z0-9\-_ ]/gi, "_");
+    const safeName = (targetDeck?.name || "deck").replace(
+      /[^a-z0-9\-_ ]/gi,
+      "_"
+    );
     a.download = `${safeName}_card_names.txt`;
     document.body.appendChild(a);
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
   };
-
-  useEffect(() => {
-    // Auto-search on first load if a name is present
-    if (deckName && !cards.length && !targetDeck && !loading) {
-      fetchData();
-    }
-     
-  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 to-gray-900 text-white p-6">
@@ -130,7 +134,10 @@ export default function CardNames() {
               placeholder="Enter deck name..."
               className="bg-black/40 border-white/20"
             />
-            <Button onClick={fetchData} className="bg-indigo-600 hover:bg-indigo-700">
+            <Button
+              onClick={fetchData}
+              className="bg-indigo-600 hover:bg-indigo-700"
+            >
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -149,7 +156,7 @@ export default function CardNames() {
             <div className="mt-3 text-sm text-white/80">
               <p className="mb-1">Did you mean:</p>
               <div className="flex flex-wrap gap-2">
-                {candidates.map(c => (
+                {candidates.map((c) => (
                   <Button
                     key={c.id}
                     size="sm"
@@ -160,7 +167,10 @@ export default function CardNames() {
                       setTargetDeck(c);
                       setLoading(true);
                       try {
-                        const fetchedCards = await base44.entities.Card.filter({ deck_id: c.id });
+                        const fetchedCards =
+                          await base44.entities.Card.filter({
+                            deck_id: c.id,
+                          });
                         setCards(fetchedCards || []);
                         setError("");
                       } catch (e) {
@@ -192,10 +202,18 @@ export default function CardNames() {
                   className="border-white/20 hover:bg-white/10"
                   disabled={!resultText}
                 >
-                  {copied ? <Check className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
+                  {copied ? (
+                    <Check className="w-4 h-4 mr-2" />
+                  ) : (
+                    <Copy className="w-4 h-4 mr-2" />
+                  )}
                   {copied ? "Copied" : "Copy"}
                 </Button>
-                <Button onClick={downloadTxt} disabled={!resultText} className="bg-blue-600 hover:bg-blue-700">
+                <Button
+                  onClick={downloadTxt}
+                  disabled={!resultText}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
                   Download .txt
                 </Button>
               </div>
@@ -207,10 +225,15 @@ export default function CardNames() {
                 <ScrollArea className="max-h-80 pr-2">
                   <ul className="text-sm space-y-1">
                     {[...cards]
-                      .sort((a, b) => (a.number ?? 0) - (b.number ?? 0) || (a.name || "").localeCompare(b.name || ""))
+                      .sort(
+                        (a, b) =>
+                          (a.number ?? 0) - (b.number ?? 0) ||
+                          (a.name || "").localeCompare(b.name || "")
+                      )
                       .map((c) => (
                         <li key={c.id} className="text-white/80">
-                          {(c.number != null ? `${c.number}. ` : "")}{c.name}
+                          {c.number != null ? `${c.number}. ` : ""}
+                          {c.name}
                         </li>
                       ))}
                   </ul>
@@ -218,7 +241,12 @@ export default function CardNames() {
               </div>
               <div className="bg-black/30 rounded-lg border border-white/10 p-3">
                 <h3 className="text-sm font-semibold mb-2">Raw (.txt)</h3>
-                <Textarea value={resultText} readOnly rows={12} className="bg-black/40 border-white/10 text-sm" />
+                <Textarea
+                  value={resultText}
+                  readOnly
+                  rows={12}
+                  className="bg-black/40 border-white/10 text-sm"
+                />
               </div>
             </div>
           </div>

@@ -7,6 +7,17 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Loader2, Wand2, FileJson, ChevronRight, ChevronLeft, CheckCircle2, AlertTriangle, Sparkles, Trash2, RefreshCw, ListPlus, ImageIcon } from "lucide-react";
@@ -58,7 +69,6 @@ export default function CreateDeck() {
     };
 
     try {
-      console.log("[CreateDeck] Loading draft from localStorage...");
       
       const savedStep = localStorage.getItem(DRAFT_KEYS.STEP);
       const savedDeckData = localStorage.getItem(DRAFT_KEYS.DECK_DATA);
@@ -68,33 +78,19 @@ export default function CreateDeck() {
       const savedJsonText = localStorage.getItem(DRAFT_KEYS.JSON_TEXT);
       const savedAiOptions = localStorage.getItem(DRAFT_KEYS.AI_OPTIONS);
 
-      console.log("[CreateDeck] Draft keys found:", {
-        step: !!savedStep,
-        deckData: !!savedDeckData,
-        coaching: !!savedCoaching,
-        source: !!savedSource,
-        previewCards: !!savedPreviewCards,
-        jsonText: !!savedJsonText,
-        aiOptions: !!savedAiOptions
-      });
-
       const safeParse = (jsonString, fallback, label) => {
         if (!jsonString || jsonString.trim() === '') {
-          console.log(`[CreateDeck] ${label}: empty, using fallback`);
           return fallback;
         }
         try {
           // Additional validation before parsing
           const trimmed = jsonString.trim();
           if (!trimmed.startsWith('{') && !trimmed.startsWith('[')) {
-            console.warn(`[CreateDeck] ${label}: Invalid JSON format, using fallback`);
             return fallback;
           }
           const parsed = JSON.parse(trimmed);
-          console.log(`[CreateDeck] ${label}: parsed successfully`);
           return parsed;
         } catch (e) {
-          console.error(`[CreateDeck] Failed to parse ${label}:`, e.message);
           // Clear this specific corrupted key
           try {
             const keyMap = {
@@ -105,10 +101,8 @@ export default function CreateDeck() {
             };
             if (keyMap[label]) {
               localStorage.removeItem(keyMap[label]);
-              console.log(`[CreateDeck] Cleared corrupted ${label} from localStorage`);
             }
           } catch (clearErr) {
-            console.error(`[CreateDeck] Failed to clear ${label}:`, clearErr.message);
           }
           return fallback;
         }
@@ -121,7 +115,6 @@ export default function CreateDeck() {
 
       const hasDraft = !!(savedStep || savedDeckData || savedCoaching || savedSource || savedPreviewCards || savedJsonText || savedAiOptions);
 
-      console.log("[CreateDeck] Draft loaded:", { hasDraft, step: savedStep ? parseInt(savedStep) : 1, deckName: deckData.name });
 
       return {
         hasDraft,
@@ -134,26 +127,19 @@ export default function CreateDeck() {
         aiOptions
       };
     } catch (e) {
-      console.error("[CreateDeck] Critical error loading draft:", e);
-      console.error("[CreateDeck] Full error details:", {
-        message: e.message,
-        stack: e.stack?.substring(0, 200)
-      });
-      console.warn("[CreateDeck] Clearing all draft data due to corruption");
       
       // Clear all corrupted draft data
       Object.values(DRAFT_KEYS).forEach(key => {
         try {
           localStorage.removeItem(key);
         } catch (err) {
-          console.error("[CreateDeck] Failed to clear draft key:", key, err.message);
         }
       });
       
       // Show user-friendly error message
       if (typeof window !== 'undefined') {
         setTimeout(() => {
-          alert("⚠️ Corrupted draft data was detected and cleared. Starting fresh.");
+          toast.error("Corrupted draft data was detected and cleared. Starting fresh.");
         }, 100);
       }
       
@@ -167,27 +153,6 @@ export default function CreateDeck() {
   const [draftRestored, setDraftRestored] = React.useState(draft.hasDraft);
   const [deckData, setDeckData] = React.useState(draft.deckData);
   const [coachingAnswers, setCoachingAnswers] = React.useState(draft.coaching);
-  const [hasCreationLimit, setHasCreationLimit] = React.useState(false);
-  const [isLoadingAuth, setIsLoadingAuth] = React.useState(true);
-
-  React.useEffect(() => {
-    const checkLimits = async () => {
-      try {
-        const user = await base44Client.auth.me();
-        if (user && !user.is_premium) {
-          const myDecks = await base44Client.entities.Deck.filter({ created_by: user.email });
-          if (myDecks && myDecks.length >= 1) {
-            setHasCreationLimit(true);
-          }
-        }
-      } catch (error) {
-        console.error("Error checking limits:", error);
-      } finally {
-        setIsLoadingAuth(false);
-      }
-    };
-    checkLimits();
-  }, []);
   const [source, setSource] = React.useState(draft.source);
   const [jsonText, setJsonText] = React.useState(draft.jsonText);
   const jsonInputRef = React.useRef(null);
@@ -208,47 +173,46 @@ export default function CreateDeck() {
   const [isParsing, setIsParsing] = React.useState(false); 
   const [creating, setCreating] = React.useState(false);
   const [progress, setProgress] = React.useState({ current: 0, total: 0, message: "" });
-  const [createError, setCreateError] = React.useState(""); 
+  const [createError, setCreateError] = React.useState("");
+
+  // Dialog state — replaces all alert/confirm/prompt calls
+  const [clearDraftDialogOpen, setClearDraftDialogOpen] = React.useState(false);
+  const [largeDeckDialogOpen, setLargeDeckDialogOpen] = React.useState(false);
+  const [largeDeckCardCount, setLargeDeckCardCount] = React.useState(0);
+  const [pendingAiGenerate, setPendingAiGenerate] = React.useState(false); 
 
   // AUTO-SAVE EFFECT WITH BETTER ERROR HANDLING AND DEBOUNCING
   React.useEffect(() => {
     if (creating) {
-      console.log("[CreateDeck] Skipping auto-save (creating in progress)");
       return;
     }
     
     // Debounce auto-save
     const timeoutId = setTimeout(() => {
       try {
-        console.log("[CreateDeck] Auto-saving draft...");
         
         const safeStringify = (obj, label) => {
           try {
             // Validate object before stringifying
             if (obj === null || obj === undefined) {
-              console.warn(`[CreateDeck] ${label}: null/undefined, saving empty object`);
               return JSON.stringify(Array.isArray(obj) ? [] : {});
             }
             
             const result = JSON.stringify(obj);
             const sizeKB = (result.length / 1024).toFixed(2);
-            console.log(`[CreateDeck] ${label}: ${sizeKB}KB`);
             
             if (result.length > 100000) {
-              console.warn(`[CreateDeck] ${label} is large (${sizeKB}KB) - may hit mobile limits`);
             }
             
             // Validate that the stringified result can be parsed back
             try {
               JSON.parse(result);
             } catch (parseErr) {
-              console.error(`[CreateDeck] ${label}: stringify produced invalid JSON, using fallback`);
               return JSON.stringify(Array.isArray(obj) ? [] : {});
             }
             
             return result;
           } catch (e) {
-            console.error(`[CreateDeck] Failed to stringify ${label}:`, e.message);
             return JSON.stringify(Array.isArray(obj) ? [] : {});
           }
         };
@@ -256,7 +220,6 @@ export default function CreateDeck() {
         let cardsToSave = previewCards;
         const fullCardsJson = JSON.stringify(previewCards);
         if (fullCardsJson.length > 200000) {
-          console.warn("[CreateDeck] Preview cards too large, saving summary only");
           cardsToSave = previewCards.map(c => ({
             name: c.name,
             number: c.number,
@@ -276,12 +239,9 @@ export default function CreateDeck() {
           generateDescriptions
         }, "aiOptions"));
 
-        console.log("[CreateDeck] Auto-save complete ✅");
       } catch (e) {
-        console.error("[CreateDeck] Auto-save failed:", e.message);
         
         if (e.name === 'QuotaExceededError') {
-          console.error("[CreateDeck] Storage quota exceeded - draft may not be saved");
           setCreateError("⚠️ Browser storage full - your progress may not be saved. Try clearing browser cache or use 'Export Draft' to save your work.");
         }
       }
@@ -315,23 +275,22 @@ export default function CreateDeck() {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
       
-      alert("✅ Draft saved to downloads!");
+      toast.success("Draft saved to downloads!");
     } catch (e) {
-      console.error("[CreateDeck] Manual save failed:", e.message);
-      alert("❌ Failed to save draft: " + e.message);
+      toast.error("Failed to save draft: " + e.message);
     }
   };
 
   const clearDraft = () => {
-    if (!confirm("Clear all draft data and start fresh?")) return;
-    
-    console.log("[CreateDeck] Clearing all draft data...");
-    
+    setClearDraftDialogOpen(true);
+  };
+
+  const confirmClearDraft = () => {
     Object.values(DRAFT_KEYS).forEach(key => {
       try {
         localStorage.removeItem(key);
       } catch (e) {
-        console.error("[CreateDeck] Failed to clear key:", key, e.message);
+        // ignore
       }
     });
     
@@ -365,8 +324,7 @@ export default function CreateDeck() {
     setThemePrompt("Create unique, inspiring oracle card names for this deck's theme.");
     setGenerateDescriptions(true);
     setDraftRestored(false);
-    
-    console.log("[CreateDeck] Draft cleared ✅");
+    setClearDraftDialogOpen(false);
   };
 
   const canNextFromStep1 = deckData.name.trim().length > 0;
@@ -412,20 +370,16 @@ export default function CreateDeck() {
 
   const goNext = () => {
     try {
-      console.log("[CreateDeck] Moving to next step from step", step);
       setStep((s) => Math.min(3, s + 1));
     } catch (e) {
-      console.error("[CreateDeck] Error in goNext:", e.message);
       setCreateError("Navigation error: " + (e.message || "Unknown"));
     }
   };
 
   const goBack = () => {
     try {
-      console.log("[CreateDeck] Moving back from step", step);
       setStep((s) => Math.max(1, s - 1));
     } catch (e) {
-      console.error("[CreateDeck] Error in goBack:", e.message);
       setCreateError("Navigation error: " + (e.message || "Unknown"));
     }
   };
@@ -474,7 +428,6 @@ export default function CreateDeck() {
 
     const cardName = String(rawCard.name || rawCard.title || rawCard.card_name || "").trim();
     if (!cardName) {
-      console.warn("Skipping card due to missing name:", rawCard);
       return null;
     }
 
@@ -524,7 +477,6 @@ export default function CreateDeck() {
 
     const spreadName = String(rawSpread.name || rawSpread.title || "").trim();
     if (!spreadName) {
-      console.warn("Skipping spread due to missing name:", rawSpread);
       return null;
     }
 
@@ -551,7 +503,6 @@ export default function CreateDeck() {
     setExistingStats({ existing: 0, toCreate: 0 });
 
     try {
-      console.log("[CreateDeck] Starting parse, input length:", inputText.length);
       
       const trimmed = inputText.trim();
       if (!trimmed) {
@@ -568,7 +519,6 @@ export default function CreateDeck() {
 
       const { cards: preFilteredCards, warnings, fullParsedObject } = normalizeImportedCards(inputText);
       
-      console.log("[CreateDeck] Parsed successfully:", preFilteredCards.length, "cards");
       setParseWarnings(warnings);
 
       if (preFilteredCards.length === 0 && (!fullParsedObject || Object.keys(fullParsedObject).length === 0)) {
@@ -661,17 +611,9 @@ export default function CreateDeck() {
         
       } catch (e) {
         setExistingStats({ existing: 0, toCreate: mappedCards.length });
-        console.error("Failed to compute existing card stats:", e);
       }
       
     } catch (e) {
-      console.error("[CreateDeck] Parse error:", e);
-      console.error("[CreateDeck] Error details:", {
-        message: e.message,
-        type: e.name,
-        inputLength: inputText?.length || 0
-      });
-      
       const errorMsg = e.message || String(e);
       
       const lineMatch = errorMsg.match(/line (\d+)/i) || errorMsg.match(/position (\d+)/i);
@@ -732,9 +674,7 @@ export default function CreateDeck() {
     const fixedJson = fixJsonString(jsonText);
     if (fixedJson !== jsonText) {
       setJsonText(fixedJson); // Update textarea with fixed content
-      console.log("[CreateDeck] Attempted auto-fix. New JSON length:", fixedJson.length);
     } else {
-      console.log("[CreateDeck] Auto-fix did not change JSON content, attempting parse anyway.");
     }
     parseText(fixedJson);
   };
@@ -774,10 +714,10 @@ export default function CreateDeck() {
     return out;
   };
 
-  const handleAiGenerate = async () => {
+  const handleAiGenerate = async (skipLargeWarning = false) => {
     setAiBusy(true);
     setCreateError("");
-    setPreviewCards([]); // Clear previous cards
+    setPreviewCards([]);
     setProgress({ current: 0, total: 100, message: "Contacting AI..." });
 
     try {
@@ -786,13 +726,14 @@ export default function CreateDeck() {
         throw new Error("Invalid number of cards specified.");
       }
 
-      // Warn about large decks
-      if (numCards > 50) {
-        if (!confirm(`⚠️ Generating ${numCards} cards may take several minutes and use significant memory. Continue?`)) {
-          setAiBusy(false);
-          setProgress({ current: 0, total: 0, message: "" });
-          return;
-        }
+      // Warn about large decks — show dialog instead of confirm()
+      if (numCards > 50 && !skipLargeWarning) {
+        setAiBusy(false);
+        setProgress({ current: 0, total: 0, message: "" });
+        setLargeDeckCardCount(numCards);
+        setLargeDeckDialogOpen(true);
+        setPendingAiGenerate(true);
+        return;
       }
 
       const aiCoachingDoc = generateCoachingDocument();
@@ -806,7 +747,6 @@ export default function CreateDeck() {
         coachingDocument: aiCoachingDoc,
       };
 
-      console.log("[CreateDeck] AI generation payload:", payload);
 
       setProgress({ current: 10, message: "Preparing generation..." });
 
@@ -830,7 +770,6 @@ export default function CreateDeck() {
           message: `Generating cards ${batchStart + 1}-${batchEnd} of ${numCards}...`
         });
 
-        console.log(`[CreateDeck] Generating batch ${batchIndex + 1}/${batches}: cards ${batchStart + 1}-${batchEnd}`);
 
         // Simulate AI generation for this batch
         const batchCards = await new Promise((resolve) => {
@@ -881,7 +820,6 @@ export default function CreateDeck() {
       }, 3000);
 
     } catch (e) {
-      console.error("[CreateDeck] AI generation error:", e.message);
       setCreateError(e.message || "Failed to generate cards with AI.");
       setProgress({ current: 0, total: 0, message: "" });
     } finally {
@@ -895,17 +833,13 @@ export default function CreateDeck() {
     setProgress({ current: 0, total: 0, message: "Creating deck..." });
 
     try {
-      console.log("[CreateDeck] Starting deck creation...");
       
       const aiCoachingDoc = generateCoachingDocument();
-      console.log("[CreateDeck] AI coaching doc length:", aiCoachingDoc.length);
 
-      console.log("[CreateDeck] Creating deck entity...");
       const deck = await base44Client.entities.Deck.create({
         ...deckData,
         ai_reading_coach: aiCoachingDoc,
       });
-      console.log("[CreateDeck] Deck created with ID:", deck.id);
 
       const cardsToCreate =
         source === "empty"
@@ -938,14 +872,12 @@ export default function CreateDeck() {
               ai_reference_image_url: c.ai_reference_image_url || "",
             }));
 
-      console.log("[CreateDeck] Cards to create:", cardsToCreate.length);
 
       if (cardsToCreate.length > 0) {
         const batches = chunk(cardsToCreate, 50);
         let done = 0;
         setProgress({ current: 0, total: cardsToCreate.length, message: "Adding cards..." });
         for (const batch of batches) {
-          console.log("[CreateDeck] Creating batch of", batch.length, "cards...");
           await base44Client.entities.Card.bulkCreate(batch);
           done += batch.length;
           setProgress({
@@ -957,30 +889,25 @@ export default function CreateDeck() {
         }
       }
 
-      console.log("[CreateDeck] Clearing draft...");
       Object.values(DRAFT_KEYS).forEach(key => {
         try {
           localStorage.removeItem(key);
         } catch (e) {
-          console.error("[CreateDeck] Failed to clear draft key:", key, e.message);
         }
       });
       setDraftRestored(false);
 
-      console.log("[CreateDeck] All done! Navigating to deck...");
       setProgress((p) => ({ ...p, message: "Done. Opening deck..." }));
       
       setTimeout(() => {
         try {
           navigate(createPageUrl(`DeckView?id=${deck.id}`));
         } catch (navError) {
-          console.error("[CreateDeck] Navigation error:", navError.message);
           window.location.href = createPageUrl(`DeckView?id=${deck.id}`);
         }
       }, 500);
       
     } catch (e) {
-      console.error("[CreateDeck] Creation error:", e.message);
       setCreateError(e?.message || "Failed to create deck or cards.");
       setCreating(false);
     }
@@ -988,7 +915,6 @@ export default function CreateDeck() {
 
   React.useEffect(() => {
     const handleError = (event) => {
-      console.error("[CreateDeck] Uncaught error:", event.error?.message || event.error);
       setCreateError("An unexpected error occurred. Please try again.");
       setCreating(false);
       setAiBusy(false);
@@ -998,36 +924,6 @@ export default function CreateDeck() {
     window.addEventListener('error', handleError);
     return () => window.removeEventListener('error', handleError);
   }, []);
-
-  if (isLoadingAuth) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
-        <Loader2 className="w-8 h-8 text-purple-400 animate-spin" />
-      </div>
-    );
-  }
-
-  if (hasCreationLimit) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white px-4 py-8 flex items-center justify-center">
-        <div className="max-w-md w-full bg-slate-900/90 border border-purple-500/30 rounded-xl p-8 text-center">
-          <Sparkles className="w-12 h-12 text-purple-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold mb-4">Unlock Unlimited Decks</h2>
-          <p className="text-white/70 mb-6">
-            Free members can create 1 personal deck. Upgrade your membership to create unlimited decks, get a base amount of tokens, and unlock premium features!
-          </p>
-          <div className="flex flex-col gap-3">
-            <Button onClick={() => navigate(createPageUrl("SubscriptionManagement"))} className="bg-purple-600 hover:bg-purple-700 w-full">
-              View Membership Plans
-            </Button>
-            <Button variant="outline" onClick={() => navigate(createPageUrl("Dashboard"))} className="border-white/20 text-white w-full hover:bg-white/10">
-              Return to Dashboard
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white px-4 py-8">
@@ -1855,6 +1751,63 @@ export default function CreateDeck() {
           </div>
         )}
       </div>
+
+      {/* Clear draft confirmation */}
+      <AlertDialog open={clearDraftDialogOpen} onOpenChange={setClearDraftDialogOpen}>
+        <AlertDialogContent className="bg-slate-900 border border-white/10 text-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Clear Draft Data</AlertDialogTitle>
+            <AlertDialogDescription className="text-white/70">
+              This will clear all draft data and start fresh. Any unsaved progress will be lost.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-white/20 text-white hover:bg-white/10">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmClearDraft}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Clear & Start Fresh
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Large deck generation warning */}
+      <AlertDialog open={largeDeckDialogOpen} onOpenChange={setLargeDeckDialogOpen}>
+        <AlertDialogContent className="bg-slate-900 border border-white/10 text-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Large Deck Warning</AlertDialogTitle>
+            <AlertDialogDescription className="text-white/70">
+              Generating <span className="font-semibold text-white">{largeDeckCardCount} cards</span> may take
+              several minutes and use significant memory. Continue?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              className="border-white/20 text-white hover:bg-white/10"
+              onClick={() => {
+                setLargeDeckDialogOpen(false);
+                setPendingAiGenerate(false);
+              }}
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                setLargeDeckDialogOpen(false);
+                setPendingAiGenerate(false);
+                handleAiGenerate(true);
+              }}
+              className="bg-purple-600 hover:bg-purple-700"
+            >
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

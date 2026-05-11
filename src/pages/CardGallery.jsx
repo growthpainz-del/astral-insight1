@@ -6,7 +6,18 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Link } from "react-router-dom";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
+import { Link, useSearchParams } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import {
   Loader2,
@@ -34,7 +45,6 @@ const retryApiCall = async (apiCall, maxRetries = 3, baseDelay = 1000) => {
     } catch (error) {
       if (retries === maxRetries - 1) throw error; // Last retry, rethrow
       const delay = baseDelay * Math.pow(2, retries); // Exponential backoff
-      console.warn(`API call failed, retrying in ${delay / 1000}s... (Attempt ${retries + 1}/${maxRetries})`, error);
       await new Promise(res => setTimeout(res, delay));
       retries++;
     }
@@ -43,7 +53,8 @@ const retryApiCall = async (apiCall, maxRetries = 3, baseDelay = 1000) => {
 
 export default function CardGallery() {
   // deckId will now be managed via state and URLSearchParams instead of useParams()
-  const [deckId, setDeckId] = useState(null);
+  const [searchParams] = useSearchParams();
+  const deckId = searchParams.get("deckId") || searchParams.get("id");
 
   const [cards, setCards] = useState([]); // Replaces allCards
   const [deck, setDeck] = useState(null); // Replaces decks map
@@ -54,7 +65,8 @@ export default function CardGallery() {
   const [isBuilderOpen, setIsBuilderOpen] = useState(false); // For AIManualBuilder dialog
   const [creatingCard, setCreatingCard] = useState(false); // For CardEditor in create mode
   const [editingCard, setEditingCard] = useState(null); // For CardEditor in edit mode
-  const [deletingId, setDeletingId] = useState(null); // For delete confirmation/loading state
+  const [deletingId, setDeletingId] = useState(null);
+  const [cardToDelete, setCardToDelete] = useState(null);
   const [isImageUploaderOpen, setIsImageUploaderOpen] = useState(false); // New state for BulkImageUploader
   const [previewCard, setPreviewCard] = useState(null); // Preview modal for quick view
 
@@ -62,14 +74,7 @@ export default function CardGallery() {
   const [error, setError] = useState(null); // For displaying API call errors
   const [deckCustomFields, setDeckCustomFields] = useState([]); // Now state-managed, replacing the useMemo for this
 
-  // Effect to parse deckId from URL search params
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const id = urlParams.get('id');
-    if (id) {
-      setDeckId(id);
-    }
-  }, []);
+
 
   // Extracted deck and card loading logic, now combined and deck-specific
   const loadDeckAndCards = useCallback(async () => {
@@ -114,7 +119,6 @@ export default function CardGallery() {
       }
 
     } catch (err) {
-      console.error("Failed to load deck or cards:", err);
       setError("Failed to load deck or cards: " + err.message); // Set error state
       setDeck(null);
       setCards([]); // Clear cards on error
@@ -138,20 +142,24 @@ export default function CardGallery() {
     }
   }, [deckId, loadDeckAndCards]);
 
-  const handleDeleteCard = async (cardId) => {
-    if (!deckId) return; // Cannot delete if no deck context
-    if (window.confirm("Are you sure you want to delete this card? This action cannot be undone.")) {
-      try {
-        setDeletingId(cardId);
-        await retryApiCall(() => CardEntity.delete(cardId)); // Wrapped with retryApiCall
-        loadDeckAndCards(); // Refresh the list
-      } catch (err) {
-        console.error("Error deleting card:", err);
-        alert("Failed to delete card.");
-        setError("Failed to delete card: " + err.message); // Set error state
-      } finally {
-        setDeletingId(null);
-      }
+  const handleDeleteCard = (cardId) => {
+    if (!deckId) return;
+    const card = cards.find(c => c.id === cardId);
+    setCardToDelete(card || { id: cardId });
+  };
+
+  const confirmDeleteCard = async () => {
+    if (!cardToDelete) return;
+    try {
+      setDeletingId(cardToDelete.id);
+      await retryApiCall(() => CardEntity.delete(cardToDelete.id));
+      setCardToDelete(null);
+      loadDeckAndCards();
+    } catch (err) {
+      toast.error("Failed to delete card. Please try again.");
+      setError("Failed to delete card: " + err.message);
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -400,6 +408,37 @@ export default function CardGallery() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Delete card confirmation */}
+      <AlertDialog
+        open={!!cardToDelete}
+        onOpenChange={(open) => !open && setCardToDelete(null)}
+      >
+        <AlertDialogContent className="bg-slate-900 border border-white/10 text-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Card</AlertDialogTitle>
+            <AlertDialogDescription className="text-white/70">
+              Are you sure you want to delete{" "}
+              {cardToDelete?.name
+                ? <><span className="font-semibold text-white">"{cardToDelete.name}"</span>?</>
+                : "this card?"
+              }{" "}
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-white/20 text-white hover:bg-white/10">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteCard}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
