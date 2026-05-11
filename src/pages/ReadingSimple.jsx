@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Deck as DeckEntity, Card as CardEntity } from "@/entities/all";
 import { Button } from "@/components/ui/button";
 import { Loader2, ChevronLeft } from "lucide-react";
@@ -8,7 +8,7 @@ import { queueApiCall } from "@/components/utils/apiQueue";
 import { isNetworkError } from "@/components/utils/isNetworkError";
 
 export default function ReadingSimple() {
-  const searchParams = new URLSearchParams(window.location.search);
+  const [searchParams] = useSearchParams();
   const deckIdFromUrl = searchParams.get("deckId");
 
   const [deck, setDeck] = useState(null);
@@ -33,7 +33,6 @@ export default function ReadingSimple() {
 
     const loadDeck = async () => {
       try {
-        console.log('📖 Loading deck:', deckIdFromUrl);
         
         const [loadedDeck, loadedCards] = await Promise.all([
           queueApiCall(() => DeckEntity.get(deckIdFromUrl), 3, 1500),
@@ -42,13 +41,11 @@ export default function ReadingSimple() {
 
         if (cancelled) return;
 
-        console.log('✅ Loaded:', loadedDeck.name, loadedCards.length, 'cards');
         setDeck(loadedDeck);
         setCards(loadedCards);
         setError("");
       } catch (err) {
         if (cancelled) return;
-        console.error('❌ Load failed:', err);
         
         if (isNetworkError(err)) {
           setError("Network error. Check your connection.");

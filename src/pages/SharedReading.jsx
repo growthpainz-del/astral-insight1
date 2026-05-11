@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +10,9 @@ import { createPageUrl } from "@/utils";
 import EnhancedCardViewer from "@/components/reading/EnhancedCardViewer";
 
 export default function SharedReadingPage() {
+  const [searchParams] = useSearchParams();
+  const readingId = searchParams.get("id");
+
   const [reading, setReading] = useState(null);
   const [deck, setDeck] = useState(null);
   const [cards, setCards] = useState([]);
@@ -17,22 +21,20 @@ export default function SharedReadingPage() {
   const [viewingCard, setViewingCard] = useState(null);
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.hash.split('?')[1]);
-    const readingId = urlParams.get("id");
-
     if (!readingId) {
-      setError("No reading ID provided");
+      setError("No reading ID provided.");
       setLoading(false);
       return;
     }
-
     loadReading(readingId);
-  }, []);
+  }, [readingId]);
 
-  const loadReading = async (readingId) => {
+  const loadReading = async (id) => {
     try {
-      const loadedReading = await base44.entities.Reading.get(readingId);
-      if (!loadedReading?.is_public) { throw new Error("Reading is private or not shared."); }
+      const loadedReading = await base44.entities.Reading.get(id);
+      if (!loadedReading?.is_public) {
+        throw new Error("Reading is private or not shared.");
+      }
       setReading(loadedReading);
 
       if (loadedReading.deck_id) {
@@ -41,20 +43,23 @@ export default function SharedReadingPage() {
       }
 
       if (loadedReading.cards_drawn?.length) {
-        const cardPromises = loadedReading.cards_drawn.map(dc => 
-          base44.entities.Card.get(dc.card_id).catch(() => null)
+        const loadedCards = await Promise.all(
+          loadedReading.cards_drawn.map((dc) =>
+            base44.entities.Card.get(dc.card_id).catch(() => null)
+          )
         );
-        const loadedCards = await Promise.all(cardPromises);
-        
-        setCards(loadedCards.map((card, idx) => ({
-          ...card,
-          position: loadedReading.cards_drawn[idx].position,
-          isReversed: loadedReading.cards_drawn[idx].is_reversed
-        })));
+        setCards(
+          loadedCards.map((card, idx) => ({
+            ...card,
+            position: loadedReading.cards_drawn[idx].position,
+            isReversed: loadedReading.cards_drawn[idx].is_reversed,
+          }))
+        );
       }
     } catch (err) {
-      console.error("Failed to load shared reading:", err);
-      setError("Failed to load reading. It may have been deleted or is not public.");
+      setError(
+        "Failed to load reading. It may have been deleted or is not public."
+      );
     } finally {
       setLoading(false);
     }
@@ -123,21 +128,32 @@ export default function SharedReadingPage() {
         {cards.length > 0 && (
           <Card className="bg-white/5 border-white/10">
             <CardHeader>
-              <CardTitle className="text-xl text-purple-300">Cards Drawn</CardTitle>
+              <CardTitle className="text-xl text-purple-300">
+                Cards Drawn
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid md:grid-cols-3 gap-4">
                 {cards.map((card, idx) => (
                   <div
                     key={idx}
-                    onClick={() => card && setViewingCard({ card, position: card.position, isReversed: card.isReversed })}
+                    onClick={() =>
+                      card &&
+                      setViewingCard({
+                        card,
+                        position: card.position,
+                        isReversed: card.isReversed,
+                      })
+                    }
                     className="bg-white/5 border border-white/10 rounded-lg p-4 hover:bg-white/10 transition-all cursor-pointer group"
                   >
                     {card?.image_url && (
                       <img
                         src={card.image_url}
                         alt={card.name}
-                        className={`w-full h-48 object-cover rounded mb-3 ${card.isReversed ? 'rotate-180' : ''}`}
+                        className={`w-full h-48 object-cover rounded mb-3 ${
+                          card.isReversed ? "rotate-180" : ""
+                        }`}
                       />
                     )}
                     <p className="font-semibold text-white group-hover:text-cyan-300 transition-colors">
@@ -155,7 +171,9 @@ export default function SharedReadingPage() {
         {reading?.interpretation && (
           <Card className="bg-white/5 border-white/10">
             <CardHeader>
-              <CardTitle className="text-xl text-emerald-300">Interpretation</CardTitle>
+              <CardTitle className="text-xl text-emerald-300">
+                Interpretation
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-white/90 whitespace-pre-wrap leading-relaxed">
@@ -184,7 +202,6 @@ export default function SharedReadingPage() {
         </Card>
       </div>
 
-      {/* Enhanced Card Viewer */}
       {viewingCard && (
         <EnhancedCardViewer
           card={viewingCard.card}
