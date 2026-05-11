@@ -548,47 +548,36 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
     <>
       <DisablePullToRefresh targetSelector="main" threshold={30} />
       <div className="min-h-screen pb-32 md:pb-24 bg-gradient-to-br from-indigo-950 via-purple-950 to-slate-900">
-      {/* Exit button (hidden/disabled when overlays open) */}
-      <div className={`fixed top-3 left-3 z-[100] ${showEnhancedViewer || showRelationshipsOverlay || showCompactSpreadOverlay || showSessionManager ? 'pointer-events-none opacity-60' : 'pointer-events-auto'}`}>
-        <Link to={createPageUrl("CosmicHub")}>
+      {/* Top Navigation Bar (replaces old Back/Exit buttons) */}
+      <nav className="sticky top-0 z-50 flex items-center justify-between px-[17px] py-[11px] bg-[#07050f]/95 border-b border-[#a078ff]/15 backdrop-blur-[16px] -mx-4 md:-mx-8 -mt-4 md:-mt-8 mb-6">
+        <button onClick={() => navigate(createPageUrl("ReadingRoom"))} className="font-['Cinzel'] text-[10px] tracking-[0.14em] uppercase text-purple-200/70 flex items-center gap-[5px] cursor-pointer transition-colors bg-transparent border-none hover:text-purple-400">
+          ‹ Back
+        </button>
+        <div className="flex items-center gap-[9px] text-decoration-none">
+          <div className="w-[30px] h-[30px] rounded-[7px] bg-gradient-to-br from-[#1a0f35] to-[#0a0618] flex items-center justify-center text-[16px] shadow-[0_0_10px_rgba(167,139,250,0.25)]">
+            🌙
+          </div>
+          <span className="font-['Cinzel'] text-[10px] tracking-[0.22em] uppercase text-purple-200/45">
+            Reading Room
+          </span>
+        </div>
+        <div className="flex gap-2">
+          {/* Debug Toggle Button */}
           <Button
             size="sm"
-            variant="outline"
-            onClick={() => { navigate(createPageUrl('CosmicHub')); }}
-            className="bg-black/60 text-white border-white/30 hover:bg-black/80"
-            disabled={showEnhancedViewer || showRelationshipsOverlay || showCompactSpreadOverlay || showSessionManager}
-          >
-            Exit
-          </Button>
-        </Link>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between py-6">
-          <Button asChild variant="ghost" className="text-purple-200">
-            <Link to={createPageUrl("CosmicHub")}> 
-              <ChevronLeft className="w-4 h-4 mr-2" />
-              Back
-            </Link>
-          </Button>
-          
-          {deck && (
-            <div className="text-center flex-1">
-              <h1 className="text-xl md:text-2xl font-bold text-white">{deck.name}</h1>
-            </div>
-          )}
-
-          {/* NEW: Debug Toggle Button */}
-          <Button
-            size="sm"
-            variant="outline"
+            variant="ghost"
             onClick={() => setShowDebugPanel(!showDebugPanel)}
-            className="border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/10"
+            className="p-1 h-8 w-8 text-cyan-300/70 hover:text-cyan-300 hover:bg-cyan-500/10"
           >
             <Bug className="w-4 h-4" />
           </Button>
+          <div className="w-[30px] h-[30px] rounded-full bg-gradient-to-br from-[#7c3aed] to-[#67e8f9] flex items-center justify-center font-['Cinzel'] text-[10px] text-white font-bold shadow-[0_0_10px_rgba(103,232,249,0.2)]">
+            {user ? (user.full_name?.[0] || user.email?.[0] || 'U').toUpperCase() : 'GR'}
+          </div>
         </div>
+      </nav>
+
+      <div className="max-w-7xl mx-auto px-4 space-y-6">
 
         {/* NEW: Debug Panel - Mobile Friendly */}
         {showDebugPanel && (
