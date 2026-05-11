@@ -8,6 +8,7 @@ import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'r
 import PageNotFound from './lib/PageNotFound'
 import { AuthProvider, useAuth } from '@/lib/AuthContext'
 import UserNotRegisteredError from '@/components/UserNotRegisteredError'
+import ReadingRoom from './pages/ReadingRoom'
 
 const { Pages, Layout, mainPage } = pagesConfig
 
@@ -105,6 +106,14 @@ const AuthenticatedApp = () => {
       <Route path="/home" element={<HomeRedirect />} />
       <Route path="/home/*" element={<HomeRedirect />} />
 
+      <Route
+        path="/ReadingRoom"
+        element={
+          <LayoutWrapper currentPageName="ReadingRoom">
+            <ReadingRoom />
+          </LayoutWrapper>
+        }
+      />
       {Object.entries(Pages).map(([path, Page]) => (
         <Route
           key={path}
