@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { User } from '@/entities/all';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { AlertTriangle, CheckCircle, Loader2, RefreshCw, Zap, Coins, ArrowLeft } from 'lucide-react';
@@ -23,7 +24,6 @@ export default function WebhookTester() {
       const currentUser = await User.me();
       setUser(currentUser);
     } catch (error) {
-      console.error('Failed to load user:', error);
     } finally {
       setIsLoading(false);
     }
@@ -31,7 +31,7 @@ export default function WebhookTester() {
 
   const testWebhookManually = async () => {
     if (!user) {
-      alert('You must be logged in to test');
+      toast.error('You must be logged in to test');
       return;
     }
 
@@ -41,7 +41,7 @@ export default function WebhookTester() {
       const testPayload = {
         seller_id: 'test_seller',
         product_id: 'test_product',
-        product_permalink: 'jcxfui', // 20 tokens
+        product_permalink: 'jcxfui',
         email: user.email,
         price: '199',
         currency: 'usd',
@@ -52,18 +52,13 @@ export default function WebhookTester() {
         refunded: false,
       };
 
-      console.log('Sending test webhook payload:', testPayload);
-
       const response = await fetch('/functions/gumroadWebhook', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(testPayload),
       });
 
       const result = await response.json();
-      console.log('Webhook response:', result);
 
       if (response.ok) {
         setTestResult({
@@ -80,7 +75,6 @@ export default function WebhookTester() {
         });
       }
     } catch (error) {
-      console.error('Webhook test error:', error);
       setTestResult({
         status: 'error',
         message: `❌ Error: ${error.message}`,
@@ -91,12 +85,12 @@ export default function WebhookTester() {
 
   const manuallyGrantTokens = async () => {
     if (!user) {
-      alert('You must be logged in');
+      toast.error('You must be logged in');
       return;
     }
 
     if (manualTokens <= 0) {
-      alert('Please enter a positive number of tokens');
+      toast.error('Please enter a positive number of tokens');
       return;
     }
 
@@ -108,11 +102,10 @@ export default function WebhookTester() {
         lifetime_tokens_purchased: (user.lifetime_tokens_purchased || 0) + manualTokens,
       });
 
-      alert(`✅ Granted ${manualTokens} tokens!\nNew balance: ${newBalance}`);
+      toast.success(`Granted ${manualTokens} tokens. New balance: ${newBalance}`);
       loadUser();
     } catch (error) {
-      console.error('Failed to grant tokens:', error);
-      alert(`❌ Failed to grant tokens: ${error.message}`);
+      toast.error(`Failed to grant tokens: ${error.message}`);
     } finally {
       setIsGranting(false);
     }

@@ -37,19 +37,14 @@ export default function Upgrade() {
       const currentUser = await User.me();
       setUser(currentUser);
     } catch (error) {
-      console.error("Failed to load user:", error);
     } finally {
       setLoading(false);
     }
   };
 
   const handleUpgrade = (tier) => {
-    // Redirect to Gumroad checkout with pre-filled email
-    let url = GUMROAD_LINKS[tier];
-    if (user?.email) {
-      url += (url.includes('?') ? '&' : '?') + 'email=' + encodeURIComponent(user.email);
-    }
-    window.open(url, '_blank');
+    // Redirect to Gumroad checkout
+    window.open(GUMROAD_LINKS[tier], '_blank');
   };
 
   const tiers = [

@@ -54,7 +54,6 @@ export default function UserProfilePage() {
         deck.publish_status === "published"
       );
 
-      console.log(`📊 Found ${userDecks.length} published decks for ${userEmail}`);
 
       setDecks(userDecks || []);
 
@@ -81,7 +80,6 @@ export default function UserProfilePage() {
         });
       }
     } catch (e) {
-      console.error("Failed to load user profile:", e);
       setError("Failed to load user profile. Please try again.");
     } finally {
       setLoading(false);
