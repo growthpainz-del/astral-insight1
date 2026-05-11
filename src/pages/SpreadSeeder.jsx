@@ -2,6 +2,17 @@ import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 import { CheckCircle2, Loader2, AlertTriangle, Sparkles } from "lucide-react";
 
 // Built-in spread definitions with visual coordinates
@@ -118,8 +129,11 @@ export default function SpreadSeeder() {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState([]);
   const [error, setError] = useState("");
+  const [overwriteDialogOpen, setOverwriteDialogOpen] = useState(false);
+  const [existingCount, setExistingCount] = useState(0);
+  const [pendingSeed, setPendingSeed] = useState(false);
 
-  const seedSpreads = async () => {
+  const seedSpreads = async (skipConfirm = false) => {
     setLoading(true);
     setError("");
     setResults([]);
@@ -128,11 +142,15 @@ export default function SpreadSeeder() {
       // Check if system spreads already exist
       const existingSpreads = await base44.entities.Spread.filter({ is_system_spread: true });
       
+      if (existingSpreads && existingSpreads.length > 0 && !skipConfirm) {
+        setExistingCount(existingSpreads.length);
+        setOverwriteDialogOpen(true);
+        setPendingSeed(true);
+        setLoading(false);
+        return;
+      }
+      
       if (existingSpreads && existingSpreads.length > 0) {
-        if (!confirm(`Found ${existingSpreads.length} existing system spreads.\n\nDo you want to DELETE them and recreate fresh copies?\n\nThis will preserve any custom spreads but reset all built-in spreads to defaults.`)) {
-          setLoading(false);
-          return;
-        }
 
         // Delete existing system spreads
         for (const spread of existingSpreads) {
@@ -140,7 +158,6 @@ export default function SpreadSeeder() {
             await base44.entities.Spread.delete(spread.id);
             setResults(prev => [...prev, { name: spread.name, status: "deleted", message: "Deleted old version" }]);
           } catch (err) {
-            console.error(`Failed to delete spread ${spread.name}:`, err);
           }
         }
       }
@@ -151,7 +168,6 @@ export default function SpreadSeeder() {
           await base44.entities.Spread.create(spread);
           setResults(prev => [...prev, { name: spread.name, status: "success", message: "Created successfully" }]);
         } catch (err) {
-          console.error(`Failed to create ${spread.name}:`, err);
           setResults(prev => [...prev, { name: spread.name, status: "error", message: err.message || "Failed to create" }]);
         }
       }
@@ -162,14 +178,12 @@ export default function SpreadSeeder() {
           await base44.entities.Spread.create(spread);
           setResults(prev => [...prev, { name: spread.name, status: "success", message: "Created successfully" }]);
         } catch (err) {
-          console.error(`Failed to create ${spread.name}:`, err);
           setResults(prev => [...prev, { name: spread.name, status: "error", message: err.message || "Failed to create" }]);
         }
       }
 
       setError("");
     } catch (err) {
-      console.error("Seeding failed:", err);
       setError("Failed to seed spreads: " + (err.message || "Unknown error"));
     } finally {
       setLoading(false);
@@ -194,7 +208,6 @@ export default function SpreadSeeder() {
         })));
       }
     } catch (err) {
-      console.error("Check failed:", err);
       setError("Failed to check spreads: " + (err.message || "Unknown error"));
     } finally {
       setLoading(false);
@@ -332,6 +345,37 @@ export default function SpreadSeeder() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Overwrite confirmation */}
+      <AlertDialog open={overwriteDialogOpen} onOpenChange={setOverwriteDialogOpen}>
+        <AlertDialogContent className="bg-slate-900 border border-white/10 text-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Overwrite Existing Spreads?</AlertDialogTitle>
+            <AlertDialogDescription className="text-white/70">
+              Found <span className="font-semibold text-white">{existingCount} existing system spreads</span>.
+              Delete them and recreate fresh copies? Your custom spreads will not be affected.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              className="border-white/20 text-white hover:bg-white/10"
+              onClick={() => { setOverwriteDialogOpen(false); setPendingSeed(false); }}
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-purple-600 hover:bg-purple-700"
+              onClick={() => {
+                setOverwriteDialogOpen(false);
+                setPendingSeed(false);
+                seedSpreads(true);
+              }}
+            >
+              Delete & Recreate
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

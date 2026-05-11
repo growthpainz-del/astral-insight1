@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,11 +25,10 @@ export default function SpreadDesigner() {
   const [requiresPositions, setRequiresPositions] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
-  
   const [previewMode, setPreviewMode] = useState(false);
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const spreadId = urlParams.get("id");
+  const [searchParams] = useSearchParams();
+  const spreadId = searchParams.get("id");
   const [isLoading, setIsLoading] = useState(!!spreadId);
 
   useEffect(() => {
@@ -45,7 +44,6 @@ export default function SpreadDesigner() {
         setIsPublic(spread.is_public || false);
         setRequiresPositions(spread.requires_positions !== false);
       } catch (error) {
-        console.error("Failed to load spread:", error);
         setSaveMessage("Failed to load spread");
       } finally {
         setIsLoading(false);
@@ -59,7 +57,7 @@ export default function SpreadDesigner() {
       meaning: "",
       x: 50,
       y: 50,
-      rotation: 0
+      rotation: 0,
     };
     setPositions([...positions, newPos]);
   };
@@ -80,12 +78,10 @@ export default function SpreadDesigner() {
       setSaveMessage("Please enter a spread name");
       return;
     }
-
     if (positions.length === 0) {
       setSaveMessage("Please add at least one position");
       return;
     }
-
     for (let i = 0; i < positions.length; i++) {
       if (!positions[i].name?.trim()) {
         setSaveMessage(`Position ${i + 1} needs a name`);
@@ -105,7 +101,7 @@ export default function SpreadDesigner() {
         name: spreadName.trim(),
         description: spreadDescription.trim(),
         category: spreadCategory,
-        positions: positions,
+        positions,
         is_public: isPublic,
         requires_positions: requiresPositions,
       };
@@ -123,7 +119,6 @@ export default function SpreadDesigner() {
         }, 2000);
       }
     } catch (error) {
-      console.error("Failed to save spread:", error);
       setSaveMessage("❌ Failed to save spread. Please try again.");
     } finally {
       setIsSaving(false);
@@ -135,10 +130,10 @@ export default function SpreadDesigner() {
     return positions.map((pos, idx) => ({
       id: `preview-card-${idx}`,
       name: pos.name || `Card ${idx + 1}`,
-      image_url: "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=400&h=600&fit=crop",
+      image_url:
+        "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=400&h=600&fit=crop",
       overall_meaning: pos.meaning || "",
       isFlipped: true,
-      // FIXED: Add position_number for consistency
       position_number: idx + 1,
     }));
   }, [positions]);
@@ -149,7 +144,7 @@ export default function SpreadDesigner() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 border-2 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-8 h-8 border-2 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-white/80">Loading spread...</p>
         </div>
       </div>
@@ -176,7 +171,9 @@ export default function SpreadDesigner() {
           <Button
             onClick={() => setPreviewMode(!previewMode)}
             variant="outline"
-            className={`border-cyan-500/40 ${previewMode ? 'bg-cyan-600/20 text-cyan-300' : 'text-white'}`}
+            className={`border-cyan-500/40 ${
+              previewMode ? "bg-cyan-600/20 text-cyan-300" : "text-white"
+            }`}
           >
             {previewMode ? (
               <>
@@ -193,16 +190,18 @@ export default function SpreadDesigner() {
         </div>
 
         {saveMessage && (
-          <div className={`mb-4 p-3 rounded-lg ${
-            saveMessage.includes("✅") 
-              ? "bg-green-500/20 border border-green-500/40 text-green-200" 
-              : "bg-red-500/20 border border-red-500/40 text-red-200"
-          }`}>
+          <div
+            className={`mb-4 p-3 rounded-lg ${
+              saveMessage.includes("✅")
+                ? "bg-green-500/20 border border-green-500/40 text-green-200"
+                : "bg-red-500/20 border border-red-500/40 text-red-200"
+            }`}
+          >
             {saveMessage}
           </div>
         )}
 
-        {/* Mobile: Full-screen tabs */}
+        {/* Mobile layout */}
         <div className="lg:hidden">
           <Tabs defaultValue="canvas" className="w-full">
             <TabsList className="grid grid-cols-3 w-full sticky top-0 z-10 bg-slate-900/80 backdrop-blur rounded-xl">
@@ -212,10 +211,19 @@ export default function SpreadDesigner() {
             </TabsList>
 
             <TabsContent value="canvas">
-              <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-4 h-[calc(100vh-180px)] overflow-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
+              <div
+                className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-4 h-[calc(100vh-180px)] overflow-auto"
+                style={{ WebkitOverflowScrolling: "touch" }}
+              >
                 <div className="flex items-center justify-between mb-3">
-                  <h2 className="text-lg font-bold text-purple-300">Visual Layout</h2>
-                  <Button onClick={addPosition} size="sm" className="bg-purple-600 hover:bg-purple-700">
+                  <h2 className="text-lg font-bold text-purple-300">
+                    Visual Layout
+                  </h2>
+                  <Button
+                    onClick={addPosition}
+                    size="sm"
+                    className="bg-purple-600 hover:bg-purple-700"
+                  >
                     <Plus className="w-4 h-4 mr-2" />
                     Add Card
                   </Button>
@@ -231,8 +239,13 @@ export default function SpreadDesigner() {
                 ) : (
                   <div className="border-2 border-dashed border-white/20 rounded-xl p-10 text-center min-h-[50vh] flex items-center justify-center">
                     <div>
-                      <p className="text-white/60 mb-4">Add positions to start designing your spread layout</p>
-                      <Button onClick={addPosition} className="bg-purple-600 hover:bg-purple-700">
+                      <p className="text-white/60 mb-4">
+                        Add positions to start designing your spread layout
+                      </p>
+                      <Button
+                        onClick={addPosition}
+                        className="bg-purple-600 hover:bg-purple-700"
+                      >
                         <Plus className="w-4 h-4 mr-2" /> Add First Position
                       </Button>
                     </div>
@@ -242,22 +255,44 @@ export default function SpreadDesigner() {
             </TabsContent>
 
             <TabsContent value="details">
-              <div className="space-y-6 p-4 h-[calc(100vh-180px)] overflow-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
-                {/* Spread Details */}
+              <div
+                className="space-y-6 p-4 h-[calc(100vh-180px)] overflow-auto"
+                style={{ WebkitOverflowScrolling: "touch" }}
+              >
                 <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-6 space-y-4">
-                  <h2 className="text-xl font-bold text-purple-300">Spread Details</h2>
+                  <h2 className="text-xl font-bold text-purple-300">
+                    Spread Details
+                  </h2>
                   <div>
                     <Label htmlFor="spread-name">Spread Name *</Label>
-                    <Input id="spread-name" value={spreadName} onChange={(e) => setSpreadName(e.target.value)} placeholder="e.g., Celtic Cross, Three Card Spread" className="bg-black/50 border-white/20 text-white" />
+                    <Input
+                      id="spread-name"
+                      value={spreadName}
+                      onChange={(e) => setSpreadName(e.target.value)}
+                      placeholder="e.g., Celtic Cross, Three Card Spread"
+                      className="bg-black/50 border-white/20 text-white"
+                    />
                   </div>
                   <div>
                     <Label htmlFor="spread-description">Description</Label>
-                    <Textarea id="spread-description" value={spreadDescription} onChange={(e) => setSpreadDescription(e.target.value)} placeholder="Describe what this spread is for and how to use it..." className="bg-black/50 border-white/20 text-white min-h-[80px]" />
+                    <Textarea
+                      id="spread-description"
+                      value={spreadDescription}
+                      onChange={(e) => setSpreadDescription(e.target.value)}
+                      placeholder="Describe what this spread is for and how to use it..."
+                      className="bg-black/50 border-white/20 text-white min-h-[80px]"
+                    />
                   </div>
                   <div>
                     <Label htmlFor="spread-category">Category</Label>
-                    <Select value={spreadCategory} onValueChange={setSpreadCategory}>
-                      <SelectTrigger id="spread-category" className="bg-black/50 border-white/20 text白 text-white">
+                    <Select
+                      value={spreadCategory}
+                      onValueChange={setSpreadCategory}
+                    >
+                      <SelectTrigger
+                        id="spread-category"
+                        className="bg-black/50 border-white/20 text-white"
+                      >
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="bg-gray-900 border-white/20 text-white">
@@ -272,45 +307,91 @@ export default function SpreadDesigner() {
                   </div>
                   <div className="flex items-center justify-between py-2">
                     <div>
-                      <Label htmlFor="requires-positions">Show Position Labels</Label>
-                      <p className="text-xs text-white/60">Display position names/meanings during readings</p>
+                      <Label htmlFor="requires-positions">
+                        Show Position Labels
+                      </Label>
+                      <p className="text-xs text-white/60">
+                        Display position names/meanings during readings
+                      </p>
                     </div>
-                    <Switch id="requires-positions" checked={requiresPositions} onCheckedChange={setRequiresPositions} />
+                    <Switch
+                      id="requires-positions"
+                      checked={requiresPositions}
+                      onCheckedChange={setRequiresPositions}
+                    />
                   </div>
                   <div className="flex items-center justify-between py-2">
                     <div>
                       <Label htmlFor="is-public">Make Public</Label>
-                      <p className="text-xs text-white/60">Allow others to use this spread</p>
+                      <p className="text-xs text-white/60">
+                        Allow others to use this spread
+                      </p>
                     </div>
-                    <Switch id="is-public" checked={isPublic} onCheckedChange={setIsPublic} />
+                    <Switch
+                      id="is-public"
+                      checked={isPublic}
+                      onCheckedChange={setIsPublic}
+                    />
                   </div>
                 </div>
 
-                {/* Position Details */}
                 <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-6 space-y-4">
                   <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-bold text-purple-300">Position Details ({positions.length})</h2>
+                    <h2 className="text-xl font-bold text-purple-300">
+                      Position Details ({positions.length})
+                    </h2>
                   </div>
                   {positions.length === 0 ? (
                     <div className="text-center py-8 text-white/60">
                       <p className="mb-2">No positions yet.</p>
-                      <p className="text-sm">Tap "Add Card" in the Canvas tab to start.</p>
+                      <p className="text-sm">
+                        Tap "Add Card" in the Canvas tab to start.
+                      </p>
                     </div>
                   ) : (
-                    <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-2" style={{ WebkitOverflowScrolling: 'touch' }}>
+                    <div
+                      className="space-y-3 max-h-[50vh] overflow-y-auto pr-2"
+                      style={{ WebkitOverflowScrolling: "touch" }}
+                    >
                       {positions.map((pos, idx) => (
-                        <div key={idx} className="bg-black/30 rounded-lg p-4 space-y-3 border border白/10 border-white/10">
+                        <div
+                          key={idx}
+                          className="bg-black/30 rounded-lg p-4 space-y-3 border border-white/10"
+                        >
                           <div className="flex items-center justify-between">
-                            <Badge className="bg-purple-600/50">Position {idx + 1}</Badge>
-                            <span className="text-xs text-white/60">{Math.round(pos.x)}%, {Math.round(pos.y)}%, {pos.rotation || 0}°</span>
+                            <Badge className="bg-purple-600/50">
+                              Position {idx + 1}
+                            </Badge>
+                            <span className="text-xs text-white/60">
+                              {Math.round(pos.x)}%, {Math.round(pos.y)}%,{" "}
+                              {pos.rotation || 0}°
+                            </span>
                           </div>
                           <div>
                             <Label className="text-xs">Position Name *</Label>
-                            <Input value={pos.name || ""} onChange={(e) => updatePositionField(idx, "name", e.target.value)} placeholder="e.g., Past, Present, Future" className="bg-black/50 border-white/20 text-white text-sm" />
+                            <Input
+                              value={pos.name || ""}
+                              onChange={(e) =>
+                                updatePositionField(idx, "name", e.target.value)
+                              }
+                              placeholder="e.g., Past, Present, Future"
+                              className="bg-black/50 border-white/20 text-white text-sm"
+                            />
                           </div>
                           <div>
                             <Label className="text-xs">Meaning *</Label>
-                            <Textarea value={pos.meaning || ""} onChange={(e) => updatePositionField(idx, "meaning", e.target.value)} placeholder="What this position represents..." className="bg-black/50 border-white/20 text-white text-sm min-h-[60px]" />
+                            <Textarea
+                              value={pos.meaning || ""}
+                              onChange={(e) =>
+                                updatePositionField(
+                                  idx,
+                                  "meaning",
+                                  e.target.value
+                                )
+                              }
+                              placeholder="What this position represents..."
+                              className="bg-black/50 border-white/20 text-white text-sm min-h-[60px]"
+                            />
                           </div>
                         </div>
                       ))}
@@ -318,22 +399,54 @@ export default function SpreadDesigner() {
                   )}
                 </div>
 
-                <Button onClick={handleSave} disabled={isSaving} className="w-full bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 text-white py-5 text-lg font-bold">
-                  <Save className="w-5 h-5 mr-2" /> {isSaving ? "Saving..." : spreadId ? "Update Spread" : "Create Spread"}
+                <Button
+                  onClick={handleSave}
+                  disabled={isSaving}
+                  className="w-full bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 text-white py-5 text-lg font-bold"
+                >
+                  <Save className="w-5 h-5 mr-2" />
+                  {isSaving
+                    ? "Saving..."
+                    : spreadId
+                    ? "Update Spread"
+                    : "Create Spread"}
                 </Button>
               </div>
             </TabsContent>
 
             <TabsContent value="controls">
-              <div className="p-4 space-y-4 h-[calc(100vh-180px)] overflow-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
+              <div
+                className="p-4 space-y-4 h-[calc(100vh-180px)] overflow-auto"
+                style={{ WebkitOverflowScrolling: "touch" }}
+              >
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-bold text-purple-300">Controls</h2>
-                  <Button onClick={() => setPreviewMode(!previewMode)} variant="outline" className={`border-cyan-500/40 ${previewMode ? 'bg-cyan-600/20 text-cyan-300' : 'text-white'}`}>
-                    {previewMode ? (<><EyeOff className="w-4 h-4 mr-2" /> Hide Preview</>) : (<><Eye className="w-4 h-4 mr-2" /> Show Preview</>)}
+                  <h2 className="text-lg font-bold text-purple-300">
+                    Controls
+                  </h2>
+                  <Button
+                    onClick={() => setPreviewMode(!previewMode)}
+                    variant="outline"
+                    className={`border-cyan-500/40 ${
+                      previewMode
+                        ? "bg-cyan-600/20 text-cyan-300"
+                        : "text-white"
+                    }`}
+                  >
+                    {previewMode ? (
+                      <>
+                        <EyeOff className="w-4 h-4 mr-2" /> Hide Preview
+                      </>
+                    ) : (
+                      <>
+                        <Eye className="w-4 h-4 mr-2" /> Show Preview
+                      </>
+                    )}
                   </Button>
                 </div>
                 <div className="bg-cyan-900/20 border border-cyan-500/30 rounded-lg p-3">
-                  <h3 className="text-sm font-semibold text-cyan-300 mb-2 flex items-center gap-2"><Info className="w-4 h-4" /> How to Use</h3>
+                  <h3 className="text-sm font-semibold text-cyan-300 mb-2 flex items-center gap-2">
+                    <Info className="w-4 h-4" /> How to Use
+                  </h3>
                   <ul className="text-xs text-cyan-200/80 space-y-1 list-disc pl-5">
                     <li>Drag the small handle on a card to move it</li>
                     <li>Tap a card to show the rotation toolbar</li>
@@ -351,7 +464,6 @@ export default function SpreadDesigner() {
           {/* Left Column: Visual Designer */}
           <div className="space-y-4 order-2 lg:order-1">
             {previewMode ? (
-              /* PREVIEW MODE */
               <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-cyan-500/40 p-6">
                 <div className="mb-4 text-center">
                   <h2 className="text-xl font-bold text-cyan-300 mb-2">
@@ -361,13 +473,12 @@ export default function SpreadDesigner() {
                     This is how your spread will look during actual readings
                   </p>
                 </div>
-
                 <div className="bg-gradient-to-br from-gray-950 via-slate-900 to-black rounded-xl p-4 min-h-[500px] flex items-center justify-center">
                   {positions.length > 0 ? (
                     <SpreadLayout
                       spread={{
                         name: spreadName || "Preview Spread",
-                        positions: positions,
+                        positions,
                         requires_positions: requiresPositions,
                       }}
                       positions={positions}
@@ -385,36 +496,49 @@ export default function SpreadDesigner() {
                     </div>
                   )}
                 </div>
-
                 <div className="mt-4 text-xs text-cyan-200/60 text-center">
-                  💡 Tip: Toggle back to designer view to adjust card positions and angles
+                  💡 Tip: Toggle back to designer view to adjust card positions
+                  and angles
                 </div>
               </div>
             ) : (
-              /* DESIGNER MODE */
               <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xl font-bold text-purple-300">
                     Visual Layout Designer
                   </h2>
-                  <Button onClick={addPosition} size="sm" className="bg-purple-600 hover:bg-purple-700">
+                  <Button
+                    onClick={addPosition}
+                    size="sm"
+                    className="bg-purple-600 hover:bg-purple-700"
+                  >
                     <Plus className="w-4 h-4 mr-2" />
                     Add Card
                   </Button>
                 </div>
 
-                {/* Instructions */}
                 <div className="bg-cyan-900/20 border border-cyan-500/30 rounded-lg p-3 mb-4">
                   <h3 className="text-sm font-semibold text-cyan-300 mb-2 flex items-center gap-2">
                     <Info className="w-4 h-4" />
                     How to Use:
                   </h3>
                   <ul className="text-xs text-cyan-200/80 space-y-1">
-                    <li>• <strong>Long‑press on a card</strong> to drag on mobile</li>
-                    <li>• <strong>Drag cards</strong> to position them</li>
-                    <li>• <strong>Tap</strong> a card to select it</li>
-                    <li>• <strong>Rotate with buttons or slider</strong> below the selected card</li>
-                    <li>• <strong>Snap to grid</strong> helps clean alignment</li>
+                    <li>
+                      • <strong>Long‑press on a card</strong> to drag on mobile
+                    </li>
+                    <li>
+                      • <strong>Drag cards</strong> to position them
+                    </li>
+                    <li>
+                      • <strong>Tap</strong> a card to select it
+                    </li>
+                    <li>
+                      • <strong>Rotate with buttons or slider</strong> below the
+                      selected card
+                    </li>
+                    <li>
+                      • <strong>Snap to grid</strong> helps clean alignment
+                    </li>
                     <li>• Edit names/meanings in the right panel</li>
                   </ul>
                 </div>
@@ -432,7 +556,10 @@ export default function SpreadDesigner() {
                       <p className="text-white/60 mb-4">
                         Add positions to start designing your spread layout
                       </p>
-                      <Button onClick={addPosition} className="bg-purple-600 hover:bg-purple-700">
+                      <Button
+                        onClick={addPosition}
+                        className="bg-purple-600 hover:bg-purple-700"
+                      >
                         <Plus className="w-4 h-4 mr-2" />
                         Add First Position
                       </Button>
@@ -441,18 +568,25 @@ export default function SpreadDesigner() {
                 )}
 
                 <div className="mt-4 text-xs text-white/60 space-y-1">
-                  <p>• <strong>Drag:</strong> Move cards around the canvas (snaps to grid)</p>
-                  <p>• <strong>Tap:</strong> Select card to show rotation controls</p>
-                  <p>• <strong>Rotate:</strong> Use buttons below selected card (-15° / +15°)</p>
+                  <p>
+                    • <strong>Drag:</strong> Move cards around the canvas (snaps
+                    to grid)
+                  </p>
+                  <p>
+                    • <strong>Tap:</strong> Select card to show rotation controls
+                  </p>
+                  <p>
+                    • <strong>Rotate:</strong> Use buttons below selected card
+                    (-15° / +15°)
+                  </p>
                   <p>• Toggle preview to see how it looks in readings</p>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Right Column: Spread Settings & Position Details */}
+          {/* Right Column */}
           <div className="space-y-6 order-1 lg:order-2">
-            {/* AI Assistant */}
             <AISpreadAssistant
               onApply={(s) => {
                 try {
@@ -462,21 +596,28 @@ export default function SpreadDesigner() {
                   if (Array.isArray(s?.positions)) {
                     const cleaned = s.positions.map((p, i) => ({
                       name: p.name || `Position ${i + 1}`,
-                      meaning: p.meaning || '',
-                      x: typeof p.x === 'number' ? Math.max(0, Math.min(100, p.x)) : 50,
-                      y: typeof p.y === 'number' ? Math.max(0, Math.min(100, p.y)) : 50,
-                      rotation: typeof p.rotation === 'number' ? p.rotation : 0,
+                      meaning: p.meaning || "",
+                      x:
+                        typeof p.x === "number"
+                          ? Math.max(0, Math.min(100, p.x))
+                          : 50,
+                      y:
+                        typeof p.y === "number"
+                          ? Math.max(0, Math.min(100, p.y))
+                          : 50,
+                      rotation:
+                        typeof p.rotation === "number" ? p.rotation : 0,
                     }));
                     setPositions(cleaned);
                   }
-                } catch (e) { /* no-op */ }
+                } catch (_) {}
               }}
             />
 
-            {/* Basic Info */}
             <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-6 space-y-4">
-              <h2 className="text-xl font-bold text-purple-300">Spread Details</h2>
-              
+              <h2 className="text-xl font-bold text-purple-300">
+                Spread Details
+              </h2>
               <div>
                 <Label htmlFor="spread-name">Spread Name *</Label>
                 <Input
@@ -487,7 +628,6 @@ export default function SpreadDesigner() {
                   className="bg-black/50 border-white/20 text-white"
                 />
               </div>
-
               <div>
                 <Label htmlFor="spread-description">Description</Label>
                 <Textarea
@@ -498,11 +638,16 @@ export default function SpreadDesigner() {
                   className="bg-black/50 border-white/20 text-white min-h-[80px]"
                 />
               </div>
-
               <div>
                 <Label htmlFor="spread-category">Category</Label>
-                <Select value={spreadCategory} onValueChange={setSpreadCategory}>
-                  <SelectTrigger id="spread-category" className="bg-black/50 border-white/20 text-white">
+                <Select
+                  value={spreadCategory}
+                  onValueChange={setSpreadCategory}
+                >
+                  <SelectTrigger
+                    id="spread-category"
+                    className="bg-black/50 border-white/20 text-white"
+                  >
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-gray-900 border-white/20 text-white">
@@ -515,11 +660,14 @@ export default function SpreadDesigner() {
                   </SelectContent>
                 </Select>
               </div>
-
               <div className="flex items-center justify-between py-2">
                 <div>
-                  <Label htmlFor="requires-positions">Show Position Labels</Label>
-                  <p className="text-xs text-white/60">Display position names/meanings during readings</p>
+                  <Label htmlFor="requires-positions">
+                    Show Position Labels
+                  </Label>
+                  <p className="text-xs text-white/60">
+                    Display position names/meanings during readings
+                  </p>
                 </div>
                 <Switch
                   id="requires-positions"
@@ -527,11 +675,12 @@ export default function SpreadDesigner() {
                   onCheckedChange={setRequiresPositions}
                 />
               </div>
-
               <div className="flex items-center justify-between py-2">
                 <div>
                   <Label htmlFor="is-public">Make Public</Label>
-                  <p className="text-xs text-white/60">Allow others to use this spread</p>
+                  <p className="text-xs text-white/60">
+                    Allow others to use this spread
+                  </p>
                 </div>
                 <Switch
                   id="is-public"
@@ -541,28 +690,37 @@ export default function SpreadDesigner() {
               </div>
             </div>
 
-            {/* Position List */}
             <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-6 space-y-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold text-purple-300">
                   Position Details ({positions.length})
                 </h2>
               </div>
-
               {positions.length === 0 ? (
                 <div className="text-center py-8 text-white/60">
                   <p className="mb-2">No positions yet.</p>
-                  <p className="text-sm">Click "Add Card" in the designer to start.</p>
+                  <p className="text-sm">
+                    Click "Add Card" in the designer to start.
+                  </p>
                 </div>
               ) : (
-                <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2" style={{ WebkitOverflowScrolling: 'touch' }}>
+                <div
+                  className="space-y-3 max-h-[500px] overflow-y-auto pr-2"
+                  style={{ WebkitOverflowScrolling: "touch" }}
+                >
                   {positions.map((pos, idx) => (
-                    <div key={idx} className="bg-black/30 rounded-lg p-4 space-y-3 border border-white/10">
+                    <div
+                      key={idx}
+                      className="bg-black/30 rounded-lg p-4 space-y-3 border border-white/10"
+                    >
                       <div className="flex items-center justify-between">
-                        <Badge className="bg-purple-600/50">Position {idx + 1}</Badge>
+                        <Badge className="bg-purple-600/50">
+                          Position {idx + 1}
+                        </Badge>
                         <div className="flex items-center gap-2">
                           <span className="text-xs text-white/60">
-                            {Math.round(pos.x)}%, {Math.round(pos.y)}%, {pos.rotation || 0}°
+                            {Math.round(pos.x)}%, {Math.round(pos.y)}%,{" "}
+                            {pos.rotation || 0}°
                           </span>
                           <Button
                             onClick={() => removePosition(idx)}
@@ -574,22 +732,24 @@ export default function SpreadDesigner() {
                           </Button>
                         </div>
                       </div>
-
                       <div>
                         <Label className="text-xs">Position Name *</Label>
                         <Input
                           value={pos.name || ""}
-                          onChange={(e) => updatePositionField(idx, "name", e.target.value)}
+                          onChange={(e) =>
+                            updatePositionField(idx, "name", e.target.value)
+                          }
                           placeholder="e.g., Past, Present, Future"
                           className="bg-black/50 border-white/20 text-white text-sm"
                         />
                       </div>
-
                       <div>
                         <Label className="text-xs">Meaning *</Label>
                         <Textarea
                           value={pos.meaning || ""}
-                          onChange={(e) => updatePositionField(idx, "meaning", e.target.value)}
+                          onChange={(e) =>
+                            updatePositionField(idx, "meaning", e.target.value)
+                          }
                           placeholder="What this position represents..."
                           className="bg-black/50 border-white/20 text-white text-sm min-h-[60px]"
                         />
@@ -601,11 +761,26 @@ export default function SpreadDesigner() {
                               min={0}
                               max={360}
                               step={1}
-                              value={typeof pos.rotation === 'number' ? pos.rotation : 0}
-                              onChange={(e) => updatePositionField(idx, "rotation", parseInt(e.target.value, 10))}
+                              value={
+                                typeof pos.rotation === "number"
+                                  ? pos.rotation
+                                  : 0
+                              }
+                              onChange={(e) =>
+                                updatePositionField(
+                                  idx,
+                                  "rotation",
+                                  parseInt(e.target.value, 10)
+                                )
+                              }
                               className="flex-1"
                             />
-                            <span className="text-xs w-10 text-right">{typeof pos.rotation === 'number' ? pos.rotation : 0}°</span>
+                            <span className="text-xs w-10 text-right">
+                              {typeof pos.rotation === "number"
+                                ? pos.rotation
+                                : 0}
+                              °
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -615,14 +790,17 @@ export default function SpreadDesigner() {
               )}
             </div>
 
-            {/* Save Button */}
             <Button
               onClick={handleSave}
               disabled={isSaving}
               className="w-full bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 text-white py-6 text-lg font-bold"
             >
               <Save className="w-5 h-5 mr-2" />
-              {isSaving ? "Saving..." : spreadId ? "Update Spread" : "Create Spread"}
+              {isSaving
+                ? "Saving..."
+                : spreadId
+                ? "Update Spread"
+                : "Create Spread"}
             </Button>
           </div>
         </div>
