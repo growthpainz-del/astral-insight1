@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,10 +25,8 @@ import {
   BookOpen,
   Loader2, // New import for loading spinner
   Star, // New import for select item icons
-  Moon, // New import for select item icons
-  Save
+  Moon // New import for select item icons
 } from "lucide-react";
-import { base44 } from "@/api/base44Client";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import UpgradePrompt from "../components/pricing/UpgradePrompt";
@@ -87,7 +86,7 @@ const elderFutharkRunes = [
     reversed_meaning: "Suggests vulnerability, blocked progress, or fear of change, advising inner fortification.",
     facedown_meaning: "Indicates hidden resilience or a challenge not yet confronted; further insight may unlock this strength." },
   { number: 14, symbol: "ᛈ", name: "Perthro", keywords: ["Mystery", "fate", "insight"], element: "Water",
-    upright_meaning: "Reveals secrets, enhances psychic abilities, and guides you toward your fate with trust in the unknown.",
+    upright_meaning: "Reveals secrets, enhancements psychic abilities, and guides you toward your fate with trust in the unknown.",
     reversed_meaning: "Indicates confusion, resistance to fate, or hidden dangers, suggesting caution and introspection.",
     facedown_meaning: "Suggests a hidden destiny or insight not yet accessible; time or intuition may clarify the path." },
   { number: 15, symbol: "ᛉ", name: "Algiz", keywords: ["Protection", "divinity", "guidance"], element: "Air",
@@ -170,34 +169,6 @@ export default function CosmicFusionsPage() { // Kept original component name
   const [reading, setReading] = useState(null);
   const [user, setUser] = useState(null);
   const [isDemoActive, setIsDemoActive] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-
-  const handleSaveReading = async () => {
-    setIsSaving(true);
-    try {
-      await base44.entities.Reading.create({
-        title: `Cosmic Fusion for ${reading.name}`,
-        spread_type: "custom",
-        deck_id: selectedDeckId || "zodiac", 
-        cards_drawn: [{
-          card_id: reading.divinationItem.id || "0",
-          card_name: reading.divinationItem.name,
-          image_url: reading.divinationItem.image_url,
-          position: "1",
-          is_reversed: reading.divinationItem.orientation === 'reversed'
-        }],
-        interpretation: reading.aiReading,
-        date: new Date().toISOString().split('T')[0],
-        category: "Zodiac Reading"
-      });
-      alert("Reading saved successfully!");
-    } catch (e) {
-      console.error(e);
-      alert("Failed to save reading.");
-    } finally {
-      setIsSaving(false);
-    }
-  };
 
   // New state variables for deck selection
   const [decks, setDecks] = useState([]);
@@ -216,7 +187,6 @@ export default function CosmicFusionsPage() { // Kept original component name
         const demoActive = sessionStorage.getItem('isDemoActive') === 'true';
         setIsDemoActive(demoActive);
       } catch (err) {
-        console.log("User not authenticated");
         setUser(null);
       }
     };
@@ -245,7 +215,6 @@ export default function CosmicFusionsPage() { // Kept original component name
         setSelectedDeckId(compatibleDecks[0].id);
       }
     } catch (err) {
-      console.error("Error loading decks:", err);
       setError("Failed to load divination decks. Please try again later.");
     } finally {
       setIsDeckLoading(false);
@@ -275,7 +244,6 @@ export default function CosmicFusionsPage() { // Kept original component name
         setDeckItems(items);
       }
     } catch (err) {
-      console.error("Error loading deck items:", err);
       setError(`Failed to load ${selectedDeck?.category === 'runes' ? 'runes' : 'cards'} for the selected deck.`);
       setDeckItems([]);
     } finally {
@@ -342,11 +310,11 @@ export default function CosmicFusionsPage() { // Kept original component name
     const unitNamePlural = selectedDeck?.category === 'runes' ? 'Runes' : isRedstoneDeck ? 'Stones' : 'Cards';
 
     if (!name.trim() || !birthDate) {
-      alert("Please enter your name and birth date.");
+      toast.error("Please enter your name and birth date.");
       return;
     }
     if (!selectedDeck || deckItems.length === 0) {
-      alert(`Please select a deck with available ${unitNamePlural.toLowerCase()} to draw from.`);
+      toast.error(`Please select a deck with available ${unitNamePlural.toLowerCase()} to draw from.`);
       return;
     }
 
@@ -431,7 +399,6 @@ Address ${name} directly throughout. Make it personal, mystical, and practical. 
           // Optionally, update the local user state to reflect the new count
           setUser(prevUser => ({ ...prevUser, total_ai_readings_count: newCount }));
         } catch (updateError) {
-          console.error("Failed to update user reading count:", updateError);
           // Don't block the user from getting their reading, just log the error.
         }
       }
@@ -446,7 +413,6 @@ Address ${name} directly throughout. Make it personal, mystical, and practical. 
       });
 
     } catch (err) {
-      console.error("Error generating reading:", err);
       setError("Failed to generate your cosmic reading. Please try again.");
     } finally {
       setIsLoading(false);
@@ -490,23 +456,13 @@ Address ${name} directly throughout. Make it personal, mystical, and practical. 
               <Stars className="w-8 h-8 text-purple-400" />
               Cosmic Fusions Reading
             </h1>
-            <div className="flex gap-2">
-              <Button
-                onClick={handleSaveReading}
-                disabled={isSaving}
-                className="bg-purple-600 hover:bg-purple-700 text-white"
-              >
-                <Save className="w-4 h-4 mr-2" />
-                {isSaving ? "Saving..." : "Save Reading"}
-              </Button>
-              <Button
-                onClick={() => setReading(null)}
-                variant="outline"
-                className="border-gray-700 text-cyan-300 hover:bg-gray-800"
-              >
-                New Reading
-              </Button>
-            </div>
+            <Button
+              onClick={() => setReading(null)}
+              variant="outline"
+              className="border-gray-700 text-cyan-300 hover:bg-gray-800"
+            >
+              New Reading
+            </Button>
           </div>
 
           {/* Cosmic Elements Display */}
