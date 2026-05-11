@@ -397,21 +397,18 @@ export default function SpiritWheel() {
     >
       <style>{`
         .mode-tabs {
-          display: flex; gap: 0; background: rgba(22,15,42,0.8); border-bottom: 1px solid rgba(160,120,255,0.16);
-          position: sticky; top: 0; z-index: 90; margin: 0 -16px 24px -16px; backdrop-filter: blur(10px);
+          display: flex; gap: 0; background: #160f2a; border-bottom: 1px solid rgba(160,120,255,0.16);
+          position: sticky; z-index: 90; backdrop-filter: blur(10px);
           scrollbar-width: none;
         }
         .mode-tabs::-webkit-scrollbar { display: none; }
-        @media (min-width: 768px) {
-          .mode-tabs { margin: 0 -32px 24px -32px; }
-        }
         .mode-tab {
-          flex: 1; padding: 14px 0; font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.16em;
-          text-transform: uppercase; color: rgba(180,160,220,0.6); border: none; background: none; cursor: pointer;
+          flex: 1; padding: 11px 0; font-family: 'Cinzel', serif; font-size: 8.5px; letter-spacing: 0.14em;
+          text-transform: uppercase; color: rgba(180,160,220,0.42); border: none; background: none; cursor: pointer;
           border-bottom: 2px solid transparent; transition: all 0.25s; text-align: center;
         }
-        .mode-tab.on { color: #c9a84c; border-bottom-color: #c9a84c; background: rgba(201,168,76,0.05); }
-        .mode-tab:hover:not(.on) { color: rgba(201,168,76,0.8); background: rgba(201,168,76,0.02); }
+        .mode-tab.on { color: #c9a84c; border-bottom-color: #c9a84c; }
+        .mode-tab:hover:not(.on) { color: rgba(200,180,255,0.8); }
 
         @keyframes stoneBounce {
           0% { transform: translateX(-50%) scale(1); }
@@ -425,44 +422,46 @@ export default function SpiritWheel() {
           animation: strobeFlicker 0.08s infinite linear !important;
         }
       `}</style>
-      <div className="max-w-[100rem] mx-auto mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-0">
-        <div className="flex items-center gap-2 md:gap-4">
-          <div data-html2canvas-ignore="true">
-            <Link to={createPageUrl("Studio")}>
-              <Button variant="ghost" className="text-amber-200 hover:text-amber-100 hover:bg-amber-900/50 pl-1 pr-2 sm:pl-2 sm:pr-4">
-                <ChevronLeft className="w-6 h-6 sm:mr-1" />
-                <span className="hidden sm:inline font-semibold">Studio</span>
-              </Button>
-            </Link>
+      {/* Top Navigation Bar */}
+      <nav data-html2canvas-ignore="true" className="sticky top-0 z-50 flex items-center justify-between px-[17px] py-[11px] bg-[#07050f]/95 border-b border-[#a078ff]/15 backdrop-blur-[16px] -mx-4 md:-mx-8 -mt-4 md:-mt-8 mb-0">
+        <Link to={createPageUrl("Studio")} className="w-[34px] h-[34px] rounded-[9px] bg-[#160f2a] border border-[#a078ff]/15 flex flex-col items-center justify-center gap-[4px] cursor-pointer transition-colors hover:border-purple-400/40">
+          <div className="w-[16px] h-[1.5px] bg-purple-200/60 rounded-[2px]"></div>
+          <div className="w-[16px] h-[1.5px] bg-purple-200/60 rounded-[2px]"></div>
+          <div className="w-[16px] h-[1.5px] bg-purple-200/60 rounded-[2px]"></div>
+        </Link>
+        <div className="flex items-center gap-[9px]">
+          <div className="w-[30px] h-[30px] rounded-[7px] bg-gradient-to-br from-[#1a0f35] to-[#0a0618] border border-[#c9a84c]/25 flex items-center justify-center text-[15px] shadow-[0_0_12px_rgba(201,168,76,0.2)] text-[#c9a84c]">
+            ⊙
           </div>
-          <div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-amber-500 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">Spirit Wheel</h1>
-            <p className="text-xs sm:text-sm md:text-base text-amber-200/80">Astro Insights Digital Reading Room</p>
-          </div>
+          <span className="font-['Cinzel'] text-[11px] tracking-[0.18em] uppercase text-purple-200/70">
+            Spirit Wheel
+          </span>
         </div>
+        <div className="w-[30px] h-[30px] rounded-full bg-gradient-to-br from-[#7c3aed] to-[#67e8f9] flex items-center justify-center font-['Cinzel'] text-[10px] font-bold text-white shadow-[0_0_10px_rgba(103,232,249,0.2)] cursor-pointer">
+          {currentUser ? (currentUser.full_name?.[0] || currentUser.email?.[0] || 'U').toUpperCase() : 'GR'}
+        </div>
+      </nav>
 
-        <div data-html2canvas-ignore="true" className="flex flex-wrap items-center gap-2 justify-start md:justify-end w-full md:w-auto mt-2 md:mt-0">
-          <CelestialMapWidget onApplyEnergy={() => {
-            setCategory("Astrology");
-            // If they are on a custom wheel, maybe switch to the default one to use categories
-            setSelectedWheelId("default");
-          }} />
-          <Button 
-            onClick={handleDownloadImage}
-            disabled={isCapturing}
-            className="bg-amber-600 hover:bg-amber-500 text-white font-bold"
-          >
-            {isCapturing ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> : <Download className="w-4 h-4 mr-2" />}
-            <span className="hidden sm:inline">Download Image</span>
-          </Button>
-        </div>
+      <div className="mode-tabs overflow-x-auto whitespace-nowrap -mx-4 md:-mx-8 mb-6" data-html2canvas-ignore="true" style={{ top: '53px' }}>
+        <button className={`mode-tab ${activeTab === 'spin' ? 'on' : ''}`} onClick={() => setActiveTab('spin')}>Spin</button>
+        <button className={`mode-tab ${activeTab === 'config' ? 'on' : ''}`} onClick={() => setActiveTab('config')}>Config</button>
+        <button className="mode-tab" onClick={() => navigate(createPageUrl(`SpiritWheelDesigner${selectedWheelId !== "default" ? "?id=" + selectedWheelId : ""}`))}>Designer</button>
+        <button className="mode-tab" onClick={() => navigate(createPageUrl(`SigilForge`))}>Sigil Forge</button>
       </div>
 
-      <div className="mode-tabs overflow-x-auto whitespace-nowrap" data-html2canvas-ignore="true">
-        <button className={`mode-tab px-4 ${activeTab === 'spin' ? 'on' : ''}`} onClick={() => setActiveTab('spin')}>Spin</button>
-        <button className={`mode-tab px-4 ${activeTab === 'config' ? 'on' : ''}`} onClick={() => setActiveTab('config')}>Configure</button>
-        <button className="mode-tab px-4" onClick={() => navigate(createPageUrl(`SpiritWheelDesigner${selectedWheelId !== "default" ? "?id=" + selectedWheelId : ""}`))}>Designer</button>
-        <button className="mode-tab px-4" onClick={() => navigate(createPageUrl(`SigilForge`))}>Forge</button>
+      <div data-html2canvas-ignore="true" className="flex flex-wrap items-center gap-2 justify-end w-full mb-6">
+        <CelestialMapWidget onApplyEnergy={() => {
+          setCategory("Astrology");
+          setSelectedWheelId("default");
+        }} />
+        <Button 
+          onClick={handleDownloadImage}
+          disabled={isCapturing}
+          className="bg-amber-600 hover:bg-amber-500 text-white font-bold"
+        >
+          {isCapturing ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> : <Download className="w-4 h-4 mr-2" />}
+          <span className="hidden sm:inline">Download Image</span>
+        </Button>
       </div>
 
       <div className="max-w-[100rem] mx-auto flex flex-col gap-8" style={{ display: activeTab === 'spin' ? 'flex' : 'none' }}>
