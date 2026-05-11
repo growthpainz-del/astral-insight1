@@ -9,16 +9,6 @@ import PageNotFound from './lib/PageNotFound'
 import { AuthProvider, useAuth } from '@/lib/AuthContext'
 import UserNotRegisteredError from '@/components/UserNotRegisteredError'
 
-import CosmicHub from '@/pages/CosmicHub';
-import SpiritWheel from '@/pages/SpiritWheel';
-import SpiritWheelDesigner from '@/pages/SpiritWheelDesigner';
-import Pendulum from '@/pages/Pendulum';
-import PrivacyPolicy from '@/pages/PrivacyPolicy';
-import CardMaker from '@/pages/CardMaker';
-import CardLibrary from '@/pages/CardLibrary';
-import SpiritWheelCanvasTest from '@/pages/SpiritWheelCanvasTest';
-import SigilForge from '@/pages/SigilForge';
-
 const { Pages, Layout, mainPage } = pagesConfig
 
 const mainPageKey = mainPage ?? Object.keys(Pages)[0]
@@ -121,15 +111,6 @@ const AuthenticatedApp = () => {
           }
         />
       ))}
-
-      <Route path="/SpiritWheel" element={<LayoutWrapper currentPageName="SpiritWheel"><SpiritWheel /></LayoutWrapper>} />
-      <Route path="/SpiritWheelDesigner" element={<LayoutWrapper currentPageName="SpiritWheelDesigner"><SpiritWheelDesigner /></LayoutWrapper>} />
-      <Route path="/Pendulum" element={<LayoutWrapper currentPageName="Pendulum"><Pendulum /></LayoutWrapper>} />
-      <Route path="/PrivacyPolicy" element={<LayoutWrapper currentPageName="PrivacyPolicy"><PrivacyPolicy /></LayoutWrapper>} />
-      <Route path="/CardMaker" element={<LayoutWrapper currentPageName="CardMaker"><CardMaker /></LayoutWrapper>} />
-      <Route path="/CardLibrary" element={<LayoutWrapper currentPageName="CardLibrary"><CardLibrary /></LayoutWrapper>} />
-      <Route path="/SpiritWheelCanvasTest" element={<LayoutWrapper currentPageName="SpiritWheelCanvasTest"><SpiritWheelCanvasTest /></LayoutWrapper>} />
-      <Route path="/SigilForge" element={<LayoutWrapper currentPageName="SigilForge"><SigilForge /></LayoutWrapper>} />
 
       <Route path="*" element={<PageNotFound />} />
     </Routes>
