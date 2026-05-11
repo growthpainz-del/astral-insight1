@@ -29,7 +29,8 @@ async function searchDir(dirPath, query) {
 
 Deno.serve(async (req) => {
   try {
-    const matches = await searchDir('.', 'getThumbnailUrl');
+    const payload = await req.json();
+    const matches = await searchDir('.', payload.query || 'getThumbnailUrl');
     return Response.json({ matches });
   } catch (e) {
     return Response.json({ error: e.message }, { status: 500 });

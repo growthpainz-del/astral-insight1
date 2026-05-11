@@ -4,7 +4,7 @@ import { queryClientInstance } from '@/lib/query-client'
 import VisualEditAgent from '@/lib/VisualEditAgent'
 import NavigationTracker from '@/lib/NavigationTracker'
 import { pagesConfig } from './pages.config'
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom'
+import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'react-router-dom'
 import PageNotFound from './lib/PageNotFound'
 import { AuthProvider, useAuth } from '@/lib/AuthContext'
 import UserNotRegisteredError from '@/components/UserNotRegisteredError'
@@ -59,6 +59,11 @@ const AdminRoute = ({ Page, pageName, user }) => {
   )
 }
 
+const HomeRedirect = () => {
+  const location = useLocation();
+  return <Navigate to={{ pathname: '/', search: location.search }} replace />;
+};
+
 const AuthenticatedApp = () => {
   const {
     isLoadingAuth,
@@ -95,7 +100,10 @@ const AuthenticatedApp = () => {
           </LayoutWrapper>
         }
       />
-      <Route path="/Home" element={<Navigate to="/" replace />} />
+      <Route path="/Home" element={<HomeRedirect />} />
+      <Route path="/Home/*" element={<HomeRedirect />} />
+      <Route path="/home" element={<HomeRedirect />} />
+      <Route path="/home/*" element={<HomeRedirect />} />
 
       {Object.entries(Pages).map(([path, Page]) => (
         <Route

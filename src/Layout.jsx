@@ -300,10 +300,13 @@ export default function Layout({ children, currentPageName }) {
         window.location.pathname === "/" ||
         window.location.pathname === ""
       ) {
-        navigate(createPageUrl("CosmicHub"), { replace: true });
+        navigate({
+          pathname: createPageUrl("CosmicHub"),
+          search: window.location.search
+        }, { replace: true });
       }
     } catch (_) {}
-  }, []);
+  }, [navigate]);
 
   // Redirect non-admins away from AIWorkspace
   useEffect(() => {
