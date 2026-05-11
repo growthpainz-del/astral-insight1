@@ -443,7 +443,7 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
       <div className="min-h-screen bg-gradient-to-br from-indigo-950 to-purple-950 text-white">
         <div className="max-w-6xl mx-auto p-4 md:p-8">
           <div className="flex items-center justify-between mb-6">
-            <Link to={createPageUrl("Dashboard")}>
+            <Link to={createPageUrl("CosmicHub")}>
               <Button variant="ghost" className="text-purple-200">
                 <ChevronLeft className="w-4 h-4 mr-2" /> Back
               </Button>
@@ -533,7 +533,7 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
         <div className="bg-red-900/20 border border-red-500 rounded-lg p-6 max-w-md text-center">
           <AlertTriangle className="w-12 h-12 text-red-400 mx-auto mb-4" />
           <p className="text-red-200 mb-4">{error}</p>
-          <Link to={createPageUrl("Dashboard")}>
+          <Link to={createPageUrl("CosmicHub")}>
             <Button variant="outline" className="border-red-500 text-white">
               <ChevronLeft className="w-4 h-4 mr-2" />
               Back
@@ -550,11 +550,11 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
       <div className="min-h-screen pb-32 md:pb-24 bg-gradient-to-br from-indigo-950 via-purple-950 to-slate-900">
       {/* Exit button (hidden/disabled when overlays open) */}
       <div className={`fixed top-3 left-3 z-[100] ${showEnhancedViewer || showRelationshipsOverlay || showCompactSpreadOverlay || showSessionManager ? 'pointer-events-none opacity-60' : 'pointer-events-auto'}`}>
-        <Link to={createPageUrl("Dashboard")}>
+        <Link to={createPageUrl("CosmicHub")}>
           <Button
             size="sm"
             variant="outline"
-            onClick={() => { navigate(createPageUrl('Dashboard')); }}
+            onClick={() => { navigate(createPageUrl('CosmicHub')); }}
             className="bg-black/60 text-white border-white/30 hover:bg-black/80"
             disabled={showEnhancedViewer || showRelationshipsOverlay || showCompactSpreadOverlay || showSessionManager}
           >
@@ -567,7 +567,7 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
         {/* Header */}
         <div className="flex items-center justify-between py-6">
           <Button asChild variant="ghost" className="text-purple-200">
-            <Link to={createPageUrl("Dashboard")}> 
+            <Link to={createPageUrl("CosmicHub")}> 
               <ChevronLeft className="w-4 h-4 mr-2" />
               Back
             </Link>
