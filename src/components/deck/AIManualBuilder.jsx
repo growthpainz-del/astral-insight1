@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Deck, Card as CardEntity } from "@/entities/all";
 import { base44 } from "@/api/base44Client";
@@ -155,18 +154,21 @@ Write concise, original, non-plagiarized content suitable for an oracle/tarot ma
 Tone: clear, supportive, actionable. 
 Keep each field 1–3 sentences max. 
 Keywords should be a short comma-separated list.
-IMPORTANT: If existing meanings are provided above, use them as the foundation and only fill in missing fields.
-Do not rewrite existing content unless the field is empty.
+${missingOnly ? 'IMPORTANT: If existing meanings are provided above, use them as the foundation and only fill in missing fields.\nDo not rewrite existing content unless the field is empty.' : 'IMPORTANT: Ignore generic or placeholder existing meanings. Generate fresh, highly specific, and creative content for all requested fields.'}
+CRITICAL RULE: NEVER use placeholders like "Generated Card 1", "Upright meaning for Card 1", or "This is the overall meaning". Every single card MUST have actual, fully written, unique, and highly creative content.
 Do not mention this prompt, JSON, or instructions in outputs.
 `;
 
     const askList = fieldsNeeded.map((k) => {
       // Check if field already has content
       const hasContent = card[k] && String(card[k]).trim().length > 0;
-      if (k === "keywords" && card.keywords?.length > 0) {
-        return `- ${k} (already has: ${card.keywords.join(", ")} - keep existing)`;
+      if (missingOnly && hasContent) {
+        if (k === "keywords" && card.keywords?.length > 0) {
+          return `- ${k} (already has: ${card.keywords.join(", ")} - keep existing)`;
+        }
+        return `- ${k} (keep existing: "${String(card[k]).slice(0, 50)}...")`;
       }
-      return hasContent ? `- ${k} (keep existing: "${String(card[k]).slice(0, 50)}...")` : `- ${k}`;
+      return `- ${k}`;
     }).join("\n");
 
     return [
@@ -228,8 +230,11 @@ Do not mention this prompt, JSON, or instructions in outputs.
     // No longer tracking consecutive network errors directly here, queueApiCall handles retries
     // and will eventually throw if max retries are exceeded.
 
+    // Use a local flag for the loop since state updates are async
+    let shouldContinue = true;
+
     for (let i = 0; i < max; i++) {
-      if (!isGenerating) {
+      if (!shouldContinue) {
         console.log("Generation cancelled.");
         break;
       }
@@ -257,16 +262,15 @@ Do not mention this prompt, JSON, or instructions in outputs.
         const update = {};
         for (const k of fields) {
           const v = res?.[k];
-          // Skip if field already has content (preserve existing)
+          // Skip if field already has content and missingOnly is true
           const hasExisting = card[k] && String(card[k]).trim().length > 0;
-          if (k === "keywords" && card.keywords?.length > 0) {
-            continue;
-          }
-          if (hasExisting) {
+          const hasExistingKeywords = k === "keywords" && card.keywords?.length > 0;
+          
+          if (missingOnly && (hasExisting || hasExistingKeywords)) {
             continue;
           }
           
-          // Only update empty fields
+          // Update fields
           if (k === "keywords") {
             const arr = toArray(v);
             if (arr.length) update.keywords = arr;

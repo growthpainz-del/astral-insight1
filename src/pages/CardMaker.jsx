@@ -123,6 +123,7 @@ export default function CardMaker() {
       const deckContext = selectedDeck ? `The deck theme is "${selectedDeck.name}". Category: ${selectedDeck.category}. Description: ${selectedDeck.description || "N/A"}.` : "No specific deck theme, make it a general mystical oracle card.";
       
       const prompt = `Write a highly specific, profound, evocative, and richly detailed interpretation for an oracle/tarot card. IMPORTANT: Do NOT generate general, vague, or short meanings. Avoid generic fortune-teller clichés. The interpretation must be uniquely tailored to this specific card's essence.
+      CRITICAL RULE: NEVER use placeholders like "Generated Card 1", "Upright meaning for Card 1", or "This is the overall meaning". Provide actual, fully written, highly creative content.
       
       Card Name: ${cardName || 'Unknown'}
       Subtitle: ${cardSubtitle || 'None'}
