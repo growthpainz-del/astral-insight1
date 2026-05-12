@@ -113,7 +113,7 @@ ${isReversed ? card.reversed_meaning || card.upright_meaning : card.upright_mean
 
         <div className="p-[0_18px] pt-12 animate-in fade-in slide-in-from-bottom-4 duration-300">
           
-          <div className="w-full max-w-[200px] mx-auto mt-[20px] aspect-[2/3] rounded-[16px] bg-gradient-to-br from-[#1e1438] to-[#0d0822] border-[2px] border-[#a78bfa]/40 shadow-[0_12px_40px_rgba(0,0,0,0.6),0_0_40px_rgba(100,50,200,0.25)] flex items-center justify-center text-[60px] animate-[float_4s_ease-in-out_infinite] overflow-hidden relative">
+          <div className="w-full max-w-[200px] mx-auto mt-[20px] aspect-[2/3] rounded-[16px] bg-gradient-to-br from-[#1e1438] to-[#0d0822] border-[2px] border-[#a78bfa]/40 shadow-[0_12px_40px_rgba(0,0,0,0.6),0_0_40px_rgba(100,50,200,0.25)] flex items-center justify-center text-[60px] animate-in slide-in-from-top-8 fade-in duration-500 overflow-hidden relative">
             {showVideo && card.video_url ? (
               <video src={card.video_url} autoPlay muted playsInline loop className="w-full h-full object-cover" />
             ) : card.image_url ? (
