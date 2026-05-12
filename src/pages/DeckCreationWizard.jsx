@@ -56,7 +56,9 @@ Each card should have:
 - reversed_action: Highly specific recommended action or reflection when reversed
 - keywords: Array of 3-5 highly evocative and specific keywords
 
-Make the cards diverse, profoundly meaningful, and absolutely true to the theme. Give every card a unique voice.`;
+Make the cards diverse, profoundly meaningful, and absolutely true to the theme. Give every card a unique voice.
+
+CRITICAL RULE: NEVER use placeholders like "Generated Card 1", "Upright meaning for Card 1", or "This is the overall meaning". Every single card MUST have actual, fully written, unique, and highly creative content. You must write out the full text for EVERY field for EVERY card without taking any shortcuts.`;
 
       setProgress(30);
 
