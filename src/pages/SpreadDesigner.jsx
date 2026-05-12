@@ -12,6 +12,7 @@ import { createPageUrl } from "@/utils";
 import { ArrowLeft, Plus, Trash2, Save, Eye, EyeOff, Info, Sparkles } from "lucide-react";
 import SpreadDesignCanvas from "@/components/spread/SpreadDesignCanvas";
 import SpreadLayout from "@/components/reading/SpreadLayout";
+import InteractiveSpreadTester from "@/components/spread/InteractiveSpreadTester";
 import AISpreadAssistant from "@/components/spread/AISpreadAssistant";
 import { getDesignerAspectRatio } from "@/components/utils/cardSizing";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -473,28 +474,8 @@ export default function SpreadDesigner() {
                     This is how your spread will look during actual readings
                   </p>
                 </div>
-                <div className="bg-gradient-to-br from-gray-950 via-slate-900 to-black rounded-xl p-4 min-h-[500px] flex items-center justify-center">
-                  {positions.length > 0 ? (
-                    <SpreadLayout
-                      spread={{
-                        name: spreadName || "Preview Spread",
-                        positions,
-                        requires_positions: requiresPositions,
-                      }}
-                      positions={positions}
-                      cards={mockCards}
-                      requiresPositions={requiresPositions}
-                      showPositionLabels={requiresPositions}
-                      hideEmptySlots={false}
-                      revealMode="instant"
-                      animateSpread={false}
-                      containerMinH="500px"
-                    />
-                  ) : (
-                    <div className="text-center text-white/60">
-                      <p>Add positions to see preview</p>
-                    </div>
-                  )}
+                <div className="bg-gradient-to-br from-gray-950 via-slate-900 to-black rounded-xl p-4 min-h-[500px] flex items-center justify-center w-full">
+                  <InteractiveSpreadTester positions={positions} />
                 </div>
                 <div className="mt-4 text-xs text-cyan-200/60 text-center">
                   💡 Tip: Toggle back to designer view to adjust card positions
