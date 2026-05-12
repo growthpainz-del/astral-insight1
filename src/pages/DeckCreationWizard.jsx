@@ -42,19 +42,21 @@ export default function DeckCreationWizard() {
 Deck Name: ${deckInfo.name}
 Description: ${deckInfo.description}
 
-Generate exactly ${deckInfo.numberOfCards} unique cards. Each card should have:
+Generate exactly ${deckInfo.numberOfCards} unique cards. IMPORTANT: Do NOT generate general, vague, or short meanings. Every meaning, insight, and action must be highly specific, evocative, richly detailed, and deeply connected to the deck's unique theme. Avoid generic fortune-teller clichés.
+
+Each card should have:
 - name: A unique, evocative name
 - number: Sequential number (1 to ${deckInfo.numberOfCards})
-- overall_meaning: Brief overview of the card's essence
-- upright_meaning: Meaning when drawn upright
-- upright_insight: Deeper insight for upright position
-- upright_action: Recommended action when upright
-- reversed_meaning: Meaning when drawn reversed
-- reversed_insight: Deeper insight for reversed position
-- reversed_action: Recommended action when reversed
-- keywords: Array of 3-5 relevant keywords
+- overall_meaning: Deep, detailed overview of the card's profound essence
+- upright_meaning: Specific and vivid meaning when drawn upright
+- upright_insight: Complex, layered psychological or spiritual insight for the upright position
+- upright_action: Concrete, highly specific recommended action when upright
+- reversed_meaning: Specific and vivid shadow or reversed meaning
+- reversed_insight: Deeply analytical shadow insight for the reversed position
+- reversed_action: Highly specific recommended action or reflection when reversed
+- keywords: Array of 3-5 highly evocative and specific keywords
 
-Make the cards diverse, meaningful, and true to the theme.`;
+Make the cards diverse, profoundly meaningful, and absolutely true to the theme. Give every card a unique voice.`;
 
       setProgress(30);
 

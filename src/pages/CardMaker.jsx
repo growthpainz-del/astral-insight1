@@ -83,7 +83,7 @@ export default function CardMaker() {
       const nameGuideline = cardName && cardName !== "The Fool" && cardName.trim() !== "" ? `The user has explicitly set the card name to "${cardName}". Please keep this exact name and generate interpretations tailored to this name and the image.` : "";
 
       const res = await base44.integrations.Core.InvokeLLM({
-        prompt: `Analyze this image. Suggest a suitable oracle/tarot card name and meaningful interpretations. ${deckContext} ${nameGuideline}`,
+        prompt: `Analyze this image in deep detail. Suggest a highly specific and evocative oracle/tarot card name and profoundly meaningful interpretations. IMPORTANT: Do NOT generate general, vague, or short meanings. Avoid generic clichés. Give uniquely tailored, rich descriptions. ${deckContext} ${nameGuideline}`,
         file_urls: [file_url],
         response_json_schema: {
           type: "object",
@@ -122,7 +122,8 @@ export default function CardMaker() {
       const selectedDeck = decks.find(d => d.id === selectedDeckId);
       const deckContext = selectedDeck ? `The deck theme is "${selectedDeck.name}". Category: ${selectedDeck.category}. Description: ${selectedDeck.description || "N/A"}.` : "No specific deck theme, make it a general mystical oracle card.";
       
-      const prompt = `Write a deep, evocative, and meaningful interpretation for an oracle/tarot card.
+      const prompt = `Write a highly specific, profound, evocative, and richly detailed interpretation for an oracle/tarot card. IMPORTANT: Do NOT generate general, vague, or short meanings. Avoid generic fortune-teller clichés. The interpretation must be uniquely tailored to this specific card's essence.
+      
       Card Name: ${cardName || 'Unknown'}
       Subtitle: ${cardSubtitle || 'None'}
       Keywords: ${keywords || 'None'}
@@ -179,7 +180,7 @@ export default function CardMaker() {
       const nameGuideline = cardName && cardName !== "The Fool" && cardName.trim() !== "" ? `The user has explicitly set the card name to "${cardName}". Please keep this exact name and generate interpretations tailored to this name and the image.` : "";
 
       const res = await base44.integrations.Core.InvokeLLM({
-        prompt: `Analyze this image. Suggest a suitable oracle/tarot card name and meaningful interpretations. ${deckContext} ${nameGuideline}`,
+        prompt: `Analyze this image in deep detail. Suggest a highly specific and evocative oracle/tarot card name and profoundly meaningful interpretations. IMPORTANT: Do NOT generate general, vague, or short meanings. Avoid generic clichés. Give uniquely tailored, rich descriptions. ${deckContext} ${nameGuideline}`,
         file_urls: [file_url],
         response_json_schema: {
           type: "object",
