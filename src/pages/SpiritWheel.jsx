@@ -212,7 +212,9 @@ export default function SpiritWheel() {
     if (selectedWheelId !== "default") {
       const w = customWheels.find(cw => cw.id === selectedWheelId);
       if (w?.theme_id) setThemeId(w.theme_id);
-      if (w?.custom_theme) setCustomTheme(w.custom_theme);
+      if (w?.custom_theme) {
+        setCustomTheme(w.custom_theme);
+      }
     }
   }, [selectedWheelId, customWheels]);
 

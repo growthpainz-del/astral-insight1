@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -35,7 +35,6 @@ import ReadingSessionManager from "@/components/reading/ReadingSessionManager";
 import EnhancedCardViewer from "@/components/reading/EnhancedCardViewer";
 import DisablePullToRefresh from "@/components/common/DisablePullToRefresh";
 import ShuffleAnimation from "@/components/reading/ShuffleAnimation";
-import DidAgentEmbed from "@/components/integrations/DidAgentEmbed";
 import VoiceAvatarBubble from "@/components/avatar/VoiceAvatarBubble";
 
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -987,7 +986,6 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
         cards={(placedCards.some(Boolean) ? placedCards : drawnCards).filter(Boolean)}
         question={question}
       />
-      {showAgent && <DidAgentEmbed />}
       </>
       );
 }
