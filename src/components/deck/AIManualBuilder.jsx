@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Deck, Card as CardEntity } from "@/entities/all";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -183,7 +183,9 @@ Do not mention this prompt, JSON, or instructions in outputs.
       "Generate or preserve the following fields:",
       askList,
       "",
-      "Return JSON with exactly these keys. For fields marked 'keep existing', return the exact same content. Only generate new content for empty fields.",
+      missingOnly 
+        ? "Return JSON with exactly these keys. For fields marked 'keep existing', return the exact same content. Only generate new content for empty fields."
+        : "Return JSON with exactly these keys. Generate fresh content for ALL requested fields, completely replacing any existing content.",
     ].join("\n");
   };
 
