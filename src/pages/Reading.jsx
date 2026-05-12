@@ -194,8 +194,10 @@ export default function ReadingPage() {
   const [allSpreads, setAllSpreads] = useState(BUILT_IN_SPREADS);
   const [spreadsLoading, setSpreadsLoading] = useState(false);
   
-  const [selectedSpreadId, setSelectedSpreadId] = useState("three_card");
-  const [question, setQuestion] = useState("");
+  const sp = new URLSearchParams(location.search);
+  const [selectedSpreadId, setSelectedSpreadId] = useState(sp.get("spread") || "three_card");
+  const [question, setQuestion] = useState(sp.get("question") || "");
+  const [autoDrawn, setAutoDrawn] = useState(false);
   // Cards in the "bottom shelf" waiting area
   const [drawnCards, setDrawnCards] = useState([]);
   // Cards assigned to spread positions (index-aligned with readingPositions)
@@ -383,6 +385,13 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
       setIsDrawing(false);
     }, shuffleDurationMs);
   };
+
+  useEffect(() => {
+    if (sp.has("spread") && cards.length > 0 && selectedSpread && !autoDrawn && drawnCards.length === 0 && !isDrawing) {
+      setAutoDrawn(true);
+      handleDrawCards();
+    }
+  }, [cards.length, selectedSpread, autoDrawn, drawnCards.length, isDrawing]);
 
   const handleCardReveal = (cardIndex) => {
     setRevealedCards(prev => {
