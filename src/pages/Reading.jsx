@@ -801,8 +801,7 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
                    >
                      <div 
                        onClick={() => handleCardClick(card, idx)}
-                       className="w-full aspect-[2/3] rounded-[10px] bg-gradient-to-br from-[#1e1438] to-[#0d0822] border-[1.5px] border-[#a78bfa]/35 flex items-center justify-center text-[28px] overflow-hidden shadow-[0_6px_20px_rgba(0,0,0,0.5),0_0_20px_rgba(100,50,200,0.2)] animate-[float_4s_ease-in-out_infinite] cursor-pointer relative"
-                       style={{ animationDelay: `${idx * 0.8}s` }}
+                       className="w-full aspect-[2/3] rounded-[10px] bg-gradient-to-br from-[#1e1438] to-[#0d0822] border-[1.5px] border-[#a78bfa]/35 flex items-center justify-center text-[28px] overflow-hidden shadow-[0_6px_20px_rgba(0,0,0,0.5),0_0_20px_rgba(100,50,200,0.2)] hover:-translate-y-2 transition-transform duration-300 cursor-pointer relative"
                      >
                        {card.image_url ? (
                          <img src={card.image_url} alt={card.name} className="w-full h-full object-cover rounded-[8px]" />
