@@ -69,7 +69,7 @@ async function analyzeImageSimilarity(card1, card2) {
       file_urls: [card1.image_url, card2.image_url]
     });
 
-    const data = response.data || {};
+    const data = response || {};
     const similarity = Math.max(0, Math.min(1, data.similarity || 0));
     const elements = Array.isArray(data.shared_visual_elements) ? data.shared_visual_elements : [];
 
@@ -152,7 +152,7 @@ async function analyzeMeaningSimilarity(card1, card2) {
       }
     });
 
-    const data = response.data || {};
+    const data = response || {};
     const similarity = Math.max(0, Math.min(1, data.similarity || 0));
     const themes = Array.isArray(data.shared_themes) ? data.shared_themes : [];
 

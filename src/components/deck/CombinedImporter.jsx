@@ -694,7 +694,7 @@ async function generatePromptForCardViaLLM(card, deckName) {
     "Output JSON with fields: prompt, negative_prompt, style"
   ].filter(Boolean).join("\n");
 
-  const { data } = await InvokeLLM({
+  const data = await InvokeLLM({
     prompt,
     response_json_schema: {
       type: "object",

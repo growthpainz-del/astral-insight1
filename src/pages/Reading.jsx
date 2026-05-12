@@ -906,10 +906,6 @@ const [showCompactSpreadOverlay, setShowCompactSpreadOverlay] = useState(false);
                     <div className="font-['Cinzel'] text-[13px] tracking-[0.08em] text-white flex items-center gap-[8px]">
                       <span>⬡</span> Connections
                     </div>
-                    <div className="flex gap-[7px]">
-                      <button className="font-['Cinzel'] text-[7.5px] tracking-[0.1em] uppercase p-[6px_11px] rounded-full border border-[#67e8f9]/35 bg-[#160f2a] text-[#67e8f9] cursor-pointer transition-colors hover:border-[#67e8f9]">AI Suggest</button>
-                      <button className="font-['Cinzel'] text-[7.5px] tracking-[0.1em] uppercase p-[6px_11px] rounded-full border border-[#34d399]/35 bg-[#160f2a] text-[#34d399] cursor-pointer transition-colors hover:border-[#34d399]">+ Add</button>
-                    </div>
                   </div>
                   <div className="p-[16px]">
                     <CardRelationshipVisualizer
