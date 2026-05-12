@@ -17,6 +17,7 @@ import Pendulum from './pages/Pendulum'
 import CardMaker from './pages/CardMaker'
 import CardLibrary from './pages/CardLibrary'
 import Studio from './pages/Studio'
+import SpreadTester from './pages/SpreadTester'
 
 const { Pages, Layout, mainPage } = pagesConfig
 
@@ -183,6 +184,14 @@ const AuthenticatedApp = () => {
         element={
           <LayoutWrapper currentPageName="Studio">
             <Studio />
+          </LayoutWrapper>
+        }
+      />
+      <Route
+        path="/SpreadTester"
+        element={
+          <LayoutWrapper currentPageName="SpreadTester">
+            <SpreadTester />
           </LayoutWrapper>
         }
       />

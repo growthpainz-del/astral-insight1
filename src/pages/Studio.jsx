@@ -13,7 +13,8 @@ import {
   Layers,
   Upload,
   Wand2,
-  Send
+  Send,
+  Play
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -322,6 +323,13 @@ export default function Studio() {
               icon={Layers}
               to={createPageUrl("SpreadManager")}
               color="purple"
+            />
+            <ToolCard
+              title="Spread Tester"
+              description="Drag & drop tool to preview custom spreads"
+              icon={Play}
+              to={createPageUrl("SpreadTester")}
+              color="cyan"
             />
             <ToolCard
               title="Photo Uploader"
