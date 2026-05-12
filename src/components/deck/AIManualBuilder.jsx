@@ -13,6 +13,7 @@ import { Loader2, Wand2, CheckCircle2, AlertTriangle } from "lucide-react";
 import { queueApiCall } from "@/components/utils/apiQueue";
 
 const DEFAULT_FIELDS = [
+  { key: "name", label: "Card Name" },
   { key: "overall_meaning", label: "Overall Meaning" },
   { key: "upright_meaning", label: "Upright Meaning" },
   { key: "reversed_meaning", label: "Reversed Meaning" },

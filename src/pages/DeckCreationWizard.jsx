@@ -35,18 +35,28 @@ export default function DeckCreationWizard() {
     setProgress(0);
 
     try {
-      setProgress(10);
+      setProgress(5);
       
-      const prompt = `Create a ${deckInfo.numberOfCards}-card ${deckInfo.category} deck with the following theme: ${deckInfo.theme}.
+      const generated = [];
+      const batchSize = 10;
+      const numBatches = Math.ceil(deckInfo.numberOfCards / batchSize);
       
+      for (let i = 0; i < numBatches; i++) {
+        const startNum = i * batchSize + 1;
+        const endNum = Math.min((i + 1) * batchSize, deckInfo.numberOfCards);
+        const count = endNum - startNum + 1;
+        
+        const prompt = `Create part ${i+1} of ${numBatches} for a ${deckInfo.category} deck with the theme: ${deckInfo.theme}.
+        
 Deck Name: ${deckInfo.name}
 Description: ${deckInfo.description}
 
-Generate exactly ${deckInfo.numberOfCards} unique cards. IMPORTANT: Do NOT generate general, vague, or short meanings. Every meaning, insight, and action must be highly specific, evocative, richly detailed, and deeply connected to the deck's unique theme. Avoid generic fortune-teller clichés.
+Generate exactly ${count} unique cards, numbered sequentially from ${startNum} to ${endNum}.
+IMPORTANT: Do NOT generate general, vague, or short meanings. Every meaning, insight, and action must be highly specific, evocative, richly detailed, and deeply connected to the deck's unique theme. Avoid generic fortune-teller clichés.
 
 Each card should have:
 - name: A unique, evocative name
-- number: Sequential number (1 to ${deckInfo.numberOfCards})
+- number: Sequential number (from ${startNum} to ${endNum})
 - overall_meaning: Deep, detailed overview of the card's profound essence
 - upright_meaning: Specific and vivid meaning when drawn upright
 - upright_insight: Complex, layered psychological or spiritual insight for the upright position
@@ -58,46 +68,54 @@ Each card should have:
 
 Make the cards diverse, profoundly meaningful, and absolutely true to the theme. Give every card a unique voice.
 
-CRITICAL RULE: NEVER use placeholders like "Generated Card 1", "Upright meaning for Card 1", or "This is the overall meaning". Every single card MUST have actual, fully written, unique, and highly creative content. You must write out the full text for EVERY field for EVERY card without taking any shortcuts.`;
+CRITICAL RULE: NEVER use placeholders like "Generated Card ${startNum}", "Upright meaning for Card ${startNum}", or "This is the overall meaning". Every single card MUST have actual, fully written, unique, and highly creative content. You must write out the full text for EVERY field for EVERY card without taking any shortcuts.`;
 
-      setProgress(30);
-
-      const response = await InvokeLLM({
-        prompt: prompt,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            cards: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  name: { type: "string" },
-                  number: { type: "number" },
-                  overall_meaning: { type: "string" },
-                  upright_meaning: { type: "string" },
-                  upright_insight: { type: "string" },
-                  upright_action: { type: "string" },
-                  reversed_meaning: { type: "string" },
-                  reversed_insight: { type: "string" },
-                  reversed_action: { type: "string" },
-                  keywords: {
-                    type: "array",
-                    items: { type: "string" }
-                  }
-                },
-                required: ["name", "number"]
+        const response = await InvokeLLM({
+          prompt: prompt,
+          model: "claude_sonnet_4_6", // Use higher capacity model for reliable bulk generation
+          response_json_schema: {
+            type: "object",
+            properties: {
+              cards: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    name: { type: "string" },
+                    number: { type: "number" },
+                    overall_meaning: { type: "string" },
+                    upright_meaning: { type: "string" },
+                    upright_insight: { type: "string" },
+                    upright_action: { type: "string" },
+                    reversed_meaning: { type: "string" },
+                    reversed_insight: { type: "string" },
+                    reversed_action: { type: "string" },
+                    keywords: {
+                      type: "array",
+                      items: { type: "string" }
+                    }
+                  },
+                  required: ["name", "number"]
+                }
               }
-            }
-          },
-          required: ["cards"]
+            },
+            required: ["cards"]
+          }
+        });
+
+        if (response && response.cards && response.cards.length > 0) {
+          generated.push(...response.cards);
+        } else {
+          throw new Error(`Failed to generate batch ${i+1}`);
         }
-      });
+        
+        setProgress(5 + Math.round(((i + 1) / numBatches) * 85));
+      }
 
-      setProgress(70);
+      setProgress(95);
 
-      if (response && response.cards && response.cards.length > 0) {
-        setGeneratedCards(response.cards); // FIXED: Use setGeneratedCards instead of generatedCards
+      if (generated.length > 0) {
+        setGeneratedCards(generated);
         setProgress(100);
         setStep(2);
       } else {
