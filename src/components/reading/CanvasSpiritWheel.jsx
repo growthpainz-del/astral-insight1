@@ -34,9 +34,11 @@ export default function CanvasSpiritWheel({
 
     const width = rect.width;
     const height = rect.height;
+    if (width <= 0 || height <= 0) return;
+    
     const cx = width / 2;
     const cy = height / 2;
-    const maxRadius = Math.min(cx, cy) - 40;
+    const maxRadius = Math.max(0.1, Math.min(cx, cy) - 40);
 
     ctx.clearRect(0, 0, width, height);
 
