@@ -16,6 +16,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy'
 import Pendulum from './pages/Pendulum'
 import CardMaker from './pages/CardMaker'
 import CardLibrary from './pages/CardLibrary'
+import Studio from './pages/Studio'
 
 const { Pages, Layout, mainPage } = pagesConfig
 
@@ -174,6 +175,14 @@ const AuthenticatedApp = () => {
         element={
           <LayoutWrapper currentPageName="CardLibrary">
             <CardLibrary />
+          </LayoutWrapper>
+        }
+      />
+      <Route
+        path="/Studio"
+        element={
+          <LayoutWrapper currentPageName="Studio">
+            <Studio />
           </LayoutWrapper>
         }
       />
