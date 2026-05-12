@@ -9,6 +9,13 @@ import PageNotFound from './lib/PageNotFound'
 import { AuthProvider, useAuth } from '@/lib/AuthContext'
 import UserNotRegisteredError from '@/components/UserNotRegisteredError'
 import ReadingRoom from './pages/ReadingRoom'
+import SpiritWheel from './pages/SpiritWheel'
+import LiveAgent from './pages/LiveAgent'
+import SigilForge from './pages/SigilForge'
+import PrivacyPolicy from './pages/PrivacyPolicy'
+import Pendulum from './pages/Pendulum'
+import CardMaker from './pages/CardMaker'
+import CardLibrary from './pages/CardLibrary'
 
 const { Pages, Layout, mainPage } = pagesConfig
 
@@ -111,6 +118,62 @@ const AuthenticatedApp = () => {
         element={
           <LayoutWrapper currentPageName="ReadingRoom">
             <ReadingRoom />
+          </LayoutWrapper>
+        }
+      />
+      <Route
+        path="/SpiritWheel"
+        element={
+          <LayoutWrapper currentPageName="SpiritWheel">
+            <SpiritWheel />
+          </LayoutWrapper>
+        }
+      />
+      <Route
+        path="/LiveAgent"
+        element={
+          <LayoutWrapper currentPageName="LiveAgent">
+            <LiveAgent />
+          </LayoutWrapper>
+        }
+      />
+      <Route
+        path="/SigilForge"
+        element={
+          <LayoutWrapper currentPageName="SigilForge">
+            <SigilForge />
+          </LayoutWrapper>
+        }
+      />
+      <Route
+        path="/PrivacyPolicy"
+        element={
+          <LayoutWrapper currentPageName="PrivacyPolicy">
+            <PrivacyPolicy />
+          </LayoutWrapper>
+        }
+      />
+      <Route
+        path="/Pendulum"
+        element={
+          <LayoutWrapper currentPageName="Pendulum">
+            <Pendulum />
+          </LayoutWrapper>
+        }
+      />
+      <Route
+        path="/CardMaker"
+        element={
+          <LayoutWrapper currentPageName="CardMaker">
+            <CardMaker />
+          </LayoutWrapper>
+        }
+      />
+      <Route
+        path="/CardLibrary"
+        element={
+          <LayoutWrapper currentPageName="CardLibrary">
+            <CardLibrary />
           </LayoutWrapper>
         }
       />
