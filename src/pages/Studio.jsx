@@ -196,6 +196,24 @@ export default function Studio() {
   return (
     <PullToRefresh onRefresh={loadData}>
       <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-black text-white">
+      {/* Top Navigation Bar */}
+      <nav className="sticky top-0 z-[100] flex items-center justify-between px-[18px] py-[11px] bg-[#07050f]/92 border-b border-[#a078ff]/15 backdrop-blur-[16px]">
+        <Link to={createPageUrl("CosmicHub")} className="font-['Cinzel'] text-[10px] tracking-[0.14em] uppercase text-purple-200/45 flex items-center gap-[5px] cursor-pointer transition-colors bg-transparent border-none hover:text-purple-400">
+          ‹ Back
+        </Link>
+        <div className="flex items-center gap-[9px] text-decoration-none">
+          <div className="w-[30px] h-[30px] rounded-[7px] bg-gradient-to-br from-[#1a0f35] to-[#0a0618] flex items-center justify-center text-[16px] shadow-[0_0_10px_rgba(167,139,250,0.25)]">
+            🎨
+          </div>
+          <span className="font-['Cinzel'] text-[10px] tracking-[0.22em] uppercase text-purple-200/45">
+            Creator Studio
+          </span>
+        </div>
+        <div className="w-[30px] h-[30px] rounded-full bg-gradient-to-br from-[#7c3aed] to-[#67e8f9] flex items-center justify-center font-['Cinzel'] text-[10px] text-white font-bold shadow-[0_0_10px_rgba(103,232,249,0.2)]">
+          {currentUser ? (currentUser.full_name?.[0] || currentUser.email?.[0] || 'U').toUpperCase() : 'GR'}
+        </div>
+      </nav>
+
       {/* Hero Section */}
       <div className="relative bg-gradient-to-br from-purple-900/40 to-pink-900/40 border-b border-purple-800/40 p-8 md:p-12 mb-8">
         <div className="max-w-7xl mx-auto">

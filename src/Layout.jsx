@@ -194,7 +194,7 @@ export default function Layout({ children, currentPageName }) {
       try {
         let next = window.location.href;
         if (/\/login/i.test(next)) {
-          next = window.location.origin + createPageUrl("Dashboard");
+          next = window.location.origin + createPageUrl("CosmicHub");
         }
         base44.auth.redirectToLogin(next);
       } catch (_) {
@@ -205,7 +205,7 @@ export default function Layout({ children, currentPageName }) {
     if (!inBuilderPreview && isLoginRoute && !redirectingToLogin) {
       setRedirectingToLogin(true);
       try {
-        const next = window.location.origin + createPageUrl("Dashboard");
+        const next = window.location.origin + createPageUrl("CosmicHub");
         base44.auth.redirectToLogin(next);
       } catch (_) {
         base44.auth.redirectToLogin();
@@ -311,7 +311,7 @@ export default function Layout({ children, currentPageName }) {
   // Redirect non-admins away from AIWorkspace
   useEffect(() => {
     if (currentPageName === "AIWorkspace" && !isAdmin) {
-      navigate(createPageUrl("Dashboard"));
+      navigate(createPageUrl("CosmicHub"));
     }
   }, [currentPageName, isAdmin]);
 
@@ -358,7 +358,7 @@ export default function Layout({ children, currentPageName }) {
     if (window.history.length > 1) {
       window.history.back();
     } else {
-      navigate(createPageUrl("Dashboard"));
+      navigate(createPageUrl("CosmicHub"));
     }
   };
 
@@ -449,9 +449,9 @@ export default function Layout({ children, currentPageName }) {
           </div>
         ) : (
           <div className="fixed z-[60] top-3 right-3 flex gap-2">
-            <Link to={createPageUrl("Dashboard")}>
+            <Link to={createPageUrl("Studio")}>
               <Button size="sm" className="btn-dark-outline">
-                Dashboard
+                Creator Studio
               </Button>
             </Link>
           </div>
