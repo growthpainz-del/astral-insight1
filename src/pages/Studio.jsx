@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
-import { 
-  Plus, 
-  Settings, 
-  Clock, 
-  Eye, 
+import { queueApiCall } from "@/components/utils/apiQueue";
+import PullToRefresh from "@/components/common/PullToRefresh";
+import {
+  Plus,
+  Settings,
+  Eye,
   Palette,
   FileJson,
   Image as ImageIcon,
@@ -14,164 +15,280 @@ import {
   Upload,
   Wand2,
   Send,
-  Play
+  Clock,
+  Play,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { queueApiCall } from "@/components/utils/apiQueue";
-import PullToRefresh from "@/components/common/PullToRefresh";
+import { toast } from "sonner";
 
-function DeckCard({ deck }) {
-  const getStatusColor = () => {
-    switch (deck.publish_status) {
-      case "published": return "bg-green-500/20 text-green-300 border-green-500/30";
-      case "pending_review": return "bg-yellow-500/20 text-yellow-300 border-yellow-500/30";
-      case "rejected": return "bg-red-500/20 text-red-300 border-red-500/30";
-      default: return "bg-gray-500/20 text-gray-300 border-gray-500/30";
-    }
-  };
+// ─── Tool definitions ─────────────────────────────────────────────────────────
+const TOOLS = [
+  { id: "my-decks",  icon: "🎴", label: "My Decks",        sub: "Browse and manage all your decks",       color: "#a78bfa", to: null         },
+  { id: "create",    icon: "✨", label: "Create Deck",      sub: "Start a new oracle or tarot deck",       color: "#67e8f9", to: "CreateDeck" },
+  { id: "spreads",   icon: "🃏", label: "Spread Designer",  sub: "Build custom card layouts",              color: "#c9a84c", to: "SpreadManager" },
+  { id: "tester",    icon: "🎲", label: "Spread Tester",    sub: "Test your custom layouts",               color: "#818cf8", to: "SpreadTester" },
+  { id: "photos",    icon: "📷", label: "Photo Library",    sub: "Upload and organise card images",        color: "#34d399", to: "PhotoUploader" },
+  { id: "ai-art",    icon: "🤖", label: "AI Image Gen",     sub: "Generate card art with AI",              color: "#f97316", to: "CreateDeck" },
+  { id: "bulk",      icon: "📦", label: "Bulk Import",      sub: "Import decks from JSON or CSV",          color: "#818cf8", to: "CreateDeck" },
+  { id: "persona",   icon: "🎭", label: "Persona",          sub: "Customise your AI reading voice",        color: "#f472b6", to: "Persona"    },
+  { id: "publish",   icon: "🚀", label: "Publishing Guide", sub: "Submit your deck for review",            color: "#a78bfa", to: "Help"       },
+];
 
-  const getStatusLabel = () => {
-    switch (deck.publish_status) {
-      case "published": return deck.is_public ? "Public" : "Personal";
-      case "pending_review": return "Pending Review";
-      case "rejected": return "Rejected";
-      default: return "Draft";
-    }
-  };
+// ─── Status helpers ───────────────────────────────────────────────────────────
+function getStatusMeta(deck) {
+  switch (deck.publish_status) {
+    case "published":
+      return { label: deck.is_public ? "Public" : "Personal", cls: "bg-green-500/20 text-green-300 border-green-500/30" };
+    case "pending_review":
+      return { label: "In Review",  cls: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30" };
+    case "rejected":
+      return { label: "Rejected",   cls: "bg-red-500/20 text-red-300 border-red-500/30" };
+    default:
+      return { label: "Draft",      cls: "bg-gray-500/20 text-gray-300 border-gray-500/30" };
+  }
+}
 
+// ─── DeckTile ─────────────────────────────────────────────────────────────────
+function DeckTile({ deck }) {
+  const { label, cls } = getStatusMeta(deck);
   return (
-    <div className="group relative bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 overflow-hidden hover:border-purple-400/40 transition-all">
-      {/* Cover Image */}
+    <div className="relative flex-shrink-0 w-36 rounded-xl overflow-hidden border border-white/10 bg-white/5 hover:border-purple-400/40 transition-all group">
       <div className="relative aspect-[2/3] bg-gradient-to-br from-purple-900/40 to-slate-900/40">
         {deck.cover_image ? (
-          <img
-            src={deck.cover_image}
-            alt={deck.name}
-            className="w-full h-full object-cover"
-          />
+          <img src={deck.cover_image} alt={deck.name} className="w-full h-full object-cover" />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-white/40">
-            <Palette className="w-12 h-12" />
+          <div className="w-full h-full flex items-center justify-center text-white/30">
+            <Palette className="w-8 h-8" />
           </div>
         )}
-        
-        {/* Status Badge */}
         <div className="absolute top-2 left-2">
-          <Badge className={getStatusColor()}>
-            {getStatusLabel()}
-          </Badge>
+          <Badge className={`text-[10px] px-1.5 py-0.5 ${cls}`}>{label}</Badge>
         </div>
-
-        {/* Quick Actions Overlay */}
-        <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+        <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 p-2">
           <Link to={createPageUrl(`DeckView?id=${deck.id}`)}>
-            <Button size="sm" className="bg-purple-600 hover:bg-purple-700">
-              <Settings className="w-4 h-4 mr-2" />
-              Edit
+            <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-xs w-full">
+              <Settings className="w-3 h-3 mr-1" /> Edit
             </Button>
           </Link>
           <Link to={createPageUrl(`DeckGallery?deckId=${deck.id}`)}>
-            <Button size="sm" variant="outline" className="border-white/30 text-white hover:bg-white/10">
-              <Eye className="w-4 h-4 mr-2" />
-              Gallery
+            <Button size="sm" variant="outline" className="border-white/30 text-white hover:bg-white/10 text-xs w-full">
+              <Eye className="w-3 h-3 mr-1" /> Gallery
             </Button>
           </Link>
         </div>
       </div>
-
-      {/* Deck Info */}
-      <div className="p-4">
-        <h3 className="text-white font-semibold text-lg mb-1 truncate">{deck.name}</h3>
-        <p className="text-white/60 text-sm mb-3">{deck.category || 'Oracle'}</p>
-        
-        <div className="flex gap-2">
-          <Link to={createPageUrl(`DeckView?id=${deck.id}`)} className="flex-1">
-            <Button size="sm" variant="outline" className="w-full border-purple-400/40 text-purple-300 hover:bg-purple-500/10">
-              <Settings className="w-4 h-4 mr-2" />
-              Manage
-            </Button>
-          </Link>
-        </div>
+      <div className="p-2">
+        <p className="text-white text-xs font-semibold leading-tight truncate">{deck.name}</p>
+        <p className="text-white/50 text-[10px] mt-0.5">{deck.category || "Oracle"}</p>
       </div>
     </div>
   );
 }
 
-function ToolCard({ title, description, icon: Icon, to, color = "purple" }) {
-  const gradients = {
-    purple: "from-purple-600/20 to-indigo-600/20 hover:from-purple-600/30 hover:to-indigo-600/30",
-    pink: "from-pink-600/20 to-purple-600/20 hover:from-pink-600/30 hover:to-purple-600/30",
-    blue: "from-blue-600/20 to-cyan-600/20 hover:from-blue-600/30 hover:to-cyan-600/30",
-    green: "from-green-600/20 to-teal-600/20 hover:from-green-600/30 hover:to-teal-600/30",
-  };
-
+// ─── StatCard ─────────────────────────────────────────────────────────────────
+function StatCard({ value, label, color }) {
   return (
-    <Link to={to}>
-      <div className={`group bg-gradient-to-br ${gradients[color]} backdrop-blur-sm rounded-xl border border-white/10 hover:border-white/20 p-6 transition-all duration-300 hover:scale-105 cursor-pointer`}>
-        <Icon className="w-8 h-8 text-white/80 mb-3 group-hover:scale-110 transition-transform" />
-        <h3 className="text-white font-bold text-lg mb-2">{title}</h3>
-        <p className="text-white/60 text-sm">{description}</p>
-      </div>
-    </Link>
+    <div
+      className="flex-shrink-0 flex flex-col items-center justify-center rounded-xl px-5 py-3 border"
+      style={{ background: `${color}11`, borderColor: `${color}33`, minWidth: 80 }}
+    >
+      <span className="text-2xl font-bold leading-none" style={{ color }}>{value}</span>
+      <span className="text-[10px] text-white/50 mt-1 whitespace-nowrap">{label}</span>
+    </div>
   );
 }
 
+// ─── Tool Coverflow ───────────────────────────────────────────────────────────
+function ToolCoverflow({ tools, onSelect }) {
+  const [active, setActive] = useState(0);
+  const navigate = useNavigate();
+  const startX = useRef(0);
+  const dragging = useRef(false);
+
+  const CARD_W = 140;
+  const CARD_GAP = 12;
+
+  const scrollTo = useCallback((idx) => {
+    setActive(Math.max(0, Math.min(idx, tools.length - 1)));
+  }, [tools.length]);
+
+  const handlePointerDown = (e) => {
+    startX.current = e.clientX ?? e.touches?.[0]?.clientX ?? 0;
+    dragging.current = true;
+  };
+
+  const handlePointerUp = (e) => {
+    if (!dragging.current) return;
+    dragging.current = false;
+    const endX = e.clientX ?? e.changedTouches?.[0]?.clientX ?? 0;
+    const diff = startX.current - endX;
+    if (Math.abs(diff) > 30) scrollTo(active + (diff > 0 ? 1 : -1));
+  };
+
+  const handleTap = (idx) => {
+    if (idx !== active) { scrollTo(idx); return; }
+    const tool = tools[idx];
+    if (tool.to) navigate(createPageUrl(tool.to));
+    else onSelect?.(tool);
+  };
+
+  return (
+    <div className="relative select-none">
+      <div
+        className="flex items-center justify-center overflow-hidden"
+        style={{ height: 200 }}
+        onMouseDown={handlePointerDown}
+        onMouseUp={handlePointerUp}
+        onTouchStart={handlePointerDown}
+        onTouchEnd={handlePointerUp}
+      >
+        {tools.map((tool, idx) => {
+          const dist = idx - active;
+          const scale = dist === 0 ? 1 : Math.max(0.72, 1 - Math.abs(dist) * 0.13);
+          const opacity = dist === 0 ? 1 : Math.max(0.35, 1 - Math.abs(dist) * 0.22);
+          const translateX = dist * (CARD_W + CARD_GAP) * 0.88;
+          const rotateY = dist * -12;
+
+          return (
+            <div
+              key={tool.id}
+              onClick={() => handleTap(idx)}
+              className="absolute cursor-pointer rounded-2xl flex flex-col items-center justify-center gap-2 transition-all duration-300"
+              style={{
+                width: CARD_W, height: 160,
+                transform: `translateX(${translateX}px) scale(${scale}) perspective(600px) rotateY(${rotateY}deg)`,
+                opacity,
+                zIndex: tools.length - Math.abs(dist),
+                background: dist === 0
+                  ? `radial-gradient(135% 135% at 30% 20%, ${tool.color}33 0%, #0f0b1e 100%)`
+                  : "rgba(255,255,255,0.04)",
+                border: dist === 0
+                  ? `1px solid ${tool.color}66`
+                  : "1px solid rgba(255,255,255,0.08)",
+                boxShadow: dist === 0
+                  ? `0 0 32px ${tool.color}22, 0 8px 32px rgba(0,0,0,0.4)`
+                  : "none",
+              }}
+            >
+              <div className="text-4xl leading-none">{tool.icon}</div>
+              <div className="text-center px-3">
+                <p className="text-white text-sm font-semibold leading-tight">{tool.label}</p>
+                {dist === 0 && (
+                  <p className="text-white/50 text-[10px] mt-1 leading-tight">{tool.sub}</p>
+                )}
+              </div>
+              {dist === 0 && (
+                <div
+                  className="text-[10px] px-2 py-0.5 rounded-full font-semibold"
+                  style={{ background: `${tool.color}22`, color: tool.color, border: `1px solid ${tool.color}44` }}
+                >
+                  Open →
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Dots */}
+      <div className="flex items-center justify-center gap-1.5 mt-2">
+        {tools.map((_, idx) => (
+          <button
+            key={idx}
+            onClick={() => scrollTo(idx)}
+            className="rounded-full transition-all"
+            style={{
+              width: idx === active ? 20 : 6,
+              height: 6,
+              background: idx === active ? tools[active].color : "rgba(255,255,255,0.2)",
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Arrows */}
+      <button
+        onClick={() => scrollTo(active - 1)}
+        disabled={active === 0}
+        className="absolute left-2 top-[80px] w-8 h-8 rounded-full bg-black/40 border border-white/10 flex items-center justify-center text-white/60 hover:text-white disabled:opacity-20 transition-all"
+        style={{ zIndex: tools.length + 1 }}
+      >
+        <ChevronLeft className="w-4 h-4" />
+      </button>
+      <button
+        onClick={() => scrollTo(active + 1)}
+        disabled={active === tools.length - 1}
+        className="absolute right-2 top-[80px] w-8 h-8 rounded-full bg-black/40 border border-white/10 flex items-center justify-center text-white/60 hover:text-white disabled:opacity-20 transition-all"
+        style={{ zIndex: tools.length + 1 }}
+      >
+        <ChevronRight className="w-4 h-4" />
+      </button>
+    </div>
+  );
+}
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
 export default function Studio() {
   const [publishedDecks, setPublishedDecks] = useState([]);
   const [draftDecks, setDraftDecks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState(null);
+  const deckSectionRef = useRef(null);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
-
       let user = null;
       try {
         user = await queueApiCall(() => base44.auth.me());
         setCurrentUser(user);
-      } catch (e) {
+      } catch {
         setLoading(false);
         return;
       }
 
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(r => setTimeout(r, 300));
 
-      const allDecks = await queueApiCall(() => base44.entities.Deck.list("-created_date", 200));
-      
-      const myPublished = (allDecks || []).filter(d => 
-        d.created_by && 
-        d.created_by.toLowerCase() === user.email?.toLowerCase() &&
-        (d.publish_status === "published" || !d.publish_status)
+      const allDecks = await queueApiCall(() =>
+        base44.entities.Deck.list("-created_date", 200)
+      );
+      const mine = (allDecks || []).filter(
+        d => d.created_by?.toLowerCase() === user.email?.toLowerCase()
       );
 
-      const myDrafts = (allDecks || []).filter(d =>
-        d.created_by &&
-        d.created_by.toLowerCase() === user.email?.toLowerCase() &&
-        (d.publish_status === "draft" || d.publish_status === "pending_review" || d.publish_status === "rejected")
-      );
-
-      setPublishedDecks(myPublished);
-      setDraftDecks(myDrafts);
-      
-    } catch (error) {
+      setPublishedDecks(mine.filter(d =>
+        d.publish_status === "published" || !d.publish_status
+      ));
+      setDraftDecks(mine.filter(d =>
+        ["draft", "pending_review", "rejected"].includes(d.publish_status)
+      ));
+    } catch {
+      toast.error("Failed to load studio data.");
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    loadData();
   }, []);
+
+  useEffect(() => { loadData(); }, [loadData]);
+
+  const totalDecks   = publishedDecks.length + draftDecks.length;
+  const publicDecks  = publishedDecks.filter(d => d.is_public).length;
+
+  const handleToolSelect = (tool) => {
+    if (tool.id === "my-decks") {
+      deckSectionRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-black flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <Palette className="w-12 h-12 text-purple-400 mx-auto mb-4 animate-pulse" />
-          <div className="text-white">Loading studio...</div>
+          <p className="text-white/60">Loading studio…</p>
         </div>
       </div>
     );
@@ -179,11 +296,11 @@ export default function Studio() {
 
   if (!currentUser) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-black flex items-center justify-center p-4">
-        <div className="max-w-md text-center">
-          <Palette className="w-16 h-16 text-purple-400 mx-auto mb-4" />
+      <div className="min-h-screen flex items-center justify-center p-6">
+        <div className="text-center">
+          <Palette className="w-16 h-16 text-purple-400/40 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-white mb-2">Login Required</h2>
-          <p className="text-white/70 mb-6">Please log in to access Creator Studio</p>
+          <p className="text-white/60 mb-6">Please log in to access Creator Studio</p>
           <Button onClick={() => base44.auth.redirectToLogin()} className="bg-purple-600 hover:bg-purple-700">
             Log In
           </Button>
@@ -192,183 +309,121 @@ export default function Studio() {
     );
   }
 
-  const totalDecks = publishedDecks.length + draftDecks.length;
-
   return (
     <PullToRefresh onRefresh={loadData}>
-      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-black text-white">
-      {/* Top Navigation Bar */}
-      <nav className="sticky top-0 z-[100] flex items-center justify-between px-[18px] py-[11px] bg-[#07050f]/92 border-b border-[#a078ff]/15 backdrop-blur-[16px]">
-        <Link to={createPageUrl("CosmicHub")} className="font-['Cinzel'] text-[10px] tracking-[0.14em] uppercase text-purple-200/45 flex items-center gap-[5px] cursor-pointer transition-colors bg-transparent border-none hover:text-purple-400">
-          ‹ Back
-        </Link>
-        <div className="flex items-center gap-[9px] text-decoration-none">
-          <div className="w-[30px] h-[30px] rounded-[7px] bg-gradient-to-br from-[#1a0f35] to-[#0a0618] flex items-center justify-center text-[16px] shadow-[0_0_10px_rgba(167,139,250,0.25)]">
-            🎨
-          </div>
-          <span className="font-['Cinzel'] text-[10px] tracking-[0.22em] uppercase text-purple-200/45">
-            Creator Studio
-          </span>
-        </div>
-        <div className="w-[30px] h-[30px] rounded-full bg-gradient-to-br from-[#7c3aed] to-[#67e8f9] flex items-center justify-center font-['Cinzel'] text-[10px] text-white font-bold shadow-[0_0_10px_rgba(103,232,249,0.2)]">
-          {currentUser ? (currentUser.full_name?.[0] || currentUser.email?.[0] || 'U').toUpperCase() : 'GR'}
-        </div>
-      </nav>
+      <div className="min-h-screen text-white pb-24">
 
-      {/* Hero Section */}
-      <div className="relative bg-gradient-to-br from-purple-900/40 to-pink-900/40 border-b border-purple-800/40 p-8 md:p-12 mb-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
+        {/* ── Hero ── */}
+        <div
+          className="relative px-4 pt-8 pb-6"
+          style={{ background: "radial-gradient(ellipse 120% 80% at 50% 0%, rgba(124,58,237,0.18) 0%, transparent 70%)" }}
+        >
+          <div className="flex items-start justify-between mb-5">
             <div>
-              <h1 className="text-4xl md:text-5xl font-bold mb-3 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
-                🎨 Creator Studio
+              <h1 className="text-3xl font-bold text-white flex items-center gap-2">
+                <span>🎨</span> Creator Studio
               </h1>
-              <p className="text-xl text-purple-200">
+              <p className="text-white/50 text-sm mt-1">
                 Build, design, and publish your oracle decks
               </p>
             </div>
             <Link to={createPageUrl("CreateDeck")}>
-              <Button size="lg" className="bg-purple-600 hover:bg-purple-700 font-bold">
-                <Plus className="w-5 h-5 mr-2" />
-                New Deck
+              <Button
+                size="sm"
+                className="bg-purple-600 hover:bg-purple-700 rounded-full shadow-lg shadow-purple-900/40"
+              >
+                <Plus className="w-4 h-4 mr-1" /> New Deck
               </Button>
             </Link>
           </div>
 
-          {/* Quick Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/10">
-              <div className="text-3xl font-bold text-white">{totalDecks}</div>
-              <div className="text-sm text-white/60">Total Decks</div>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/10">
-              <div className="text-3xl font-bold text-green-400">{publishedDecks.length}</div>
-              <div className="text-sm text-white/60">Published</div>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/10">
-              <div className="text-3xl font-bold text-amber-400">{draftDecks.length}</div>
-              <div className="text-sm text-white/60">In Progress</div>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/10">
-              <div className="text-3xl font-bold text-purple-400">{publishedDecks.filter(d => d.is_public).length}</div>
-              <div className="text-sm text-white/60">Public</div>
-            </div>
+          {/* Stats strip */}
+          <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide -mx-1 px-1">
+            <StatCard value={totalDecks}            label="Total Decks"  color="#a78bfa" />
+            <StatCard value={draftDecks.length}     label="In Progress"  color="#f97316" />
+            <StatCard value={publishedDecks.length} label="Published"    color="#34d399" />
+            <StatCard value={publicDecks}           label="Public"       color="#67e8f9" />
           </div>
         </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto px-4 md:px-8 pb-12">
-        {/* Drafts & In Progress */}
+        {/* ── Tool Coverflow ── */}
+        <div className="px-2 mb-2">
+          <p className="text-xs font-semibold text-white/40 uppercase tracking-widest px-2 mb-3">
+            Studio Tools
+          </p>
+          <ToolCoverflow tools={TOOLS} onSelect={handleToolSelect} />
+        </div>
+
+        {/* ── In Progress ── */}
         {draftDecks.length > 0 && (
-          <div className="mb-12">
-            <div className="flex items-center gap-2 mb-6">
-              <Clock className="w-6 h-6 text-amber-400" />
-              <h2 className="text-2xl font-bold">In Progress ({draftDecks.length})</h2>
+          <div className="px-4 mt-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Clock className="w-4 h-4 text-orange-400" />
+              <h2 className="text-base font-bold text-white">
+                In Progress ({draftDecks.length})
+              </h2>
             </div>
-            <div className="relative">
-              <div className="flex gap-6 overflow-x-auto pb-2 px-1 snap-x snap-mandatory">
-                {draftDecks.map(deck => (
-                  <div key={deck.id} className="snap-start min-w-[180px] sm:min-w-[220px] md:min-w-[240px]">
-                    <DeckCard deck={deck} />
-                  </div>
-                ))}
-              </div>
+            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1">
+              {draftDecks.map(deck => <DeckTile key={deck.id} deck={deck} />)}
             </div>
           </div>
         )}
 
-        {/* Published Decks */}
-        {publishedDecks.length > 0 && (
-          <div className="mb-12">
-            <div className="flex items-center gap-2 mb-6">
-              <Palette className="w-6 h-6 text-purple-400" />
-              <h2 className="text-2xl font-bold">My Published Decks ({publishedDecks.length})</h2>
-            </div>
-            <div className="relative">
-              <div className="flex gap-6 overflow-x-auto pb-2 px-1 snap-x snap-mandatory">
-                {publishedDecks.map(deck => (
-                  <div key={deck.id} className="snap-start min-w-[180px] sm:min-w-[220px] md:min-w-[240px]">
-                    <DeckCard deck={deck} />
-                  </div>
-                ))}
-              </div>
-            </div>
+        {/* ── My Decks ── */}
+        <div ref={deckSectionRef} className="px-4 mt-8">
+          <div className="flex items-center gap-2 mb-4">
+            <Palette className="w-4 h-4 text-purple-400" />
+            <h2 className="text-base font-bold text-white">
+              My Decks ({publishedDecks.length})
+            </h2>
           </div>
-        )}
 
-        {/* No Decks State */}
-        {totalDecks === 0 && (
-          <div className="text-center py-16">
-            <Palette className="w-20 h-20 text-purple-400/40 mx-auto mb-6" />
-            <h3 className="text-2xl font-bold mb-3">No decks yet</h3>
-            <p className="text-white/60 mb-6 max-w-md mx-auto">
-              Start your creative journey by building your first oracle deck
-            </p>
-            <Link to={createPageUrl("CreateDeck")}>
-              <Button size="lg" className="bg-purple-600 hover:bg-purple-700">
-                <Plus className="w-5 h-5 mr-2" />
-                Create Your First Deck
-              </Button>
-            </Link>
-          </div>
-        )}
+          {totalDecks === 0 ? (
+            <div className="text-center py-16 rounded-2xl border border-white/8 bg-white/3">
+              <Palette className="w-16 h-16 text-purple-400/30 mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-white mb-2">No decks yet</h3>
+              <p className="text-white/50 mb-6 max-w-xs mx-auto text-sm">
+                Start your creative journey by building your first oracle deck
+              </p>
+              <Link to={createPageUrl("CreateDeck")}>
+                <Button className="bg-purple-600 hover:bg-purple-700">
+                  <Plus className="w-4 h-4 mr-2" /> Create Your First Deck
+                </Button>
+              </Link>
+            </div>
+          ) : publishedDecks.length === 0 ? (
+            <p className="text-white/40 text-sm italic">No published decks yet.</p>
+          ) : (
+            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1">
+              {publishedDecks.map(deck => <DeckTile key={deck.id} deck={deck} />)}
+            </div>
+          )}
+        </div>
 
-        {/* Tools & Resources */}
-        <div className="mt-16">
-          <h2 className="text-2xl font-bold mb-6">Tools & Resources</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <ToolCard
-              title="Spread Designer"
-              description="Create custom card layouts for readings"
-              icon={Layers}
-              to={createPageUrl("SpreadManager")}
-              color="purple"
-            />
-            <ToolCard
-              title="Spread Tester"
-              description="Drag & drop tool to preview custom spreads"
-              icon={Play}
-              to={createPageUrl("SpreadTester")}
-              color="cyan"
-            />
-            <ToolCard
-              title="Photo Uploader"
-              description="Manage and organize card images"
-              icon={ImageIcon}
-              to={createPageUrl("PhotoUploader")}
-              color="pink"
-            />
-            <ToolCard
-              title="Bulk Import"
-              description="Import decks from JSON files"
-              icon={FileJson}
-              to={createPageUrl("CreateDeck")}
-              color="blue"
-            />
-            <ToolCard
-              title="AI Image Generator"
-              description="Create card art with AI assistance"
-              icon={Wand2}
-              to={createPageUrl("CreateDeck")}
-              color="pink"
-            />
-            <ToolCard
-              title="Publishing Guide"
-              description="Learn how to publish your deck"
-              icon={Send}
-              to={createPageUrl("Help")}
-              color="green"
-            />
-            <ToolCard
-              title="Import Guide"
-              description="Step-by-step deck building tutorials"
-              icon={Upload}
-              to={createPageUrl("Help")}
-              color="blue"
-            />
+        {/* ── Quick Links ── */}
+        <div className="px-4 mt-10">
+          <p className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-4">
+            Quick Access
+          </p>
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              { icon: <Layers    className="w-4 h-4" />, label: "Spread Designer",  to: "SpreadManager",  color: "text-amber-400"  },
+              { icon: <Play      className="w-4 h-4" />, label: "Spread Tester",    to: "SpreadTester",   color: "text-indigo-400" },
+              { icon: <ImageIcon className="w-4 h-4" />, label: "Photo Library",    to: "PhotoUploader",  color: "text-pink-400"   },
+              { icon: <FileJson  className="w-4 h-4" />, label: "Bulk Import",      to: "CreateDeck",     color: "text-blue-400"   },
+              { icon: <Wand2     className="w-4 h-4" />, label: "AI Image Gen",     to: "CreateDeck",     color: "text-violet-400" },
+              { icon: <Send      className="w-4 h-4" />, label: "Publishing Guide", to: "Help",           color: "text-green-400"  },
+            ].map(item => (
+              <Link key={item.label} to={createPageUrl(item.to)}>
+                <div className="flex items-center gap-3 p-3 rounded-xl border border-white/8 bg-white/3 hover:bg-white/8 hover:border-white/16 transition-all">
+                  <span className={item.color}>{item.icon}</span>
+                  <span className="text-sm text-white/80 font-medium leading-tight">{item.label}</span>
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
-      </div>
+
       </div>
     </PullToRefresh>
   );
