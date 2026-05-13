@@ -260,54 +260,19 @@ export default function ReadingPage() {
 
   const activeCards = (placedCards.some(Boolean) ? placedCards : drawnCards).filter(Boolean);
 
+  // ── Picker ──
+  useEffect(() => {
+    if (!deckIdFromUrl) {
+      navigate(createPageUrl("ReadingRoom"), { replace: true });
+    }
+  }, [deckIdFromUrl, navigate]);
+
+  if (!deckIdFromUrl) return null;
+
   // ── Loading ──
   if (isLoading) return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center"><Loader2 className="w-12 h-12 animate-spin text-purple-400 mx-auto mb-4" /><p className="text-purple-200">Loading deck…</p></div>
-    </div>
-  );
-
-  // ── Picker ──
-  if (!deckIdFromUrl) return (
-    <div className="min-h-screen text-white pb-24">
-      <div className="px-4 pt-8 pb-4 flex items-center gap-3">
-        <Link to={createPageUrl("Dashboard")}><Button variant="ghost" size="sm" className="text-white/60 hover:text-white"><ChevronLeft className="w-4 h-4" /></Button></Link>
-        <div><h1 className="text-2xl font-bold">Choose a Deck</h1><p className="text-white/50 text-sm">Pick a deck to begin your reading</p></div>
-      </div>
-      {pickerLoading ? (
-        <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-purple-400" /></div>
-      ) : (
-        <div className="px-4 space-y-8">
-          {pickerDecks.myDecks?.length > 0 && (
-            <div>
-              <p className="text-xs font-bold uppercase tracking-widest text-purple-400 mb-3">My Decks</p>
-              <div className="grid grid-cols-3 gap-3">
-                {pickerDecks.myDecks.map(d => (
-                  <Link key={d.id} to={createPageUrl(`Reading?deckId=${d.id}`)}>
-                    <div className="aspect-[2/3] rounded-xl overflow-hidden border border-white/10 hover:border-purple-400/50 transition-all">
-                      {d.cover_image ? <img src={d.cover_image} alt={d.name} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-purple-900/20"><BookOpen className="w-6 h-6 text-purple-400/50" /></div>}
-                    </div>
-                    <p className="text-xs text-white/70 mt-1.5 truncate text-center">{d.name}</p>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
-          <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-purple-400 mb-3">Official Decks</p>
-            <div className="grid grid-cols-3 gap-3">
-              {pickerDecks.publicDecks.map(d => (
-                <Link key={d.id} to={createPageUrl(`Reading?deckId=${d.id}`)}>
-                  <div className="aspect-[2/3] rounded-xl overflow-hidden border border-white/10 hover:border-purple-400/50 transition-all">
-                    {d.cover_image ? <img src={d.cover_image} alt={d.name} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-purple-900/20"><BookOpen className="w-6 h-6 text-purple-400/50" /></div>}
-                  </div>
-                  <p className="text-xs text-white/70 mt-1.5 truncate text-center">{d.name}</p>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 

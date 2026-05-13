@@ -364,7 +364,6 @@ export default function Layout({ children, currentPageName }) {
 
   const readingLinks = [
     { href: "ReadingRoom", icon: BookOpen, label: "Reading Room" },
-    { href: "Reading", icon: Sprout, label: "Start Reading" },
     { href: "History", icon: History, label: "Reading History" },
     { href: "Journal", icon: BookOpen, label: "Journal" },
     { href: "Explore", icon: Users, label: "Explore Creators" },

@@ -379,7 +379,7 @@ export default function Dashboard() {
             <Link to={createPageUrl("ReadingRoom")}>
               <Button size="lg" className="bg-white text-black hover:bg-white/90 font-bold">
                 <Play className="w-5 h-5 mr-2" />
-                Start Reading
+                Reading Room
               </Button>
             </Link>
             <Link to={createPageUrl("Help")}>
