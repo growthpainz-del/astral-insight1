@@ -14,10 +14,10 @@ Deno.serve(async (req) => {
 
     console.log('[bulkApproveDecks] User:', user.email, 'Target:', targetEmail);
 
-    // Admin can approve anyone's decks, users can only approve their own
+    // Only admins should be able to bulk approve decks to publish them
     const isAdmin = user.role === 'admin';
-    if (!isAdmin && targetEmail.toLowerCase() !== user.email.toLowerCase()) {
-      return Response.json({ error: 'Forbidden: can only approve your own decks' }, { status: 403 });
+    if (!isAdmin) {
+      return Response.json({ error: 'Forbidden: Admin access required to approve decks' }, { status: 403 });
     }
 
     // Get all decks for the target user

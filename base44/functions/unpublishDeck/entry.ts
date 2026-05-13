@@ -24,8 +24,8 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Deck not found' }, { status: 404 });
     }
 
-    // Verify user owns this deck
-    if (deck.created_by !== user.email) {
+    // Verify user owns this deck or is an admin
+    if (deck.created_by !== user.email && user.role !== 'admin') {
       return Response.json({ error: 'You do not own this deck' }, { status: 403 });
     }
 

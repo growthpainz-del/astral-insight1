@@ -4,10 +4,11 @@ Deno.serve(async (req) => {
     try {
         const base44 = createClientFromRequest(req);
         
-        // 1. Optional Auth Check (allow public access)
-        const isAuthed = await base44.auth.isAuthenticated().catch(() => false);
-        // Proceed regardless of auth
-        // Deprecated notice removed to enable ElevenLabs TTS
+        // 1. Auth Check
+        const user = await base44.auth.me();
+        if (!user) {
+            return Response.json({ error: 'Unauthorized' }, { status: 401 });
+        }
 
         // 2. Parse Payload
         // Using the default working voice directly to avoid 404 errors and extra costs

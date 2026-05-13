@@ -53,6 +53,10 @@ Deno.serve(async (req) => {
     }
 
     const deck = await base44.entities.Deck.get(deckId);
+    
+    if (deck.created_by !== user.email) {
+      return Response.json({ error: 'Forbidden: You do not own this deck' }, { status: 403 });
+    }
 
     const cards = await base44.entities.Card.filter({ deck_id: deckId });
     const result = {

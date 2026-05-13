@@ -129,6 +129,10 @@ Deno.serve(async (req) => {
       return Response.json({ error: `Deck not found: ${deckName}` }, { status: 404 });
     }
 
+    if (deck.created_by !== user.email) {
+      return Response.json({ error: 'Forbidden: You do not own this deck' }, { status: 403 });
+    }
+
     // Load cards
     const cards = await base44.entities.Card.filter({ deck_id: deck.id }, '-created_date', 500);
     if (!cards?.length) {
