@@ -9,6 +9,7 @@ import PageNotFound from './lib/PageNotFound'
 import { AuthProvider, useAuth } from '@/lib/AuthContext'
 import UserNotRegisteredError from '@/components/UserNotRegisteredError'
 import ReadingRoom from './pages/ReadingRoom'
+import Reading from './pages/Reading'
 import SpiritWheel from './pages/SpiritWheel'
 import LiveAgent from './pages/LiveAgent'
 import SigilForge from './pages/SigilForge'
@@ -115,6 +116,14 @@ const AuthenticatedApp = () => {
       <Route path="/home" element={<HomeRedirect />} />
       <Route path="/home/*" element={<HomeRedirect />} />
 
+      <Route
+        path="/Reading"
+        element={
+          <LayoutWrapper currentPageName="Reading">
+            <Reading />
+          </LayoutWrapper>
+        }
+      />
       <Route
         path="/ReadingRoom"
         element={
