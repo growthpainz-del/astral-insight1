@@ -2,15 +2,25 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
+import { queueApiCall } from "@/components/utils/apiQueue";
+import PullToRefresh from "@/components/common/PullToRefresh";
 import {
-  Plus, Settings, Eye, Palette, FileJson, Image as ImageIcon,
-  Layers, Upload, Wand2, Send, Clock,
-  ChevronLeft, ChevronRight,
+  Plus,
+  Palette,
+  FileJson,
+  Image as ImageIcon,
+  Layers,
+  Upload,
+  Wand2,
+  Send,
+  ChevronRight,
+  Settings,
+  Eye,
+  Clock,
+  ChevronLeft
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { queueApiCall } from "@/components/utils/apiQueue";
-import PullToRefresh from "@/components/common/PullToRefresh";
 import { toast } from "sonner";
 
 // ─── Tool definitions ─────────────────────────────────────────────────────────
@@ -42,7 +52,6 @@ function getStatusMeta(deck) {
 
 // ─── DeckTile ─────────────────────────────────────────────────────────────────
 function DeckTile({ deck }) {
-  const navigate = useNavigate();
   const { label, cls } = getStatusMeta(deck);
   return (
     <div className="relative flex-shrink-0 w-36 rounded-xl overflow-hidden border border-white/10 bg-white/5 hover:border-purple-400/40 transition-all group">
