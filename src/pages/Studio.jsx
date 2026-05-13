@@ -2,26 +2,15 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
-import { queueApiCall } from "@/components/utils/apiQueue";
-import PullToRefresh from "@/components/common/PullToRefresh";
 import {
-  Plus,
-  Settings,
-  Eye,
-  Palette,
-  FileJson,
-  Image as ImageIcon,
-  Layers,
-  Upload,
-  Wand2,
-  Send,
-  Clock,
-  Play,
-  ChevronLeft,
-  ChevronRight,
+  Plus, Settings, Eye, Palette, FileJson, Image as ImageIcon,
+  Layers, Upload, Wand2, Send, Clock,
+  ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { queueApiCall } from "@/components/utils/apiQueue";
+import PullToRefresh from "@/components/common/PullToRefresh";
 import { toast } from "sonner";
 
 // ─── Tool definitions ─────────────────────────────────────────────────────────
@@ -53,6 +42,7 @@ function getStatusMeta(deck) {
 
 // ─── DeckTile ─────────────────────────────────────────────────────────────────
 function DeckTile({ deck }) {
+  const navigate = useNavigate();
   const { label, cls } = getStatusMeta(deck);
   return (
     <div className="relative flex-shrink-0 w-36 rounded-xl overflow-hidden border border-white/10 bg-white/5 hover:border-purple-400/40 transition-all group">
@@ -399,31 +389,6 @@ export default function Studio() {
             </div>
           )}
         </div>
-
-        {/* ── Quick Links ── */}
-        <div className="px-4 mt-10">
-          <p className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-4">
-            Quick Access
-          </p>
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              { icon: <Layers    className="w-4 h-4" />, label: "Spread Designer",  to: "SpreadManager",  color: "text-amber-400"  },
-              { icon: <Play      className="w-4 h-4" />, label: "Spread Tester",    to: "SpreadTester",   color: "text-indigo-400" },
-              { icon: <ImageIcon className="w-4 h-4" />, label: "Photo Library",    to: "PhotoUploader",  color: "text-pink-400"   },
-              { icon: <FileJson  className="w-4 h-4" />, label: "Bulk Import",      to: "CreateDeck",     color: "text-blue-400"   },
-              { icon: <Wand2     className="w-4 h-4" />, label: "AI Image Gen",     to: "CreateDeck",     color: "text-violet-400" },
-              { icon: <Send      className="w-4 h-4" />, label: "Publishing Guide", to: "Help",           color: "text-green-400"  },
-            ].map(item => (
-              <Link key={item.label} to={createPageUrl(item.to)}>
-                <div className="flex items-center gap-3 p-3 rounded-xl border border-white/8 bg-white/3 hover:bg-white/8 hover:border-white/16 transition-all">
-                  <span className={item.color}>{item.icon}</span>
-                  <span className="text-sm text-white/80 font-medium leading-tight">{item.label}</span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-
       </div>
     </PullToRefresh>
   );
