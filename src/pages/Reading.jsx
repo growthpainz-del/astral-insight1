@@ -120,7 +120,7 @@ function HistoryEntry({ reading, onView }) {
 export default function ReadingPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const deckIdFromUrl = useMemo(() => new URLSearchParams(location.search).get("deckId"), [location.search]);
+  const deckIdFromUrl = React.useMemo(() => new URLSearchParams(location.search).get("deckId"), [location.search]);
 
   const [deck, setDeck]         = useState(null);
   const [cards, setCards]       = useState([]);
@@ -435,81 +435,62 @@ export default function ReadingPage() {
               <motion.div key="reading" initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} className="space-y-6">
 
                 {/* Header */}
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="text-xl font-bold text-white">{selectedSpread.name}</h2>
-                    {question && <p className="text-purple-300 text-sm mt-0.5 italic">"{question}"</p>}
-                  </div>
-                  <div className="flex gap-2">
-                    <Button size="sm" variant="outline" onClick={handleNewReading} className="rounded-full border-white/20 text-white hover:bg-white/10"><RefreshCw className="w-3.5 h-3.5 mr-1" /> New</Button>
-                    <Button size="sm" onClick={() => setShowSessionManager(true)} className="rounded-full bg-emerald-600 hover:bg-emerald-700"><Save className="w-3.5 h-3.5 mr-1" /> Save</Button>
-                  </div>
+                <div className="flex flex-col items-center justify-center text-center">
+                  <h2 className="text-2xl font-bold text-white mb-1">{selectedSpread.name}</h2>
+                  {question && <p className="text-purple-300 text-sm italic">"{question}"</p>}
                 </div>
 
                 {/* Spread layout */}
-                <div className="rounded-2xl overflow-hidden" style={{ border:"1px solid rgba(255,255,255,0.08)", background:"rgba(255,255,255,0.03)" }}>
+                <div className="rounded-2xl overflow-hidden relative" style={{ border:"1px solid rgba(255,255,255,0.08)", background:"rgba(255,255,255,0.03)" }}>
                   <CompactSpread spread={selectedSpread} positions={readingPositions} cards={placedCards} deck={deck} revealedCards={revealedCards} onCardClick={handleCardClick} onCardReveal={handleCardReveal} />
+                  
+                  {/* Floating Action Bar overlay on top of the spread container at the bottom */}
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/60 backdrop-blur-md rounded-full p-2 border border-white/10 shadow-xl shadow-black/50 z-20">
+                     <Button size="icon" variant="ghost" className="rounded-full text-white/70 hover:text-white hover:bg-white/10" onClick={handleNewReading} title="New Reading">
+                       <RefreshCw className="w-5 h-5" />
+                     </Button>
+                     <div className="w-px h-6 bg-white/10 mx-1"></div>
+                     <Button className="rounded-full font-bold px-6" style={{ background:"linear-gradient(135deg,#7c3aed,#be185d)" }} onClick={() => setShowAI(true)}>
+                       <Sparkles className="w-4 h-4 mr-2" /> Insight
+                     </Button>
+                     <div className="w-px h-6 bg-white/10 mx-1"></div>
+                     <Button size="icon" variant="ghost" className="rounded-full text-white/70 hover:text-white hover:bg-white/10" onClick={() => setShowSessionManager(true)} title="Save Reading">
+                       <Save className="w-5 h-5" />
+                     </Button>
+                  </div>
                 </div>
-
-                {/* Scrollable card row */}
-                <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1">
-                  {drawnCards.map((card, i) => (
-                    <motion.div key={i} initial={{ opacity:0, scale:0.8 }} animate={{ opacity:1, scale:1 }} transition={{ delay:i*0.06 }} onClick={() => handleCardClick(card)} className="flex-shrink-0 cursor-pointer">
-                      <div className="w-20 h-32 rounded-xl overflow-hidden border border-white/15 hover:border-purple-400/50 transition-all relative" style={{ boxShadow:revealedCards.has(i)?"0 0 12px rgba(167,139,250,0.25)":"none" }}>
-                        {card.image_url
-                          ? <img src={card.image_url} alt={card.name} className={`w-full h-full object-cover ${card.isReversed?"rotate-180":""}`} />
-                          : <div className="w-full h-full flex items-center justify-center p-2 text-center text-xs text-purple-200" style={{ background:"rgba(124,58,237,0.2)" }}>{card.name}</div>
-                        }
-                        {card.isReversed && <div className="absolute top-1 right-1 bg-amber-500/80 text-white rounded-full w-4 h-4 flex items-center justify-center"><span className="text-[8px] font-bold">R</span></div>}
-                      </div>
-                      <p className="text-[10px] text-white/50 mt-1 text-center truncate max-w-[80px]">{card.position}</p>
-                      <p className="text-[9px] text-white/30 text-center truncate max-w-[80px]">{card.name}</p>
-                    </motion.div>
-                  ))}
-                </div>
-
-                {/* Session notes */}
-                <div className="rounded-2xl p-4" style={{ background:"rgba(124,58,237,0.08)", border:"1px solid rgba(124,58,237,0.2)" }}>
-                  <div className="flex items-center gap-2 mb-3"><FileText className="w-4 h-4 text-purple-400" /><p className="text-sm font-semibold text-purple-300">Session Notes</p></div>
-                  <Textarea value={sessionNotes} onChange={e => setSessionNotes(e.target.value)} placeholder="Jot down your thoughts, feelings, and insights…" className="bg-transparent border-purple-500/20 text-white placeholder:text-white/30 text-sm resize-none" rows={3} />
-                </div>
-
-                {/* AI insight */}
-                <AnimatePresence>
-                  {!showAI && (
-                    <motion.div initial={{ opacity:0, scale:0.95 }} animate={{ opacity:1, scale:1 }} exit={{ opacity:0 }} className="text-center">
-                      <motion.button onClick={() => setShowAI(true)} className="w-full py-5 rounded-2xl font-bold text-lg text-white" style={{ background:"linear-gradient(135deg,#7c3aed,#ec4899,#2563eb)" }} whileHover={{ scale:1.02 }} whileTap={{ scale:0.98 }}>
-                        <span className="flex items-center justify-center gap-3"><Sparkles className="w-5 h-5" /> Unlock Deep Insight <Sparkles className="w-5 h-5" /></span>
-                      </motion.button>
-                      <p className="text-purple-300/60 text-xs mt-2">AI-powered interpretation of your full reading</p>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
 
                 <AIReading isOpen={showAI} drawnCards={activeCards} deck={deck} spread={selectedSpread} question={question} onClose={() => setShowAI(false)} onInterpretationReady={() => setShowAgent(true)} />
 
-                {/* Relationships */}
-                {activeCards.length >= 2 && (
-                  <div className="rounded-2xl p-4" style={{ background:"rgba(255,255,255,0.03)", border:"1px solid rgba(255,255,255,0.08)" }}>
-                    <button className="w-full flex items-center justify-between" onClick={() => setShowRelationships(r => !r)}>
-                      <div className="flex items-center gap-2">
-                        <Sparkles className="w-4 h-4 text-purple-400" />
-                        <span className="font-semibold text-white text-sm">Card Relationships</span>
-                        <Badge className="bg-purple-600/40 text-purple-200 text-[10px]">{activeCards.length} cards</Badge>
-                      </div>
-                      {showRelationships ? <ChevronUp className="w-4 h-4 text-white/40" /> : <ChevronDown className="w-4 h-4 text-white/40" />}
-                    </button>
-                    <AnimatePresence>
-                      {showRelationships && (
-                        <motion.div initial={{ height:0, opacity:0 }} animate={{ height:"auto", opacity:1 }} exit={{ height:0, opacity:0 }} className="overflow-hidden mt-4">
-                          <CardRelationshipVisualizer deckId={deck.id} cards={activeCards} selectedCards={activeCards} />
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                {/* Session Notes & Relationships (Collapsed by default, styled minimally) */}
+                <div className="space-y-3">
+                  <div className="rounded-2xl p-4" style={{ background:"rgba(124,58,237,0.08)", border:"1px solid rgba(124,58,237,0.2)" }}>
+                    <div className="flex items-center gap-2 mb-3"><FileText className="w-4 h-4 text-purple-400" /><p className="text-sm font-semibold text-purple-300">Session Notes</p></div>
+                    <Textarea value={sessionNotes} onChange={e => setSessionNotes(e.target.value)} placeholder="Jot down your thoughts, feelings, and insights…" className="bg-transparent border-purple-500/20 text-white placeholder:text-white/30 text-sm resize-none" rows={3} />
                   </div>
-                )}
 
-                <p className="text-center text-xs text-white/25 pb-4">Readings are for entertainment purposes only and do not constitute professional advice.</p>
+                  {activeCards.length >= 2 && (
+                    <div className="rounded-2xl p-4" style={{ background:"rgba(255,255,255,0.03)", border:"1px solid rgba(255,255,255,0.08)" }}>
+                      <button className="w-full flex items-center justify-between" onClick={() => setShowRelationships(r => !r)}>
+                        <div className="flex items-center gap-2">
+                          <Sparkles className="w-4 h-4 text-purple-400" />
+                          <span className="font-semibold text-white text-sm">Card Relationships</span>
+                          <Badge className="bg-purple-600/40 text-purple-200 text-[10px]">{activeCards.length} cards</Badge>
+                        </div>
+                        {showRelationships ? <ChevronUp className="w-4 h-4 text-white/40" /> : <ChevronDown className="w-4 h-4 text-white/40" />}
+                      </button>
+                      <AnimatePresence>
+                        {showRelationships && (
+                          <motion.div initial={{ height:0, opacity:0 }} animate={{ height:"auto", opacity:1 }} exit={{ height:0, opacity:0 }} className="overflow-hidden mt-4">
+                            <CardRelationshipVisualizer deckId={deck.id} cards={activeCards} selectedCards={activeCards} />
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  )}
+                </div>
+
+                <p className="text-center text-xs text-white/25 pb-4 pt-4">Readings are for entertainment purposes only and do not constitute professional advice.</p>
               </motion.div>
             )}
           </AnimatePresence>
