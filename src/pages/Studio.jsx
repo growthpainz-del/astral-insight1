@@ -100,131 +100,35 @@ function StatCard({ value, label, color }) {
   );
 }
 
-// ─── Tool Coverflow ───────────────────────────────────────────────────────────
-function ToolCoverflow({ tools, onSelect }) {
-  const [active, setActive] = useState(0);
+// ─── Studio Tools List ────────────────────────────────────────────────────────
+function StudioToolsList({ tools, onSelect }) {
   const navigate = useNavigate();
-  const startX = useRef(0);
-  const dragging = useRef(false);
-
-  const CARD_W = 140;
-  const CARD_GAP = 12;
-
-  const scrollTo = useCallback((idx) => {
-    setActive(Math.max(0, Math.min(idx, tools.length - 1)));
-  }, [tools.length]);
-
-  const handlePointerDown = (e) => {
-    startX.current = e.clientX ?? e.touches?.[0]?.clientX ?? 0;
-    dragging.current = true;
-  };
-
-  const handlePointerUp = (e) => {
-    if (!dragging.current) return;
-    dragging.current = false;
-    const endX = e.clientX ?? e.changedTouches?.[0]?.clientX ?? 0;
-    const diff = startX.current - endX;
-    if (Math.abs(diff) > 30) scrollTo(active + (diff > 0 ? 1 : -1));
-  };
-
-  const handleTap = (idx) => {
-    if (idx !== active) { scrollTo(idx); return; }
-    const tool = tools[idx];
-    if (tool.to) navigate(createPageUrl(tool.to));
-    else onSelect?.(tool);
-  };
 
   return (
-    <div className="relative select-none">
-      <div
-        className="flex items-center justify-center overflow-hidden"
-        style={{ height: 200 }}
-        onMouseDown={handlePointerDown}
-        onMouseUp={handlePointerUp}
-        onTouchStart={handlePointerDown}
-        onTouchEnd={handlePointerUp}
-      >
-        {tools.map((tool, idx) => {
-          const dist = idx - active;
-          const scale = dist === 0 ? 1 : Math.max(0.72, 1 - Math.abs(dist) * 0.13);
-          const opacity = dist === 0 ? 1 : Math.max(0.35, 1 - Math.abs(dist) * 0.22);
-          const translateX = dist * (CARD_W + CARD_GAP) * 0.88;
-          const rotateY = dist * -12;
-
-          return (
-            <div
-              key={tool.id}
-              onClick={() => handleTap(idx)}
-              className="absolute cursor-pointer rounded-2xl flex flex-col items-center justify-center gap-2 transition-all duration-300"
-              style={{
-                width: CARD_W, height: 160,
-                transform: `translateX(${translateX}px) scale(${scale}) perspective(600px) rotateY(${rotateY}deg)`,
-                opacity,
-                zIndex: tools.length - Math.abs(dist),
-                background: dist === 0
-                  ? `radial-gradient(135% 135% at 30% 20%, ${tool.color}33 0%, #0f0b1e 100%)`
-                  : "rgba(255,255,255,0.04)",
-                border: dist === 0
-                  ? `1px solid ${tool.color}66`
-                  : "1px solid rgba(255,255,255,0.08)",
-                boxShadow: dist === 0
-                  ? `0 0 32px ${tool.color}22, 0 8px 32px rgba(0,0,0,0.4)`
-                  : "none",
-              }}
-            >
-              <div className="text-4xl leading-none">{tool.icon}</div>
-              <div className="text-center px-3">
-                <p className="text-white text-sm font-semibold leading-tight">{tool.label}</p>
-                {dist === 0 && (
-                  <p className="text-white/50 text-[10px] mt-1 leading-tight">{tool.sub}</p>
-                )}
-              </div>
-              {dist === 0 && (
-                <div
-                  className="text-[10px] px-2 py-0.5 rounded-full font-semibold"
-                  style={{ background: `${tool.color}22`, color: tool.color, border: `1px solid ${tool.color}44` }}
-                >
-                  Open →
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Dots */}
-      <div className="flex items-center justify-center gap-1.5 mt-2">
-        {tools.map((_, idx) => (
-          <button
-            key={idx}
-            onClick={() => scrollTo(idx)}
-            className="rounded-full transition-all"
-            style={{
-              width: idx === active ? 20 : 6,
-              height: 6,
-              background: idx === active ? tools[active].color : "rgba(255,255,255,0.2)",
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Arrows */}
-      <button
-        onClick={() => scrollTo(active - 1)}
-        disabled={active === 0}
-        className="absolute left-2 top-[80px] w-8 h-8 rounded-full bg-black/40 border border-white/10 flex items-center justify-center text-white/60 hover:text-white disabled:opacity-20 transition-all"
-        style={{ zIndex: tools.length + 1 }}
-      >
-        <ChevronLeft className="w-4 h-4" />
-      </button>
-      <button
-        onClick={() => scrollTo(active + 1)}
-        disabled={active === tools.length - 1}
-        className="absolute right-2 top-[80px] w-8 h-8 rounded-full bg-black/40 border border-white/10 flex items-center justify-center text-white/60 hover:text-white disabled:opacity-20 transition-all"
-        style={{ zIndex: tools.length + 1 }}
-      >
-        <ChevronRight className="w-4 h-4" />
-      </button>
+    <div className="flex gap-4 overflow-x-auto pb-6 scrollbar-hide snap-x px-4 -mx-4">
+      {tools.map((tool) => (
+        <div
+          key={tool.id}
+          onClick={() => {
+            if (tool.to) navigate(createPageUrl(tool.to));
+            else onSelect?.(tool);
+          }}
+          className="flex-shrink-0 snap-center cursor-pointer rounded-2xl flex flex-col items-center justify-center transition-all hover:scale-[1.02] active:scale-[0.98]"
+          style={{
+            width: 140,
+            height: 150,
+            background: `radial-gradient(135% 135% at 30% 20%, ${tool.color}22 0%, rgba(255,255,255,0.03) 100%)`,
+            border: `1px solid ${tool.color}44`,
+            boxShadow: `0 4px 20px rgba(0,0,0,0.2), inset 0 0 10px ${tool.color}11`,
+          }}
+        >
+          <div className="text-4xl leading-none mb-3 drop-shadow-md">{tool.icon}</div>
+          <div className="text-center px-3 w-full">
+            <p className="text-white text-sm font-bold leading-tight drop-shadow-md">{tool.label}</p>
+            <p className="text-white/60 text-[10px] mt-1.5 leading-tight">{tool.sub}</p>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
@@ -345,12 +249,12 @@ export default function Studio() {
           </div>
         </div>
 
-        {/* ── Tool Coverflow ── */}
+        {/* ── Studio Tools ── */}
         <div className="px-2 mb-2">
           <p className="text-xs font-semibold text-white/40 uppercase tracking-widest px-2 mb-3">
             Studio Tools
           </p>
-          <ToolCoverflow tools={TOOLS} onSelect={handleToolSelect} />
+          <StudioToolsList tools={TOOLS} onSelect={handleToolSelect} />
         </div>
 
         {/* ── In Progress ── */}
