@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -120,7 +120,7 @@ function HistoryEntry({ reading, onView }) {
 export default function ReadingPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const deckIdFromUrl = React.useMemo(() => new URLSearchParams(location.search).get("deckId"), [location.search]);
+  const deckIdFromUrl = useMemo(() => new URLSearchParams(location.search).get("deckId"), [location.search]);
 
   const [deck, setDeck]         = useState(null);
   const [cards, setCards]       = useState([]);
