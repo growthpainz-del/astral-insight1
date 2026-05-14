@@ -123,7 +123,7 @@ function StudioToolsList({ tools, onSelect }) {
     >
       <CarouselContent className="-ml-4">
         {tools.map((tool) => (
-          <CarouselItem key={tool.id} className="pl-4 basis-auto shrink-0">
+          <CarouselItem key={tool.id} className="pl-4 basis-[140px] shrink-0 last:mr-4">
             <div
               onClick={() => {
                 if (tool.to) navigate(createPageUrl(tool.to));
