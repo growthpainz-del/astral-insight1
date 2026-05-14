@@ -4,6 +4,7 @@ import { Deck as DeckEntity, Card as CardEntity, Spread as SpreadEntity } from "
 import { Button } from "@/components/ui/button";
 import { Loader2, ChevronLeft, Hand, Shuffle, RotateCcw, Eye, Sparkles } from "lucide-react";
 import SpreadLayout from "@/components/reading/SpreadLayout";
+import BottomCardShelf from "@/components/reading/BottomCardShelf";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion, AnimatePresence } from "framer-motion";
@@ -330,6 +331,57 @@ export default function ReadingSimple() {
     setDeckRemaining(newRemaining);
   };
 
+  const handleDrawSpecificCard = (cardIndex) => {
+    if (readingMode === "spread" && selectedSpread && drawnCards.length >= selectedSpread.positions.length) {
+      return;
+    }
+    const newRemaining = [...deckRemaining];
+    const cardData = newRemaining.splice(cardIndex, 1)[0];
+    
+    const x = Math.floor(Math.random() * 60) - 30;
+    const y = Math.floor(Math.random() * 60) - 30;
+    const rotation = Math.floor(Math.random() * 10) - 5;
+    
+    setDrawnCards([...drawnCards, {
+      id: Date.now().toString() + Math.random(),
+      cardData,
+      x,
+      y,
+      rotation,
+      isFlipped: false
+    }]);
+    
+    setDeckRemaining(newRemaining);
+  };
+
+  const handleExternalDrop = ({ targetIndex, cardIndex }) => {
+    if (readingMode !== "spread" || !selectedSpread) return;
+    // Don't allow dropping on a slot that already has a card
+    if (drawnCards[targetIndex]) return;
+    
+    const newRemaining = [...deckRemaining];
+    const cardData = newRemaining.splice(cardIndex, 1)[0];
+    
+    // We need to place this card exactly at targetIndex
+    const newDrawnCards = [...drawnCards];
+    // Pad array with nulls if needed so targetIndex exists
+    while (newDrawnCards.length < targetIndex) {
+      newDrawnCards.push(null);
+    }
+    
+    newDrawnCards[targetIndex] = {
+      id: Date.now().toString() + Math.random(),
+      cardData,
+      x: 0,
+      y: 0,
+      rotation: 0,
+      isFlipped: false
+    };
+    
+    setDrawnCards(newDrawnCards);
+    setDeckRemaining(newRemaining);
+  };
+
   const handleShuffle = () => {
     setIsShuffling(true);
     setTimeout(() => {
@@ -538,25 +590,36 @@ export default function ReadingSimple() {
           </AnimatePresence>
         </div>
       ) : (
-        <div className="flex-1 relative p-4 flex flex-col items-center justify-center overflow-auto" ref={canvasRef}>
-          {selectedSpread ? (
-            <div className="w-full h-full flex items-center justify-center">
-              <SpreadLayout 
-                spread={selectedSpread}
-                positions={selectedSpread.positions}
-                cards={drawnCards.map(c => c.cardData)}
-                deck={deck}
-                revealedCards={revealedIndices}
-                onCardReveal={onCardReveal}
-                onCardClick={(c, idx) => onCardReveal(idx)}
-              />
-            </div>
-          ) : (
-            <div className="text-center opacity-50">
-              <Sparkles className="w-12 h-12 text-purple-400 mb-4 mx-auto animate-pulse" />
-              <p className="text-purple-200 text-lg font-['Cinzel'] tracking-wider">No Spreads Available</p>
-            </div>
-          )}
+        <div className="flex-1 relative flex flex-col overflow-hidden">
+          <div className="flex-1 relative p-4 flex flex-col items-center justify-center overflow-auto" ref={canvasRef}>
+            {selectedSpread ? (
+              <div className="w-full h-full flex items-center justify-center">
+                <SpreadLayout 
+                  spread={selectedSpread}
+                  positions={selectedSpread.positions}
+                  cards={drawnCards.map(c => c ? c.cardData : null)}
+                  deck={deck}
+                  revealedCards={revealedIndices}
+                  onCardReveal={onCardReveal}
+                  onCardClick={(c, idx) => onCardReveal(idx)}
+                  enableExternalDrops={true}
+                  onExternalDrop={handleExternalDrop}
+                />
+              </div>
+            ) : (
+              <div className="text-center opacity-50">
+                <Sparkles className="w-12 h-12 text-purple-400 mb-4 mx-auto animate-pulse" />
+                <p className="text-purple-200 text-lg font-['Cinzel'] tracking-wider">No Spreads Available</p>
+              </div>
+            )}
+          </div>
+          
+          <div className="w-full bg-black/60 backdrop-blur-md border-t border-purple-500/20 p-4 shrink-0">
+            <BottomCardShelf 
+              cards={deckRemaining.map(c => ({...c, image_url: deck?.back_image_url || null, name: "Hidden Card"}))} 
+              onCardClick={(c, idx) => handleDrawSpecificCard(idx)} 
+            />
+          </div>
         </div>
       )}
 
