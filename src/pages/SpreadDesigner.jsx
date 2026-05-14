@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -8,783 +8,460 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import { motion, AnimatePresence } from "framer-motion";
 import { createPageUrl } from "@/utils";
-import { ArrowLeft, Plus, Trash2, Save, Eye, EyeOff, Info, Sparkles } from "lucide-react";
+import { toast } from "sonner";
+import {
+  Plus, Trash2, Save, Eye, Info, Sparkles,
+  ChevronLeft, ChevronRight, Loader2, Shuffle, RotateCcw,
+} from "lucide-react";
 import SpreadDesignCanvas from "@/components/spread/SpreadDesignCanvas";
-import SpreadLayout from "@/components/reading/SpreadLayout";
-import InteractiveSpreadTester from "@/components/spread/InteractiveSpreadTester";
-import AISpreadAssistant from "@/components/spread/AISpreadAssistant";
+import SpreadLayout       from "@/components/reading/SpreadLayout";
+import AISpreadAssistant  from "@/components/spread/AISpreadAssistant";
 import { getDesignerAspectRatio } from "@/components/utils/cardSizing";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-export default function SpreadDesigner() {
-  const [spreadName, setSpreadName] = useState("");
-  const [spreadDescription, setSpreadDescription] = useState("");
-  const [spreadCategory, setSpreadCategory] = useState("General");
-  const [positions, setPositions] = useState([]);
-  const [isPublic, setIsPublic] = useState(false);
-  const [requiresPositions, setRequiresPositions] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-  const [saveMessage, setSaveMessage] = useState("");
-  const [previewMode, setPreviewMode] = useState(false);
+// ─── Nav tab pill ─────────────────────────────────────────────────────────────
+function Tab({ id, label, active, onClick }) {
+  return (
+    <button onClick={() => onClick(id)}
+      className="flex-shrink-0 px-4 py-2 rounded-full text-sm font-semibold transition-all"
+      style={active
+        ? { background:"rgba(167,139,250,0.25)", color:"#a78bfa", border:"1px solid rgba(167,139,250,0.45)" }
+        : { background:"transparent", color:"rgba(255,255,255,0.45)", border:"1px solid transparent" }}>
+      {label}
+    </button>
+  );
+}
 
-  const [searchParams] = useSearchParams();
-  const spreadId = searchParams.get("id");
-  const [isLoading, setIsLoading] = useState(!!spreadId);
+// ─── Position coverflow (looping) ─────────────────────────────────────────────
+function PositionCoverflow({ positions, activeIdx, onSelect, onAdd, onRemove }) {
+  const CARD_W = 150;
+  const CARD_GAP = 14;
+  const startX = useRef(0);
+  const dragging = useRef(false);
+  const total = positions.length;
+  const wrap = (i) => ((i % total) + total) % total;
 
-  useEffect(() => {
-    if (!spreadId) return;
+  const scrollTo = useCallback((raw) => { if (total) onSelect(wrap(raw)); }, [total, onSelect]);
 
-    (async () => {
-      try {
-        const spread = await base44.entities.Spread.get(spreadId);
-        setSpreadName(spread.name || "");
-        setSpreadDescription(spread.description || "");
-        setSpreadCategory(spread.category || "General");
-        setPositions(spread.positions || []);
-        setIsPublic(spread.is_public || false);
-        setRequiresPositions(spread.requires_positions !== false);
-      } catch (error) {
-        setSaveMessage("Failed to load spread");
-      } finally {
-        setIsLoading(false);
-      }
-    })();
-  }, [spreadId]);
-
-  const addPosition = () => {
-    const newPos = {
-      name: `Position ${positions.length + 1}`,
-      meaning: "",
-      x: 50,
-      y: 50,
-      rotation: 0,
-    };
-    setPositions([...positions, newPos]);
-  };
-
-  const removePosition = (index) => {
-    setPositions(positions.filter((_, i) => i !== index));
-  };
-
-  const updatePositionField = (index, field, value) => {
-    const updated = positions.map((p, i) =>
-      i === index ? { ...p, [field]: value } : p
-    );
-    setPositions(updated);
-  };
-
-  const handleSave = async () => {
-    if (!spreadName.trim()) {
-      setSaveMessage("Please enter a spread name");
-      return;
-    }
-    if (positions.length === 0) {
-      setSaveMessage("Please add at least one position");
-      return;
-    }
-    for (let i = 0; i < positions.length; i++) {
-      if (!positions[i].name?.trim()) {
-        setSaveMessage(`Position ${i + 1} needs a name`);
-        return;
-      }
-      if (!positions[i].meaning?.trim()) {
-        setSaveMessage(`Position ${i + 1} needs a meaning`);
-        return;
-      }
-    }
-
-    setIsSaving(true);
-    setSaveMessage("");
-
-    try {
-      const spreadData = {
-        name: spreadName.trim(),
-        description: spreadDescription.trim(),
-        category: spreadCategory,
-        positions,
-        is_public: isPublic,
-        requires_positions: requiresPositions,
-      };
-
-      if (spreadId) {
-        await base44.entities.Spread.update(spreadId, spreadData);
-        setSaveMessage("✅ Spread updated successfully!");
-      } else {
-        await base44.entities.Spread.create(spreadData);
-        setSaveMessage("✅ Spread created successfully!");
-        setTimeout(() => {
-          setSpreadName("");
-          setSpreadDescription("");
-          setPositions([]);
-        }, 2000);
-      }
-    } catch (error) {
-      setSaveMessage("❌ Failed to save spread. Please try again.");
-    } finally {
-      setIsSaving(false);
-      setTimeout(() => setSaveMessage(""), 5000);
-    }
-  };
-
-  const mockCards = React.useMemo(() => {
-    return positions.map((pos, idx) => ({
-      id: `preview-card-${idx}`,
-      name: pos.name || `Card ${idx + 1}`,
-      image_url:
-        "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=400&h=600&fit=crop",
-      overall_meaning: pos.meaning || "",
-      isFlipped: true,
-      position_number: idx + 1,
-    }));
-  }, [positions]);
-
-  const aspectRatio = getDesignerAspectRatio(positions.length);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-2 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-white/80">Loading spread...</p>
-        </div>
+  if (!total) return (
+    <div className="flex items-center justify-center rounded-2xl" style={{ height:180, border:"2px dashed rgba(167,139,250,0.2)", background:"rgba(255,255,255,0.03)" }}>
+      <div className="text-center">
+        <p className="text-white/40 text-sm mb-3">No positions yet</p>
+        <Button size="sm" onClick={onAdd} className="rounded-full bg-purple-600 hover:bg-purple-700"><Plus className="w-4 h-4 mr-1" /> Add First</Button>
       </div>
-    );
-  }
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-black text-white p-4 md:p-6 lg:p-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <Link to={createPageUrl("SpreadManager")}>
-              <Button variant="ghost" className="text-purple-300 hover:text-white">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back
-              </Button>
-            </Link>
-            <h1 className="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400">
-              {spreadId ? "Edit Spread" : "Create Spread"}
-            </h1>
-          </div>
-
-          <Button
-            onClick={() => setPreviewMode(!previewMode)}
-            variant="outline"
-            className={`border-cyan-500/40 ${
-              previewMode ? "bg-cyan-600/20 text-cyan-300" : "text-white"
-            }`}
-          >
-            {previewMode ? (
-              <>
-                <EyeOff className="w-4 h-4 mr-2" />
-                Hide Preview
-              </>
-            ) : (
-              <>
-                <Eye className="w-4 h-4 mr-2" />
-                Show Preview
-              </>
-            )}
-          </Button>
-        </div>
-
-        {saveMessage && (
-          <div
-            className={`mb-4 p-3 rounded-lg ${
-              saveMessage.includes("✅")
-                ? "bg-green-500/20 border border-green-500/40 text-green-200"
-                : "bg-red-500/20 border border-red-500/40 text-red-200"
-            }`}
-          >
-            {saveMessage}
-          </div>
-        )}
-
-        {/* Mobile layout */}
-        <div className="lg:hidden">
-          <Tabs defaultValue="canvas" className="w-full">
-            <TabsList className="grid grid-cols-3 w-full sticky top-0 z-10 bg-slate-900/80 backdrop-blur rounded-xl">
-              <TabsTrigger value="canvas">Canvas</TabsTrigger>
-              <TabsTrigger value="details">Details</TabsTrigger>
-              <TabsTrigger value="controls">Controls</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="canvas">
-              <div
-                className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-4 h-[calc(100vh-180px)] overflow-auto"
-                style={{ WebkitOverflowScrolling: "touch" }}
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <h2 className="text-lg font-bold text-purple-300">
-                    Visual Layout
-                  </h2>
-                  <Button
-                    onClick={addPosition}
-                    size="sm"
-                    className="bg-purple-600 hover:bg-purple-700"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Card
-                  </Button>
+    <div className="relative select-none" style={{ height:200 }}>
+      <div className="absolute inset-0 flex items-center justify-center overflow-hidden"
+        onMouseDown={e => { startX.current = e.clientX; dragging.current = true; }}
+        onMouseUp={e => { if (!dragging.current) return; dragging.current = false; const d = startX.current - e.clientX; if (Math.abs(d)>30) scrollTo(activeIdx+(d>0?1:-1)); }}
+        onTouchStart={e => { startX.current = e.touches[0].clientX; dragging.current = true; }}
+        onTouchEnd={e => { if (!dragging.current) return; dragging.current = false; const d = startX.current - e.changedTouches[0].clientX; if (Math.abs(d)>30) scrollTo(activeIdx+(d>0?1:-1)); }}
+      >
+        {[-2,-1,0,1,2].map(dist => {
+          const idx = wrap(activeIdx + dist);
+          const pos = positions[idx];
+          const scale = dist===0 ? 1 : Math.max(0.70, 1 - Math.abs(dist)*0.14);
+          const opacity = dist===0 ? 1 : Math.max(0.30, 1 - Math.abs(dist)*0.24);
+          const tx = dist * (CARD_W + CARD_GAP) * 0.86;
+          const isActive = dist === 0;
+          return (
+            <div key={`${dist}-${idx}`} onClick={() => dist!==0 && scrollTo(activeIdx+dist)}
+              className="absolute cursor-pointer rounded-2xl flex flex-col items-center justify-between py-3 px-3 transition-all duration-300"
+              style={{ width:CARD_W, height:160, transform:`translateX(${tx}px) scale(${scale}) perspective(600px) rotateY(${dist*-12}deg)`, opacity, zIndex:5-Math.abs(dist),
+                background: isActive ? "radial-gradient(135% 135% at 25% 20%, rgba(124,58,237,0.4) 0%, #0f0b1e 100%)" : "rgba(255,255,255,0.04)",
+                border: isActive ? "1px solid rgba(167,139,250,0.55)" : "1px solid rgba(255,255,255,0.08)",
+                boxShadow: isActive ? "0 0 28px rgba(124,58,237,0.3), 0 6px 24px rgba(0,0,0,0.5)" : "none" }}>
+              <div className="w-full">
+                <div className="flex items-center justify-between mb-1">
+                  <Badge className="text-[10px] px-1.5 py-0" style={{ background:"rgba(124,58,237,0.4)", color:"#c4b5fd", border:"none" }}>{idx+1}</Badge>
+                  {isActive && <button onClick={e => { e.stopPropagation(); onRemove(idx); }} className="text-red-400/70 hover:text-red-300"><Trash2 className="w-3 h-3" /></button>}
                 </div>
-
-                {positions.length > 0 ? (
-                  <SpreadDesignCanvas
-                    positions={positions}
-                    onChange={setPositions}
-                    showGrid={true}
-                    aspectRatio={aspectRatio}
-                  />
-                ) : (
-                  <div className="border-2 border-dashed border-white/20 rounded-xl p-10 text-center min-h-[50vh] flex items-center justify-center">
-                    <div>
-                      <p className="text-white/60 mb-4">
-                        Add positions to start designing your spread layout
-                      </p>
-                      <Button
-                        onClick={addPosition}
-                        className="bg-purple-600 hover:bg-purple-700"
-                      >
-                        <Plus className="w-4 h-4 mr-2" /> Add First Position
-                      </Button>
-                    </div>
-                  </div>
-                )}
+                <p className="text-white text-xs font-semibold leading-tight truncate">{pos.name||`Position ${idx+1}`}</p>
+                {isActive && pos.meaning && <p className="text-white/50 text-[10px] mt-1 line-clamp-2 leading-tight">{pos.meaning}</p>}
               </div>
-            </TabsContent>
-
-            <TabsContent value="details">
-              <div
-                className="space-y-6 p-4 h-[calc(100vh-180px)] overflow-auto"
-                style={{ WebkitOverflowScrolling: "touch" }}
-              >
-                <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-6 space-y-4">
-                  <h2 className="text-xl font-bold text-purple-300">
-                    Spread Details
-                  </h2>
-                  <div>
-                    <Label htmlFor="spread-name">Spread Name *</Label>
-                    <Input
-                      id="spread-name"
-                      value={spreadName}
-                      onChange={(e) => setSpreadName(e.target.value)}
-                      placeholder="e.g., Celtic Cross, Three Card Spread"
-                      className="bg-black/50 border-white/20 text-white"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="spread-description">Description</Label>
-                    <Textarea
-                      id="spread-description"
-                      value={spreadDescription}
-                      onChange={(e) => setSpreadDescription(e.target.value)}
-                      placeholder="Describe what this spread is for and how to use it..."
-                      className="bg-black/50 border-white/20 text-white min-h-[80px]"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="spread-category">Category</Label>
-                    <Select
-                      value={spreadCategory}
-                      onValueChange={setSpreadCategory}
-                    >
-                      <SelectTrigger
-                        id="spread-category"
-                        className="bg-black/50 border-white/20 text-white"
-                      >
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-gray-900 border-white/20 text-white">
-                        <SelectItem value="General">General</SelectItem>
-                        <SelectItem value="Love">Love & Relationships</SelectItem>
-                        <SelectItem value="Career">Career & Finance</SelectItem>
-                        <SelectItem value="Spiritual">Spiritual Growth</SelectItem>
-                        <SelectItem value="Runes">Runes</SelectItem>
-                        <SelectItem value="Custom">Custom</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex items-center justify-between py-2">
-                    <div>
-                      <Label htmlFor="requires-positions">
-                        Show Position Labels
-                      </Label>
-                      <p className="text-xs text-white/60">
-                        Display position names/meanings during readings
-                      </p>
-                    </div>
-                    <Switch
-                      id="requires-positions"
-                      checked={requiresPositions}
-                      onCheckedChange={setRequiresPositions}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between py-2">
-                    <div>
-                      <Label htmlFor="is-public">Make Public</Label>
-                      <p className="text-xs text-white/60">
-                        Allow others to use this spread
-                      </p>
-                    </div>
-                    <Switch
-                      id="is-public"
-                      checked={isPublic}
-                      onCheckedChange={setIsPublic}
-                    />
-                  </div>
-                </div>
-
-                <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-6 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-bold text-purple-300">
-                      Position Details ({positions.length})
-                    </h2>
-                  </div>
-                  {positions.length === 0 ? (
-                    <div className="text-center py-8 text-white/60">
-                      <p className="mb-2">No positions yet.</p>
-                      <p className="text-sm">
-                        Tap "Add Card" in the Canvas tab to start.
-                      </p>
-                    </div>
-                  ) : (
-                    <div
-                      className="space-y-3 max-h-[50vh] overflow-y-auto pr-2"
-                      style={{ WebkitOverflowScrolling: "touch" }}
-                    >
-                      {positions.map((pos, idx) => (
-                        <div
-                          key={idx}
-                          className="bg-black/30 rounded-lg p-4 space-y-3 border border-white/10"
-                        >
-                          <div className="flex items-center justify-between">
-                            <Badge className="bg-purple-600/50">
-                              Position {idx + 1}
-                            </Badge>
-                            <span className="text-xs text-white/60">
-                              {Math.round(pos.x)}%, {Math.round(pos.y)}%,{" "}
-                              {pos.rotation || 0}°
-                            </span>
-                          </div>
-                          <div>
-                            <Label className="text-xs">Position Name *</Label>
-                            <Input
-                              value={pos.name || ""}
-                              onChange={(e) =>
-                                updatePositionField(idx, "name", e.target.value)
-                              }
-                              placeholder="e.g., Past, Present, Future"
-                              className="bg-black/50 border-white/20 text-white text-sm"
-                            />
-                          </div>
-                          <div>
-                            <Label className="text-xs">Meaning *</Label>
-                            <Textarea
-                              value={pos.meaning || ""}
-                              onChange={(e) =>
-                                updatePositionField(
-                                  idx,
-                                  "meaning",
-                                  e.target.value
-                                )
-                              }
-                              placeholder="What this position represents..."
-                              className="bg-black/50 border-white/20 text-white text-sm min-h-[60px]"
-                            />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <Button
-                  onClick={handleSave}
-                  disabled={isSaving}
-                  className="w-full bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 text-white py-5 text-lg font-bold"
-                >
-                  <Save className="w-5 h-5 mr-2" />
-                  {isSaving
-                    ? "Saving..."
-                    : spreadId
-                    ? "Update Spread"
-                    : "Create Spread"}
-                </Button>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="controls">
-              <div
-                className="p-4 space-y-4 h-[calc(100vh-180px)] overflow-auto"
-                style={{ WebkitOverflowScrolling: "touch" }}
-              >
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-bold text-purple-300">
-                    Controls
-                  </h2>
-                  <Button
-                    onClick={() => setPreviewMode(!previewMode)}
-                    variant="outline"
-                    className={`border-cyan-500/40 ${
-                      previewMode
-                        ? "bg-cyan-600/20 text-cyan-300"
-                        : "text-white"
-                    }`}
-                  >
-                    {previewMode ? (
-                      <>
-                        <EyeOff className="w-4 h-4 mr-2" /> Hide Preview
-                      </>
-                    ) : (
-                      <>
-                        <Eye className="w-4 h-4 mr-2" /> Show Preview
-                      </>
-                    )}
-                  </Button>
-                </div>
-                <div className="bg-cyan-900/20 border border-cyan-500/30 rounded-lg p-3">
-                  <h3 className="text-sm font-semibold text-cyan-300 mb-2 flex items-center gap-2">
-                    <Info className="w-4 h-4" /> How to Use
-                  </h3>
-                  <ul className="text-xs text-cyan-200/80 space-y-1 list-disc pl-5">
-                    <li>Drag the small handle on a card to move it</li>
-                    <li>Tap a card to show the rotation toolbar</li>
-                    <li>Use the slider/buttons to set angle (0–360°)</li>
-                    <li>Use Preview to see the reading view</li>
-                  </ul>
-                </div>
-              </div>
-            </TabsContent>
-          </Tabs>
-        </div>
-
-        {/* Desktop layout */}
-        <div className="hidden lg:grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left Column: Visual Designer */}
-          <div className="space-y-4 order-2 lg:order-1">
-            {previewMode ? (
-              <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-cyan-500/40 p-6">
-                <div className="mb-4 text-center">
-                  <h2 className="text-xl font-bold text-cyan-300 mb-2">
-                    📱 Reading Preview
-                  </h2>
-                  <p className="text-sm text-cyan-200/80">
-                    This is how your spread will look during actual readings
-                  </p>
-                </div>
-                <div className="bg-gradient-to-br from-gray-950 via-slate-900 to-black rounded-xl p-4 min-h-[500px] flex items-center justify-center w-full">
-                  <InteractiveSpreadTester positions={positions} />
-                </div>
-                <div className="mt-4 text-xs text-cyan-200/60 text-center">
-                  💡 Tip: Toggle back to designer view to adjust card positions
-                  and angles
-                </div>
-              </div>
-            ) : (
-              <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-bold text-purple-300">
-                    Visual Layout Designer
-                  </h2>
-                  <Button
-                    onClick={addPosition}
-                    size="sm"
-                    className="bg-purple-600 hover:bg-purple-700"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Card
-                  </Button>
-                </div>
-
-                <div className="bg-cyan-900/20 border border-cyan-500/30 rounded-lg p-3 mb-4">
-                  <h3 className="text-sm font-semibold text-cyan-300 mb-2 flex items-center gap-2">
-                    <Info className="w-4 h-4" />
-                    How to Use:
-                  </h3>
-                  <ul className="text-xs text-cyan-200/80 space-y-1">
-                    <li>
-                      • <strong>Long‑press on a card</strong> to drag on mobile
-                    </li>
-                    <li>
-                      • <strong>Drag cards</strong> to position them
-                    </li>
-                    <li>
-                      • <strong>Tap</strong> a card to select it
-                    </li>
-                    <li>
-                      • <strong>Rotate with buttons or slider</strong> below the
-                      selected card
-                    </li>
-                    <li>
-                      • <strong>Snap to grid</strong> helps clean alignment
-                    </li>
-                    <li>• Edit names/meanings in the right panel</li>
-                  </ul>
-                </div>
-
-                {positions.length > 0 ? (
-                  <SpreadDesignCanvas
-                    positions={positions}
-                    onChange={setPositions}
-                    showGrid={true}
-                    aspectRatio={aspectRatio}
-                  />
-                ) : (
-                  <div className="border-2 border-dashed border-white/20 rounded-xl p-12 text-center min-h-[400px] flex items-center justify-center">
-                    <div>
-                      <p className="text-white/60 mb-4">
-                        Add positions to start designing your spread layout
-                      </p>
-                      <Button
-                        onClick={addPosition}
-                        className="bg-purple-600 hover:bg-purple-700"
-                      >
-                        <Plus className="w-4 h-4 mr-2" />
-                        Add First Position
-                      </Button>
-                    </div>
-                  </div>
-                )}
-
-                <div className="mt-4 text-xs text-white/60 space-y-1">
-                  <p>
-                    • <strong>Drag:</strong> Move cards around the canvas (snaps
-                    to grid)
-                  </p>
-                  <p>
-                    • <strong>Tap:</strong> Select card to show rotation controls
-                  </p>
-                  <p>
-                    • <strong>Rotate:</strong> Use buttons below selected card
-                    (-15° / +15°)
-                  </p>
-                  <p>• Toggle preview to see how it looks in readings</p>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Right Column */}
-          <div className="space-y-6 order-1 lg:order-2">
-            <AISpreadAssistant
-              onApply={(s) => {
-                try {
-                  if (s?.spread_name) setSpreadName(s.spread_name);
-                  if (s?.description) setSpreadDescription(s.description);
-                  if (s?.category) setSpreadCategory(s.category);
-                  if (Array.isArray(s?.positions)) {
-                    const cleaned = s.positions.map((p, i) => ({
-                      name: p.name || `Position ${i + 1}`,
-                      meaning: p.meaning || "",
-                      x:
-                        typeof p.x === "number"
-                          ? Math.max(0, Math.min(100, p.x))
-                          : 50,
-                      y:
-                        typeof p.y === "number"
-                          ? Math.max(0, Math.min(100, p.y))
-                          : 50,
-                      rotation:
-                        typeof p.rotation === "number" ? p.rotation : 0,
-                    }));
-                    setPositions(cleaned);
-                  }
-                } catch (_) {}
-              }}
-            />
-
-            <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-6 space-y-4">
-              <h2 className="text-xl font-bold text-purple-300">
-                Spread Details
-              </h2>
-              <div>
-                <Label htmlFor="spread-name">Spread Name *</Label>
-                <Input
-                  id="spread-name"
-                  value={spreadName}
-                  onChange={(e) => setSpreadName(e.target.value)}
-                  placeholder="e.g., Celtic Cross, Three Card Spread"
-                  className="bg-black/50 border-white/20 text-white"
-                />
-              </div>
-              <div>
-                <Label htmlFor="spread-description">Description</Label>
-                <Textarea
-                  id="spread-description"
-                  value={spreadDescription}
-                  onChange={(e) => setSpreadDescription(e.target.value)}
-                  placeholder="Describe what this spread is for and how to use it..."
-                  className="bg-black/50 border-white/20 text-white min-h-[80px]"
-                />
-              </div>
-              <div>
-                <Label htmlFor="spread-category">Category</Label>
-                <Select
-                  value={spreadCategory}
-                  onValueChange={setSpreadCategory}
-                >
-                  <SelectTrigger
-                    id="spread-category"
-                    className="bg-black/50 border-white/20 text-white"
-                  >
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-gray-900 border-white/20 text-white">
-                    <SelectItem value="General">General</SelectItem>
-                    <SelectItem value="Love">Love & Relationships</SelectItem>
-                    <SelectItem value="Career">Career & Finance</SelectItem>
-                    <SelectItem value="Spiritual">Spiritual Growth</SelectItem>
-                    <SelectItem value="Runes">Runes</SelectItem>
-                    <SelectItem value="Custom">Custom</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex items-center justify-between py-2">
-                <div>
-                  <Label htmlFor="requires-positions">
-                    Show Position Labels
-                  </Label>
-                  <p className="text-xs text-white/60">
-                    Display position names/meanings during readings
-                  </p>
-                </div>
-                <Switch
-                  id="requires-positions"
-                  checked={requiresPositions}
-                  onCheckedChange={setRequiresPositions}
-                />
-              </div>
-              <div className="flex items-center justify-between py-2">
-                <div>
-                  <Label htmlFor="is-public">Make Public</Label>
-                  <p className="text-xs text-white/60">
-                    Allow others to use this spread
-                  </p>
-                </div>
-                <Switch
-                  id="is-public"
-                  checked={isPublic}
-                  onCheckedChange={setIsPublic}
-                />
-              </div>
-            </div>
-
-            <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-6 space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-purple-300">
-                  Position Details ({positions.length})
-                </h2>
-              </div>
-              {positions.length === 0 ? (
-                <div className="text-center py-8 text-white/60">
-                  <p className="mb-2">No positions yet.</p>
-                  <p className="text-sm">
-                    Click "Add Card" in the designer to start.
-                  </p>
-                </div>
-              ) : (
-                <div
-                  className="space-y-3 max-h-[500px] overflow-y-auto pr-2"
-                  style={{ WebkitOverflowScrolling: "touch" }}
-                >
-                  {positions.map((pos, idx) => (
-                    <div
-                      key={idx}
-                      className="bg-black/30 rounded-lg p-4 space-y-3 border border-white/10"
-                    >
-                      <div className="flex items-center justify-between">
-                        <Badge className="bg-purple-600/50">
-                          Position {idx + 1}
-                        </Badge>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-white/60">
-                            {Math.round(pos.x)}%, {Math.round(pos.y)}%,{" "}
-                            {pos.rotation || 0}°
-                          </span>
-                          <Button
-                            onClick={() => removePosition(idx)}
-                            size="sm"
-                            variant="ghost"
-                            className="text-red-400 hover:text-red-300 h-6 w-6 p-0"
-                          >
-                            <Trash2 className="w-3 h-3" />
-                          </Button>
-                        </div>
-                      </div>
-                      <div>
-                        <Label className="text-xs">Position Name *</Label>
-                        <Input
-                          value={pos.name || ""}
-                          onChange={(e) =>
-                            updatePositionField(idx, "name", e.target.value)
-                          }
-                          placeholder="e.g., Past, Present, Future"
-                          className="bg-black/50 border-white/20 text-white text-sm"
-                        />
-                      </div>
-                      <div>
-                        <Label className="text-xs">Meaning *</Label>
-                        <Textarea
-                          value={pos.meaning || ""}
-                          onChange={(e) =>
-                            updatePositionField(idx, "meaning", e.target.value)
-                          }
-                          placeholder="What this position represents..."
-                          className="bg-black/50 border-white/20 text-white text-sm min-h-[60px]"
-                        />
-                        <div className="mt-3">
-                          <Label className="text-xs">Rotation (0–360°)</Label>
-                          <div className="flex items-center gap-3">
-                            <input
-                              type="range"
-                              min={0}
-                              max={360}
-                              step={1}
-                              value={
-                                typeof pos.rotation === "number"
-                                  ? pos.rotation
-                                  : 0
-                              }
-                              onChange={(e) =>
-                                updatePositionField(
-                                  idx,
-                                  "rotation",
-                                  parseInt(e.target.value, 10)
-                                )
-                              }
-                              className="flex-1"
-                            />
-                            <span className="text-xs w-10 text-right">
-                              {typeof pos.rotation === "number"
-                                ? pos.rotation
-                                : 0}
-                              °
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+              {isActive && (
+                <div className="text-[10px] px-2 py-0.5 rounded-full w-full text-center" style={{ background:"rgba(124,58,237,0.25)", color:"#c4b5fd", border:"1px solid rgba(124,58,237,0.35)" }}>
+                  {Math.round(pos.x??50)}%, {Math.round(pos.y??50)}%{pos.rotation ? ` · ${pos.rotation}°` : ""}
                 </div>
               )}
             </div>
+          );
+        })}
+      </div>
+      {/* dots */}
+      <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center gap-1.5">
+        {positions.map((_,i) => (
+          <button key={i} onClick={() => onSelect(i)} className="rounded-full transition-all"
+            style={{ width:i===activeIdx?20:5, height:5, background:i===activeIdx?"#a78bfa":"rgba(255,255,255,0.2)" }} />
+        ))}
+      </div>
+      <button onClick={() => scrollTo(activeIdx-1)} className="absolute left-1 top-[72px] w-8 h-8 rounded-full bg-black/40 border border-white/10 flex items-center justify-center text-white/60 hover:text-white" style={{ zIndex:10 }}><ChevronLeft className="w-4 h-4" /></button>
+      <button onClick={() => scrollTo(activeIdx+1)} className="absolute right-1 top-[72px] w-8 h-8 rounded-full bg-black/40 border border-white/10 flex items-center justify-center text-white/60 hover:text-white" style={{ zIndex:10 }}><ChevronRight className="w-4 h-4" /></button>
+    </div>
+  );
+}
 
-            <Button
-              onClick={handleSave}
-              disabled={isSaving}
-              className="w-full bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 text-white py-6 text-lg font-bold"
-            >
-              <Save className="w-5 h-5 mr-2" />
-              {isSaving
-                ? "Saving..."
-                : spreadId
-                ? "Update Spread"
-                : "Create Spread"}
-            </Button>
-          </div>
+// ─── Mock tester data ─────────────────────────────────────────────────────────
+const TESTER_IMGS = [
+  "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=400&h=600&fit=crop",
+  "https://images.unsplash.com/photo-1551269901-5c40c0e6a2ec?w=400&h=600&fit=crop",
+  "https://images.unsplash.com/photo-1604881991720-f91add269bed?w=400&h=600&fit=crop",
+  "https://images.unsplash.com/photo-1612178537253-bccd437b730e?w=400&h=600&fit=crop",
+  "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=600&fit=crop",
+];
+const CARD_NAMES = ["The Fool","The Magician","The High Priestess","The Empress","The Emperor","The Hierophant","The Lovers","The Chariot","Strength","The Hermit","Wheel of Fortune","Justice","The Hanged Man","Death","Temperance","The Devil","The Tower","The Star","The Moon","The Sun","Judgement","The World"];
+
+function buildMockCards(positions) {
+  const names = [...CARD_NAMES].sort(() => Math.random()-0.5);
+  return positions.map((pos,idx) => ({
+    id:`mock-${idx}`, name:names[idx%names.length],
+    image_url:TESTER_IMGS[idx%TESTER_IMGS.length],
+    overall_meaning:pos.meaning||"Draw meaning from within.",
+    isFlipped:true, position_number:idx+1,
+    position:pos.name, isReversed:Math.random()>0.75,
+  }));
+}
+
+// ─── Main ─────────────────────────────────────────────────────────────────────
+export default function SpreadDesigner() {
+  const [searchParams] = useSearchParams();
+  const spreadId = searchParams.get("id");
+
+  const [spreadName, setSpreadName]               = useState("");
+  const [spreadDescription, setSpreadDescription] = useState("");
+  const [spreadCategory, setSpreadCategory]       = useState("General");
+  const [positions, setPositions]                 = useState([]);
+  const [isPublic, setIsPublic]                   = useState(false);
+  const [requiresPositions, setRequiresPositions] = useState(true);
+  const [isSaving, setIsSaving]                   = useState(false);
+  const [isLoading, setIsLoading]                 = useState(!!spreadId);
+  const [activeTab, setActiveTab]                 = useState("design");
+  const [activePosIdx, setActivePosIdx]           = useState(0);
+
+  // Tester
+  const [testCards, setTestCards]         = useState([]);
+  const [testRevealed, setTestRevealed]   = useState(new Set());
+  const [testDrawn, setTestDrawn]         = useState(false);
+  const [testShuffling, setTestShuffling] = useState(false);
+
+  const aspectRatio = getDesignerAspectRatio(positions.length);
+
+  useEffect(() => {
+    if (!spreadId) return;
+    (async () => {
+      try {
+        const s = await base44.entities.Spread.get(spreadId);
+        setSpreadName(s.name||""); setSpreadDescription(s.description||"");
+        setSpreadCategory(s.category||"General"); setPositions(s.positions||[]);
+        setIsPublic(s.is_public||false); setRequiresPositions(s.requires_positions!==false);
+      } catch { toast.error("Failed to load spread."); }
+      finally { setIsLoading(false); }
+    })();
+  }, [spreadId]);
+
+  useEffect(() => {
+    if (positions.length > 0 && activePosIdx >= positions.length) setActivePosIdx(positions.length-1);
+  }, [positions.length, activePosIdx]);
+
+  const addPosition = () => {
+    const next = [...positions, { name:`Position ${positions.length+1}`, meaning:"", x:50, y:50, rotation:0 }];
+    setPositions(next); setActivePosIdx(next.length-1);
+  };
+  const removePosition = (idx) => { setPositions(p => p.filter((_,i)=>i!==idx)); setActivePosIdx(p => Math.max(0, p>idx?p-1:p)); };
+  const updatePosition = (idx, field, value) => setPositions(p => p.map((x,i) => i===idx ? {...x,[field]:value} : x));
+
+  const handleSave = async () => {
+    if (!spreadName.trim()) { toast.error("Please enter a spread name."); return; }
+    if (!positions.length)  { toast.error("Please add at least one position."); return; }
+    for (let i=0; i<positions.length; i++) {
+      if (!positions[i].name?.trim())    { toast.error(`Position ${i+1} needs a name.`); return; }
+      if (!positions[i].meaning?.trim()) { toast.error(`Position ${i+1} needs a meaning.`); return; }
+    }
+    setIsSaving(true);
+    try {
+      const data = { name:spreadName.trim(), description:spreadDescription.trim(), category:spreadCategory, positions, is_public:isPublic, requires_positions:requiresPositions };
+      if (spreadId) { await base44.entities.Spread.update(spreadId, data); toast.success("Spread updated!"); }
+      else          { await base44.entities.Spread.create(data); toast.success("Spread created!"); setSpreadName(""); setSpreadDescription(""); setPositions([]); }
+    } catch { toast.error("Failed to save spread."); }
+    finally { setIsSaving(false); }
+  };
+
+  const mockCards = React.useMemo(() => positions.map((pos,idx) => ({
+    id:`preview-${idx}`, name:pos.name||`Card ${idx+1}`,
+    image_url:TESTER_IMGS[idx%TESTER_IMGS.length],
+    overall_meaning:pos.meaning||"", isFlipped:true, position_number:idx+1,
+  })), [positions]);
+
+  const TABS = [
+    { id:"design",    label:"Design"                   },
+    { id:"positions", label:`Positions (${positions.length})` },
+    { id:"preview",   label:"Preview"                  },
+    { id:"test",      label:"Test"                     },
+    { id:"ai",        label:"✨ AI"                     },
+  ];
+
+  if (isLoading) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-center"><Loader2 className="w-8 h-8 animate-spin text-purple-400 mx-auto mb-3" /><p className="text-white/60">Loading spread…</p></div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen text-white pb-28" style={{ background:"radial-gradient(ellipse 120% 80% at 50% 0%, rgba(49,10,84,0.5) 0%, #07050f 60%)" }}>
+
+      {/* Top bar */}
+      <div className="sticky top-0 z-40 flex items-center justify-between px-4 py-3" style={{ background:"rgba(7,5,15,0.9)", backdropFilter:"blur(12px)", borderBottom:"1px solid rgba(255,255,255,0.06)" }}>
+        <Link to={createPageUrl("SpreadManager")}>
+          <Button variant="ghost" size="sm" className="text-white/60 hover:text-white rounded-full"><ChevronLeft className="w-4 h-4" /></Button>
+        </Link>
+        <div className="text-center">
+          <p className="text-sm font-bold text-white">{spreadId ? "Edit Spread" : "Create Spread"}</p>
+          {spreadName && <p className="text-xs text-purple-400">{spreadName}</p>}
         </div>
+        <Button size="sm" onClick={handleSave} disabled={isSaving} className="rounded-full bg-purple-600 hover:bg-purple-700 text-xs px-3">
+          {isSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <><Save className="w-3.5 h-3.5 mr-1" />Save</>}
+        </Button>
+      </div>
+
+      {/* Tab strip */}
+      <div className="sticky top-[52px] z-30 px-4 py-2.5 border-b border-white/6" style={{ background:"rgba(7,5,15,0.88)", backdropFilter:"blur(10px)" }}>
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+          {TABS.map(t => <Tab key={t.id} id={t.id} label={t.label} active={activeTab===t.id} onClick={setActiveTab} />)}
+        </div>
+      </div>
+
+      <div className="px-4 pt-5 space-y-5">
+
+        {/* DESIGN */}
+        {activeTab === "design" && (
+          <motion.div key="design" initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} className="space-y-5">
+            <div className="rounded-xl px-4 py-3 flex gap-3 items-start" style={{ background:"rgba(6,182,212,0.08)", border:"1px solid rgba(6,182,212,0.2)" }}>
+              <Info className="w-4 h-4 text-cyan-400 flex-shrink-0 mt-0.5" />
+              <p className="text-xs text-cyan-200/80"><strong>Drag</strong> cards to position. <strong>Tap</strong> to select then use the rotation slider. Long-press on mobile to drag.</p>
+            </div>
+
+            <div className="rounded-2xl overflow-hidden" style={{ border:"1px solid rgba(255,255,255,0.08)", background:"rgba(255,255,255,0.03)" }}>
+              <div className="flex items-center justify-between px-4 py-3 border-b border-white/6">
+                <span className="text-sm font-semibold text-white/70">Visual Layout</span>
+                <Button size="sm" onClick={addPosition} className="rounded-full bg-purple-600 hover:bg-purple-700 text-xs px-3"><Plus className="w-3.5 h-3.5 mr-1" />Add</Button>
+              </div>
+              <div className="p-3">
+                {positions.length > 0 ? (
+                  <SpreadDesignCanvas positions={positions} onChange={setPositions} showGrid={true} aspectRatio={aspectRatio} />
+                ) : (
+                  <div className="flex items-center justify-center rounded-xl" style={{ minHeight:280, border:"2px dashed rgba(167,139,250,0.2)" }}>
+                    <div className="text-center">
+                      <p className="text-white/40 text-sm mb-3">Add positions to start designing</p>
+                      <Button size="sm" onClick={addPosition} className="rounded-full bg-purple-600 hover:bg-purple-700"><Plus className="w-4 h-4 mr-1.5" />Add First Position</Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-2xl p-4 space-y-4" style={{ background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.08)" }}>
+              <p className="text-xs font-bold uppercase tracking-widest text-purple-400">Spread Details</p>
+              <div className="space-y-3">
+                <div>
+                  <Label className="text-xs text-white/60 mb-1 block">Name *</Label>
+                  <Input value={spreadName} onChange={e=>setSpreadName(e.target.value)} placeholder="e.g., Celtic Cross" className="bg-black/40 border-white/15 text-white text-sm" />
+                </div>
+                <div>
+                  <Label className="text-xs text-white/60 mb-1 block">Description</Label>
+                  <Textarea value={spreadDescription} onChange={e=>setSpreadDescription(e.target.value)} placeholder="What is this spread for?" className="bg-black/40 border-white/15 text-white text-sm resize-none" rows={2} />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs text-white/60 mb-1 block">Category</Label>
+                    <Select value={spreadCategory} onValueChange={setSpreadCategory}>
+                      <SelectTrigger className="bg-black/40 border-white/15 text-white text-sm"><SelectValue /></SelectTrigger>
+                      <SelectContent className="bg-slate-900 border-white/15 text-white">
+                        {["General","Love","Career","Spiritual","Runes","Custom"].map(c=><SelectItem key={c} value={c}>{c}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2 pt-1">
+                    <div className="flex items-center justify-between"><span className="text-xs text-white/60">Position Labels</span><Switch checked={requiresPositions} onCheckedChange={setRequiresPositions} /></div>
+                    <div className="flex items-center justify-between"><span className="text-xs text-white/60">Make Public</span><Switch checked={isPublic} onCheckedChange={setIsPublic} /></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* POSITIONS */}
+        {activeTab === "positions" && (
+          <motion.div key="positions" initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} className="space-y-5">
+            <PositionCoverflow positions={positions} activeIdx={activePosIdx} onSelect={setActivePosIdx} onAdd={addPosition} onRemove={removePosition} />
+
+            {positions.length > 0 && positions[activePosIdx] && (
+              <motion.div key={activePosIdx} initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }}
+                className="rounded-2xl p-4 space-y-4" style={{ background:"rgba(124,58,237,0.1)", border:"1px solid rgba(124,58,237,0.25)" }}>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-widest text-purple-400">Position {activePosIdx+1} of {positions.length}</span>
+                  <button onClick={()=>removePosition(activePosIdx)} className="text-red-400/70 hover:text-red-300"><Trash2 className="w-4 h-4" /></button>
+                </div>
+                <div>
+                  <Label className="text-xs text-white/60 mb-1 block">Name *</Label>
+                  <Input value={positions[activePosIdx].name||""} onChange={e=>updatePosition(activePosIdx,"name",e.target.value)} className="bg-black/40 border-white/15 text-white text-sm" />
+                </div>
+                <div>
+                  <Label className="text-xs text-white/60 mb-1 block">Meaning *</Label>
+                  <Textarea value={positions[activePosIdx].meaning||""} onChange={e=>updatePosition(activePosIdx,"meaning",e.target.value)} className="bg-black/40 border-white/15 text-white text-sm resize-none" rows={2} />
+                </div>
+                <div>
+                  <div className="flex items-center justify-between mb-1"><Label className="text-xs text-white/60">Rotation</Label><span className="text-xs text-purple-400 font-mono">{positions[activePosIdx].rotation??0}°</span></div>
+                  <input type="range" min={0} max={360} step={1} value={positions[activePosIdx].rotation??0} onChange={e=>updatePosition(activePosIdx,"rotation",parseInt(e.target.value,10))} className="w-full accent-purple-500" />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  {["x","y"].map(axis=>(
+                    <div key={axis}>
+                      <div className="flex items-center justify-between mb-1"><Label className="text-xs text-white/60">{axis.toUpperCase()} position</Label><span className="text-xs text-white/50 font-mono">{Math.round(positions[activePosIdx][axis]??50)}%</span></div>
+                      <input type="range" min={0} max={100} step={1} value={Math.round(positions[activePosIdx][axis]??50)} onChange={e=>updatePosition(activePosIdx,axis,parseInt(e.target.value,10))} className="w-full accent-purple-500" />
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-2 pt-1">
+                  <Button size="sm" variant="outline" onClick={()=>setActivePosIdx(p=>((p-1+positions.length)%positions.length))} className="flex-1 rounded-xl border-white/15 text-white hover:bg-white/10"><ChevronLeft className="w-4 h-4 mr-1" />Prev</Button>
+                  <Button size="sm" variant="outline" onClick={()=>setActivePosIdx(p=>(p+1)%positions.length)} className="flex-1 rounded-xl border-white/15 text-white hover:bg-white/10">Next<ChevronRight className="w-4 h-4 ml-1" /></Button>
+                </div>
+              </motion.div>
+            )}
+
+            <Button onClick={addPosition} variant="outline" className="w-full rounded-2xl border-purple-500/30 text-purple-300 hover:bg-purple-500/10"><Plus className="w-4 h-4 mr-2" />Add Another Position</Button>
+          </motion.div>
+        )}
+
+        {/* PREVIEW */}
+        {activeTab === "preview" && (
+          <motion.div key="preview" initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} className="space-y-4">
+            <div className="rounded-2xl overflow-hidden" style={{ border:"1px solid rgba(6,182,212,0.3)", background:"rgba(0,0,0,0.3)" }}>
+              <div className="px-4 py-3 border-b border-cyan-500/15">
+                <p className="text-sm font-semibold text-cyan-300">Reading Preview</p>
+                <p className="text-xs text-white/40 mt-0.5">Exactly how this spread appears during readings</p>
+              </div>
+              <div className="p-4" style={{ minHeight:320 }}>
+                {positions.length > 0 ? (
+                  <SpreadLayout spread={{ name:spreadName||"Preview Spread", positions, requires_positions:requiresPositions }} positions={positions} cards={mockCards} requiresPositions={requiresPositions} showPositionLabels={requiresPositions} hideEmptySlots={false} revealMode="instant" animateSpread={false} containerMinH="300px" />
+                ) : (
+                  <div className="flex items-center justify-center h-60"><p className="text-white/30 text-sm">Add positions in the Design tab to preview</p></div>
+                )}
+              </div>
+            </div>
+            <div className="rounded-xl px-4 py-3 text-xs text-cyan-200/60" style={{ background:"rgba(6,182,212,0.06)", border:"1px solid rgba(6,182,212,0.15)" }}>
+              💡 Preview uses placeholder images. Go to <strong>Test</strong> to draw cards and interact.
+            </div>
+          </motion.div>
+        )}
+
+        {/* TEST */}
+        {activeTab === "test" && (
+          <motion.div key="test" initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} className="space-y-5">
+            {!testDrawn && !testShuffling && (
+              <div className="rounded-2xl p-8 text-center" style={{ background:"radial-gradient(ellipse at 50% 0%, rgba(124,58,237,0.2) 0%, transparent 70%)", border:"1px solid rgba(124,58,237,0.2)" }}>
+                <div className="text-5xl mb-4">🃏</div>
+                <h3 className="text-white font-bold text-lg mb-1">Test Your Spread</h3>
+                <p className="text-white/50 text-sm mb-6">Draw {positions.length} mock card{positions.length!==1?"s":""} to feel how your spread works.</p>
+                <motion.button onClick={() => { if (!positions.length){toast.error("Add positions first.");return;} setTestShuffling(true); setTimeout(()=>{ setTestCards(buildMockCards(positions)); setTestRevealed(new Set()); setTestDrawn(true); setTestShuffling(false); },1200); }}
+                  disabled={!positions.length} className="px-8 py-4 rounded-2xl font-bold text-white text-base disabled:opacity-40"
+                  style={{ background:"linear-gradient(135deg,#7c3aed,#be185d)" }} whileHover={{ scale:1.03 }} whileTap={{ scale:0.97 }}>
+                  <Shuffle className="w-5 h-5 inline mr-2" />Draw Cards
+                </motion.button>
+              </div>
+            )}
+
+            {testShuffling && (
+              <div className="rounded-2xl p-8 text-center" style={{ border:"1px solid rgba(167,139,250,0.2)", background:"rgba(0,0,0,0.3)" }}>
+                <motion.div animate={{ rotate:360 }} transition={{ duration:2, repeat:Infinity, ease:"linear" }} className="text-4xl mx-auto mb-4 w-fit text-purple-400">✦</motion.div>
+                <p className="text-purple-300 font-semibold">Shuffling…</p>
+              </div>
+            )}
+
+            {testDrawn && !testShuffling && (
+              <>
+                <div className="flex gap-3 flex-wrap justify-center py-2">
+                  {testCards.map((card,i) => {
+                    const revealed = testRevealed.has(i);
+                    return (
+                      <div key={i} className="flex flex-col items-center gap-1.5">
+                        {revealed ? (
+                          <motion.div initial={{ rotateY:90, opacity:0 }} animate={{ rotateY:0, opacity:1 }} transition={{ duration:0.35 }}
+                            className="w-20 h-32 rounded-xl overflow-hidden border-2 border-purple-400/50 relative cursor-pointer" style={{ boxShadow:"0 0 18px rgba(167,139,250,0.35)" }}>
+                            <img src={card.image_url} alt={card.name} className={`w-full h-full object-cover ${card.isReversed?"rotate-180":""}`} />
+                            {card.isReversed && <div className="absolute top-1 right-1 bg-amber-500/80 rounded-full w-4 h-4 flex items-center justify-center"><span className="text-[8px] font-bold text-white">R</span></div>}
+                          </motion.div>
+                        ) : (
+                          <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} transition={{ delay:i*0.07 }}
+                            onClick={() => setTestRevealed(p => { const n=new Set(p); n.add(i); return n; })}
+                            className="w-20 h-32 rounded-xl border-2 border-purple-400/40 cursor-pointer flex items-center justify-center"
+                            style={{ background:"radial-gradient(135% 135% at 30% 20%, rgba(124,58,237,0.35) 0%, #0f0b1e 100%)" }}
+                            whileHover={{ scale:1.06 }} whileTap={{ scale:0.96 }}>
+                            <span className="text-purple-400/60 text-2xl select-none">✦</span>
+                          </motion.div>
+                        )}
+                        <span className="text-[10px] text-white/40 max-w-[80px] truncate text-center">{card.position}</span>
+                        {revealed && <span className="text-[9px] text-purple-300 max-w-[80px] truncate text-center">{card.name}</span>}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {testRevealed.size > 0 && (
+                  <div className="rounded-2xl overflow-hidden" style={{ border:"1px solid rgba(255,255,255,0.08)", background:"rgba(255,255,255,0.03)" }}>
+                    <SpreadLayout spread={{ name:spreadName||"Test", positions, requires_positions:requiresPositions }} positions={positions}
+                      cards={testCards.map((c,i) => ({ ...c, image_url:testRevealed.has(i)?c.image_url:null }))}
+                      requiresPositions={requiresPositions} showPositionLabels={true} hideEmptySlots={false} revealMode="instant" animateSpread={false} containerMinH="280px" />
+                  </div>
+                )}
+
+                <div className="flex gap-3">
+                  {testRevealed.size < testCards.length && (
+                    <Button onClick={() => setTestRevealed(new Set(testCards.map((_,i)=>i)))} className="flex-1 rounded-2xl" style={{ background:"linear-gradient(135deg,#7c3aed,#be185d)" }}>
+                      <Eye className="w-4 h-4 mr-2" />Reveal All
+                    </Button>
+                  )}
+                  <Button onClick={() => { setTestCards([]); setTestRevealed(new Set()); setTestDrawn(false); }} variant="outline"
+                    className={`rounded-2xl border-white/20 text-white hover:bg-white/10 ${testRevealed.size<testCards.length?"":"flex-1"}`}>
+                    <RotateCcw className="w-4 h-4 mr-2" />New Draw
+                  </Button>
+                </div>
+              </>
+            )}
+          </motion.div>
+        )}
+
+        {/* AI */}
+        {activeTab === "ai" && (
+          <motion.div key="ai" initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} className="space-y-4">
+            <div className="rounded-xl px-4 py-3 flex gap-3 items-start" style={{ background:"rgba(168,85,247,0.08)", border:"1px solid rgba(168,85,247,0.2)" }}>
+              <Sparkles className="w-4 h-4 text-purple-400 flex-shrink-0 mt-0.5" />
+              <p className="text-xs text-purple-200/80">Describe the reading you want and the AI will generate positions, meanings, and coordinates — ready to edit.</p>
+            </div>
+            <AISpreadAssistant onApply={s => {
+              try {
+                if (s?.spread_name) setSpreadName(s.spread_name);
+                if (s?.description) setSpreadDescription(s.description);
+                if (s?.category) setSpreadCategory(s.category);
+                if (Array.isArray(s?.positions)) {
+                  setPositions(s.positions.map((p,i)=>({ name:p.name||`Position ${i+1}`, meaning:p.meaning||"", x:typeof p.x==="number"?Math.max(0,Math.min(100,p.x)):50, y:typeof p.y==="number"?Math.max(0,Math.min(100,p.y)):50, rotation:typeof p.rotation==="number"?p.rotation:0 })));
+                  setActivePosIdx(0);
+                }
+                setActiveTab("design");
+              } catch(_) {}
+            }} />
+          </motion.div>
+        )}
+
+        {/* Bottom save */}
+        <Button onClick={handleSave} disabled={isSaving} className="w-full py-5 rounded-2xl font-bold text-base" style={{ background:"linear-gradient(135deg,#7c3aed,#0ea5e9)" }}>
+          {isSaving ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Saving…</> : <><Save className="w-4 h-4 mr-2" />{spreadId?"Update Spread":"Create Spread"}</>}
+        </Button>
+
       </div>
     </div>
   );
