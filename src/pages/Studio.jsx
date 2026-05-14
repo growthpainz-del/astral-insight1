@@ -117,12 +117,13 @@ function StudioToolsList({ tools, onSelect }) {
       opts={{
         align: "start",
         dragFree: true,
+        containScroll: "trimSnaps"
       }}
       className="w-full relative"
     >
-      <CarouselContent className="-ml-4 mr-4">
+      <CarouselContent className="-ml-4">
         {tools.map((tool) => (
-          <CarouselItem key={tool.id} className="pl-4 basis-[140px] shrink-0">
+          <CarouselItem key={tool.id} className="pl-4 basis-auto shrink-0">
             <div
               onClick={() => {
                 if (tool.to) navigate(createPageUrl(tool.to));
