@@ -7,8 +7,8 @@ import ScratchRevealCard from "@/components/reading/ScratchRevealCard";
 import { getThumbnailUrl } from "@/lib/utils";
 import CardRevealEffect from "@/components/reading/CardRevealEffect";
 
-// FIXED: Larger card size for better visibility
-const DEFAULT_CARD_WIDTH = 140; // Increased for better card viewing
+// FIXED: Card size balanced for structured spreads
+const DEFAULT_CARD_WIDTH = 100; // Scaled down to prevent massive cards in spreads
 
 // IMPROVED: Extract position data from cards if available
 function extractPositionsFromCards(cards) {
@@ -558,12 +558,15 @@ export default function SpreadLayout(props) {
   const sizeMultiplier = viewMode === 'compact' ? 0.75 : viewMode === 'detailed' ? 1.2 : 1;
   let computedWidth = baseSlot;
   if (containerWidth) {
-    const { cardWidth } = calculateCardSize(containerWidth, visibleCount);
-    computedWidth = Math.max(80, Math.min(cardWidth, 220));
+    // For absolute layouts, we enforce stricter maximums to prevent massive cards on mobile
+    const isMobile = containerWidth < 600;
+    const maxCardWidth = isMobile ? 100 : 160; 
+    // Roughly 3.5 cards across the screen is a comfortable fit
+    computedWidth = Math.max(65, Math.min(containerWidth / 3.5, maxCardWidth));
   }
   // Clamp further for dense spreads on small screens
   if (visibleCount >= 7 && containerWidth && containerWidth < 520) {
-    computedWidth = Math.min(computedWidth, 95);
+    computedWidth = Math.min(computedWidth, 80);
   }
   const defaultSlot = Math.round(computedWidth * sizeMultiplier * sizeScale);
 
