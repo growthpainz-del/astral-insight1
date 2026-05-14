@@ -19,6 +19,7 @@ import CardMaker from './pages/CardMaker'
 import CardLibrary from './pages/CardLibrary'
 import Studio from './pages/Studio'
 import SpreadTester from './pages/SpreadTester'
+import DashboardHub from './pages/DashboardHub'
 
 const { Pages, Layout, mainPage } = pagesConfig
 
@@ -116,6 +117,14 @@ const AuthenticatedApp = () => {
       <Route path="/home" element={<HomeRedirect />} />
       <Route path="/home/*" element={<HomeRedirect />} />
 
+      <Route
+        path="/DashboardHub"
+        element={
+          <LayoutWrapper currentPageName="DashboardHub">
+            <DashboardHub />
+          </LayoutWrapper>
+        }
+      />
       <Route
         path="/Reading"
         element={

@@ -29,6 +29,8 @@ import {
   Pencil,
   Sparkles,
   FileImage,
+  LayoutGrid,
+  List
 } from "lucide-react";
 
 
@@ -60,6 +62,7 @@ export default function CardGallery() {
   const [deck, setDeck] = useState(null); // Replaces decks map
   const [isLoading, setIsLoading] = useState(true);
   const [filterText, setFilterText] = useState(""); // Replaces searchTerm
+  const [viewMode, setViewMode] = useState("grid");
 
   // New state declarations from the outline
   const [isBuilderOpen, setIsBuilderOpen] = useState(false); // For AIManualBuilder dialog
@@ -242,6 +245,14 @@ export default function CardGallery() {
               className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-white/40 focus:border-white/30"
             />
           </div>
+          <div className="flex gap-2 w-full md:w-auto">
+             <Button variant={viewMode === 'grid' ? "default" : "outline"} onClick={() => setViewMode('grid')} className="border-white/20 bg-white/5">
+               <LayoutGrid className="w-4 h-4 text-white" />
+             </Button>
+             <Button variant={viewMode === 'list' ? "default" : "outline"} onClick={() => setViewMode('list')} className="border-white/20 bg-white/5">
+               <List className="w-4 h-4 text-white" />
+             </Button>
+          </div>
           {/* Manual Builder button moved here as it's a card creation tool */}
           <Button variant="outline" onClick={() => setIsBuilderOpen(true)} className="w-full md:w-auto border-purple-500/40 text-purple-300 hover:bg-purple-500/10">
             <Sparkles className="w-4 h-4 mr-2" /> AI Manual Builder
@@ -265,54 +276,86 @@ export default function CardGallery() {
         )}
 
         {filteredCards.length > 0 ? (
-          <motion.div
-            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
-            initial="hidden"
-            animate="visible"
-            variants={{
-              visible: {
-                transition: {
-                  staggerChildren: 0.05,
-                },
-              },
-            }}
-          >
-            {filteredCards.map(card => (
-              <motion.div
-                key={card.id}
-                layout // Enable layout animations for Framer Motion
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                transition={{ duration: 0.3 }}
-                className="cursor-pointer group"
-                onClick={() => setPreviewCard(card)}
-              >
-                <Card className="bg-white/5 border-white/10 rounded-lg overflow-hidden transition-all duration-300 hover:border-purple-400/50 hover:shadow-2xl hover:shadow-purple-500/20">
-                  <CardContent className="p-0 aspect-[9/16] relative">
-                    <img
-                      src={card.image_url || 'https://placehold.co/300x500/000000/FFFFFF/png?text=No+Image'}
-                      alt={card.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      loading="lazy"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
-                    <div className="absolute bottom-0 left-0 p-3">
-                      <h3 className="font-bold text-white truncate">{card.name}</h3>
-                      {card.number && <span className="text-xs text-gray-300">No. {card.number}</span>}
+          viewMode === "grid" ? (
+            <motion.div
+              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
+              initial="hidden"
+              animate="visible"
+              variants={{
+                visible: { transition: { staggerChildren: 0.05 } },
+              }}
+            >
+              {filteredCards.map(card => (
+                <motion.div
+                  key={card.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.3 }}
+                  className="cursor-pointer group"
+                  onClick={() => setPreviewCard(card)}
+                >
+                  <Card className="bg-white/5 border-white/10 rounded-lg overflow-hidden transition-all duration-300 hover:border-purple-400/50 hover:shadow-2xl hover:shadow-purple-500/20">
+                    <CardContent className="p-0 aspect-[9/16] relative">
+                      <img
+                        src={card.image_url || 'https://placehold.co/300x500/000000/FFFFFF/png?text=No+Image'}
+                        alt={card.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+                      <div className="absolute bottom-0 left-0 p-3">
+                        <h3 className="font-bold text-white truncate">{card.name}</h3>
+                        {card.number && <span className="text-xs text-gray-300">No. {card.number}</span>}
+                      </div>
+                      <button
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); setEditingCard(card); }}
+                        className="absolute top-2 right-2 p-1 rounded bg-black/40 hover:bg-black/60 text-white/80 opacity-0 group-hover:opacity-100 transition-opacity"
+                        aria-label="Edit card"
+                      >
+                        <Pencil className="w-5 h-5" />
+                      </button>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </motion.div>
+          ) : (
+            <motion.div 
+              className="flex flex-col gap-4"
+              initial="hidden" animate="visible" variants={{ visible: { transition: { staggerChildren: 0.05 } } }}
+            >
+              {filteredCards.map(card => (
+                <motion.div
+                  key={card.id}
+                  layout
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                >
+                  <Card 
+                    className="bg-white/5 border-white/10 flex flex-col sm:flex-row p-4 gap-4 items-center cursor-pointer hover:bg-white/10 transition-colors group" 
+                    onClick={() => setPreviewCard(card)}
+                  >
+                    <div className="w-16 h-24 flex-shrink-0 relative overflow-hidden rounded-md border border-white/20">
+                      <img src={card.image_url || 'https://placehold.co/300x500/000000/FFFFFF/png?text=No+Image'} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                     </div>
-                    <button
-                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); setEditingCard(card); }}
-                      className="absolute top-2 right-2 p-1 rounded bg-black/40 hover:bg-black/60 text-white/80 opacity-0 group-hover:opacity-100 transition-opacity"
-                      aria-label="Edit card"
-                    >
-                      <Pencil className="w-5 h-5" />
-                    </button>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </motion.div>
+                    <div className="flex-1 min-w-0 w-full text-center sm:text-left">
+                      <h3 className="font-bold text-white text-lg truncate">{card.name}</h3>
+                      {card.number && <p className="text-sm text-purple-300">No. {card.number}</p>}
+                      <p className="text-sm text-white/60 line-clamp-2 mt-1 hidden sm:block">
+                        {card.overall_meaning || card.upright_meaning || "No description provided."}
+                      </p>
+                    </div>
+                    <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); setEditingCard(card); }} className="sm:ml-auto">
+                      <Pencil className="w-4 h-4 text-white/60 hover:text-white" />
+                    </Button>
+                  </Card>
+                </motion.div>
+              ))}
+            </motion.div>
+          )
         ) : (
           <div className="text-center py-16">
             <Sparkles className="w-16 h-16 text-blue-400 mx-auto mb-4" />

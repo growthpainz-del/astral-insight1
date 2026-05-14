@@ -12,7 +12,9 @@ import {
   User as UserIcon, 
   Layers,
   Sparkles,
-  TrendingUp
+  TrendingUp,
+  LayoutGrid,
+  List
 } from "lucide-react";
 import { motion } from "framer-motion";
 import PullToRefresh from "@/components/common/PullToRefresh";
@@ -22,6 +24,7 @@ export default function ExplorePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [viewMode, setViewMode] = useState("grid");
 
   useEffect(() => {
     loadCreators();
@@ -121,8 +124,8 @@ export default function ExplorePage() {
         </motion.div>
 
         {/* Search */}
-        <div className="mb-8 max-w-2xl mx-auto">
-          <div className="relative">
+        <div className="mb-8 max-w-3xl mx-auto flex flex-col sm:flex-row gap-4">
+          <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
             <Input
               value={searchTerm}
@@ -130,6 +133,14 @@ export default function ExplorePage() {
               placeholder="Search by creator, deck name, or category..."
               className="bg-black/40 border-purple-500/30 text-white pl-12 py-6 text-lg"
             />
+          </div>
+          <div className="flex gap-2">
+            <Button variant={viewMode === 'grid' ? "default" : "outline"} onClick={() => setViewMode('grid')} className="h-full bg-black/40 border-purple-500/30 px-4">
+              <LayoutGrid className="w-5 h-5 text-white" />
+            </Button>
+            <Button variant={viewMode === 'list' ? "default" : "outline"} onClick={() => setViewMode('list')} className="h-full bg-black/40 border-purple-500/30 px-4">
+              <List className="w-5 h-5 text-white" />
+            </Button>
           </div>
         </div>
 
@@ -182,7 +193,7 @@ export default function ExplorePage() {
               </Button>
             )}
           </div>
-        ) : (
+        ) : viewMode === "grid" ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredCreators.map((creator, index) => (
               <motion.div
@@ -268,6 +279,57 @@ export default function ExplorePage() {
                         </div>
                       )}
                     </CardHeader>
+                  </Card>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col gap-4">
+            {filteredCreators.map((creator, index) => (
+              <motion.div
+                key={creator.email}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}
+              >
+                <Link to={createPageUrl(`UserProfile?email=${encodeURIComponent(creator.email)}`)}>
+                  <Card className="bg-slate-900/60 border-purple-500/30 hover:border-purple-400/50 flex flex-col sm:flex-row items-center p-4 gap-6 transition-all hover:bg-slate-800/80 cursor-pointer">
+                    {creator.featuredDeck?.cover_image ? (
+                      <div className="w-24 h-24 sm:w-32 sm:h-32 flex-shrink-0 rounded-lg overflow-hidden border border-white/20">
+                        <img src={creator.featuredDeck.cover_image} className="w-full h-full object-cover" />
+                      </div>
+                    ) : (
+                      <div className="w-24 h-24 sm:w-32 sm:h-32 flex-shrink-0 rounded-lg bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-white/20 flex items-center justify-center">
+                        <Layers className="w-8 h-8 text-white/40" />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0 w-full">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                          {creator.email.charAt(0).toUpperCase()}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <CardTitle className="text-white text-lg truncate">{creator.email.split('@')[0]}</CardTitle>
+                          <CardDescription className="text-white/60 text-xs truncate">{creator.email}</CardDescription>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4 text-sm mb-3">
+                        <div className="flex items-center gap-1 text-purple-300">
+                          <Layers className="w-4 h-4" />
+                          <span className="font-semibold">{creator.deckCount}</span>
+                          <span className="text-white/60">deck{creator.deckCount !== 1 ? 's' : ''}</span>
+                        </div>
+                        {creator.deckCount > 5 && (
+                          <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30">Top Creator</Badge>
+                        )}
+                      </div>
+                      {creator.categories.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {creator.categories.slice(0, 3).map(cat => <Badge key={cat} className="bg-purple-500/20 text-purple-200 text-xs">{cat}</Badge>)}
+                        </div>
+                      )}
+                    </div>
                   </Card>
                 </Link>
               </motion.div>
