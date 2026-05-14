@@ -11,7 +11,7 @@ import { createPageUrl } from "@/utils";
 import { queueApiCall } from "@/components/utils/apiQueue";
 import { isNetworkError } from "@/components/utils/isNetworkError";
 
-const FreeformCard = ({ card, canvasRef, toggleFlip, deck }) => {
+const FreeformCard = ({ card, canvasRef, toggleFlip, deck, openInterpretation }) => {
   const [scale, setScale] = useState(1);
   const [rotation, setRotation] = useState(card.rotation || 0);
   const initialPinch = useRef(null);
@@ -82,6 +82,11 @@ const FreeformCard = ({ card, canvasRef, toggleFlip, deck }) => {
       whileHover={{ scale: scale * 1.05, zIndex: 50 }}
       whileDrag={{ scale: scale * 1.1, zIndex: 100, boxShadow: "0 20px 40px rgba(0,0,0,0.5)" }}
       onDoubleClick={() => toggleFlip(card.id)}
+      onClick={() => {
+        if (card.isFlipped && openInterpretation) {
+          openInterpretation(card);
+        }
+      }}
       onWheel={(e) => {
         e.stopPropagation();
         const delta = -e.deltaY * 0.002;
@@ -178,6 +183,38 @@ export default function ReadingSimple() {
   const [selectedCardForInterpretation, setSelectedCardForInterpretation] = useState(null);
   const [aiInterpretation, setAiInterpretation] = useState(null);
   const [isAiLoading, setIsAiLoading] = useState(false);
+
+  const [spreadInterpretation, setSpreadInterpretation] = useState(null);
+  const [isSpreadAiLoading, setIsSpreadAiLoading] = useState(false);
+  const [showSpreadInterpretation, setShowSpreadInterpretation] = useState(false);
+
+  const getSpreadInsight = async () => {
+    if (drawnCards.length === 0 || isSpreadAiLoading) return;
+    setIsSpreadAiLoading(true);
+    setShowSpreadInterpretation(true);
+    try {
+      let cardsContext = drawnCards.map((c, i) => {
+        let posStr = "";
+        if (readingMode === "spread" && selectedSpread && selectedSpread.positions[i]) {
+          posStr = `Position: ${selectedSpread.positions[i].name} (${selectedSpread.positions[i].meaning}). `;
+        }
+        return `Card ${i+1}: ${c.cardData.name}. ${posStr}Meaning: ${c.cardData.upright_meaning || c.cardData.overall_meaning || "N/A"}`;
+      }).join("\n");
+
+      const prompt = `You are a mystical Tarot/Oracle reader. The user asked: "${questionParam || "General guidance"}". 
+      They have drawn the following cards:
+      ${cardsContext}
+
+      Provide a deep, synthesized reading connecting all these cards together to answer the user's question or provide guidance. Format with beautiful paragraphs, no markdown headers.`;
+
+      const res = await base44.integrations.Core.InvokeLLM({ prompt });
+      setSpreadInterpretation(res);
+    } catch (e) {
+      setSpreadInterpretation("The spirits are currently unreachable. Please try again later.");
+    } finally {
+      setIsSpreadAiLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (!deckIdFromUrl) {
@@ -456,6 +493,15 @@ export default function ReadingSimple() {
             Reveal All
           </Button>
           <Button 
+            onClick={getSpreadInsight} 
+            variant="outline"
+            disabled={drawnCards.length === 0}
+            className="border-purple-500/40 text-purple-200 hover:bg-purple-500/20"
+          >
+            <Sparkles className="w-4 h-4 mr-2 hidden sm:block" />
+            Interpret
+          </Button>
+          <Button 
             onClick={handleShuffle} 
             variant="outline"
             className="border-purple-500/40 text-purple-200 hover:bg-purple-500/20"
@@ -486,6 +532,7 @@ export default function ReadingSimple() {
                 canvasRef={canvasRef} 
                 toggleFlip={handleToggleFlip} 
                 deck={deck} 
+                openInterpretation={openInterpretation}
               />
             ))}
           </AnimatePresence>
@@ -566,6 +613,44 @@ export default function ReadingSimple() {
                 )}
               </div>
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Full Spread Interpretation Modal */}
+      <AnimatePresence>
+        {showSpreadInterpretation && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              className="bg-slate-900 border border-purple-500/50 rounded-2xl shadow-2xl overflow-hidden w-full max-w-2xl max-h-[85vh] flex flex-col"
+            >
+              <div className="p-4 border-b border-purple-500/30 flex justify-between items-center bg-purple-900/40">
+                <h3 className="text-xl font-bold text-white font-['Cinzel'] flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-purple-400" />
+                  Reading Interpretation
+                </h3>
+                <Button variant="ghost" size="sm" onClick={() => setShowSpreadInterpretation(false)} className="text-white hover:bg-white/10 rounded-full h-8 w-8 p-0">✕</Button>
+              </div>
+              <div className="p-6 overflow-y-auto custom-scrollbar flex-1">
+                {isSpreadAiLoading ? (
+                   <div className="flex flex-col items-center justify-center py-12">
+                     <Loader2 className="w-12 h-12 animate-spin text-purple-400 mb-4" />
+                     <p className="text-purple-300 text-lg">The spirits are synthesizing your reading...</p>
+                   </div>
+                ) : (
+                  <div className="text-purple-100 whitespace-pre-wrap leading-relaxed text-lg">
+                    {spreadInterpretation}
+                  </div>
+                )}
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
