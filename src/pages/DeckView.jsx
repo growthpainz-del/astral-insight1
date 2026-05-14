@@ -44,33 +44,25 @@ import CardRelationshipVisualizer from "@/components/deck/CardRelationshipVisual
 import DeckInsightsAnalyzer       from "@/components/deck/DeckInsightsAnalyzer";
 import PersonaFromInsights        from "@/components/deck/PersonaFromInsights";
 
-// ─── Tool button ──────────────────────────────────────────────────────────────
-function ToolBtn({ label, icon: Icon, onClick, color, asLink = false, to = "#" }) {
+// ─── Carousel Tool Button ──────────────────────────────────────────────────────
+function CarouselToolBtn({ label, icon: Icon, onClick, color, isSelected, asLink = false, to = "#" }) {
   const inner = (
     <div
       onClick={asLink ? undefined : onClick}
-      className="w-full cursor-pointer rounded-2xl px-4 py-3 text-white transition-all hover:opacity-90 active:scale-95"
-      style={{ background: color }}
+      className={`w-full cursor-pointer flex flex-col gap-3 rounded-2xl p-4 text-white transition-all active:scale-95 border ${
+        isSelected 
+          ? "ring-2 ring-white/50 border-white/20 shadow-lg scale-100" 
+          : "border-transparent hover:opacity-100 opacity-80"
+      }`}
+      style={{ background: color, minHeight: "120px", height: "100%" }}
     >
-      <div className="flex items-center gap-3">
-        <div className="p-2 rounded-xl bg-black/20 flex-shrink-0">
-          <Icon className="w-5 h-5" />
-        </div>
-        <span className="font-semibold text-sm leading-tight">{label}</span>
+      <div className="p-2.5 rounded-xl bg-black/20 self-start">
+        <Icon className="w-6 h-6" />
       </div>
+      <span className="font-bold text-sm leading-tight mt-auto">{label}</span>
     </div>
   );
-  return asLink ? <Link to={to} className="w-full block">{inner}</Link> : inner;
-}
-
-// ─── Section label ────────────────────────────────────────────────────────────
-function SectionLabel({ icon: Icon, label, color }) {
-  return (
-    <div className="flex items-center gap-2 mb-3 mt-7 first:mt-0">
-      <Icon className="w-4 h-4" style={{ color }} />
-      <span className="text-xs font-bold uppercase tracking-widest" style={{ color }}>{label}</span>
-    </div>
-  );
+  return asLink ? <Link to={to} className="w-full block h-full">{inner}</Link> : inner;
 }
 
 // ─── Tab pill ─────────────────────────────────────────────────────────────────
@@ -138,6 +130,7 @@ export default function DeckView() {
   const [error, setError]                 = useState("");
   const [selectedTool, setSelectedTool]   = useState("");
   const [activeTab, setActiveTab]         = useState("cards");
+  const [activeToolCategory, setActiveToolCategory] = useState("images");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting]       = useState(false);
   const [isDuplicating, setIsDuplicating] = useState(false);
@@ -354,51 +347,99 @@ export default function DeckView() {
       {/* ── Content ── */}
       <div className="px-4 pt-6">
 
-        {activeTab === "cards" && (
-          <>
-            <div className="rounded-2xl border border-white/10 bg-white/3 p-4 mb-6">
-              <ImageUrlDiagnostics deckId={deck?.id} />
-            </div>
+        {activeTab === "cards" && (() => {
+          const TOOL_CATEGORIES = [
+            { id: "images", label: "Images & Media", icon: ImageIcon, color: "#67e8f9" },
+            { id: "content", label: "Content & Cards", icon: Pencil, color: "#34d399" },
+            { id: "ai", label: "AI & Generation", icon: Sparkles, color: "#f472b6" },
+            { id: "admin", label: "Settings & Admin", icon: Settings, color: "#94a3b8" },
+          ];
 
-            <SectionLabel icon={ImageIcon} label="Images & Media" color="#67e8f9" />
-            <div className="space-y-2">
-              <ToolBtn label="Bulk Image URLs"   icon={LinkIcon}  onClick={() => setSelectedTool("bulkImageUrls")}   color="#0e7490" />
-              <ToolBtn label="Bulk Local Images" icon={Images}    onClick={() => setSelectedTool("bulkLocalImages")} color="#9f1239" />
-              <ToolBtn label="Bulk AI Images"    icon={Wand2}     onClick={() => setSelectedTool("bulkAIImages")}    color="linear-gradient(135deg,#be185d,#7c3aed)" />
-              <ToolBtn label="Rehost Images"     icon={RefreshCw} onClick={() => setSelectedTool("rehost")}          color="#b45309" />
-              <ToolBtn label="Update Cover"      icon={ImageIcon} onClick={() => setSelectedTool("updateCover")}     color="#92400e" />
-            </div>
+          const TOOLS_BY_CATEGORY = {
+            images: [
+              { id: "bulkImageUrls", label: "Bulk Image URLs", icon: LinkIcon, color: "#0e7490" },
+              { id: "bulkLocalImages", label: "Bulk Local Images", icon: Images, color: "#9f1239" },
+              { id: "bulkAIImages", label: "Bulk AI Images", icon: Wand2, color: "linear-gradient(135deg,#be185d,#7c3aed)" },
+              { id: "rehost", label: "Rehost Images", icon: RefreshCw, color: "#b45309" },
+              { id: "updateCover", label: "Update Cover", icon: ImageIcon, color: "#92400e" },
+            ],
+            content: [
+              { id: "cardManager", label: "Card Manager", icon: Pencil, color: "#0f766e" },
+              { id: "customNotes", label: "Custom Notes", icon: FileJson, color: "#92400e" },
+              { id: "jsonUpdater", label: "JSON Updater", icon: FileJson, color: "#5b21b6" },
+              { id: "jsonImport", label: "Import JSON", icon: Upload, color: "#155e75" },
+              { id: "combinedImport", label: "All-in-One Import", icon: FileSpreadsheet, color: "#9d174d" },
+            ],
+            ai: [
+              { id: "manual", label: "📖 AI Manual Builder", icon: Wand2, color: "linear-gradient(135deg,#86198f,#5b21b6)", isTabAction: true },
+              { id: "aiCoach", label: "AI Reading Coach", icon: Sparkles, color: "linear-gradient(135deg,#7c3aed,#be185d)" },
+              { id: "personaFromInsights", label: "Persona from Insights", icon: Sparkles, color: "linear-gradient(135deg,#3730a3,#7c3aed)" },
+              { id: "styleExtractor", label: "Style Extractor", icon: Palette, color: "linear-gradient(135deg,#be185d,#ea580c)" },
+            ],
+            admin: [
+              { id: "bulkSpreads", label: "Bulk Spreads", icon: Layers, color: "#3730a3" },
+              { id: "settingsInline", label: "Deck Settings", icon: Settings, color: "#334155" },
+              { id: "spreadDesigner", label: "Spread Designer", icon: Layers, color: "rgba(99,102,241,0.3)", isLink: true, to: createPageUrl(`SpreadDesigner?deckId=${deck?.id || ""}`) },
+              { id: "duplicate", label: isDuplicating ? "Duplicating…" : "Duplicate Deck", icon: isDuplicating ? Loader2 : Copy, color: "#0e7490", action: handleDuplicateDeck },
+              { id: "exportJson", label: "Export Deck JSON", icon: Download, color: "#065f46", action: handleExportJson },
+              { id: "deleteDeck", label: "Delete Deck", icon: Trash2, color: "#991b1b", action: () => setDeleteDialogOpen(true) },
+            ]
+          };
 
-            <SectionLabel icon={Pencil} label="Content & Cards" color="#34d399" />
-            <div className="space-y-2">
-              <ToolBtn label="Card Manager"      icon={Pencil}          onClick={() => setSelectedTool("cardManager")}    color="#0f766e" />
-              <ToolBtn label="Custom Notes"      icon={FileJson}        onClick={() => setSelectedTool("customNotes")}    color="#92400e" />
-              <ToolBtn label="JSON Updater"      icon={FileJson}        onClick={() => setSelectedTool("jsonUpdater")}    color="#5b21b6" />
-              <ToolBtn label="Import JSON"       icon={Upload}          onClick={() => setSelectedTool("jsonImport")}     color="#155e75" />
-              <ToolBtn label="All-in-One Import" icon={FileSpreadsheet} onClick={() => setSelectedTool("combinedImport")} color="#9d174d" />
-            </div>
+          const activeCat = TOOL_CATEGORIES.find(c => c.id === activeToolCategory) || TOOL_CATEGORIES[0];
 
-            <SectionLabel icon={Sparkles} label="AI & Generation" color="#f472b6" />
-            <div className="space-y-2">
-              <ToolBtn label="📖 AI Manual Builder"   icon={Wand2}    onClick={() => { setSelectedTool(""); setActiveTab("manual"); }} color="linear-gradient(135deg,#86198f,#5b21b6)" />
-              <ToolBtn label="AI Reading Coach"        icon={Sparkles} onClick={() => setSelectedTool("aiCoach")}            color="linear-gradient(135deg,#7c3aed,#be185d)" />
-              <ToolBtn label="Persona from Insights"   icon={Sparkles} onClick={() => setSelectedTool("personaFromInsights")} color="linear-gradient(135deg,#3730a3,#7c3aed)" />
-              <ToolBtn label="Style Extractor"         icon={Palette}  onClick={() => setSelectedTool("styleExtractor")}      color="linear-gradient(135deg,#be185d,#ea580c)" />
-            </div>
+          return (
+            <>
+              <div className="rounded-2xl border border-white/10 bg-white/3 p-4 mb-6">
+                <ImageUrlDiagnostics deckId={deck?.id} />
+              </div>
 
-            <SectionLabel icon={Settings} label="Settings & Admin" color="#94a3b8" />
-            <div className="space-y-2">
-              <ToolBtn label="Bulk Spreads"        icon={Layers}   onClick={() => setSelectedTool("bulkSpreads")}    color="#3730a3" />
-              <ToolBtn label="Deck Settings"       icon={Settings} onClick={() => setSelectedTool("settingsInline")} color="#334155" />
-              <ToolBtn label="Spread Designer"     icon={Layers}   asLink to={createPageUrl(`SpreadDesigner?deckId=${deck?.id || ""}`)} color="rgba(99,102,241,0.3)" />
-              <ToolBtn label={isDuplicating ? "Duplicating…" : "Duplicate Deck"} icon={isDuplicating ? Loader2 : Copy} onClick={handleDuplicateDeck} color="#0e7490" />
-              <ToolBtn label="Export Deck JSON"    icon={Download} onClick={handleExportJson}             color="#065f46" />
-              <ToolBtn label="Delete Deck"         icon={Trash2}   onClick={() => setDeleteDialogOpen(true)} color="#991b1b" />
-            </div>
+              {/* Tool Categories Carousel */}
+              <div className="mb-6 -mx-4 px-4">
+                <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-3 snap-x after:content-[''] after:w-4 after:flex-shrink-0">
+                  {TOOL_CATEGORIES.map(cat => (
+                    <button
+                      key={cat.id}
+                      onClick={() => { setActiveToolCategory(cat.id); setSelectedTool(""); }}
+                      className={`flex-shrink-0 flex items-center gap-2 px-4 py-3 rounded-2xl transition-all snap-start border ${
+                        activeToolCategory === cat.id 
+                          ? "bg-white/10 border-white/20 shadow-[0_0_15px_rgba(255,255,255,0.05)]" 
+                          : "bg-white/5 border-transparent hover:bg-white/10 opacity-70 hover:opacity-100"
+                      }`}
+                    >
+                      <cat.icon className="w-5 h-5" style={{ color: cat.color }} />
+                      <span className="font-semibold text-sm whitespace-nowrap" style={{ color: cat.color }}>{cat.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-            <ToolPanel tool={selectedTool} deck={deck} cards={cards} setDeck={setDeck} setCards={setCards} reloadCards={reloadCards} />
-          </>
-        )}
+              {/* Tools Carousel for Active Category */}
+              <div className="mb-6 -mx-4 px-4">
+                <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-4 snap-x pt-2 after:content-[''] after:w-4 after:flex-shrink-0">
+                  {TOOLS_BY_CATEGORY[activeCat.id].map(tool => {
+                    const isSelected = selectedTool === tool.id;
+                    return (
+                      <div key={tool.id} className="flex-shrink-0 w-[140px] snap-start">
+                        {tool.isTabAction ? (
+                          <CarouselToolBtn label={tool.label} icon={tool.icon} onClick={() => { setSelectedTool(""); setActiveTab("manual"); }} color={tool.color} />
+                        ) : tool.isLink ? (
+                          <CarouselToolBtn label={tool.label} icon={tool.icon} asLink to={tool.to} color={tool.color} />
+                        ) : tool.action ? (
+                          <CarouselToolBtn label={tool.label} icon={tool.icon} onClick={tool.action} color={tool.color} />
+                        ) : (
+                          <CarouselToolBtn label={tool.label} icon={tool.icon} onClick={() => setSelectedTool(tool.id)} color={tool.color} isSelected={isSelected} />
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <ToolPanel tool={selectedTool} deck={deck} cards={cards} setDeck={setDeck} setCards={setCards} reloadCards={reloadCards} />
+            </>
+          );
+        })()}
 
         {activeTab === "insights" && (
           <div className="rounded-2xl border border-white/10 bg-white/3 p-5">
