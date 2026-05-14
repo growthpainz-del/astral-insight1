@@ -446,15 +446,7 @@ export default function Layout({ children, currentPageName }) {
               Login
             </Button>
           </div>
-        ) : (
-          <div className="fixed z-[60] top-3 right-3 flex gap-2">
-            <Link to={createPageUrl("Studio")}>
-              <Button size="sm" className="btn-dark-outline">
-                Creator Studio
-              </Button>
-            </Link>
-          </div>
-        )}
+        ) : null}
       </div>
     );
   }
