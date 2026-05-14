@@ -161,6 +161,8 @@ body,
   background-color: var(--neon-bg) !important;
   color: var(--neon-text) !important;
   min-height: 100dvh;
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 /* ─── Neon colour utility overrides ─────────────────────────────────────── */
