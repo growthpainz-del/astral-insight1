@@ -887,7 +887,8 @@ export default function SpreadLayout(props) {
         className="relative w-full rounded-xl flex items-center justify-center mystical-grid-container"
         style={{
           minHeight: computedContainerMinHeight,
-          aspectRatio: getDesignerAspectRatio(visibleCount),
+          // Removing fixed aspectRatio to prevent horizontal overflow on mobile.
+          // Container will naturally become tall on mobile to fit the cards based on minHeight.
           padding: visibleCount === 1 ? '3rem 2rem' : (viewMode === 'compact' ? '1rem 0.5rem' : viewMode === 'detailed' ? '3rem 2rem' : '2rem 1rem'),
           overflow: 'auto',
           position: 'relative',
