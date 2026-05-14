@@ -81,6 +81,7 @@ import SharedReading from './pages/SharedReading';
 import SpreadCleaner from './pages/SpreadCleaner';
 import SpreadManager from './pages/SpreadManager';
 import SpreadSeeder from './pages/SpreadSeeder';
+import Studio from './pages/Studio';
 import SubscriptionManagement from './pages/SubscriptionManagement';
 import Upgrade from './pages/Upgrade';
 import UserProfile from './pages/UserProfile';
@@ -127,6 +128,7 @@ export const PAGES = {
     "SpreadCleaner": SpreadCleaner,
     "SpreadManager": SpreadManager,
     "SpreadSeeder": SpreadSeeder,
+    "Studio": Studio,
     "SubscriptionManagement": SubscriptionManagement,
     "Upgrade": Upgrade,
     "UserProfile": UserProfile,

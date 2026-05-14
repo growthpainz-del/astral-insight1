@@ -35,6 +35,7 @@ import DeckSettings               from "@/components/deck/DeckSettings";
 import JsonCardUpdater            from "@/components/deck/JsonCardUpdater";
 import CardManager                from "@/components/deck/CardManager";
 import JsonCardImporter           from "@/components/deck/JsonCardImporter";
+import BulkCsvUploader            from "@/components/deck/BulkCsvUploader";
 import BulkAIImageGenerator       from "@/components/deck/BulkAIImageGenerator";
 import AICoachEditor              from "@/components/deck/AICoachEditor";
 import PublishingDashboard        from "@/components/deck/PublishingDashboard";
@@ -106,6 +107,7 @@ function ToolPanel({ tool, deck, cards, setDeck, setCards, reloadCards }) {
     rehost:             { title: "Rehost Images",         icon: RefreshCw,color: "text-amber-300",  node: <BulkRehoster deckId={deck.id} /> },
     customNotes:        { title: "Custom Notes",          icon: FileJson, color: "text-yellow-300", node: <QuickCustomNotes deckId={deck.id} /> },
     settingsInline:     { title: "Deck Settings",         icon: Settings, color: "text-slate-300",  node: <DeckSettings deckId={deck.id} deck={deck} inline={true} onSaved={() => Deck.get(deck.id).then(setDeck)} /> },
+    csvImport:          { title: "CSV Import",            icon: FileSpreadsheet, color: "text-blue-300", node: <BulkCsvUploader deckId={deck.id} onDone={() => { Deck.get(deck.id).then(setDeck); reloadCards(); }} /> },
     jsonUpdater:        { title: "JSON Updater",          icon: FileJson, color: "text-violet-300", node: <JsonCardUpdater deckId={deck.id} onDone={() => Deck.get(deck.id).then(setDeck)} /> },
     jsonImport:         { title: "Import JSON",           icon: Upload,   color: "text-cyan-300",   node: <JsonCardImporter deckId={deck.id} onDone={() => Deck.get(deck.id).then(setDeck)} /> },
     cardManager:        { title: "Card Manager",          icon: Pencil,   color: "text-teal-300",   node: <CardManager deckId={deck.id} cards={cards} onUpdate={(c) => { setCards(c); reloadCards(); }} /> },
@@ -140,6 +142,37 @@ export default function DeckView() {
   const [activeTab, setActiveTab]         = useState("cards");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting]       = useState(false);
+  const [isDuplicating, setIsDuplicating] = useState(false);
+
+  const handleDuplicateDeck = async () => {
+    if (!deck?.id) return;
+    setIsDuplicating(true);
+    try {
+      const { id, created_date, updated_date, created_by, ...deckData } = deck;
+      deckData.name = deckData.name + ' (Copy)';
+      deckData.is_public = false;
+      
+      const newDeck = await base44.entities.Deck.create(deckData);
+      
+      const newCards = cards.map(c => {
+        const { id, created_date, updated_date, created_by, ...cardData } = c;
+        cardData.deck_id = newDeck.id;
+        return cardData;
+      });
+      
+      const chunkSize = 50;
+      for (let i = 0; i < newCards.length; i += chunkSize) {
+        await base44.entities.Card.bulkCreate(newCards.slice(i, i + chunkSize));
+      }
+      
+      toast.success(`Duplicated "${deck.name}" successfully!`);
+      navigate(createPageUrl(`DeckView?id=${newDeck.id}`));
+    } catch (err) {
+      toast.error('Failed to duplicate deck.');
+    } finally {
+      setIsDuplicating(false);
+    }
+  };
 
   useEffect(() => {
     let active = true;
@@ -335,6 +368,7 @@ export default function DeckView() {
             <div className="space-y-2">
               <ToolBtn label="Card Manager"      icon={Pencil}          onClick={() => setSelectedTool("cardManager")}    color="#0f766e" />
               <ToolBtn label="Custom Notes"      icon={FileJson}        onClick={() => setSelectedTool("customNotes")}    color="#92400e" />
+              <ToolBtn label="Import CSV"        icon={FileSpreadsheet} onClick={() => setSelectedTool("csvImport")}      color="#2563eb" />
               <ToolBtn label="JSON Updater"      icon={FileJson}        onClick={() => setSelectedTool("jsonUpdater")}    color="#5b21b6" />
               <ToolBtn label="Import JSON"       icon={Upload}          onClick={() => setSelectedTool("jsonImport")}     color="#155e75" />
               <ToolBtn label="All-in-One Import" icon={FileSpreadsheet} onClick={() => setSelectedTool("combinedImport")} color="#9d174d" />
@@ -353,6 +387,7 @@ export default function DeckView() {
               <ToolBtn label="Bulk Spreads"        icon={Layers}   onClick={() => setSelectedTool("bulkSpreads")}    color="#3730a3" />
               <ToolBtn label="Deck Settings"       icon={Settings} onClick={() => setSelectedTool("settingsInline")} color="#334155" />
               <ToolBtn label="Spread Designer"     icon={Layers}   asLink to={createPageUrl(`SpreadDesigner?deckId=${deck?.id || ""}`)} color="rgba(99,102,241,0.3)" />
+              <ToolBtn label="Duplicate Deck"      icon={Layers}   onClick={handleDuplicateDeck}          color="#0891b2" />
               <ToolBtn label="Export Deck JSON"    icon={Download} onClick={handleExportJson}             color="#065f46" />
               <ToolBtn label="Delete Deck"         icon={Trash2}   onClick={() => setDeleteDialogOpen(true)} color="#991b1b" />
             </div>
