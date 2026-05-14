@@ -532,12 +532,12 @@ export default function ReadingSimple() {
       </AnimatePresence>
 
       {/* Top Bar */}
-      <div className="bg-black/40 backdrop-blur-md border-b border-purple-500/20 p-4 flex items-center justify-between z-10">
-        <div className="flex items-center gap-4">
+      <div className="bg-black/40 backdrop-blur-md border-b border-purple-500/20 p-2 md:p-4 flex flex-col md:flex-row items-start md:items-center justify-between z-10 gap-2">
+        <div className="flex items-center gap-4 shrink-0 px-2 w-full md:w-auto justify-between md:justify-start">
           <Link to={createPageUrl("ReadingRoom")}>
-            <Button variant="ghost" className="text-purple-200 hover:text-white hover:bg-purple-500/20">
-              <ChevronLeft className="w-5 h-5 mr-2" />
-              Room
+            <Button variant="ghost" className="text-purple-200 hover:text-white hover:bg-purple-500/20 h-8 px-2 md:h-10 md:px-4">
+              <ChevronLeft className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
+              <span className="text-sm md:text-base">Room</span>
             </Button>
           </Link>
           <div className="hidden md:block">
@@ -546,52 +546,61 @@ export default function ReadingSimple() {
             </h1>
             <p className="text-xs text-purple-300/70">{deckRemaining.length} cards remaining</p>
           </div>
+          {/* Mobile minimal title */}
+          <div className="md:hidden text-right">
+            <div className="text-xs font-bold text-purple-300 truncate max-w-[150px]">{deck?.name}</div>
+            <div className="text-[10px] text-purple-400/70">{deckRemaining.length} cards</div>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-2 md:pb-0 px-2 flex-nowrap w-full justify-start md:justify-end">
           {readingMode === "spread" && selectedSpread && (
             isEditingSpread ? (
-              <Button onClick={handleSaveSpread} disabled={isSavingSpread} variant="outline" className="border-purple-500/40 text-purple-200 hover:bg-purple-500/20">
-                {isSavingSpread ? <Loader2 className="w-4 h-4 sm:mr-2 animate-spin" /> : <Save className="w-4 h-4 sm:mr-2" />} <span className="hidden sm:inline">Save</span>
+              <Button size="sm" onClick={handleSaveSpread} disabled={isSavingSpread} variant="outline" className="shrink-0 border-purple-500/40 text-purple-200 hover:bg-purple-500/20">
+                {isSavingSpread ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Save className="w-4 h-4 mr-1" />} Save Layout
               </Button>
             ) : (
-              <Button onClick={() => setIsEditingSpread(true)} variant="outline" className="border-purple-500/40 text-purple-200 hover:bg-purple-500/20">
-                <Settings2 className="w-4 h-4 sm:mr-2" /> <span className="hidden sm:inline">Edit Layout</span>
+              <Button size="sm" onClick={() => setIsEditingSpread(true)} variant="outline" className="shrink-0 border-purple-500/40 text-purple-200 hover:bg-purple-500/20">
+                <Settings2 className="w-4 h-4 mr-1" /> Edit Layout
               </Button>
             )
           )}
           <Button 
+            size="sm"
             onClick={handleDrawCard} 
             disabled={deckRemaining.length === 0 || (readingMode === "spread" && selectedSpread && drawnCards.length >= selectedSpread.positions.length)}
-            className="bg-purple-600 hover:bg-purple-700 text-white shadow-[0_0_15px_rgba(147,51,234,0.3)]"
+            className="shrink-0 bg-purple-600 hover:bg-purple-700 text-white shadow-[0_0_15px_rgba(147,51,234,0.3)]"
           >
-            <Hand className="w-4 h-4 mr-2" />
-            Draw Card
+            <Hand className="w-4 h-4 mr-1" />
+            Draw
           </Button>
           <Button 
+            size="sm"
             onClick={revealAll} 
             variant="outline"
             disabled={drawnCards.length === 0}
-            className="border-purple-500/40 text-purple-200 hover:bg-purple-500/20"
+            className="shrink-0 border-purple-500/40 text-purple-200 hover:bg-purple-500/20"
           >
-            <Eye className="w-4 h-4 mr-2 hidden sm:block" />
+            <Eye className="w-4 h-4 mr-1" />
             Reveal All
           </Button>
           <Button 
+            size="sm"
             onClick={getSpreadInsight} 
             variant="outline"
             disabled={drawnCards.length === 0}
-            className="border-purple-500/40 text-purple-200 hover:bg-purple-500/20"
+            className="shrink-0 border-purple-500/40 text-purple-200 hover:bg-purple-500/20"
           >
-            <Sparkles className="w-4 h-4 mr-2 hidden sm:block" />
+            <Sparkles className="w-4 h-4 mr-1" />
             Interpret
           </Button>
           <Button 
+            size="sm"
             onClick={handleShuffle} 
             variant="outline"
-            className="border-purple-500/40 text-purple-200 hover:bg-purple-500/20"
+            className="shrink-0 border-purple-500/40 text-purple-200 hover:bg-purple-500/20"
           >
-            <Shuffle className="w-4 h-4 mr-2 hidden sm:block" />
+            <Shuffle className="w-4 h-4 mr-1" />
             Reshuffle
           </Button>
         </div>
