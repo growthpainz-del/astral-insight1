@@ -340,7 +340,7 @@ export default function CosmicHub() {
               padding: "0 2%",
             }}>
               <Portal to={createPageUrl("ReadingRoom")} icon="🌙" label="Reading Room" sub="Read the cards" accent="#a78bfa" delay={0.7} />
-              <Portal to={createPageUrl("DashboardHub")} icon="🌌" label="Dashboard Hub" sub="All app features" accent="#67e8f9" delay={1.1} />
+              <Portal to={createPageUrl("DashboardHub")} icon={<img src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/8993c07af_DD71F027-9FC2-45E9-A098-8F595AD987B3.png" alt="Hub" style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'contain' }} />} label="Dashboard Hub" sub="All app features" accent="#67e8f9" delay={1.1} />
               <Portal to={createPageUrl("Studio")} icon="🎨" label="Creators Studio" sub="Build oracle decks" accent="#f472b6" delay={0.9} />
             </div>
           </div>
