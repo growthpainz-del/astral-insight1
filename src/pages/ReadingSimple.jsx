@@ -27,6 +27,7 @@ export default function ReadingSimple() {
   const [spreads, setSpreads] = useState([]);
   const [selectedSpread, setSelectedSpread] = useState(null);
   const [revealedIndices, setRevealedIndices] = useState(new Set());
+  const [hasStarted, setHasStarted] = useState(false);
 
   useEffect(() => {
     if (!deckIdFromUrl) {
@@ -170,56 +171,105 @@ export default function ReadingSimple() {
     setRevealedIndices(newRevealed);
   };
 
+  if (!hasStarted) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-indigo-950 via-slate-900 to-black flex items-center justify-center p-4">
+        <div className="bg-black/40 backdrop-blur-md border border-purple-500/30 rounded-2xl p-8 max-w-lg w-full">
+          <Link to={createPageUrl("ReadingRoom")}>
+            <Button variant="ghost" className="text-purple-200 hover:text-white mb-6 -ml-4">
+              <ChevronLeft className="w-5 h-5 mr-1" />
+              Back
+            </Button>
+          </Link>
+          
+          <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-cyan-300 mb-2 font-['Cinzel']">
+            {deck?.name}
+          </h1>
+          <p className="text-purple-300/70 mb-8">Choose your reading style before you begin drawing cards.</p>
+
+          <Tabs value={readingMode} onValueChange={setReadingMode} className="w-full mb-8">
+            <TabsList className="grid w-full grid-cols-2 bg-black/60 border border-purple-500/30 h-12">
+              <TabsTrigger value="freeform" className="data-[state=active]:bg-purple-600 text-sm">
+                Freeform Canvas
+              </TabsTrigger>
+              <TabsTrigger value="spread" className="data-[state=active]:bg-purple-600 text-sm">
+                Spread Layout
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+
+          <AnimatePresence mode="wait">
+            {readingMode === "freeform" ? (
+              <motion.div 
+                key="freeform"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="mb-8 p-4 bg-purple-900/20 border border-purple-500/20 rounded-lg text-center"
+              >
+                <Hand className="w-8 h-8 text-purple-400 mx-auto mb-3" />
+                <p className="text-purple-200">Draw cards one by one and freely drag them anywhere on the canvas to build your own layout.</p>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="spread"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="mb-8"
+              >
+                <label className="block text-purple-300 text-sm mb-2">Select Spread</label>
+                {spreads.length > 0 ? (
+                  <Select 
+                    value={selectedSpread?.id || ""} 
+                    onValueChange={(val) => setSelectedSpread(spreads.find(s => s.id === val))}
+                  >
+                    <SelectTrigger className="w-full h-12 bg-black/40 border-purple-500/30 text-white">
+                      <SelectValue placeholder="Select a spread layout" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-900 border-purple-500/30 text-white max-h-60">
+                      {spreads.map(s => (
+                        <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <p className="text-red-300 bg-red-900/20 p-3 rounded border border-red-500/30 text-sm">
+                    No spreads available. Please create some in the Spread Manager or use Freeform mode.
+                  </p>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <Button 
+            className="w-full h-12 bg-purple-600 hover:bg-purple-700 text-white shadow-[0_0_20px_rgba(147,51,234,0.4)] text-lg font-['Cinzel'] tracking-wider"
+            onClick={() => setHasStarted(true)}
+            disabled={readingMode === "spread" && (!spreads.length || !selectedSpread)}
+          >
+            Begin Reading
+            <Sparkles className="w-5 h-5 ml-2" />
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-950 via-slate-900 to-black flex flex-col overflow-hidden">
       {/* Top Bar */}
       <div className="bg-black/40 backdrop-blur-md border-b border-purple-500/20 p-4 flex items-center justify-between z-10">
         <div className="flex items-center gap-4">
-          <Link to={createPageUrl("ReadingRoom")}>
-            <Button variant="ghost" className="text-purple-200 hover:text-white hover:bg-purple-500/20">
-              <ChevronLeft className="w-5 h-5 mr-2" />
-              Reading Room
-            </Button>
-          </Link>
+          <Button variant="ghost" onClick={() => setHasStarted(false)} className="text-purple-200 hover:text-white hover:bg-purple-500/20">
+            <ChevronLeft className="w-5 h-5 mr-2" />
+            Modes
+          </Button>
           <div className="hidden md:block">
             <h1 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-cyan-300">
-              {deck?.name}
+              {deck?.name} <span className="text-sm font-normal text-purple-300/70 ml-2">({readingMode === "freeform" ? "Freeform" : selectedSpread?.name})</span>
             </h1>
             <p className="text-xs text-purple-300/70">{deckRemaining.length} cards remaining</p>
           </div>
-        </div>
-
-        <div className="hidden lg:flex flex-1 justify-center mx-4">
-          <Tabs value={readingMode} onValueChange={(val) => {
-            setReadingMode(val);
-            handleShuffle(); // reset when switching modes
-          }} className="w-[300px]">
-            <TabsList className="grid w-full grid-cols-2 bg-black/40 border border-purple-500/30">
-              <TabsTrigger value="freeform" className="data-[state=active]:bg-purple-600">Freeform</TabsTrigger>
-              <TabsTrigger value="spread" className="data-[state=active]:bg-purple-600">Spread</TabsTrigger>
-            </TabsList>
-          </Tabs>
-          
-          {readingMode === "spread" && spreads.length > 0 && (
-            <div className="ml-4">
-              <Select 
-                value={selectedSpread?.id || ""} 
-                onValueChange={(val) => {
-                  setSelectedSpread(spreads.find(s => s.id === val));
-                  handleShuffle();
-                }}
-              >
-                <SelectTrigger className="w-[200px] bg-black/40 border-purple-500/30 text-white">
-                  <SelectValue placeholder="Select Spread" />
-                </SelectTrigger>
-                <SelectContent className="bg-slate-900 border-purple-500/30 text-white">
-                  {spreads.map(s => (
-                    <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
         </div>
 
         <div className="flex items-center gap-2">
