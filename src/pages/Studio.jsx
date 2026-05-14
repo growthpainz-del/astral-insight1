@@ -236,6 +236,25 @@ export default function Studio() {
 
   return (
     <PullToRefresh onRefresh={loadData}>
+      <style>{`
+        @media (max-width: 767px) {
+          main::-webkit-scrollbar {
+            display: block !important;
+            width: 6px !important;
+          }
+          main::-webkit-scrollbar-track {
+            background: transparent;
+          }
+          main::-webkit-scrollbar-thumb {
+            background: rgba(167, 139, 250, 0.4);
+            border-radius: 10px;
+          }
+          main {
+            scrollbar-width: thin !important;
+            scrollbar-color: rgba(167, 139, 250, 0.4) transparent !important;
+          }
+        }
+      `}</style>
       <div className="min-h-screen text-white pb-24">
 
         {/* ── Hero ── */}
