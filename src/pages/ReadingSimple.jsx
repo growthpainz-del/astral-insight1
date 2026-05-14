@@ -136,9 +136,13 @@ const FreeformCard = ({ card, canvasRef, toggleFlip, deck }) => {
   );
 };
 
+import { base44 } from "@/api/base44Client";
+
 export default function ReadingSimple() {
   const [searchParams] = useSearchParams();
   const deckIdFromUrl = searchParams.get("deckId");
+  const spreadParam = searchParams.get("spread");
+  const questionParam = searchParams.get("question");
 
   const [deck, setDeck] = useState(null);
   const [cards, setCards] = useState([]);
@@ -148,12 +152,15 @@ export default function ReadingSimple() {
   const [error, setError] = useState("");
   const canvasRef = React.useRef(null);
   
-  const [readingMode, setReadingMode] = useState("freeform");
-  const [spreads, setSpreads] = useState([]);
+  const [readingMode, setReadingMode] = useState(spreadParam === "freeform" ? "freeform" : "spread");
   const [selectedSpread, setSelectedSpread] = useState(null);
   const [revealedIndices, setRevealedIndices] = useState(new Set());
-  const [hasStarted, setHasStarted] = useState(false);
   const [isShuffling, setIsShuffling] = useState(false);
+  
+  // Interpretation state
+  const [selectedCardForInterpretation, setSelectedCardForInterpretation] = useState(null);
+  const [aiInterpretation, setAiInterpretation] = useState(null);
+  const [isAiLoading, setIsAiLoading] = useState(false);
 
   useEffect(() => {
     if (!deckIdFromUrl) {
@@ -183,9 +190,9 @@ export default function ReadingSimple() {
 
         setDeck(loadedDeck);
         setCards(loadedCards);
-        setSpreads(loadedSpreads || []);
-        if (loadedSpreads && loadedSpreads.length > 0) {
-          setSelectedSpread(loadedSpreads[0]);
+        if (spreadParam && spreadParam !== "freeform") {
+          const spread = loadedSpreads?.find(s => s.id === spreadParam);
+          setSelectedSpread(spread || null);
         }
         
         const shuffled = [...loadedCards].sort(() => Math.random() - 0.5);
@@ -299,91 +306,51 @@ export default function ReadingSimple() {
     const newRevealed = new Set(revealedIndices);
     newRevealed.add(idx);
     setRevealedIndices(newRevealed);
+    
+    if (drawnCards[idx]) {
+      openInterpretation(drawnCards[idx], idx);
+    }
   };
 
-  if (!hasStarted) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-950 via-slate-900 to-black flex items-center justify-center p-4">
-        <div className="bg-black/40 backdrop-blur-md border border-purple-500/30 rounded-2xl p-8 max-w-lg w-full">
-          <Link to={createPageUrl("ReadingRoom")}>
-            <Button variant="ghost" className="text-purple-200 hover:text-white mb-6 -ml-4">
-              <ChevronLeft className="w-5 h-5 mr-1" />
-              Back
-            </Button>
-          </Link>
-          
-          <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-cyan-300 mb-2 font-['Cinzel']">
-            {deck?.name}
-          </h1>
-          <p className="text-purple-300/70 mb-8">Choose your reading style before you begin drawing cards.</p>
+  const openInterpretation = (cardWrapper, positionIndex = null) => {
+    const position = selectedSpread && positionIndex !== null ? selectedSpread.positions[positionIndex] : null;
+    setSelectedCardForInterpretation({ ...cardWrapper, position });
+    setAiInterpretation(null);
+  };
 
-          <Tabs value={readingMode} onValueChange={setReadingMode} className="w-full mb-8">
-            <TabsList className="grid w-full grid-cols-2 bg-black/60 border border-purple-500/30 h-12">
-              <TabsTrigger value="freeform" className="data-[state=active]:bg-purple-600 text-sm">
-                Freeform Canvas
-              </TabsTrigger>
-              <TabsTrigger value="spread" className="data-[state=active]:bg-purple-600 text-sm">
-                Spread Layout
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+  const getDeeperInsight = async () => {
+    if (!selectedCardForInterpretation || isAiLoading) return;
+    setIsAiLoading(true);
+    try {
+      const card = selectedCardForInterpretation.cardData;
+      const position = selectedCardForInterpretation.position;
+      
+      const prompt = `You are a mystical Tarot/Oracle reader. The user asked: "${questionParam || "General guidance"}". 
+      They drew the card "${card.name}"${position ? ` in the position of "${position.name}" (${position.meaning})` : ""}.
+      Card meanings: Upright: ${card.upright_meaning || card.overall_meaning || "N/A"}.
+      Provide a deep, insightful, and concise interpretation (2-3 paragraphs) connecting the card to the user's situation. Do not use markdown headers, just plain paragraphs.`;
 
-          <AnimatePresence mode="wait">
-            {readingMode === "freeform" ? (
-              <motion.div 
-                key="freeform"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="mb-8 p-4 bg-purple-900/20 border border-purple-500/20 rounded-lg text-center"
-              >
-                <Hand className="w-8 h-8 text-purple-400 mx-auto mb-3" />
-                <p className="text-purple-200">Draw cards one by one and freely drag them anywhere on the canvas to build your own layout.</p>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="spread"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="mb-8"
-              >
-                <label className="block text-purple-300 text-sm mb-2">Select Spread</label>
-                {spreads.length > 0 ? (
-                  <Select 
-                    value={selectedSpread?.id || ""} 
-                    onValueChange={(val) => setSelectedSpread(spreads.find(s => s.id === val))}
-                  >
-                    <SelectTrigger className="w-full h-12 bg-black/40 border-purple-500/30 text-white">
-                      <SelectValue placeholder="Select a spread layout" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-slate-900 border-purple-500/30 text-white max-h-60">
-                      {spreads.map(s => (
-                        <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  <p className="text-red-300 bg-red-900/20 p-3 rounded border border-red-500/30 text-sm">
-                    No spreads available. Please create some in the Spread Manager or use Freeform mode.
-                  </p>
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
+      const res = await base44.integrations.Core.InvokeLLM({ prompt });
+      setAiInterpretation(res);
+    } catch (e) {
+      setAiInterpretation("The spirits are currently unreachable. Please try again later.");
+    } finally {
+      setIsAiLoading(false);
+    }
+  };
 
-          <Button 
-            className="w-full h-12 bg-purple-600 hover:bg-purple-700 text-white shadow-[0_0_20px_rgba(147,51,234,0.4)] text-lg font-['Cinzel'] tracking-wider"
-            onClick={() => setHasStarted(true)}
-            disabled={readingMode === "spread" && (!spreads.length || !selectedSpread)}
-          >
-            Begin Reading
-            <Sparkles className="w-5 h-5 ml-2" />
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  const handleToggleFlip = (id) => {
+    const newDrawn = drawnCards.map(c => {
+      if (c.id === id) {
+        if (!c.isFlipped) { 
+          openInterpretation(c);
+        }
+        return { ...c, isFlipped: !c.isFlipped };
+      }
+      return c;
+    });
+    setDrawnCards(newDrawn);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-950 via-slate-900 to-black flex flex-col overflow-hidden">
@@ -439,10 +406,12 @@ export default function ReadingSimple() {
       {/* Top Bar */}
       <div className="bg-black/40 backdrop-blur-md border-b border-purple-500/20 p-4 flex items-center justify-between z-10">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" onClick={() => setHasStarted(false)} className="text-purple-200 hover:text-white hover:bg-purple-500/20">
-            <ChevronLeft className="w-5 h-5 mr-2" />
-            Modes
-          </Button>
+          <Link to={createPageUrl("ReadingRoom")}>
+            <Button variant="ghost" className="text-purple-200 hover:text-white hover:bg-purple-500/20">
+              <ChevronLeft className="w-5 h-5 mr-2" />
+              Room
+            </Button>
+          </Link>
           <div className="hidden md:block">
             <h1 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-cyan-300">
               {deck?.name} <span className="text-sm font-normal text-purple-300/70 ml-2">({readingMode === "freeform" ? "Freeform" : selectedSpread?.name})</span>
@@ -498,7 +467,7 @@ export default function ReadingSimple() {
                 key={drawnCard.id} 
                 card={{...drawnCard, zIndex: index + 10}} 
                 canvasRef={canvasRef} 
-                toggleFlip={toggleFlip} 
+                toggleFlip={handleToggleFlip} 
                 deck={deck} 
               />
             ))}
@@ -526,6 +495,63 @@ export default function ReadingSimple() {
           )}
         </div>
       )}
+
+      {/* Interpretation Panel */}
+      <AnimatePresence>
+        {selectedCardForInterpretation && (
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            className="fixed bottom-4 right-4 left-4 md:left-auto md:w-96 bg-black/80 backdrop-blur-xl border border-purple-500/50 rounded-2xl shadow-2xl overflow-hidden z-50 flex flex-col max-h-[80vh]"
+          >
+            <div className="p-4 border-b border-purple-500/30 flex justify-between items-center bg-purple-900/20">
+              <div>
+                <h3 className="text-lg font-bold text-white font-['Cinzel']">{selectedCardForInterpretation.cardData.name}</h3>
+                {selectedCardForInterpretation.position && (
+                  <p className="text-xs text-purple-300">Position: {selectedCardForInterpretation.position.name}</p>
+                )}
+              </div>
+              <Button variant="ghost" size="sm" onClick={() => setSelectedCardForInterpretation(null)} className="text-white hover:bg-white/10 rounded-full h-8 w-8 p-0">✕</Button>
+            </div>
+            
+            <div className="p-4 overflow-y-auto custom-scrollbar flex-1 space-y-4">
+              <div className="text-sm text-purple-100">
+                <p className="font-semibold text-purple-300 mb-1">Basic Interpretation:</p>
+                <p>{selectedCardForInterpretation.cardData.overall_meaning || selectedCardForInterpretation.cardData.upright_meaning || "A mysterious force is at play. The meaning is hidden."}</p>
+              </div>
+
+              {selectedCardForInterpretation.position && selectedCardForInterpretation.position.meaning && (
+                <div className="text-sm text-purple-100">
+                  <p className="font-semibold text-purple-300 mb-1">Position Meaning:</p>
+                  <p>{selectedCardForInterpretation.position.meaning}</p>
+                </div>
+              )}
+
+              <div className="pt-4 border-t border-purple-500/20">
+                {!aiInterpretation && !isAiLoading ? (
+                  <Button 
+                    onClick={getDeeperInsight} 
+                    className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-[0_0_15px_rgba(147,51,234,0.3)]"
+                  >
+                    <Sparkles className="w-4 h-4 mr-2" /> Deeper Insight (AI)
+                  </Button>
+                ) : isAiLoading ? (
+                  <div className="flex items-center justify-center p-4">
+                    <Loader2 className="w-6 h-6 animate-spin text-purple-400" />
+                    <span className="ml-2 text-purple-300 text-sm">Consulting the spirits...</span>
+                  </div>
+                ) : (
+                  <div className="text-sm text-white/90 bg-indigo-900/30 p-4 rounded-xl border border-indigo-500/30">
+                    <p className="font-semibold text-cyan-300 mb-2 flex items-center"><Sparkles className="w-4 h-4 mr-2" /> AI Insight:</p>
+                    <div className="whitespace-pre-wrap leading-relaxed">{aiInterpretation}</div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

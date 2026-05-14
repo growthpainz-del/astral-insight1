@@ -20,6 +20,7 @@ import SpreadTester from './pages/SpreadTester'
 import SpreadManager from './pages/SpreadManager'
 import SpreadDesigner from './pages/SpreadDesigner'
 import DashboardHub from './pages/DashboardHub'
+import ReadingSetup from './pages/ReadingSetup'
 
 const { Pages, Layout, mainPage } = pagesConfig
 
@@ -212,6 +213,14 @@ const AuthenticatedApp = () => {
         element={
           <LayoutWrapper currentPageName="SpreadDesigner">
             <SpreadDesigner />
+          </LayoutWrapper>
+        }
+      />
+      <Route
+        path="/ReadingSetup"
+        element={
+          <LayoutWrapper currentPageName="ReadingSetup">
+            <ReadingSetup />
           </LayoutWrapper>
         }
       />

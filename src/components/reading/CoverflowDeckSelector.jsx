@@ -8,8 +8,7 @@ export default function CoverflowDeckSelector({ publicDecks, myDecks, onDrawCard
   const [searchQuery, setSearchQuery] = useState("");
   const [focusIdx, setFocusIdx] = useState(0);
   
-  const [question, setQuestion] = useState("");
-  const [spread, setSpread] = useState("Past, Present, Future — 3 cards");
+
 
   // Determine current deck list
   const currentDecks = (deckMode === "personal" ? myDecks : publicDecks)
@@ -155,37 +154,14 @@ export default function CoverflowDeckSelector({ publicDecks, myDecks, onDrawCard
         </div>
       )}
 
-      {/* Form Card */}
-      <div className="m-[14px_18px] p-[18px] bg-[#0f0b1e] border border-[#a078ff]/15 rounded-[14px] flex flex-col gap-[14px]">
-        <div>
-          <div className="font-['Cinzel'] text-[9.5px] tracking-[0.2em] uppercase text-[#b4a0dc]/45 mb-[6px]">Your Question</div>
-          <Textarea 
-            value={question}
-            onChange={e => setQuestion(e.target.value)}
-            placeholder="What guidance do you seek?"
-            className="w-full bg-[#160f2a] border-[#a078ff]/15 rounded-[10px] p-[12px_14px] font-['Crimson_Text'] text-[16px] text-[#e1d7ff]/90 resize-none outline-none min-h-[80px] transition-colors focus-visible:ring-0 focus-visible:border-[#a78bfa]/45 placeholder:text-[#b4a0dc]/45"
-          />
-        </div>
-        <div>
-          <div className="font-['Cinzel'] text-[9.5px] tracking-[0.2em] uppercase text-[#b4a0dc]/45 mb-[6px]">Spread</div>
-          <select 
-            value={spread}
-            onChange={e => setSpread(e.target.value)}
-            className="w-full bg-[#160f2a] border border-[#a078ff]/15 rounded-[10px] p-[11px_14px] font-['Crimson_Text'] text-[15px] text-[#e1d7ff]/90 outline-none cursor-pointer appearance-none transition-colors focus:border-[#a78bfa]/45"
-            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23a78bfa' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 14px center' }}
-          >
-            <option value="single">Single Card — 1 card</option>
-            <option value="three_card">Past, Present, Future — 3 cards</option>
-            <option value="diamond">Diamond Ring — 7 cards</option>
-            <option value="celtic_cross">Celtic Cross — 10 cards</option>
-          </select>
-        </div>
+      {/* Select Deck Button */}
+      <div className="m-[14px_18px]">
         <button 
-          onClick={() => focusedDeck && onDrawCards(focusedDeck, spread, question)}
+          onClick={() => focusedDeck && onDrawCards(focusedDeck)}
           disabled={!focusedDeck}
-          className="w-full p-[14px] rounded-[50px] border-none cursor-pointer font-['Cinzel'] text-[12px] tracking-[0.18em] uppercase text-white bg-gradient-to-br from-[#7c3aed] to-[#a78bfa] shadow-[0_4px_20px_rgba(124,58,237,0.45)] flex items-center justify-center gap-[9px] transition-all hover:-translate-y-[2px] hover:shadow-[0_6px_28px_rgba(124,58,237,0.6)] active:scale-[0.97] animate-[pulse_2.5s_ease_infinite] disabled:opacity-50 disabled:animate-none"
+          className="w-full p-[14px] rounded-[50px] border-none cursor-pointer font-['Cinzel'] text-[12px] tracking-[0.18em] uppercase text-white bg-gradient-to-br from-[#7c3aed] to-[#a78bfa] shadow-[0_4px_20px_rgba(124,58,237,0.45)] flex items-center justify-center gap-[9px] transition-all hover:-translate-y-[2px] hover:shadow-[0_6px_28px_rgba(124,58,237,0.6)] active:scale-[0.97] disabled:opacity-50 disabled:animate-none"
         >
-          <span className="text-[16px]">✦</span> Draw Cards
+          <span className="text-[16px]">✦</span> Select Deck
         </button>
       </div>
 

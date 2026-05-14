@@ -474,8 +474,8 @@ export default function ReadingRoom() {
       <CoverflowDeckSelector 
         publicDecks={publicDecks} 
         myDecks={myDecks} 
-        onDrawCards={(deck, spread, question) => {
-          window.location.href = createPageUrl(`Reading?deckId=${deck.id}&spread=${encodeURIComponent(spread)}&question=${encodeURIComponent(question)}`);
+        onDrawCards={(deck) => {
+          window.location.href = createPageUrl(`ReadingSetup?deckId=${deck.id}`);
         }} 
       />
 
