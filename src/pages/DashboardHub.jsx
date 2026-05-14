@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import MoonPhaseWidget from "@/components/dashboard/MoonPhaseWidget";
-import { BookOpen, Palette, Sparkles, Layers, Image as ImageIcon, History, Compass, HelpCircle } from "lucide-react";
+import { BookOpen, Palette, Sparkles, Layers, Image as ImageIcon, History, Compass, HelpCircle, Star, GitMerge, Sprout, Users, Coins } from "lucide-react";
 
 const STAR_COUNT = 180;
 const NEBULA_COUNT = 6;
@@ -130,15 +130,52 @@ function FeatureCard({ to, icon: Icon, title, desc, color }) {
   );
 }
 
-const FEATURES = [
-  { title: "Reading Room", desc: "Draw cards & gain deep insights.", to: createPageUrl("ReadingRoom"), icon: BookOpen, color: "#a78bfa" },
-  { title: "Creator Studio", desc: "Build, design, and manage your oracle decks.", to: createPageUrl("Studio"), icon: Palette, color: "#f472b6" },
-  { title: "Spirit Wheel", desc: "Instant cosmic guidance with a spin.", to: createPageUrl("SpiritWheel"), icon: Sparkles, color: "#67e8f9" },
-  { title: "Deck Gallery", desc: "Browse and discover oracle decks.", to: createPageUrl("Explore"), icon: Layers, color: "#34d399" },
-  { title: "Card Gallery", desc: "Explore individual cards across the universe.", to: createPageUrl("CardLibrary"), icon: ImageIcon, color: "#fb923c" },
-  { title: "Reading History", desc: "View past readings and track your journey.", to: createPageUrl("History"), icon: History, color: "#94a3b8" },
-  { title: "Journal", desc: "Write reflections and notes on your daily life.", to: createPageUrl("Journal"), icon: Compass, color: "#fbbf24" },
-  { title: "Help & Guides", desc: "Learn how to use the app and read cards.", to: createPageUrl("Help"), icon: HelpCircle, color: "#f87171" },
+const CATEGORIES = [
+  {
+    title: "Cosmic Pathways",
+    icon: Sparkles,
+    features: [
+      { title: "Reading Room", desc: "Draw cards & gain deep insights.", to: createPageUrl("ReadingRoom"), icon: BookOpen, color: "#a78bfa" },
+      { title: "Spirit Wheel", desc: "Instant cosmic guidance with a spin.", to: createPageUrl("SpiritWheel"), icon: Sparkles, color: "#67e8f9" },
+      { title: "Reading History", desc: "View past readings and track your journey.", to: createPageUrl("History"), icon: History, color: "#94a3b8" },
+      { title: "Journal", desc: "Write reflections and notes on your daily life.", to: createPageUrl("Journal"), icon: Compass, color: "#fbbf24" },
+    ]
+  },
+  {
+    title: "Special Readings",
+    icon: Star,
+    features: [
+      { title: "Fusions", desc: "Combine deck energies for unique readings.", to: createPageUrl("FusionReading"), icon: GitMerge, color: "#ec4899" },
+      { title: "Zodiac", desc: "Astrological and celestial readings.", to: createPageUrl("ZodiacReading"), icon: Star, color: "#eab308" },
+    ]
+  },
+  {
+    title: "Creator Studio",
+    icon: Palette,
+    features: [
+      { title: "My Decks", desc: "Build, design, and manage your oracle decks.", to: createPageUrl("Studio"), icon: Palette, color: "#f472b6" },
+      { title: "Create Deck", desc: "Start a new journey with a fresh deck.", to: createPageUrl("CreateDeck"), icon: Sprout, color: "#34d399" },
+      { title: "Spreads", desc: "Design and manage custom card spreads.", to: createPageUrl("SpreadManager"), icon: Layers, color: "#818cf8" },
+      { title: "Persona", desc: "Configure your AI reading persona.", to: createPageUrl("Persona"), icon: Sparkles, color: "#fcd34d" },
+    ]
+  },
+  {
+    title: "Discover",
+    icon: Compass,
+    features: [
+      { title: "Deck Gallery", desc: "Browse and discover oracle decks.", to: createPageUrl("Explore"), icon: Layers, color: "#34d399" },
+      { title: "Card Gallery", desc: "Explore individual cards across the universe.", to: createPageUrl("CardLibrary"), icon: ImageIcon, color: "#fb923c" },
+      { title: "Help & Guides", desc: "Learn how to use the app and read cards.", to: createPageUrl("Help"), icon: HelpCircle, color: "#f87171" },
+    ]
+  },
+  {
+    title: "Account & Settings",
+    icon: Users,
+    features: [
+      { title: "Account", desc: "Manage your profile and preferences.", to: createPageUrl("Account"), icon: Users, color: "#94a3b8" },
+      { title: "Subscription", desc: "Manage your tokens and plan.", to: createPageUrl("SubscriptionManagement"), icon: Coins, color: "#fbbf24" },
+    ]
+  }
 ];
 
 export default function DashboardHub() {
@@ -188,17 +225,23 @@ export default function DashboardHub() {
             <MoonPhaseWidget />
           </section>
 
-          <section className="animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200 fill-mode-both">
-            <h2 className="font-['Cinzel'] text-xl sm:text-2xl text-white/90 tracking-widest uppercase mb-6 flex items-center gap-3">
-              <Sparkles className="w-5 h-5 text-purple-400" />
-              Cosmic Pathways
-            </h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-              {FEATURES.map((feature) => (
-                <FeatureCard key={feature.title} {...feature} />
-              ))}
-            </div>
-          </section>
+          <div className="space-y-12">
+            {CATEGORIES.map((category, idx) => {
+              const Icon = category.icon;
+              return (
+              <section key={category.title} className={`animate-in fade-in slide-in-from-bottom-8 duration-700 delay-${(idx + 2) * 100} fill-mode-both`}>
+                <h2 className="font-['Cinzel'] text-xl sm:text-2xl text-white/90 tracking-widest uppercase mb-6 flex items-center gap-3">
+                  <Icon className="w-5 h-5 text-purple-400" />
+                  {category.title}
+                </h2>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+                  {category.features.map((feature) => (
+                    <FeatureCard key={feature.title} {...feature} />
+                  ))}
+                </div>
+              </section>
+            )})}
+          </div>
         </main>
       </div>
     </>

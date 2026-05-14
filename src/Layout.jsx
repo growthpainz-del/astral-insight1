@@ -471,6 +471,7 @@ export default function Layout({ children, currentPageName }) {
 
         <div className="flex flex-1 bg-transparent">
           {/* Sidebar */}
+          {isAdmin && (
           <aside
             className={`bg-slate-900/80 backdrop-blur-lg border-r border-purple-800/40 w-64 flex flex-col overflow-hidden fixed inset-y-0 left-0 z-50 transform ${
               isSidebarOpen ? "translate-x-0" : "-translate-x-full"
@@ -647,17 +648,20 @@ export default function Layout({ children, currentPageName }) {
               )}
             </div>
           </aside>
+          )}
 
           <div className="flex-1 flex flex-col">
             {/* Mobile header */}
             <header className="md:hidden bg-slate-900/95 backdrop-blur-lg border-b border-purple-800/40 h-16 pt-[env(safe-area-inset-top)] flex items-center px-4 justify-between flex-shrink-0 sticky top-0 z-40">
-              <button
-                onClick={() => setIsSidebarOpen(true)}
-                className="text-purple-300 hover:text-purple-100 active:scale-95 transition-all p-2 -ml-2 touch-manipulation"
-                style={{ WebkitTapHighlightColor: "transparent" }}
-              >
-                <LayoutGrid className="w-6 h-6" />
-              </button>
+              {isAdmin ? (
+                <button
+                  onClick={() => setIsSidebarOpen(true)}
+                  className="text-purple-300 hover:text-purple-100 active:scale-95 transition-all p-2 -ml-2 touch-manipulation"
+                  style={{ WebkitTapHighlightColor: "transparent" }}
+                >
+                  <LayoutGrid className="w-6 h-6" />
+                </button>
+              ) : <div className="w-10"></div>}
               <Link to={createPageUrl("DashboardHub")} className="flex items-center gap-2">
                 <img
                   src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/0fad39924_IMG_0076.png"
@@ -754,7 +758,7 @@ export default function Layout({ children, currentPageName }) {
         )}
 
         {/* Sidebar backdrop on mobile */}
-        {isSidebarOpen && (
+        {isAdmin && isSidebarOpen && (
           <div
             className="md:hidden fixed inset-0 bg-black/50 z-40 backdrop-blur-sm"
             onClick={() => setIsSidebarOpen(false)}
