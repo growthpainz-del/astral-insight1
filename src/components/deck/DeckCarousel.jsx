@@ -1,26 +1,19 @@
-
-import React, { useRef } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import DeckCard from './DeckCard';
 import { deckDisplayName } from "@/components/utils/nameAliases";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Eye, Settings } from "lucide-react";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 export default function DeckCarousel({ title, decks, onDelete, onAnalyze, disabled }) {
-  const scrollRef = useRef(null);
-
-  const scroll = (direction) => {
-    if (scrollRef.current) {
-      const { scrollLeft, clientWidth } = scrollRef.current;
-      const scrollTo = direction === 'left'
-        ? scrollLeft - clientWidth * 0.8
-        : scrollLeft + clientWidth * 0.8;
-      scrollRef.current.scrollTo({ left: scrollTo, behavior: 'smooth' });
-    }
-  };
-
   if (!decks || decks.length === 0) {
     return null;
   }
@@ -29,23 +22,21 @@ export default function DeckCarousel({ title, decks, onDelete, onAnalyze, disabl
     <div className="space-y-4 mb-12">
       <h2 className="text-2xl font-bold text-white ml-4 md:ml-0">{title}</h2>
       <div className="relative group">
-        <div
-          ref={scrollRef}
-          className="flex flex-nowrap overflow-x-auto gap-4 p-4 scrollbar-hide"
-        >
-          {decks.map((deck, index) => {
+        <Carousel opts={{ align: "start", dragFree: true, loop: true }} className="w-full max-w-[100vw] overflow-hidden relative touch-pan-y">
+          <CarouselContent className="-ml-4 py-4">
+            {decks.map((deck, index) => {
             const deckForDisplay = { ...deck, name: deckDisplayName(deck.name) };
             const isDraftLike = !deckForDisplay.is_public && deckForDisplay.card_count === 0;
             const isOfficial = !!deckForDisplay.is_public;
 
             return (
-              <motion.div
-                key={deck.id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: index * 0.05 }}
-                className="flex-shrink-0 w-40 sm:w-48 md:w-56 lg:w-64 relative"
-              >
+              <CarouselItem key={deck.id} className="pl-4 basis-auto shrink-0">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: index * 0.05 }}
+                  className="w-40 sm:w-48 md:w-56 lg:w-64 relative"
+                >
                 {/* Official/read-only badge for clarity */}
                 {isOfficial && (
                   <div className="absolute top-2 left-1/2 -translate-x-1/2 z-20 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/90 text-black border border-amber-200 shadow">
@@ -121,22 +112,16 @@ export default function DeckCarousel({ title, decks, onDelete, onAnalyze, disabl
                   onAnalyze={onAnalyze}
                   disabled={disabled}
                 />
-              </motion.div>
+                </motion.div>
+              </CarouselItem>
             );
           })}
-        </div>
-        <button
-          onClick={() => scroll('left')}
-          className="absolute left-0 top-1/2 -translate-y-1/2 z-20 bg-black/50 text-white p-2 rounded-full opacity-70 transition-opacity duration-300 hover:bg-black/80 disabled:opacity-0 md:opacity-0 md:group-hover:opacity-100"
-        >
-          <ChevronLeft className="w-8 h-8" />
-        </button>
-        <button
-          onClick={() => scroll('right')}
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-20 bg-black/50 text-white p-2 rounded-full opacity-70 transition-opacity duration-300 hover:bg-black/80 disabled:opacity-0 md:opacity-0 md:group-hover:opacity-100"
-        >
-          <ChevronRight className="w-8 h-8" />
-        </button>
+          </CarouselContent>
+          <div className="hidden md:block">
+            <CarouselPrevious className="absolute -left-4 top-1/2 -translate-y-1/2 bg-black/50 border-white/20 hover:bg-black/80 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <CarouselNext className="absolute -right-4 top-1/2 -translate-y-1/2 bg-black/50 border-white/20 hover:bg-black/80 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          </div>
+        </Carousel>
       </div>
     </div>
   );

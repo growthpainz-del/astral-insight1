@@ -305,7 +305,7 @@ export default function DeckView() {
 
       {/* ── Tab strip ── */}
       <div className="sticky top-0 z-30 px-4 py-3 border-b border-white/8" style={{ background: "rgba(7,5,15,0.92)", backdropFilter: "blur(12px)" }}>
-        <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide pan-2d">
           {TABS.map(t => (
             <Tab key={t.id} id={t.id} label={t.label} active={activeTab === t.id}
               onClick={(id) => { setActiveTab(id); setSelectedTool(""); }} />

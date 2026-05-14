@@ -9,6 +9,13 @@ import { isNetworkError } from "@/components/utils/isNetworkError";
 import { queueApiCall } from "@/components/utils/apiQueue";
 import PullToRefresh from "@/components/common/PullToRefresh";
 import { toast } from "sonner";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 function DeckCard({ deck, isOwned = false }) {
   const navigate = useNavigate();
@@ -435,40 +442,56 @@ export default function Dashboard() {
             </Button>
           </div>
         </div>
-        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide pan-2d">
-          {draftDecks.length > 0 && (
-            <QuickAction
-              label={`My Drafts (${draftDecks.length})`}
-              icon={Clock}
-              to={createPageUrl(`DeckView?id=${draftDecks[0].id}`)}
-              gradient="bg-gradient-to-br from-amber-600 to-orange-600"
-            />
-          )}
-          <QuickAction
-            label="Create New Deck"
-            icon={Plus}
-            to={createPageUrl("CreateDeck")}
-            gradient="bg-gradient-to-br from-purple-600 to-blue-600"
-          />
-          <QuickAction
-            label="Reading History"
-            icon={Clock}
-            to={createPageUrl("History")}
-            gradient="bg-gradient-to-br from-indigo-600 to-purple-600"
-          />
-          <QuickAction
-            label="Explore Decks"
-            icon={Sparkles}
-            to={createPageUrl("ReadingRoom")}
-            gradient="bg-gradient-to-br from-cyan-600 to-blue-600"
-          />
-          <QuickAction
-            label="Interpreter Training"
-            icon={Settings}
-            to={createPageUrl("Persona")}
-            gradient="bg-gradient-to-br from-emerald-600 to-teal-600"
-          />
-        </div>
+        <Carousel opts={{ align: "start", dragFree: true, loop: true }} className="w-full max-w-[100vw] overflow-hidden relative touch-pan-y">
+          <CarouselContent className="-ml-4 py-4">
+            {draftDecks.length > 0 && (
+              <CarouselItem className="pl-4 basis-auto shrink-0">
+                <QuickAction
+                  label={`My Drafts (${draftDecks.length})`}
+                  icon={Clock}
+                  to={createPageUrl(`DeckView?id=${draftDecks[0].id}`)}
+                  gradient="bg-gradient-to-br from-amber-600 to-orange-600"
+                />
+              </CarouselItem>
+            )}
+            <CarouselItem className="pl-4 basis-auto shrink-0">
+              <QuickAction
+                label="Create New Deck"
+                icon={Plus}
+                to={createPageUrl("CreateDeck")}
+                gradient="bg-gradient-to-br from-purple-600 to-blue-600"
+              />
+            </CarouselItem>
+            <CarouselItem className="pl-4 basis-auto shrink-0">
+              <QuickAction
+                label="Reading History"
+                icon={Clock}
+                to={createPageUrl("History")}
+                gradient="bg-gradient-to-br from-indigo-600 to-purple-600"
+              />
+            </CarouselItem>
+            <CarouselItem className="pl-4 basis-auto shrink-0">
+              <QuickAction
+                label="Explore Decks"
+                icon={Sparkles}
+                to={createPageUrl("ReadingRoom")}
+                gradient="bg-gradient-to-br from-cyan-600 to-blue-600"
+              />
+            </CarouselItem>
+            <CarouselItem className="pl-4 basis-auto shrink-0">
+              <QuickAction
+                label="Interpreter Training"
+                icon={Settings}
+                to={createPageUrl("Persona")}
+                gradient="bg-gradient-to-br from-emerald-600 to-teal-600"
+              />
+            </CarouselItem>
+          </CarouselContent>
+          <div className="hidden md:block">
+            <CarouselPrevious className="absolute -left-4 top-1/2 -translate-y-1/2 bg-black/50 border-white/20 hover:bg-black/80 text-white" />
+            <CarouselNext className="absolute -right-4 top-1/2 -translate-y-1/2 bg-black/50 border-white/20 hover:bg-black/80 text-white" />
+          </div>
+        </Carousel>
       </div>
 
       {/* Official Decks */}
@@ -483,11 +506,19 @@ export default function Dashboard() {
               Browse All <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
-          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide pan-2d">
-            {publicDecks.slice(0, 12).map(deck => (
-              <DeckCard key={deck.id} deck={deck} isOwned={isOwnedByUser(deck)} />
-            ))}
-          </div>
+          <Carousel opts={{ align: "start", dragFree: true, loop: true }} className="w-full max-w-[100vw] overflow-hidden relative touch-pan-y">
+            <CarouselContent className="-ml-4 py-4">
+              {publicDecks.slice(0, 12).map(deck => (
+                <CarouselItem key={deck.id} className="pl-4 basis-auto shrink-0">
+                  <DeckCard deck={deck} isOwned={isOwnedByUser(deck)} />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <div className="hidden md:block">
+              <CarouselPrevious className="absolute -left-4 top-1/2 -translate-y-1/2 bg-black/50 border-white/20 hover:bg-black/80 text-white" />
+              <CarouselNext className="absolute -right-4 top-1/2 -translate-y-1/2 bg-black/50 border-white/20 hover:bg-black/80 text-white" />
+            </div>
+          </Carousel>
         </div>
       )}
 
@@ -500,11 +531,19 @@ export default function Dashboard() {
               Create New <Plus className="w-4 h-4" />
             </Link>
           </div>
-          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide pan-2d">
-            {myDecks.map(deck => (
-              <DeckCard key={deck.id} deck={deck} isOwned={true} />
-            ))}
-          </div>
+          <Carousel opts={{ align: "start", dragFree: true, loop: true }} className="w-full max-w-[100vw] overflow-hidden relative touch-pan-y">
+            <CarouselContent className="-ml-4 py-4">
+              {myDecks.map(deck => (
+                <CarouselItem key={deck.id} className="pl-4 basis-auto shrink-0">
+                  <DeckCard deck={deck} isOwned={true} />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <div className="hidden md:block">
+              <CarouselPrevious className="absolute -left-4 top-1/2 -translate-y-1/2 bg-black/50 border-white/20 hover:bg-black/80 text-white" />
+              <CarouselNext className="absolute -right-4 top-1/2 -translate-y-1/2 bg-black/50 border-white/20 hover:bg-black/80 text-white" />
+            </div>
+          </Carousel>
         </div>
       )}
 
@@ -520,43 +559,51 @@ export default function Dashboard() {
               Create New <Plus className="w-4 h-4" />
             </Link>
           </div>
-          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide pan-2d">
-            {draftDecks.map(deck => (
-              <Link key={deck.id} to={createPageUrl(`DeckView?id=${deck.id}`)} className="group block">
-                <div className="relative flex-shrink-0 w-48 aspect-[2/3] rounded-lg overflow-hidden bg-gradient-to-br from-amber-900/40 to-slate-900/40 border border-amber-500/30 hover:border-amber-400/60 transition-all duration-300 hover:scale-105">
-                  {deck.cover_image ? (
-                    <img src={deck.cover_image} alt={deck.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-white/40">
-                      <Clock className="w-12 h-12" />
-                    </div>
-                  )}
-                  
-                  <div className="absolute top-2 left-2">
-                    {deck.publish_status === "pending_review" && (
-                      <div className="bg-yellow-500 text-black text-xs font-bold px-2 py-1 rounded">PENDING</div>
-                    )}
-                    {deck.publish_status === "rejected" && (
-                      <div className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">REJECTED</div>
-                    )}
-                    {deck.publish_status === "draft" && (
-                      <div className="bg-gray-500 text-white text-xs font-bold px-2 py-1 rounded">DRAFT</div>
-                    )}
-                  </div>
+          <Carousel opts={{ align: "start", dragFree: true, loop: true }} className="w-full max-w-[100vw] overflow-hidden relative touch-pan-y">
+            <CarouselContent className="-ml-4 py-4">
+              {draftDecks.map(deck => (
+                <CarouselItem key={deck.id} className="pl-4 basis-auto shrink-0">
+                  <Link to={createPageUrl(`DeckView?id=${deck.id}`)} className="group block">
+                    <div className="relative flex-shrink-0 w-48 aspect-[2/3] rounded-lg overflow-hidden bg-gradient-to-br from-amber-900/40 to-slate-900/40 border border-amber-500/30 hover:border-amber-400/60 transition-all duration-300 hover:scale-105">
+                      {deck.cover_image ? (
+                        <img src={deck.cover_image} alt={deck.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-white/40">
+                          <Clock className="w-12 h-12" />
+                        </div>
+                      )}
+                      
+                      <div className="absolute top-2 left-2">
+                        {deck.publish_status === "pending_review" && (
+                          <div className="bg-yellow-500 text-black text-xs font-bold px-2 py-1 rounded">PENDING</div>
+                        )}
+                        {deck.publish_status === "rejected" && (
+                          <div className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">REJECTED</div>
+                        )}
+                        {deck.publish_status === "draft" && (
+                          <div className="bg-gray-500 text-white text-xs font-bold px-2 py-1 rounded">DRAFT</div>
+                        )}
+                      </div>
 
-                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 md:opacity-100 transition-opacity">
-                    <div className="bg-black/70 hover:bg-black/90 backdrop-blur-sm p-2 rounded-lg border border-amber-400/40">
-                      <Settings className="w-4 h-4 text-amber-300" />
+                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 md:opacity-100 transition-opacity">
+                        <div className="bg-black/70 hover:bg-black/90 backdrop-blur-sm p-2 rounded-lg border border-amber-400/40">
+                          <Settings className="w-4 h-4 text-amber-300" />
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-                <div className="mt-2">
-                  <h4 className="text-white font-semibold truncate">{deck.name}</h4>
-                  <p className="text-white/60 text-sm">{deck.publish_status}</p>
-                </div>
-              </Link>
-            ))}
-          </div>
+                    <div className="mt-2">
+                      <h4 className="text-white font-semibold truncate">{deck.name}</h4>
+                      <p className="text-white/60 text-sm">{deck.publish_status}</p>
+                    </div>
+                  </Link>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <div className="hidden md:block">
+              <CarouselPrevious className="absolute -left-4 top-1/2 -translate-y-1/2 bg-black/50 border-white/20 hover:bg-black/80 text-white" />
+              <CarouselNext className="absolute -right-4 top-1/2 -translate-y-1/2 bg-black/50 border-white/20 hover:bg-black/80 text-white" />
+            </div>
+          </Carousel>
         </div>
       )}
 
@@ -573,15 +620,22 @@ export default function Dashboard() {
               View All <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
-          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide pan-2d">
-            {recentReadings.slice(0, 8).map(reading => (
-              <ReadingCard
-                key={reading.id}
-                reading={reading}
-                deck={publicDecks.find(d => d.id === reading.deck_id) || myDecks.find(d => d.id === reading.deck_id)}
-              />
-            ))}
-          </div>
+          <Carousel opts={{ align: "start", dragFree: true, loop: true }} className="w-full max-w-[100vw] overflow-hidden relative touch-pan-y">
+            <CarouselContent className="-ml-4 py-4">
+              {recentReadings.slice(0, 8).map(reading => (
+                <CarouselItem key={reading.id} className="pl-4 basis-auto shrink-0">
+                  <ReadingCard
+                    reading={reading}
+                    deck={publicDecks.find(d => d.id === reading.deck_id) || myDecks.find(d => d.id === reading.deck_id)}
+                  />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <div className="hidden md:block">
+              <CarouselPrevious className="absolute -left-4 top-1/2 -translate-y-1/2 bg-black/50 border-white/20 hover:bg-black/80 text-white" />
+              <CarouselNext className="absolute -right-4 top-1/2 -translate-y-1/2 bg-black/50 border-white/20 hover:bg-black/80 text-white" />
+            </div>
+          </Carousel>
         </div>
       )}
 
