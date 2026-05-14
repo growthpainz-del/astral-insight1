@@ -13,6 +13,7 @@ import { isNetworkError } from "@/components/utils/isNetworkError";
 
 const FreeformCard = ({ card, canvasRef, toggleFlip, deck }) => {
   const [scale, setScale] = useState(1);
+  const [rotation, setRotation] = useState(card.rotation || 0);
   const initialPinch = useRef(null);
 
   const handleWheel = (e) => {
@@ -27,19 +28,35 @@ const FreeformCard = ({ card, canvasRef, toggleFlip, deck }) => {
         e.touches[0].clientX - e.touches[1].clientX,
         e.touches[0].clientY - e.touches[1].clientY
       );
-      initialPinch.current = { dist, scale };
+      const angle = Math.atan2(
+        e.touches[1].clientY - e.touches[0].clientY,
+        e.touches[1].clientX - e.touches[0].clientX
+      ) * (180 / Math.PI);
+      initialPinch.current = { dist, scale, angle, rotation };
     }
   };
 
   const handleTouchMove = (e) => {
     if (e.touches.length === 2 && initialPinch.current) {
       e.preventDefault();
+      e.stopPropagation();
       const dist = Math.hypot(
         e.touches[0].clientX - e.touches[1].clientX,
         e.touches[0].clientY - e.touches[1].clientY
       );
       const ratio = dist / initialPinch.current.dist;
       setScale(Math.min(Math.max(0.4, initialPinch.current.scale * ratio), 3));
+
+      const angle = Math.atan2(
+        e.touches[1].clientY - e.touches[0].clientY,
+        e.touches[1].clientX - e.touches[0].clientX
+      ) * (180 / Math.PI);
+      
+      let angleDiff = angle - initialPinch.current.angle;
+      if (angleDiff > 180) angleDiff -= 360;
+      if (angleDiff < -180) angleDiff += 360;
+      
+      setRotation(initialPinch.current.rotation + angleDiff);
     }
   };
 
@@ -59,7 +76,7 @@ const FreeformCard = ({ card, canvasRef, toggleFlip, deck }) => {
         scale: scale,
         x: card.x, 
         y: card.y,
-        rotate: card.rotation
+        rotate: rotation
       }}
       exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.2 } }}
       whileHover={{ scale: scale * 1.05, zIndex: 50 }}
@@ -74,11 +91,11 @@ const FreeformCard = ({ card, canvasRef, toggleFlip, deck }) => {
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
       onTouchCancel={handleTouchEnd}
-      className="absolute left-1/2 top-1/2 -ml-[90px] -mt-[140px] cursor-grab active:cursor-grabbing touch-none"
+      className="absolute left-1/2 top-1/2 -ml-[60px] -mt-[95px] cursor-grab active:cursor-grabbing touch-none"
       style={{ zIndex: card.zIndex || 10 }}
     >
       <div 
-        className="relative w-[180px] h-[280px] rounded-xl transition-all duration-500 preserve-3d"
+        className="relative w-[120px] h-[190px] rounded-xl transition-all duration-500 preserve-3d"
         style={{ 
           transformStyle: "preserve-3d",
           transform: card.isFlipped ? "rotateY(0deg)" : "rotateY(180deg)"
