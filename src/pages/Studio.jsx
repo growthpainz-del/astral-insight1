@@ -100,60 +100,36 @@ function StatCard({ value, label, color }) {
   );
 }
 
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
-
 // ─── Studio Tools List ────────────────────────────────────────────────────────
 function StudioToolsList({ tools, onSelect }) {
   const navigate = useNavigate();
 
   return (
-    <Carousel 
-      opts={{
-        align: "start",
-        dragFree: true,
-        containScroll: "trimSnaps"
-      }}
-      className="w-full relative"
-    >
-      <CarouselContent className="-ml-4">
-        {tools.map((tool) => (
-          <CarouselItem key={tool.id} className="pl-4 basis-auto shrink-0">
-            <div
-              onClick={() => {
-                if (tool.to) navigate(createPageUrl(tool.to));
-                else onSelect?.(tool);
-              }}
-              className="cursor-pointer rounded-2xl flex flex-col items-center justify-center transition-all hover:scale-[1.02] active:scale-[0.98]"
-              style={{
-                width: 140,
-                height: 150,
-                background: `radial-gradient(135% 135% at 30% 20%, ${tool.color}22 0%, rgba(255,255,255,0.03) 100%)`,
-                border: `1px solid ${tool.color}44`,
-                boxShadow: `0 4px 20px rgba(0,0,0,0.2), inset 0 0 10px ${tool.color}11`,
-              }}
-            >
-              <div className="text-4xl leading-none mb-3 drop-shadow-md">{tool.icon}</div>
-              <div className="text-center px-3 w-full">
-                <p className="text-white text-sm font-bold leading-tight drop-shadow-md">{tool.label}</p>
-                <p className="text-white/60 text-[10px] mt-1.5 leading-tight">{tool.sub}</p>
-              </div>
-            </div>
-          </CarouselItem>
-        ))}
-        {/* Spacer for the right edge */}
-        <CarouselItem className="basis-4 shrink-0 pl-0" />
-      </CarouselContent>
-      <div className="hidden md:block">
-        <CarouselPrevious className="absolute -left-4 top-1/2 -translate-y-1/2 bg-black/50 border-white/20 hover:bg-black/80 text-white" />
-        <CarouselNext className="absolute -right-4 top-1/2 -translate-y-1/2 bg-black/50 border-white/20 hover:bg-black/80 text-white" />
-      </div>
-    </Carousel>
+    <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide -mx-1 px-1">
+      {tools.map((tool) => (
+        <div
+          key={tool.id}
+          onClick={() => {
+            if (tool.to) navigate(createPageUrl(tool.to));
+            else onSelect?.(tool);
+          }}
+          className="shrink-0 cursor-pointer rounded-2xl flex flex-col items-center justify-center transition-all hover:scale-[1.02] active:scale-[0.98]"
+          style={{
+            width: 140,
+            height: 150,
+            background: `radial-gradient(135% 135% at 30% 20%, ${tool.color}22 0%, rgba(255,255,255,0.03) 100%)`,
+            border: `1px solid ${tool.color}44`,
+            boxShadow: `0 4px 20px rgba(0,0,0,0.2), inset 0 0 10px ${tool.color}11`,
+          }}
+        >
+          <div className="text-4xl leading-none mb-3 drop-shadow-md">{tool.icon}</div>
+          <div className="text-center px-3 w-full">
+            <p className="text-white text-sm font-bold leading-tight drop-shadow-md">{tool.label}</p>
+            <p className="text-white/60 text-[10px] mt-1.5 leading-tight">{tool.sub}</p>
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }
 
