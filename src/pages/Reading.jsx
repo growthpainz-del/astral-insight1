@@ -168,7 +168,7 @@ export default function ReadingPage() {
       try {
         setIsLoading(true);
         const [u, d, c] = await Promise.all([
-          queueApiCall(() => base44.auth.me(), 3, 1000),
+          queueApiCall(() => base44.auth.me(), 3, 1000).catch(() => null),
           queueApiCall(() => base44.entities.Deck.get(deckIdFromUrl), 3, 1000),
           queueApiCall(() => base44.entities.Card.filter({ deck_id: deckIdFromUrl }), 3, 1000),
         ]);
