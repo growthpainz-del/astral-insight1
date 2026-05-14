@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { base44 } from '@/api/base44Client';
+import { Spread, Deck, User } from '@/entities/all';
 import { Button } from '@/components/ui/button';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -126,9 +126,9 @@ export default function SpreadManager() {
     setIsLoading(true);
     try {
       const [userSpreads, userDecks, currentUser] = await Promise.all([
-        base44.entities.Spread.list(),
-        base44.entities.Deck.list(),
-        base44.auth.me().catch(() => null),
+        Spread.list(),
+        Deck.list(),
+        User.me().catch(() => null),
       ]);
       setUser(currentUser);
       setSpreads(userSpreads || []);
@@ -150,7 +150,7 @@ export default function SpreadManager() {
     if (!spreadToDelete) return;
     setIsDeleting(true);
     try {
-      await base44.entities.Spread.delete(spreadToDelete.id);
+      await Spread.delete(spreadToDelete.id);
       toast.success(`"${spreadToDelete.name}" deleted.`);
       setSpreadToDelete(null);
       loadData();
@@ -177,7 +177,7 @@ export default function SpreadManager() {
       {/* Top bar */}
       <div className="sticky top-0 z-40 flex items-center justify-between px-4 py-3"
         style={{ background: 'rgba(7,5,15,0.9)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        <Button variant="ghost" size="sm" onClick={() => navigate(createPageUrl('Studio'))}
+        <Button variant="ghost" size="sm" onClick={() => navigate(createPageUrl('DashboardHub'))}
           className="text-white/60 hover:text-white rounded-full">
           <ChevronLeft className="w-4 h-4" />
         </Button>

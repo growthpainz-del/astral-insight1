@@ -17,6 +17,8 @@ import CardMaker from './pages/CardMaker'
 import CardLibrary from './pages/CardLibrary'
 import Studio from './pages/Studio'
 import SpreadTester from './pages/SpreadTester'
+import SpreadManager from './pages/SpreadManager'
+import SpreadDesigner from './pages/SpreadDesigner'
 import DashboardHub from './pages/DashboardHub'
 
 const { Pages, Layout, mainPage } = pagesConfig
@@ -194,6 +196,22 @@ const AuthenticatedApp = () => {
         element={
           <LayoutWrapper currentPageName="SpreadTester">
             <SpreadTester />
+          </LayoutWrapper>
+        }
+      />
+      <Route
+        path="/SpreadManager"
+        element={
+          <LayoutWrapper currentPageName="SpreadManager">
+            <SpreadManager />
+          </LayoutWrapper>
+        }
+      />
+      <Route
+        path="/SpreadDesigner"
+        element={
+          <LayoutWrapper currentPageName="SpreadDesigner">
+            <SpreadDesigner />
           </LayoutWrapper>
         }
       />
