@@ -122,7 +122,7 @@ export default function SpreadTester() {
 
         {/* Drag and Drop Area */}
         <DragDropContext onDragEnd={onDragEnd}>
-          <div className="flex flex-col lg:flex-row gap-8 flex-1 min-h-[600px]">
+          <div className="flex flex-col lg:flex-row gap-8 flex-1 min-h-[600px] touch-none">
             {/* Shelf */}
             <div className="lg:w-72 flex-shrink-0 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 p-4 flex flex-col">
               <h2 className="text-xl font-semibold mb-4 text-purple-300 flex items-center gap-2">

@@ -70,7 +70,7 @@ export default function InteractiveSpreadTester({ positions }) {
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
-      <div className="flex flex-col xl:flex-row gap-6 w-full h-full min-h-[500px]">
+      <div className="flex flex-col xl:flex-row gap-6 w-full h-full min-h-[500px] touch-none">
         {/* Board */}
         <div className="flex-1 bg-black/40 backdrop-blur-sm rounded-2xl border border-white/10 relative overflow-hidden flex items-center justify-center p-4">
           <div className="relative w-full h-full max-w-2xl aspect-square md:aspect-[4/3] mx-auto border border-white/5 rounded-xl">
