@@ -1,6 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { base44 } from "@/api/base44Client";
+import MoonPhaseWidget from "@/components/dashboard/MoonPhaseWidget";
+import { BookOpen, Palette, Sparkles, Users, History, Compass } from "lucide-react";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 
 const STAR_COUNT = 180;
 const NEBULA_COUNT = 6;
@@ -111,73 +115,80 @@ function DustMotes() {
   );
 }
 
-function Portal({ to, icon, label, sub, accent, delay }) {
-  const [hovered, setHovered] = useState(false);
-
+function FeatureCard({ to, icon: Icon, title, desc, color }) {
   return (
-    <Link
-      to={to}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        display: "flex", flexDirection: "column", alignItems: "center", gap: 10,
-        textDecoration: "none", cursor: "pointer",
-        animation: `portalReveal 0.9s ${delay}s cubic-bezier(.2,.8,.2,1) both`,
-        transition: "transform 0.35s cubic-bezier(.2,.8,.2,1)",
-        transform: hovered ? "translateY(-10px) scale(1.04)" : "translateY(0) scale(1)",
-      }}
-    >
-      <div
-        style={{
-          width: 110, height: 110, borderRadius: "50%",
-          background: hovered
-            ? `radial-gradient(circle at 38% 35%, ${accent}cc, ${accent}44 60%, transparent)`
-            : `radial-gradient(circle at 38% 35%, ${accent}66, ${accent}22 60%, transparent)`,
-          border: `1.5px solid ${accent}${hovered ? "cc" : "55"}`,
-          boxShadow: hovered
-            ? `0 0 40px ${accent}88, 0 0 80px ${accent}33, inset 0 0 30px ${accent}22`
-            : `0 0 18px ${accent}33, inset 0 0 14px ${accent}11`,
-          display: "flex", alignItems: "center", justifyContent: "center",
-          transition: "all 0.35s ease", position: "relative", overflow: "hidden",
+    <Link to={to} className="block group h-full">
+      <div 
+        className="h-full p-5 sm:p-6 rounded-2xl border border-white/10 bg-black/40 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:bg-black/60 hover:border-white/20"
+        style={{ 
+          boxShadow: `inset 0 0 20px ${color}10, 0 4px 20px rgba(0,0,0,0.4)`, 
         }}
       >
-        {hovered && (
-          <div style={{
-            position: "absolute", inset: -6, borderRadius: "50%",
-            border: `1px solid ${accent}66`,
-            animation: "ringPulse 1.2s ease-out infinite",
-          }} />
-        )}
-        <span style={{ fontSize: 38, lineHeight: 1, filter: "drop-shadow(0 0 8px white)" }}>
-          {icon}
-        </span>
+        <Icon className="w-8 h-8 mb-4 transition-transform duration-300 group-hover:scale-110 group-hover:drop-shadow-[0_0_10px_currentColor]" style={{ color }} />
+        <h3 className="text-white font-bold text-lg mb-2 font-['Cinzel'] tracking-wide">{title}</h3>
+        <p className="text-white/60 text-sm font-['Crimson_Text'] leading-relaxed">{desc}</p>
       </div>
+    </Link>
+  );
+}
 
-      <div style={{ textAlign: "center" }}>
-        <div style={{
-          fontFamily: "'Cinzel', serif", fontSize: 13, letterSpacing: "0.18em",
-          textTransform: "uppercase", color: hovered ? "#fff" : "rgba(255,255,255,0.75)",
-          transition: "color 0.3s", marginBottom: 3,
-        }}>
-          {label}
-        </div>
-        <div style={{
-          fontFamily: "'IM Fell English', serif", fontStyle: "italic", fontSize: 11,
-          color: hovered ? accent : "rgba(180,160,220,0.55)",
-          transition: "color 0.3s", letterSpacing: "0.06em",
-        }}>
-          {sub}
+function SimpleDeckCard({ deck }) {
+  return (
+    <Link to={createPageUrl(`DeckGallery?deckId=${deck.id}`)} className="block group">
+      <div className="w-36 sm:w-44 aspect-[2/3] rounded-xl overflow-hidden relative border border-white/10 group-hover:border-purple-500/50 transition-all shadow-lg">
+        {deck.cover_image ? (
+          <img src={deck.cover_image} alt={deck.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+        ) : (
+          <div className="w-full h-full bg-purple-900/30 flex items-center justify-center">
+            <Palette className="w-8 h-8 text-white/30" />
+          </div>
+        )}
+        <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/90 via-black/60 to-transparent">
+          <p className="text-white text-xs sm:text-sm font-bold truncate drop-shadow-md">{deck.name}</p>
+          <p className="text-white/60 text-[10px] sm:text-xs truncate mt-0.5">{deck.category || "Oracle"}</p>
         </div>
       </div>
     </Link>
   );
 }
 
+const FEATURES = [
+  { title: "Reading Room", desc: "Draw cards & gain deep insights from your decks.", to: createPageUrl("ReadingRoom"), icon: BookOpen, color: "#a78bfa" },
+  { title: "Creator Studio", desc: "Build, design, and manage your own oracle decks.", to: createPageUrl("Studio"), icon: Palette, color: "#f472b6" },
+  { title: "Spirit Wheel", desc: "Instant cosmic guidance with a spin of the wheel.", to: createPageUrl("SpiritWheel"), icon: Sparkles, color: "#67e8f9" },
+  { title: "Community Vault", desc: "Explore and read with decks published by the community.", to: createPageUrl("Explore"), icon: Users, color: "#34d399" },
+  { title: "Reading History", desc: "View past readings and track your journey.", to: createPageUrl("History"), icon: History, color: "#94a3b8" },
+  { title: "Journal", desc: "Write reflections and notes on your daily life.", to: createPageUrl("Journal"), icon: Compass, color: "#fbbf24" },
+];
+
 export default function CosmicHub() {
+  const [deckOfWeek, setDeckOfWeek] = useState(null);
+  const [newDecks, setNewDecks] = useState([]);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const publicDecks = await base44.entities.Deck.filter({ is_public: true }, "-created_date", 8);
+        if (publicDecks && publicDecks.length > 0) {
+          // Pick a deck of the week (deterministic based on current week to seem authentic)
+          const weekNum = Math.floor(Date.now() / (1000 * 60 * 60 * 24 * 7));
+          const dotwIndex = weekNum % publicDecks.length;
+          setDeckOfWeek(publicDecks[dotwIndex]);
+          
+          // Remaining are "What's New"
+          setNewDecks(publicDecks.filter((_, i) => i !== dotwIndex));
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    fetchData();
+  }, []);
+
   return (
     <>
       <link
-        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=IM+Fell+English:ital@0;1&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=IM+Fell+English:ital@0;1&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap"
         rel="stylesheet"
       />
 
@@ -186,214 +197,128 @@ export default function CosmicHub() {
           from { transform: translateY(0px) scale(1); opacity: 0.4; }
           to   { transform: translateY(-22px) scale(1.3); opacity: 0.15; }
         }
-        @keyframes portalReveal {
-          from { opacity: 0; transform: translateY(28px) scale(0.92); }
-          to   { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        @keyframes titleReveal {
-          from { opacity: 0; transform: translateY(-18px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes subtitleReveal {
-          from { opacity: 0; }
-          to   { opacity: 1; }
-        }
-        @keyframes tableFloat {
-          0%   { transform: translateY(0px) rotate(-1deg); }
-          50%  { transform: translateY(-12px) rotate(0deg); }
-          100% { transform: translateY(0px) rotate(-1deg); }
-        }
-        @keyframes ringPulse {
-          0%   { transform: scale(1);    opacity: 0.8; }
-          100% { transform: scale(1.45); opacity: 0; }
-        }
         @keyframes shimmer {
           0%   { background-position: -200% center; }
           100% { background-position:  200% center; }
         }
-        @keyframes communityPop {
-          from { opacity: 0; transform: translateY(10px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes logoFloat {
-          0% { transform: translateY(0px); }
-          50% { transform: translateY(-10px); }
-          100% { transform: translateY(0px); }
-        }
       `}</style>
 
-      <div style={{
-        minHeight: "100vh", display: "flex", flexDirection: "column",
-        alignItems: "center", justifyContent: "center",
-        position: "relative", overflow: "hidden",
-        fontFamily: "'Cinzel', serif",
-        background: "#020208",
-      }}>
+      <div className="min-h-screen relative font-['Crimson_Text'] text-white selection:bg-purple-500/30 pb-20 overflow-x-hidden">
         <CosmosCanvas />
         <DustMotes />
 
-        {/* Nav */}
-        <nav style={{
-          position: "fixed", top: 0, left: 0, right: 0, zIndex: 20,
-          display: "flex", justifyContent: "space-between", alignItems: "center",
-          padding: "18px 36px",
-          background: "linear-gradient(to bottom, rgba(2,2,8,0.85) 0%, transparent 100%)",
-        }}>
-          <Link 
-            to="/" 
-            style={{ 
-              animation: "communityPop 0.8s 1.6s both",
-              display: "flex", 
-              alignItems: "center",
-              textDecoration: "none"
-            }}
-          >
+        <main className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 pt-10 sm:pt-16 space-y-12 sm:space-y-16">
+          
+          {/* Header */}
+          <header className="text-center space-y-4">
             <img 
               src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/dceb9973f_FFC86774-57E4-432D-9291-05752E7FDC5A.png" 
-              alt="Rooted Crescent" 
-              style={{ 
-                width: 32,
-                height: 32,
-                borderRadius: 8,
-                objectFit: 'cover',
-                transition: "transform 0.25s, filter 0.25s",
-                filter: "brightness(0.9)"
-              }} 
-              onMouseEnter={(e) => { e.currentTarget.style.transform = "scale(1.05)"; e.currentTarget.style.filter = "brightness(1.2)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.filter = "brightness(0.9)"; }}
+              alt="Astral Insight Logo" 
+              className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-2xl shadow-xl shadow-purple-900/40 border border-purple-500/20 mb-6"
             />
-          </Link>
-
-          <div style={{ display: "flex", gap: 28, alignItems: "center" }}>
-            {[
-              { label: "Community", to: createPageUrl("Explore") },
-              { label: "My Decks",  to: createPageUrl("Studio") },
-              { label: "History",   to: createPageUrl("History") },
-            ].map((item) => (
-              <Link
-                key={item.label}
-                to={item.to}
-                style={{
-                  fontFamily: "'Cinzel', serif", fontSize: 10.5, letterSpacing: "0.2em",
-                  textTransform: "uppercase", color: "rgba(200,180,255,0.55)",
-                  textDecoration: "none", transition: "color 0.25s",
-                  animation: "communityPop 0.8s 1.6s both",
-                }}
-                onMouseEnter={(e) => (e.target.style.color = "rgba(200,170,255,1)")}
-                onMouseLeave={(e) => (e.target.style.color = "rgba(200,180,255,0.55)")}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </div>
-        </nav>
-
-        {/* Central content */}
-        <div style={{
-          position: "relative", zIndex: 10,
-          display: "flex", flexDirection: "column", alignItems: "center", gap: 0,
-        }}>
-          {/* Title */}
-          <div style={{ textAlign: "center", marginBottom: 52 }}>
             <h1 style={{
               fontFamily: "'Cinzel', serif", fontWeight: 700,
-              fontSize: "clamp(28px, 5vw, 52px)", letterSpacing: "0.22em",
+              fontSize: "clamp(32px, 6vw, 56px)", letterSpacing: "0.15em",
               textTransform: "uppercase",
               background: "linear-gradient(90deg, #c8a8ff 0%, #ffffff 40%, #a0c8ff 70%, #c8a8ff 100%)",
               backgroundSize: "200% auto",
               WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-              animation: "titleReveal 1.1s 0.2s cubic-bezier(.2,.8,.2,1) both, shimmer 4s 1.4s linear infinite",
-              marginBottom: 10,
+              animation: "shimmer 5s linear infinite",
             }}>
               Astral Insight
             </h1>
-            <p style={{
-              fontFamily: "'IM Fell English', serif", fontStyle: "italic",
-              fontSize: "clamp(13px, 1.6vw, 17px)", color: "rgba(190,165,255,0.65)",
-              letterSpacing: "0.08em", animation: "subtitleReveal 1.2s 0.9s ease both",
-            }}>
+            <p className="font-['IM_Fell_English'] italic text-lg sm:text-xl text-purple-200/70 tracking-widest">
               Choose your path among the stars
             </p>
-          </div>
+          </header>
 
-          {/* Crescent Table */}
-          <div style={{
-            position: "relative", width: "clamp(320px, 55vw, 620px)",
-            animation: "tableFloat 7s ease-in-out infinite",
-          }}>
-            <svg viewBox="0 0 620 260" fill="none" xmlns="http://www.w3.org/2000/svg"
-              style={{ width: "100%", filter: "drop-shadow(0 18px 60px rgba(120,80,255,0.35))" }}>
-              <defs>
-                <radialGradient id="tableGlow" cx="50%" cy="50%" r="60%">
-                  <stop offset="0%"   stopColor="#2a1a5e" stopOpacity="0.95" />
-                  <stop offset="100%" stopColor="#0e0820" stopOpacity="0.85" />
-                </radialGradient>
-                <radialGradient id="tableShine" cx="45%" cy="30%" r="55%">
-                  <stop offset="0%"   stopColor="rgba(180,150,255,0.18)" />
-                  <stop offset="100%" stopColor="rgba(180,150,255,0)" />
-                </radialGradient>
-                <filter id="tableShadow">
-                  <feDropShadow dx="0" dy="6" stdDeviation="14" floodColor="#7040ff" floodOpacity="0.28" />
-                </filter>
-              </defs>
-              <ellipse cx="310" cy="145" rx="300" ry="108" fill="url(#tableGlow)" filter="url(#tableShadow)" />
-              <ellipse cx="310" cy="118" rx="200" ry="72" fill="#0a0618" />
-              <ellipse cx="310" cy="145" rx="300" ry="108" fill="url(#tableShine)" />
-              <ellipse cx="310" cy="145" rx="300" ry="108" stroke="rgba(180,140,255,0.35)" strokeWidth="1.2" fill="none" />
-              <ellipse cx="310" cy="118" rx="200" ry="72"  stroke="rgba(120,80,220,0.2)"  strokeWidth="0.8" fill="none" />
-              {[[90,168],[155,195],[240,210],[310,215],[380,210],[465,195],[530,168]].map(([x,y],i) => (
-                <circle key={i} cx={x} cy={y} r="2.5" fill="rgba(200,170,255,0.55)" />
+          {/* Moon Phase Widget */}
+          <section className="animate-in fade-in slide-in-from-bottom-8 duration-700 delay-100 fill-mode-both">
+            <MoonPhaseWidget />
+          </section>
+
+          {/* Main Features Grid */}
+          <section className="animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200 fill-mode-both">
+            <h2 className="font-['Cinzel'] text-xl sm:text-2xl text-white/90 tracking-widest uppercase mb-6 flex items-center gap-3">
+              <Sparkles className="w-5 h-5 text-purple-400" />
+              Cosmic Pathways
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+              {FEATURES.map((feature) => (
+                <FeatureCard key={feature.title} {...feature} />
               ))}
-              <polyline points="90,168 155,195 240,210 310,215 380,210 465,195 530,168"
-                stroke="rgba(180,140,255,0.18)" strokeWidth="0.8" fill="none" />
-              <text x="310" y="205" textAnchor="middle" fontFamily="serif" fontSize="13"
-                fill="rgba(200,170,255,0.4)" letterSpacing="6">✦  ◈  ✦</text>
-            </svg>
-
-            {/* Portals on the table */}
-            <div style={{
-              position: "absolute", bottom: "14%", left: 0, right: 0,
-              display: "flex", justifyContent: "space-around", alignItems: "flex-end",
-              padding: "0 2%",
-            }}>
-              <Portal to={createPageUrl("ReadingRoom")} icon="🌙" label="Reading Room" sub="Your central hub" accent="#a78bfa" delay={0.7} />
-              <Portal to={createPageUrl("Studio")} icon="🎨" label="Creators Studio" sub="Build oracle decks" accent="#f472b6" delay={0.9} />
-              <Portal to={createPageUrl("SpiritWheel")} icon="⚗️" label="Spirit Wheel" sub="Instant cosmic guidance" accent="#67e8f9" delay={1.1} />
             </div>
+          </section>
+
+          {/* Deck of the Week & What's New */}
+          <div className="grid md:grid-cols-3 gap-8 sm:gap-12 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300 fill-mode-both">
+            
+            {/* Deck of the week */}
+            <section className="md:col-span-1">
+              <h2 className="font-['Cinzel'] text-xl text-white/90 tracking-widest uppercase mb-6 flex items-center gap-2">
+                <span className="text-amber-400">★</span> Deck of the Week
+              </h2>
+              {deckOfWeek ? (
+                <div className="relative group h-full">
+                  <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-500/20 to-purple-500/20 rounded-2xl blur opacity-50 group-hover:opacity-100 transition duration-500"></div>
+                  <div className="relative bg-black/40 backdrop-blur-sm border border-white/10 rounded-2xl p-5 sm:p-6 flex flex-col items-center text-center h-full justify-center">
+                    <SimpleDeckCard deck={deckOfWeek} />
+                    <h3 className="font-bold text-lg mt-5 text-amber-100">{deckOfWeek.name}</h3>
+                    <p className="text-sm text-white/60 line-clamp-3 mt-2 font-['Crimson_Text']">
+                      {deckOfWeek.description || "A wonderful deck from the community vault."}
+                    </p>
+                    <Link to={createPageUrl(`ReadingRoom?deckId=${deckOfWeek.id}`)} className="mt-5 w-full">
+                      <button className="w-full py-2.5 rounded-full bg-gradient-to-r from-amber-500/20 to-purple-500/20 hover:from-amber-500/40 hover:to-purple-500/40 border border-amber-500/30 text-amber-100 text-sm font-semibold transition-all">
+                        Read with this deck
+                      </button>
+                    </Link>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-black/40 backdrop-blur-sm border border-white/10 rounded-2xl p-6 text-center text-white/50 italic h-64 flex items-center justify-center">
+                  Discovering stars...
+                </div>
+              )}
+            </section>
+
+            {/* What's New */}
+            <section className="md:col-span-2">
+              <h2 className="font-['Cinzel'] text-xl text-white/90 tracking-widest uppercase mb-6 flex items-center gap-2">
+                <span className="text-cyan-400">✧</span> What's New
+              </h2>
+              <div className="bg-black/40 backdrop-blur-sm border border-white/10 rounded-2xl p-5 sm:p-6 h-full flex flex-col justify-center">
+                {newDecks.length > 0 ? (
+                  <div className="relative">
+                    <Carousel opts={{ align: "start", dragFree: true, loop: false }} className="w-full touch-pan-y">
+                      <CarouselContent className="-ml-4 py-2">
+                        {newDecks.map(deck => (
+                          <CarouselItem key={deck.id} className="pl-4 basis-auto shrink-0">
+                            <SimpleDeckCard deck={deck} />
+                          </CarouselItem>
+                        ))}
+                      </CarouselContent>
+                      <div className="hidden sm:block">
+                        <CarouselPrevious className="absolute -left-4 top-1/2 -translate-y-1/2 bg-black/60 border-white/20 text-white hover:bg-black" />
+                        <CarouselNext className="absolute -right-4 top-1/2 -translate-y-1/2 bg-black/60 border-white/20 text-white hover:bg-black" />
+                      </div>
+                    </Carousel>
+                  </div>
+                ) : (
+                  <div className="text-center text-white/50 italic py-12">
+                    No new decks recently added to the vault.
+                  </div>
+                )}
+                
+                <div className="mt-8 pt-6 border-t border-white/10 text-center">
+                  <Link to={createPageUrl("Explore")} className="text-sm font-semibold text-cyan-300 hover:text-cyan-200 transition-colors uppercase tracking-wider font-['Cinzel']">
+                    Browse the full community vault ⟶
+                  </Link>
+                </div>
+              </div>
+            </section>
+
           </div>
-
-          {/* Community link */}
-          <Link
-            to={createPageUrl("Explore")}
-            style={{
-              marginTop: 42, display: "inline-flex", alignItems: "center", gap: 10,
-              fontFamily: "'Cinzel', serif", fontSize: 11, letterSpacing: "0.22em",
-              textTransform: "uppercase", color: "rgba(180,150,255,0.55)",
-              textDecoration: "none", borderBottom: "1px solid rgba(180,150,255,0.2)",
-              paddingBottom: 3, transition: "color 0.25s, border-color 0.25s",
-              animation: "communityPop 0.9s 1.5s both",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = "rgba(200,170,255,0.9)";
-              e.currentTarget.style.borderColor = "rgba(200,170,255,0.5)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = "rgba(180,150,255,0.55)";
-              e.currentTarget.style.borderColor = "rgba(180,150,255,0.2)";
-            }}
-          >
-            <span style={{ fontSize: 14 }}>✦</span>
-            Explore the Community Vault
-            <span style={{ fontSize: 14 }}>✦</span>
-          </Link>
-        </div>
-
-        {/* Bottom fade */}
-        <div style={{
-          position: "fixed", bottom: 0, left: 0, right: 0, height: 80,
-          background: "linear-gradient(to top, rgba(2,2,8,0.9), transparent)",
-          zIndex: 5, pointerEvents: "none",
-        }} />
+        </main>
       </div>
     </>
   );
