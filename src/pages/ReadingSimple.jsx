@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Deck as DeckEntity, Card as CardEntity, Spread as SpreadEntity } from "@/entities/all";
 import { Button } from "@/components/ui/button";
-import { Loader2, ChevronLeft, Hand, Shuffle, RotateCcw, Eye, Sparkles } from "lucide-react";
+import { Loader2, ChevronLeft, Hand, Shuffle, RotateCcw, Eye, Sparkles, Settings2, Save } from "lucide-react";
 import SpreadLayout from "@/components/reading/SpreadLayout";
 import BottomCardShelf from "@/components/reading/BottomCardShelf";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -179,6 +179,9 @@ export default function ReadingSimple() {
   const [selectedSpread, setSelectedSpread] = useState(null);
   const [revealedIndices, setRevealedIndices] = useState(new Set());
   const [isShuffling, setIsShuffling] = useState(false);
+  const [isEditingSpread, setIsEditingSpread] = useState(false);
+  const [spreadScale, setSpreadScale] = useState(1);
+  const [isSavingSpread, setIsSavingSpread] = useState(false);
   
   // Interpretation state
   const [selectedCardForInterpretation, setSelectedCardForInterpretation] = useState(null);
@@ -188,6 +191,25 @@ export default function ReadingSimple() {
   const [spreadInterpretation, setSpreadInterpretation] = useState(null);
   const [isSpreadAiLoading, setIsSpreadAiLoading] = useState(false);
   const [showSpreadInterpretation, setShowSpreadInterpretation] = useState(false);
+
+  const handleSaveSpread = async () => {
+    if (!selectedSpread?.id) return;
+    setIsSavingSpread(true);
+    try {
+      await base44.entities.Spread.update(selectedSpread.id, { positions: selectedSpread.positions });
+      setIsEditingSpread(false);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsSavingSpread(false);
+    }
+  };
+
+  const handlePositionUpdate = (newPositions) => {
+    if (selectedSpread) {
+      setSelectedSpread({ ...selectedSpread, positions: newPositions });
+    }
+  };
 
   const getSpreadInsight = async () => {
     if (drawnCards.length === 0 || isSpreadAiLoading) return;
@@ -527,6 +549,17 @@ export default function ReadingSimple() {
         </div>
 
         <div className="flex items-center gap-2">
+          {readingMode === "spread" && selectedSpread && (
+            isEditingSpread ? (
+              <Button onClick={handleSaveSpread} disabled={isSavingSpread} variant="outline" className="border-purple-500/40 text-purple-200 hover:bg-purple-500/20">
+                {isSavingSpread ? <Loader2 className="w-4 h-4 sm:mr-2 animate-spin" /> : <Save className="w-4 h-4 sm:mr-2" />} <span className="hidden sm:inline">Save</span>
+              </Button>
+            ) : (
+              <Button onClick={() => setIsEditingSpread(true)} variant="outline" className="border-purple-500/40 text-purple-200 hover:bg-purple-500/20">
+                <Settings2 className="w-4 h-4 sm:mr-2" /> <span className="hidden sm:inline">Edit Layout</span>
+              </Button>
+            )
+          )}
           <Button 
             onClick={handleDrawCard} 
             disabled={deckRemaining.length === 0 || (readingMode === "spread" && selectedSpread && drawnCards.length >= selectedSpread.positions.length)}
@@ -605,7 +638,18 @@ export default function ReadingSimple() {
             </AnimatePresence>
           </div>
         ) : (
-          <div className="flex-1 relative overflow-auto" ref={canvasRef}>
+          <div className="flex-1 relative flex flex-col overflow-auto" ref={canvasRef}>
+            {isEditingSpread && (
+              <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-black/80 backdrop-blur-md p-3 rounded-xl border border-purple-500/40 flex items-center gap-3">
+                <span className="text-xs text-purple-200 whitespace-nowrap font-semibold">Card Size</span>
+                <input 
+                  type="range" min="0.5" max="2" step="0.1" value={spreadScale} 
+                  onChange={(e) => setSpreadScale(parseFloat(e.target.value))} 
+                  className="w-24 accent-purple-500" 
+                />
+                <Button variant="ghost" size="sm" onClick={() => setIsEditingSpread(false)} className="text-red-400 hover:text-red-300 hover:bg-red-500/20 h-6 px-2 text-xs">Cancel</Button>
+              </div>
+            )}
             {selectedSpread ? (
               <div className="w-full min-h-full flex items-center justify-center pb-8">
                 <SpreadLayout 
@@ -618,6 +662,9 @@ export default function ReadingSimple() {
                   onCardClick={(c, idx) => onCardReveal(idx)}
                   enableExternalDrops={true}
                   onExternalDrop={handleExternalDrop}
+                  allowReposition={isEditingSpread}
+                  onPositionUpdate={handlePositionUpdate}
+                  sizeScale={spreadScale}
                 />
               </div>
             ) : (
