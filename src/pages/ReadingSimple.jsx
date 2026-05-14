@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Deck as DeckEntity, Card as CardEntity } from "@/entities/all";
+import { Deck as DeckEntity, Card as CardEntity, Spread as SpreadEntity } from "@/entities/all";
 import { Button } from "@/components/ui/button";
 import { Loader2, ChevronLeft, Hand, Shuffle, RotateCcw, Eye, Sparkles } from "lucide-react";
+import SpreadLayout from "@/components/reading/SpreadLayout";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion, AnimatePresence } from "framer-motion";
 import { createPageUrl } from "@/utils";
 import { queueApiCall } from "@/components/utils/apiQueue";
@@ -19,6 +22,11 @@ export default function ReadingSimple() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const canvasRef = React.useRef(null);
+  
+  const [readingMode, setReadingMode] = useState("freeform");
+  const [spreads, setSpreads] = useState([]);
+  const [selectedSpread, setSelectedSpread] = useState(null);
+  const [revealedIndices, setRevealedIndices] = useState(new Set());
 
   useEffect(() => {
     if (!deckIdFromUrl) {
@@ -38,15 +46,21 @@ export default function ReadingSimple() {
     const loadDeck = async () => {
       try {
         
-        const [loadedDeck, loadedCards] = await Promise.all([
+        const [loadedDeck, loadedCards, loadedSpreads] = await Promise.all([
           queueApiCall(() => DeckEntity.get(deckIdFromUrl), 3, 1500),
-          queueApiCall(() => CardEntity.filter({ deck_id: deckIdFromUrl }), 3, 1500)
+          queueApiCall(() => CardEntity.filter({ deck_id: deckIdFromUrl }), 3, 1500),
+          queueApiCall(() => SpreadEntity.list(), 3, 1500)
         ]);
 
         if (cancelled) return;
 
         setDeck(loadedDeck);
         setCards(loadedCards);
+        setSpreads(loadedSpreads || []);
+        if (loadedSpreads && loadedSpreads.length > 0) {
+          setSelectedSpread(loadedSpreads[0]);
+        }
+        
         const shuffled = [...loadedCards].sort(() => Math.random() - 0.5);
         setDeckRemaining(shuffled);
         setError("");
@@ -105,10 +119,13 @@ export default function ReadingSimple() {
   const handleDrawCard = () => {
     if (deckRemaining.length === 0) return;
     
+    if (readingMode === "spread" && selectedSpread && drawnCards.length >= selectedSpread.positions.length) {
+      return;
+    }
+    
     const newRemaining = [...deckRemaining];
     const cardData = newRemaining.pop();
     
-    // Add to center roughly
     const x = Math.floor(Math.random() * 60) - 30;
     const y = Math.floor(Math.random() * 60) - 30;
     const rotation = Math.floor(Math.random() * 10) - 5;
@@ -129,6 +146,7 @@ export default function ReadingSimple() {
     const allCards = [...cards].sort(() => Math.random() - 0.5);
     setDeckRemaining(allCards);
     setDrawnCards([]);
+    setRevealedIndices(new Set());
   };
 
   const toggleFlip = (id) => {
@@ -138,7 +156,18 @@ export default function ReadingSimple() {
   };
 
   const revealAll = () => {
-    setDrawnCards(drawnCards.map(c => ({ ...c, isFlipped: true })));
+    if (readingMode === "freeform") {
+      setDrawnCards(drawnCards.map(c => ({ ...c, isFlipped: true })));
+    } else {
+      const allIndices = new Set(drawnCards.map((_, i) => i));
+      setRevealedIndices(allIndices);
+    }
+  };
+
+  const onCardReveal = (idx) => {
+    const newRevealed = new Set(revealedIndices);
+    newRevealed.add(idx);
+    setRevealedIndices(newRevealed);
   };
 
   return (
@@ -160,10 +189,43 @@ export default function ReadingSimple() {
           </div>
         </div>
 
+        <div className="hidden lg:flex flex-1 justify-center mx-4">
+          <Tabs value={readingMode} onValueChange={(val) => {
+            setReadingMode(val);
+            handleShuffle(); // reset when switching modes
+          }} className="w-[300px]">
+            <TabsList className="grid w-full grid-cols-2 bg-black/40 border border-purple-500/30">
+              <TabsTrigger value="freeform" className="data-[state=active]:bg-purple-600">Freeform</TabsTrigger>
+              <TabsTrigger value="spread" className="data-[state=active]:bg-purple-600">Spread</TabsTrigger>
+            </TabsList>
+          </Tabs>
+          
+          {readingMode === "spread" && spreads.length > 0 && (
+            <div className="ml-4">
+              <Select 
+                value={selectedSpread?.id || ""} 
+                onValueChange={(val) => {
+                  setSelectedSpread(spreads.find(s => s.id === val));
+                  handleShuffle();
+                }}
+              >
+                <SelectTrigger className="w-[200px] bg-black/40 border-purple-500/30 text-white">
+                  <SelectValue placeholder="Select Spread" />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-900 border-purple-500/30 text-white">
+                  {spreads.map(s => (
+                    <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        </div>
+
         <div className="flex items-center gap-2">
           <Button 
             onClick={handleDrawCard} 
-            disabled={deckRemaining.length === 0}
+            disabled={deckRemaining.length === 0 || (readingMode === "spread" && selectedSpread && drawnCards.length >= selectedSpread.positions.length)}
             className="bg-purple-600 hover:bg-purple-700 text-white shadow-[0_0_15px_rgba(147,51,234,0.3)]"
           >
             <Hand className="w-4 h-4 mr-2" />
@@ -189,102 +251,125 @@ export default function ReadingSimple() {
         </div>
       </div>
 
-      {/* Interactive Canvas */}
-      <div className="flex-1 relative p-4" ref={canvasRef}>
-        {/* Subtle instructions */}
-        {drawnCards.length === 0 && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none opacity-50">
-            <Sparkles className="w-12 h-12 text-purple-400 mb-4 animate-pulse" />
-            <p className="text-purple-200 text-lg font-['Cinzel'] tracking-wider">Draw a card to begin</p>
-            <p className="text-purple-300/60 text-sm mt-2">Drag to arrange · Double-click to reveal</p>
-          </div>
-        )}
+      {/* Interactive Canvas / Spread */}
+      {readingMode === "freeform" ? (
+        <div className="flex-1 relative p-4" ref={canvasRef}>
+          {/* Subtle instructions */}
+          {drawnCards.length === 0 && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none opacity-50">
+              <Sparkles className="w-12 h-12 text-purple-400 mb-4 animate-pulse" />
+              <p className="text-purple-200 text-lg font-['Cinzel'] tracking-wider">Draw a card to begin</p>
+              <p className="text-purple-300/60 text-sm mt-2">Drag to arrange · Double-click to reveal</p>
+            </div>
+          )}
 
-        <AnimatePresence>
-          {drawnCards.map((drawnCard, index) => (
-            <motion.div
-              key={drawnCard.id}
-              drag
-              dragConstraints={canvasRef}
-              dragMomentum={false}
-              dragElastic={0.1}
-              initial={{ opacity: 0, scale: 0.5, x: 0, y: 300 }}
-              animate={{ 
-                opacity: 1, 
-                scale: 1,
-                x: drawnCard.x, 
-                y: drawnCard.y,
-                rotate: drawnCard.rotation
-              }}
-              exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.2 } }}
-              whileHover={{ scale: 1.05, zIndex: 50 }}
-              whileDrag={{ scale: 1.1, zIndex: 100, boxShadow: "0 20px 40px rgba(0,0,0,0.5)" }}
-              onDoubleClick={() => toggleFlip(drawnCard.id)}
-              className="absolute left-1/2 top-1/2 -ml-[90px] -mt-[140px] cursor-grab active:cursor-grabbing"
-              style={{ zIndex: index + 10 }}
-            >
-              <div 
-                className="relative w-[180px] h-[280px] rounded-xl transition-all duration-500 preserve-3d"
-                style={{ 
-                  transformStyle: "preserve-3d",
-                  transform: drawnCard.isFlipped ? "rotateY(0deg)" : "rotateY(180deg)"
+          <AnimatePresence>
+            {drawnCards.map((drawnCard, index) => (
+              <motion.div
+                key={drawnCard.id}
+                drag
+                dragConstraints={canvasRef}
+                dragMomentum={false}
+                dragElastic={0.1}
+                initial={{ opacity: 0, scale: 0.5, x: 0, y: 300 }}
+                animate={{ 
+                  opacity: 1, 
+                  scale: 1,
+                  x: drawnCard.x, 
+                  y: drawnCard.y,
+                  rotate: drawnCard.rotation
                 }}
+                exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.2 } }}
+                whileHover={{ scale: 1.05, zIndex: 50 }}
+                whileDrag={{ scale: 1.1, zIndex: 100, boxShadow: "0 20px 40px rgba(0,0,0,0.5)" }}
+                onDoubleClick={() => toggleFlip(drawnCard.id)}
+                className="absolute left-1/2 top-1/2 -ml-[90px] -mt-[140px] cursor-grab active:cursor-grabbing"
+                style={{ zIndex: index + 10 }}
               >
-                {/* Front of card */}
                 <div 
-                  className="absolute inset-0 rounded-xl overflow-hidden shadow-2xl border border-white/20 bg-slate-900 backface-hidden"
-                  style={{ backfaceVisibility: "hidden" }}
-                >
-                  {drawnCard.cardData.image_url ? (
-                    <img 
-                      src={drawnCard.cardData.image_url} 
-                      alt={drawnCard.cardData.name}
-                      className="w-full h-full object-cover"
-                      draggable="false"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex flex-col items-center justify-center p-4 bg-gradient-to-br from-indigo-900 to-purple-900">
-                      <p className="text-white text-center font-bold">{drawnCard.cardData.name}</p>
-                    </div>
-                  )}
-                  {/* Subtle gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
-                  <div className="absolute bottom-3 left-0 right-0 px-3">
-                    <p className="text-white text-sm font-semibold text-center drop-shadow-md truncate">
-                      {drawnCard.cardData.name}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Back of card */}
-                <div 
-                  className="absolute inset-0 rounded-xl overflow-hidden shadow-2xl border-2 border-purple-500/30 backface-hidden"
+                  className="relative w-[180px] h-[280px] rounded-xl transition-all duration-500 preserve-3d"
                   style={{ 
-                    backfaceVisibility: "hidden", 
-                    transform: "rotateY(180deg)",
-                    background: "radial-gradient(circle at center, #4c1d95 0%, #1e1b4b 100%)"
+                    transformStyle: "preserve-3d",
+                    transform: drawnCard.isFlipped ? "rotateY(0deg)" : "rotateY(180deg)"
                   }}
                 >
-                  {deck?.back_image_url ? (
-                    <img 
-                      src={deck.back_image_url} 
-                      alt="Card Back"
-                      className="w-full h-full object-cover opacity-80"
-                      draggable="false"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center opacity-50">
-                      <div className="w-24 h-32 border border-purple-400/30 rounded flex items-center justify-center">
-                        <Sparkles className="w-8 h-8 text-purple-400" />
+                  {/* Front of card */}
+                  <div 
+                    className="absolute inset-0 rounded-xl overflow-hidden shadow-2xl border border-white/20 bg-slate-900 backface-hidden"
+                    style={{ backfaceVisibility: "hidden" }}
+                  >
+                    {drawnCard.cardData.image_url ? (
+                      <img 
+                        src={drawnCard.cardData.image_url} 
+                        alt={drawnCard.cardData.name}
+                        className="w-full h-full object-cover"
+                        draggable="false"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center p-4 bg-gradient-to-br from-indigo-900 to-purple-900">
+                        <p className="text-white text-center font-bold">{drawnCard.cardData.name}</p>
                       </div>
+                    )}
+                    {/* Subtle gradient overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+                    <div className="absolute bottom-3 left-0 right-0 px-3">
+                      <p className="text-white text-sm font-semibold text-center drop-shadow-md truncate">
+                        {drawnCard.cardData.name}
+                      </p>
                     </div>
-                  )}
+                  </div>
+
+                  {/* Back of card */}
+                  <div 
+                    className="absolute inset-0 rounded-xl overflow-hidden shadow-2xl border-2 border-purple-500/30 backface-hidden"
+                    style={{ 
+                      backfaceVisibility: "hidden", 
+                      transform: "rotateY(180deg)",
+                      background: "radial-gradient(circle at center, #4c1d95 0%, #1e1b4b 100%)"
+                    }}
+                  >
+                    {deck?.back_image_url ? (
+                      <img 
+                        src={deck.back_image_url} 
+                        alt="Card Back"
+                        className="w-full h-full object-cover opacity-80"
+                        draggable="false"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center opacity-50">
+                        <div className="w-24 h-32 border border-purple-400/30 rounded flex items-center justify-center">
+                          <Sparkles className="w-8 h-8 text-purple-400" />
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
+      ) : (
+        <div className="flex-1 relative p-4 flex flex-col items-center justify-center overflow-auto" ref={canvasRef}>
+          {selectedSpread ? (
+            <div className="w-full h-full flex items-center justify-center">
+              <SpreadLayout 
+                spread={selectedSpread}
+                positions={selectedSpread.positions}
+                cards={drawnCards.map(c => c.cardData)}
+                deck={deck}
+                revealedCards={revealedIndices}
+                onCardReveal={onCardReveal}
+                onCardClick={(c, idx) => onCardReveal(idx)}
+              />
+            </div>
+          ) : (
+            <div className="text-center opacity-50">
+              <Sparkles className="w-12 h-12 text-purple-400 mb-4 mx-auto animate-pulse" />
+              <p className="text-purple-200 text-lg font-['Cinzel'] tracking-wider">No Spreads Available</p>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
