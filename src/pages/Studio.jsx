@@ -288,9 +288,15 @@ export default function Studio() {
                 In Progress ({draftDecks.length})
               </h2>
             </div>
-            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1">
-              {draftDecks.map(deck => <DeckTile key={deck.id} deck={deck} />)}
-            </div>
+            <Carousel opts={{ align: "start", dragFree: true, loop: true }} className="w-full max-w-[100vw] overflow-hidden relative touch-pan-y">
+              <CarouselContent className="-ml-4 py-2">
+                {draftDecks.map(deck => (
+                  <CarouselItem key={deck.id} className="pl-4 basis-auto shrink-0">
+                    <DeckTile deck={deck} />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+            </Carousel>
           </div>
         )}
 
@@ -319,9 +325,15 @@ export default function Studio() {
           ) : publishedDecks.length === 0 ? (
             <p className="text-white/40 text-sm italic">No published decks yet.</p>
           ) : (
-            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1">
-              {publishedDecks.map(deck => <DeckTile key={deck.id} deck={deck} />)}
-            </div>
+            <Carousel opts={{ align: "start", dragFree: true, loop: true }} className="w-full max-w-[100vw] overflow-hidden relative touch-pan-y">
+              <CarouselContent className="-ml-4 py-2">
+                {publishedDecks.map(deck => (
+                  <CarouselItem key={deck.id} className="pl-4 basis-auto shrink-0">
+                    <DeckTile deck={deck} />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+            </Carousel>
           )}
         </div>
       </div>
