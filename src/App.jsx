@@ -215,6 +215,14 @@ const AuthenticatedApp = () => {
           </LayoutWrapper>
         }
       />
+      <Route
+        path="/Reading"
+        element={
+          <LayoutWrapper currentPageName="Reading">
+            {Pages.ReadingSimple ? <Pages.ReadingSimple /> : <PageNotFound />}
+          </LayoutWrapper>
+        }
+      />
       {Object.entries(Pages).map(([path, Page]) => (
         <Route
           key={path}
