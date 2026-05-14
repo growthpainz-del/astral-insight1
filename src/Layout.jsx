@@ -386,8 +386,6 @@ export default function Layout({ children, currentPageName }) {
     { href: "Help", icon: HelpCircle, label: "Help & Guides" },
     { href: "SubscriptionManagement", icon: Coins, label: "Subscription" },
     { href: "Account", icon: Users, label: "Account" },
-    { href: "LiveAgent", icon: Sparkles, label: "Live Agent" },
-    { href: "DIDDemo", icon: Sparkles, label: "D-ID Demo" },
     { href: "AIWorkspace", icon: Sparkles, label: "🤖 AI Workspace" },
   ];
 

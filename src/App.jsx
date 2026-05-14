@@ -11,7 +11,6 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError'
 import ReadingRoom from './pages/ReadingRoom'
 import Reading from './pages/Reading'
 import SpiritWheel from './pages/SpiritWheel'
-import LiveAgent from './pages/LiveAgent'
 import SigilForge from './pages/SigilForge'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import Pendulum from './pages/Pendulum'
@@ -146,14 +145,6 @@ const AuthenticatedApp = () => {
         element={
           <LayoutWrapper currentPageName="SpiritWheel">
             <SpiritWheel />
-          </LayoutWrapper>
-        }
-      />
-      <Route
-        path="/LiveAgent"
-        element={
-          <LayoutWrapper currentPageName="LiveAgent">
-            <LiveAgent />
           </LayoutWrapper>
         }
       />

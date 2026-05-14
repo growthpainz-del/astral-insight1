@@ -179,9 +179,10 @@ export default function AgentChat() {
                         />
                         <Button 
                             type="submit" 
+                            onClick={handleSend}
                             size="icon"
                             disabled={!input.trim() || loading}
-                            className="absolute right-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white disabled:bg-slate-700 disabled:text-slate-500 transition-colors"
+                            className="absolute right-2 z-10 rounded-xl bg-purple-600 hover:bg-purple-700 text-white disabled:bg-slate-700 disabled:text-slate-500 transition-colors"
                         >
                             <Send className="w-4 h-4" />
                         </Button>
