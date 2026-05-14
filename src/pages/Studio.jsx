@@ -123,7 +123,7 @@ function StudioToolsList({ tools, onSelect }) {
     >
       <CarouselContent className="-ml-4">
         {tools.map((tool) => (
-          <CarouselItem key={tool.id} className="pl-4 basis-[140px] shrink-0 last:mr-4">
+          <CarouselItem key={tool.id} className="pl-4 basis-auto shrink-0">
             <div
               onClick={() => {
                 if (tool.to) navigate(createPageUrl(tool.to));
@@ -146,6 +146,8 @@ function StudioToolsList({ tools, onSelect }) {
             </div>
           </CarouselItem>
         ))}
+        {/* Spacer for the right edge */}
+        <CarouselItem className="basis-4 shrink-0 pl-0" />
       </CarouselContent>
       <div className="hidden md:block">
         <CarouselPrevious className="absolute -left-4 top-1/2 -translate-y-1/2 bg-black/50 border-white/20 hover:bg-black/80 text-white" />
