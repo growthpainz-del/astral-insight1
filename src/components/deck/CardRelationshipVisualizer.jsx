@@ -496,7 +496,7 @@ function GraphView({ cards, relationships, selectedCards, onCardClick, onRelatio
     
     let animationFrame;
     const K = 0.05; // Spring constant
-    const REPULSION = 8000; // Repulsion constant
+    const REPULSION = 20000; // Repulsion constant
     const DAMPING = 0.85; // Damping
     
     const simulate = () => {
@@ -668,9 +668,9 @@ function GraphView({ cards, relationships, selectedCards, onCardClick, onRelatio
                 <div className="absolute inset-0 bg-purple-500/20 backdrop-blur-[1px] pointer-events-none" />
               )}
             </div>
-            <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 whitespace-nowrap pointer-events-none">
-              <Badge className="bg-purple-600/90 text-white text-[10px] px-1.5 py-0.5">
-                {card.number ? `#${card.number}` : card.name}
+            <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 pointer-events-none w-20 flex justify-center">
+              <Badge className="bg-purple-900/95 border-purple-500/50 text-white text-[9px] px-1.5 py-0.5 whitespace-normal text-center leading-[1.15] shadow-lg shadow-black/60 inline-block w-full">
+                {card.number ? `#${card.number} ${card.name}` : card.name}
               </Badge>
             </div>
           </motion.div>
