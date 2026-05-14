@@ -18,7 +18,7 @@ import {
   Loader2, Play, Settings, Image as ImageIcon, Upload, BookOpen,
   Trash2, Link as LinkIcon, FileJson, Wand2, Images, Layers,
   RefreshCw, FileSpreadsheet, Eye, Pencil, Download, Sparkles,
-  FileText, Send, Palette, AlertTriangle, Globe, Lock, ChevronLeft,
+  FileText, Send, Palette, AlertTriangle, Globe, Lock, ChevronLeft, Copy,
 } from "lucide-react";
 
 import AIManualBuilder            from "@/components/deck/AIManualBuilder";
@@ -35,7 +35,6 @@ import DeckSettings               from "@/components/deck/DeckSettings";
 import JsonCardUpdater            from "@/components/deck/JsonCardUpdater";
 import CardManager                from "@/components/deck/CardManager";
 import JsonCardImporter           from "@/components/deck/JsonCardImporter";
-import BulkCsvUploader            from "@/components/deck/BulkCsvUploader";
 import BulkAIImageGenerator       from "@/components/deck/BulkAIImageGenerator";
 import AICoachEditor              from "@/components/deck/AICoachEditor";
 import PublishingDashboard        from "@/components/deck/PublishingDashboard";
@@ -107,7 +106,6 @@ function ToolPanel({ tool, deck, cards, setDeck, setCards, reloadCards }) {
     rehost:             { title: "Rehost Images",         icon: RefreshCw,color: "text-amber-300",  node: <BulkRehoster deckId={deck.id} /> },
     customNotes:        { title: "Custom Notes",          icon: FileJson, color: "text-yellow-300", node: <QuickCustomNotes deckId={deck.id} /> },
     settingsInline:     { title: "Deck Settings",         icon: Settings, color: "text-slate-300",  node: <DeckSettings deckId={deck.id} deck={deck} inline={true} onSaved={() => Deck.get(deck.id).then(setDeck)} /> },
-    csvImport:          { title: "CSV Import",            icon: FileSpreadsheet, color: "text-blue-300", node: <BulkCsvUploader deckId={deck.id} onDone={() => { Deck.get(deck.id).then(setDeck); reloadCards(); }} /> },
     jsonUpdater:        { title: "JSON Updater",          icon: FileJson, color: "text-violet-300", node: <JsonCardUpdater deckId={deck.id} onDone={() => Deck.get(deck.id).then(setDeck)} /> },
     jsonImport:         { title: "Import JSON",           icon: Upload,   color: "text-cyan-300",   node: <JsonCardImporter deckId={deck.id} onDone={() => Deck.get(deck.id).then(setDeck)} /> },
     cardManager:        { title: "Card Manager",          icon: Pencil,   color: "text-teal-300",   node: <CardManager deckId={deck.id} cards={cards} onUpdate={(c) => { setCards(c); reloadCards(); }} /> },
@@ -143,36 +141,6 @@ export default function DeckView() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting]       = useState(false);
   const [isDuplicating, setIsDuplicating] = useState(false);
-
-  const handleDuplicateDeck = async () => {
-    if (!deck?.id) return;
-    setIsDuplicating(true);
-    try {
-      const { id, created_date, updated_date, created_by, ...deckData } = deck;
-      deckData.name = deckData.name + ' (Copy)';
-      deckData.is_public = false;
-      
-      const newDeck = await base44.entities.Deck.create(deckData);
-      
-      const newCards = cards.map(c => {
-        const { id, created_date, updated_date, created_by, ...cardData } = c;
-        cardData.deck_id = newDeck.id;
-        return cardData;
-      });
-      
-      const chunkSize = 50;
-      for (let i = 0; i < newCards.length; i += chunkSize) {
-        await base44.entities.Card.bulkCreate(newCards.slice(i, i + chunkSize));
-      }
-      
-      toast.success(`Duplicated "${deck.name}" successfully!`);
-      navigate(createPageUrl(`DeckView?id=${newDeck.id}`));
-    } catch (err) {
-      toast.error('Failed to duplicate deck.');
-    } finally {
-      setIsDuplicating(false);
-    }
-  };
 
   useEffect(() => {
     let active = true;
@@ -223,6 +191,34 @@ export default function DeckView() {
       URL.revokeObjectURL(url);
       toast.success("Deck exported!");
     } catch (e) { toast.error("Failed to export: " + (e.message || "Unknown error")); }
+  };
+
+  const handleDuplicateDeck = async () => {
+    if (!deck?.id) return;
+    setIsDuplicating(true);
+    try {
+      const allCards = await Card.filter({ deck_id: deck.id });
+      const newDeck = await Deck.create({
+        ...deck,
+        id: undefined,
+        name: `${deck.name} (Copy)`,
+        publish_status: "draft",
+        is_public: false,
+        created_date: undefined,
+        updated_date: undefined,
+      });
+      if (allCards?.length) {
+        await Promise.all(allCards.map(c =>
+          Card.create({ ...c, id: undefined, deck_id: newDeck.id, created_date: undefined })
+        ));
+      }
+      toast.success("Deck duplicated!");
+      navigate(createPageUrl(`DeckView?id=${newDeck.id}`));
+    } catch (e) {
+      toast.error("Failed to duplicate deck: " + (e.message || "Unknown error"));
+    } finally {
+      setIsDuplicating(false);
+    }
   };
 
   const handleDeleteDeck = async () => {
@@ -284,14 +280,23 @@ export default function DeckView() {
 
       {/* ── Hero ── */}
       <div style={{ background: "radial-gradient(ellipse 140% 100% at 50% 0%, rgba(124,58,237,0.22) 0%, transparent 70%)" }}>
-        <div className="relative w-full overflow-hidden" style={{ maxHeight: 280 }}>
+        <div className="relative w-full" style={{ height: 220 }}>
           {deck.cover_image ? (
-            <img src={deck.cover_image} alt={deck.name} className="w-full object-cover" style={{ maxHeight: 280 }} />
-          ) : (
-            <div className="w-full flex items-center justify-center" style={{ height: 200, background: "rgba(124,58,237,0.12)" }}>
-              <Palette className="w-16 h-16 text-purple-400/30" />
-            </div>
-          )}
+            <img
+              src={deck.cover_image}
+              alt={deck.name}
+              className="w-full h-full object-cover"
+              onError={e => { e.target.style.display = "none"; e.target.nextSibling.style.display = "flex"; }}
+            />
+          ) : null}
+          <div
+            className="w-full h-full items-center justify-center absolute inset-0"
+            style={{ display: deck.cover_image ? "none" : "flex", background: "linear-gradient(135deg, rgba(124,58,237,0.25), rgba(49,10,84,0.4))" }}
+          >
+            <Palette className="w-16 h-16 text-purple-400/30" />
+          </div>
+          {/* Gradient overlay for readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
           <Link to={galleryUrl}>
             <button
               className="absolute bottom-3 right-3 flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold text-white"
@@ -338,7 +343,7 @@ export default function DeckView() {
 
       {/* ── Tab strip ── */}
       <div className="sticky top-0 z-30 px-4 py-3 border-b border-white/8" style={{ background: "rgba(7,5,15,0.92)", backdropFilter: "blur(12px)" }}>
-        <div className="flex gap-2 overflow-x-auto scrollbar-hide pan-2d">
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide">
           {TABS.map(t => (
             <Tab key={t.id} id={t.id} label={t.label} active={activeTab === t.id}
               onClick={(id) => { setActiveTab(id); setSelectedTool(""); }} />
@@ -368,7 +373,6 @@ export default function DeckView() {
             <div className="space-y-2">
               <ToolBtn label="Card Manager"      icon={Pencil}          onClick={() => setSelectedTool("cardManager")}    color="#0f766e" />
               <ToolBtn label="Custom Notes"      icon={FileJson}        onClick={() => setSelectedTool("customNotes")}    color="#92400e" />
-              <ToolBtn label="Import CSV"        icon={FileSpreadsheet} onClick={() => setSelectedTool("csvImport")}      color="#2563eb" />
               <ToolBtn label="JSON Updater"      icon={FileJson}        onClick={() => setSelectedTool("jsonUpdater")}    color="#5b21b6" />
               <ToolBtn label="Import JSON"       icon={Upload}          onClick={() => setSelectedTool("jsonImport")}     color="#155e75" />
               <ToolBtn label="All-in-One Import" icon={FileSpreadsheet} onClick={() => setSelectedTool("combinedImport")} color="#9d174d" />
@@ -387,7 +391,7 @@ export default function DeckView() {
               <ToolBtn label="Bulk Spreads"        icon={Layers}   onClick={() => setSelectedTool("bulkSpreads")}    color="#3730a3" />
               <ToolBtn label="Deck Settings"       icon={Settings} onClick={() => setSelectedTool("settingsInline")} color="#334155" />
               <ToolBtn label="Spread Designer"     icon={Layers}   asLink to={createPageUrl(`SpreadDesigner?deckId=${deck?.id || ""}`)} color="rgba(99,102,241,0.3)" />
-              <ToolBtn label="Duplicate Deck"      icon={Layers}   onClick={handleDuplicateDeck}          color="#0891b2" />
+              <ToolBtn label={isDuplicating ? "Duplicating…" : "Duplicate Deck"} icon={isDuplicating ? Loader2 : Copy} onClick={handleDuplicateDeck} color="#0e7490" />
               <ToolBtn label="Export Deck JSON"    icon={Download} onClick={handleExportJson}             color="#065f46" />
               <ToolBtn label="Delete Deck"         icon={Trash2}   onClick={() => setDeleteDialogOpen(true)} color="#991b1b" />
             </div>
