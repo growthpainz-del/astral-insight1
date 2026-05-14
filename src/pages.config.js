@@ -56,7 +56,6 @@ import CardGallery from './pages/CardGallery';
 import CardInfo from './pages/CardInfo';
 import CardNames from './pages/CardNames';
 import CreateDeck from './pages/CreateDeck';
-import Dashboard from './pages/Dashboard';
 import Deck from './pages/Deck';
 import DeckCreationWizard from './pages/DeckCreationWizard';
 import DeckGallery from './pages/DeckGallery';
@@ -75,16 +74,13 @@ import MyFusions from './pages/MyFusions';
 import Persona from './pages/Persona';
 import PhotoUploader from './pages/PhotoUploader';
 import PrintifySetup from './pages/PrintifySetup';
-import Reading from './pages/Reading';
 
 import ReadingSimple from './pages/ReadingSimple';
 import Rebel8Ball from './pages/Rebel8Ball';
 import SharedReading from './pages/SharedReading';
 import SpreadCleaner from './pages/SpreadCleaner';
-import SpreadDesigner from './pages/SpreadDesigner';
 import SpreadManager from './pages/SpreadManager';
 import SpreadSeeder from './pages/SpreadSeeder';
-import Studio from './pages/Studio';
 import SubscriptionManagement from './pages/SubscriptionManagement';
 import Upgrade from './pages/Upgrade';
 import UserProfile from './pages/UserProfile';
@@ -106,7 +102,6 @@ export const PAGES = {
     "CardInfo": CardInfo,
     "CardNames": CardNames,
     "CreateDeck": CreateDeck,
-    "Dashboard": Dashboard,
     "Deck": Deck,
     "DeckCreationWizard": DeckCreationWizard,
     "DeckGallery": DeckGallery,
@@ -125,16 +120,13 @@ export const PAGES = {
     "Persona": Persona,
     "PhotoUploader": PhotoUploader,
     "PrintifySetup": PrintifySetup,
-    "Reading": Reading,
 
     "ReadingSimple": ReadingSimple,
     "Rebel8Ball": Rebel8Ball,
     "SharedReading": SharedReading,
     "SpreadCleaner": SpreadCleaner,
-    "SpreadDesigner": SpreadDesigner,
     "SpreadManager": SpreadManager,
     "SpreadSeeder": SpreadSeeder,
-    "Studio": Studio,
     "SubscriptionManagement": SubscriptionManagement,
     "Upgrade": Upgrade,
     "UserProfile": UserProfile,

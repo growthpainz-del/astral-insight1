@@ -9,14 +9,12 @@ import PageNotFound from './lib/PageNotFound'
 import { AuthProvider, useAuth } from '@/lib/AuthContext'
 import UserNotRegisteredError from '@/components/UserNotRegisteredError'
 import ReadingRoom from './pages/ReadingRoom'
-import Reading from './pages/Reading'
 import SpiritWheel from './pages/SpiritWheel'
 import SigilForge from './pages/SigilForge'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import Pendulum from './pages/Pendulum'
 import CardMaker from './pages/CardMaker'
 import CardLibrary from './pages/CardLibrary'
-import Studio from './pages/Studio'
 import SpreadTester from './pages/SpreadTester'
 import DashboardHub from './pages/DashboardHub'
 
@@ -124,14 +122,7 @@ const AuthenticatedApp = () => {
           </LayoutWrapper>
         }
       />
-      <Route
-        path="/Reading"
-        element={
-          <LayoutWrapper currentPageName="Reading">
-            <Reading />
-          </LayoutWrapper>
-        }
-      />
+
       <Route
         path="/ReadingRoom"
         element={
@@ -188,14 +179,7 @@ const AuthenticatedApp = () => {
           </LayoutWrapper>
         }
       />
-      <Route
-        path="/Studio"
-        element={
-          <LayoutWrapper currentPageName="Studio">
-            <Studio />
-          </LayoutWrapper>
-        }
-      />
+
       <Route
         path="/SpreadTester"
         element={
