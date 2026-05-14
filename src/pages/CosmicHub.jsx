@@ -234,7 +234,7 @@ export default function CosmicHub() {
           background: "linear-gradient(to bottom, rgba(2,2,8,0.85) 0%, transparent 100%)",
         }}>
           <Link 
-            to="/" 
+            to={createPageUrl("DashboardHub")} 
             style={{ 
               animation: "communityPop 0.8s 1.6s both",
               display: "flex", 
@@ -243,7 +243,7 @@ export default function CosmicHub() {
             }}
           >
             <img 
-              src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/dceb9973f_FFC86774-57E4-432D-9291-05752E7FDC5A.png" 
+              src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/0fad39924_IMG_0076.png" 
               alt="Rooted Crescent" 
               style={{ 
                 width: 32,

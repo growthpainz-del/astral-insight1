@@ -479,9 +479,9 @@ export default function Layout({ children, currentPageName }) {
             } transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:flex`}
           >
             <div className="flex items-center justify-between h-16 px-4 border-b border-purple-800/40 flex-shrink-0">
-              <Link to={createPageUrl("CosmicHub")} className="flex items-center gap-2">
+              <Link to={createPageUrl("DashboardHub")} className="flex items-center gap-2">
                 <img
-                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d2a300021f94d0f312c039/4cde5ffdd_IMG_6738.jpg"
+                  src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/0fad39924_IMG_0076.png"
                   alt="Logo"
                   className="h-8 w-8"
                 />
@@ -660,23 +660,23 @@ export default function Layout({ children, currentPageName }) {
               >
                 <LayoutGrid className="w-6 h-6" />
               </button>
-              <Link to={createPageUrl("CosmicHub")} className="flex items-center gap-2">
+              <Link to={createPageUrl("DashboardHub")} className="flex items-center gap-2">
                 <img
-                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d2a300021f94d0f312c039/4cde5ffdd_IMG_6738.jpg"
+                  src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/0fad39924_IMG_0076.png"
                   alt="Logo"
                   className="h-8 w-8"
                 />
               </Link>
-              {["CosmicHub", "ReadingRoom", "Studio", "Journal"].includes(
+              {["CosmicHub", "ReadingRoom", "Studio", "Journal", "DashboardHub"].includes(
                 currentPageName
               ) ? (
                 <Link
-                  to={createPageUrl("CosmicHub")}
+                  to={createPageUrl("DashboardHub")}
                   className="text-purple-300 hover:text-purple-100 active:scale-95 transition-all p-2 -mr-2 touch-manipulation"
                   style={{ WebkitTapHighlightColor: "transparent" }}
                 >
                   <img
-                    src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68d2a300021f94d0f312c039/4cde5ffdd_IMG_6738.jpg"
+                    src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/0fad39924_IMG_0076.png"
                     alt="Logo"
                     className="h-6 w-6 rounded"
                   />
