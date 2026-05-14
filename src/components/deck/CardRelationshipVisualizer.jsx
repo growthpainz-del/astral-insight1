@@ -441,15 +441,27 @@ async function detectRelationships(cards, options = {}) {
 // Graph visualization component
 function GraphView({ cards, relationships, selectedCards, onCardClick, onRelationshipClick }) {
   const containerRef = React.useRef(null);
-  const [dimensions, setDimensions] = React.useState({ width: 800, height: 600 });
+  const [dimensions, setDimensions] = React.useState({ width: 0, height: 0 });
   const [positions, setPositions] = React.useState([]);
-  const [isSimulating, setIsSimulating] = React.useState(false);
+  const [isSimulating, setIsSimulating] = React.useState(true);
 
   React.useEffect(() => {
-    if (containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      setDimensions({ width: rect.width, height: rect.height });
-    }
+    const el = containerRef.current;
+    if (!el) return;
+
+    const updateDimensions = () => {
+      const rect = el.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        setDimensions({ width: rect.width, height: rect.height });
+      }
+    };
+
+    updateDimensions();
+
+    const observer = new ResizeObserver(() => updateDimensions());
+    observer.observe(el);
+
+    return () => observer.disconnect();
   }, []);
 
   // Initial circle layout
