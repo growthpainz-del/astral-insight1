@@ -565,35 +565,49 @@ export default function ReadingSimple() {
       </div>
 
       {/* Interactive Canvas / Spread */}
-      {readingMode === "freeform" ? (
-        <div className="flex-1 relative p-4" ref={canvasRef}>
-          {/* Subtle instructions */}
-          {drawnCards.length === 0 && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none opacity-50">
-              <Sparkles className="w-12 h-12 text-purple-400 mb-4 animate-pulse" />
-              <p className="text-purple-200 text-lg font-['Cinzel'] tracking-wider">Draw a card to begin</p>
-              <p className="text-purple-300/60 text-sm mt-2">Drag to arrange · Double-click to reveal</p>
-            </div>
-          )}
+      <div className="flex-1 relative flex flex-col overflow-hidden">
+        {readingMode === "freeform" ? (
+          <div 
+            className="flex-1 relative p-4 overflow-hidden" 
+            ref={canvasRef}
+            onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; }}
+            onDrop={(e) => {
+              e.preventDefault();
+              try {
+                const data = e.dataTransfer.getData('application/json');
+                const payload = JSON.parse(data);
+                if (payload && payload.source === 'bottom-shelf' && typeof payload.cardIndex === 'number') {
+                  handleDrawSpecificCard(payload.cardIndex);
+                }
+              } catch (err) { console.error('Drop parse error:', err); }
+            }}
+          >
+            {/* Subtle instructions */}
+            {drawnCards.length === 0 && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none opacity-50">
+                <Sparkles className="w-12 h-12 text-purple-400 mb-4 animate-pulse" />
+                <p className="text-purple-200 text-lg font-['Cinzel'] tracking-wider">Draw a card to begin</p>
+                <p className="text-purple-300/60 text-sm mt-2">Drag to arrange · Double-click to reveal</p>
+              </div>
+            )}
 
-          <AnimatePresence>
-            {drawnCards.map((drawnCard, index) => (
-              <FreeformCard 
-                key={drawnCard.id} 
-                card={{...drawnCard, zIndex: index + 10}} 
-                canvasRef={canvasRef} 
-                toggleFlip={handleToggleFlip} 
-                deck={deck} 
-                openInterpretation={openInterpretation}
-              />
-            ))}
-          </AnimatePresence>
-        </div>
-      ) : (
-        <div className="flex-1 relative flex flex-col overflow-hidden">
-          <div className="flex-1 relative p-4 flex flex-col items-center justify-center overflow-auto" ref={canvasRef}>
+            <AnimatePresence>
+              {drawnCards.map((drawnCard, index) => (
+                <FreeformCard 
+                  key={drawnCard.id} 
+                  card={{...drawnCard, zIndex: index + 10}} 
+                  canvasRef={canvasRef} 
+                  toggleFlip={handleToggleFlip} 
+                  deck={deck} 
+                  openInterpretation={openInterpretation}
+                />
+              ))}
+            </AnimatePresence>
+          </div>
+        ) : (
+          <div className="flex-1 relative overflow-auto" ref={canvasRef}>
             {selectedSpread ? (
-              <div className="w-full h-full flex items-center justify-center">
+              <div className="w-full min-h-full flex items-center justify-center pb-8">
                 <SpreadLayout 
                   spread={selectedSpread}
                   positions={selectedSpread.positions}
@@ -607,21 +621,22 @@ export default function ReadingSimple() {
                 />
               </div>
             ) : (
-              <div className="text-center opacity-50">
+              <div className="w-full h-full flex flex-col items-center justify-center text-center opacity-50">
                 <Sparkles className="w-12 h-12 text-purple-400 mb-4 mx-auto animate-pulse" />
                 <p className="text-purple-200 text-lg font-['Cinzel'] tracking-wider">No Spreads Available</p>
               </div>
             )}
           </div>
-          
-          <div className="w-full bg-black/60 backdrop-blur-md border-t border-purple-500/20 p-4 shrink-0">
-            <BottomCardShelf 
-              cards={deckRemaining.map(c => ({...c, image_url: deck?.back_image_url || null, name: "Hidden Card"}))} 
-              onCardClick={(c, idx) => handleDrawSpecificCard(idx)} 
-            />
-          </div>
+        )}
+        
+        {/* Universal Bottom Carousel */}
+        <div className="w-full bg-black/60 backdrop-blur-md border-t border-purple-500/20 p-4 shrink-0 z-40">
+          <BottomCardShelf 
+            cards={deckRemaining.map(c => ({...c, image_url: deck?.back_image_url || null, name: "Hidden Card"}))} 
+            onCardClick={(c, idx) => handleDrawSpecificCard(idx)} 
+          />
         </div>
-      )}
+      </div>
 
       {/* Interpretation Panel */}
       <AnimatePresence>
