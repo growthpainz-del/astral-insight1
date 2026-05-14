@@ -701,13 +701,11 @@ export default function Layout({ children, currentPageName }) {
             </header>
 
             <main
-              className="flex-1 w-full"
+              className="flex-1 w-full pb-[calc(env(safe-area-inset-bottom,0px)+24px)] max-md:pt-[calc(4rem+64px+env(safe-area-inset-top,0px))] md:pt-0"
               style={{
                 overflowY: "auto",
                 WebkitOverflowScrolling: "touch",
                 minHeight: "100dvh",
-                paddingBottom:
-                  "calc(env(safe-area-inset-bottom, 0px) + 96px)",
               }}
             >
               <AnimatePresence mode="wait" initial={false}>

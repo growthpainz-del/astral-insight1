@@ -296,6 +296,10 @@ export default function Studio() {
                   </CarouselItem>
                 ))}
               </CarouselContent>
+              <div className="hidden md:block">
+                <CarouselPrevious className="absolute -left-4 top-1/2 -translate-y-1/2 bg-black/50 border-white/20 hover:bg-black/80 text-white" />
+                <CarouselNext className="absolute -right-4 top-1/2 -translate-y-1/2 bg-black/50 border-white/20 hover:bg-black/80 text-white" />
+              </div>
             </Carousel>
           </div>
         )}
@@ -333,6 +337,10 @@ export default function Studio() {
                   </CarouselItem>
                 ))}
               </CarouselContent>
+              <div className="hidden md:block">
+                <CarouselPrevious className="absolute -left-4 top-1/2 -translate-y-1/2 bg-black/50 border-white/20 hover:bg-black/80 text-white" />
+                <CarouselNext className="absolute -right-4 top-1/2 -translate-y-1/2 bg-black/50 border-white/20 hover:bg-black/80 text-white" />
+              </div>
             </Carousel>
           )}
         </div>

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Home, BookOpen, Palette, Sparkles } from "lucide-react";
+import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 
 export default function MobileBottomNav() {
   const location = useLocation();
@@ -66,36 +67,38 @@ export default function MobileBottomNav() {
   // replaced by tabs above
 
   return (
-    <>
-      <nav className="md:hidden fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-[#07050f]/95 border-t border-[#a078ff]/15 backdrop-blur-[16px] flex justify-around p-[8px_0_12px] z-[100] pb-[calc(env(safe-area-inset-bottom,0px)+12px)]">
-        {[
-          { key: "Home", icon: "⌂" },
-          { key: "Read", icon: "◎" },
-          { key: "Studio", icon: "⬡" },
-          { key: "Journal", icon: "◈" },
-          { key: "Agent", icon: "✦" },
-        ].map(tab => {
-          const active = activeTab === tab.key;
-          return (
-            <button
-              key={tab.key}
-              onClick={() => handleTabClick(tabs.find(t => t.key === tab.key))}
-              className={`flex flex-col items-center gap-[3px] cursor-pointer transition-colors font-['Cinzel'] text-[8px] tracking-[0.1em] uppercase bg-transparent border-none p-[4px_8px] ${active ? 'text-[#a78bfa]' : 'text-[#b4a0dc]/45 hover:text-[#c8b4ff]/80'}`}
-            >
-              <span className="text-[18px] leading-[1]">{tab.icon}</span>
-              {tab.key}
-            </button>
-          )
-        })}
-      </nav>
-      {/* FAB - Global for mobile */}
-      <button 
-        onClick={() => handleTabClick(tabs.find(t => t.key === "Read"))}
-        className="md:hidden fixed bottom-[72px] right-[20px] z-[99] w-[50px] h-[50px] rounded-full bg-gradient-to-br from-[#7c3aed] to-[#a78bfa] border-none cursor-pointer flex items-center justify-center text-[20px] text-white shadow-[0_4px_18px_rgba(124,58,237,0.5)] transition-all hover:scale-[1.08] hover:shadow-[0_6px_24px_rgba(124,58,237,0.65)] animate-[pulse_3s_ease_infinite]"
-        style={{ marginBottom: "env(safe-area-inset-bottom, 0px)" }}
-      >
-        ✦
-      </button>
-    </>
+    <nav 
+      className="md:hidden fixed left-0 w-full bg-[#07050f]/95 border-b border-[#a078ff]/15 backdrop-blur-[16px] z-[100]" 
+      style={{ top: "calc(4rem + env(safe-area-inset-top, 0px))" }}
+    >
+      <Carousel opts={{ align: "start", dragFree: true, loop: true }} className="w-full max-w-[100vw] overflow-hidden relative touch-pan-y">
+        <CarouselContent className="m-0 py-3 px-2">
+          {[
+            { key: "Home", icon: "⌂", label: "Hub" },
+            { key: "Read", icon: "◎", label: "Read" },
+            { key: "Studio", icon: "⬡", label: "Studio" },
+            { key: "Journal", icon: "◈", label: "Journal" },
+            { key: "Agent", icon: "✦", label: "Agent" },
+          ].map(tab => {
+            const active = activeTab === tab.key;
+            return (
+              <CarouselItem key={tab.key} className="basis-auto shrink-0 pl-3">
+                <button
+                  onClick={() => handleTabClick(tabs.find(t => t.key === tab.key))}
+                  className={`flex items-center gap-2 rounded-full px-5 py-2.5 border transition-all ${
+                    active 
+                      ? 'bg-purple-600/20 border-purple-500/50 text-purple-300 shadow-[0_0_12px_rgba(124,58,237,0.3)]' 
+                      : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10 hover:text-white/90'
+                  }`}
+                >
+                  <span className="text-xl leading-none mb-0.5 font-['Cinzel']">{tab.icon}</span>
+                  <span className="text-[11px] font-bold uppercase tracking-wider font-['Cinzel']">{tab.label}</span>
+                </button>
+              </CarouselItem>
+            )
+          })}
+        </CarouselContent>
+      </Carousel>
+    </nav>
   );
 }
