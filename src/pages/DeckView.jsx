@@ -269,7 +269,7 @@ export default function DeckView() {
   ];
 
   return (
-    <div className="min-h-screen text-white pb-24">
+    <div className="min-h-screen text-white pb-24 overflow-x-hidden w-full max-w-[100vw]">
 
       {/* ── Hero ── */}
       <div style={{ background: "radial-gradient(ellipse 140% 100% at 50% 0%, rgba(124,58,237,0.22) 0%, transparent 70%)" }}>
