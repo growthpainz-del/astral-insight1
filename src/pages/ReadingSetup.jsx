@@ -5,7 +5,7 @@ import { Deck as DeckEntity, Spread as SpreadEntity } from "@/entities/all";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ChevronLeft, Loader2, Sparkles, Hand, LayoutTemplate } from "lucide-react";
+import { ChevronLeft, Loader2, Sparkles, Hand, LayoutTemplate, Wand2 } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import { queueApiCall } from "@/components/utils/apiQueue";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -24,6 +24,36 @@ export default function ReadingSetup() {
   const [question, setQuestion] = useState("");
   const [readingMode, setReadingMode] = useState("spread");
   const [selectedSpreadId, setSelectedSpreadId] = useState("");
+  const [isGeneratingSpread, setIsGeneratingSpread] = useState(false);
+
+  const handleGenerateAISpread = async () => {
+    setIsGeneratingSpread(true);
+    try {
+      const res = await base44.functions.invoke('aiSuggestSpread', {
+        numCards: Math.floor(Math.random() * 3) + 3, // 3 to 5 cards
+        theme: question || "General guidance",
+        readingType: "Custom AI Spread"
+      });
+      
+      const suggestion = res.data?.suggestion;
+      if (suggestion) {
+        const newSpread = await base44.entities.Spread.create({
+          name: suggestion.spread_name,
+          description: suggestion.description,
+          category: suggestion.category,
+          positions: suggestion.positions,
+          deck_id: deck.id
+        });
+        
+        setSpreads(prev => [newSpread, ...prev]);
+        setSelectedSpreadId(newSpread.id);
+      }
+    } catch (err) {
+      console.error("Failed to generate AI spread:", err);
+    } finally {
+      setIsGeneratingSpread(false);
+    }
+  };
 
   useEffect(() => {
     if (!deckIdFromUrl) {
@@ -119,16 +149,27 @@ export default function ReadingSetup() {
           {readingMode === "spread" && (
             <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="pt-2">
               <label className="font-['Cinzel'] text-[11px] tracking-[0.2em] uppercase text-[#b4a0dc]/60 mb-2 block">Select Spread</label>
-              <Select value={selectedSpreadId} onValueChange={setSelectedSpreadId}>
-                <SelectTrigger className="w-full h-14 bg-[#160f2a] border-[#a078ff]/20 text-white rounded-xl focus:ring-purple-500/50">
-                  <SelectValue placeholder="Select a spread layout" />
-                </SelectTrigger>
-                <SelectContent className="bg-[#0f0b1e] border-purple-500/30 text-white max-h-60">
-                  {spreads.map(s => (
-                    <SelectItem key={s.id} value={s.id} className="focus:bg-purple-600/30">{s.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex gap-2">
+                <Select value={selectedSpreadId} onValueChange={setSelectedSpreadId}>
+                  <SelectTrigger className="w-full h-14 bg-[#160f2a] border-[#a078ff]/20 text-white rounded-xl focus:ring-purple-500/50">
+                    <SelectValue placeholder="Select a spread layout" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#0f0b1e] border-purple-500/30 text-white max-h-60">
+                    {spreads.map(s => (
+                      <SelectItem key={s.id} value={s.id} className="focus:bg-purple-600/30">{s.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button 
+                  onClick={handleGenerateAISpread} 
+                  disabled={isGeneratingSpread}
+                  variant="outline" 
+                  className="h-14 px-4 bg-[#160f2a] border-[#a078ff]/20 hover:bg-purple-600/20 text-purple-300 shrink-0"
+                  title="Generate Custom AI Spread"
+                >
+                  {isGeneratingSpread ? <Loader2 className="w-5 h-5 animate-spin" /> : <Wand2 className="w-5 h-5" />}
+                </Button>
+              </div>
             </motion.div>
           )}
 
