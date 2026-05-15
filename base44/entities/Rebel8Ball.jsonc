@@ -1,0 +1,67 @@
+{
+  "name": "Rebel8Ball",
+  "type": "object",
+  "properties": {
+    "question": {
+      "type": "string",
+      "description": "The yes/no question asked by the user",
+      "maxLength": 100
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional description"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "love",
+        "career",
+        "life",
+        "rebellion",
+        "custom"
+      ],
+      "description": "Category of the question asked"
+    },
+    "custom_tone": {
+      "type": "string",
+      "description": "User-defined tone for custom category questions"
+    },
+    "answer": {
+      "type": "string",
+      "description": "The simple 8-ball answer (YES/NO/MAYBE/ASK AGAIN)"
+    },
+    "answer_type": {
+      "type": "string",
+      "enum": [
+        "affirmative",
+        "negative",
+        "neutral"
+      ],
+      "description": "Type of answer given"
+    },
+    "ai_commentary": {
+      "type": "string",
+      "description": "AI-generated commentary from selected persona"
+    },
+    "persona_id": {
+      "type": "string",
+      "description": "ID of the persona used for commentary"
+    },
+    "persona_name": {
+      "type": "string",
+      "description": "Display name of the persona used"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the question was asked"
+    }
+  },
+  "required": [
+    "question",
+    "category",
+    "answer",
+    "answer_type"
+  ]
+}

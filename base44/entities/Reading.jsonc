@@ -1,0 +1,97 @@
+{
+  "name": "Reading",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Title or question for the reading"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional description"
+    },
+    "spread_type": {
+      "type": "string",
+      "enum": [
+        "single",
+        "three_card",
+        "diamond",
+        "path_forward",
+        "celtic_cross",
+        "relationship",
+        "chakra",
+        "seven_sisters",
+        "message_of_the_day",
+        "custom"
+      ],
+      "description": "Type of card spread used"
+    },
+    "deck_id": {
+      "type": "string",
+      "description": "ID of the deck used for this reading"
+    },
+    "cards_drawn": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "card_id": {
+            "type": "string"
+          },
+          "position": {
+            "type": "string"
+          },
+          "is_reversed": {
+            "type": "boolean",
+            "default": false
+          },
+          "card_name": {
+            "type": "string",
+            "description": "Cached display name for the card (for history)"
+          },
+          "image_url": {
+            "type": "string",
+            "description": "Cached image URL for the card (for history)"
+          }
+        }
+      },
+      "description": "Cards drawn in this reading"
+    },
+    "interpretation": {
+      "type": "string",
+      "description": "User's interpretation or notes about the reading"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of the reading"
+    },
+    "is_public": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this reading is publicly accessible via share link"
+    },
+    "is_favorite": {
+      "type": "boolean",
+      "default": false,
+      "description": "User marked this reading as favorite"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "User-defined tags for categorization"
+    },
+    "category": {
+      "type": "string",
+      "description": "Optional category label for this reading"
+    }
+  },
+  "required": [
+    "title",
+    "spread_type",
+    "deck_id"
+  ]
+}

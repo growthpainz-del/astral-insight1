@@ -1,0 +1,41 @@
+{
+  "name": "DidAgentConfig",
+  "type": "object",
+  "properties": {
+    "agent_id": {
+      "type": "string",
+      "description": "Global D-ID agent ID to attach knowledge to"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional description"
+    },
+    "knowledge_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "D-ID knowledge base ID (created once and reused)"
+    },
+    "deck_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Curated list of Deck IDs to include in knowledge"
+    },
+    "last_synced_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time",
+      "description": "When the last full sync completed"
+    }
+  },
+  "required": [
+    "agent_id",
+    "deck_ids"
+  ]
+}

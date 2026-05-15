@@ -1,0 +1,103 @@
+{
+  "name": "CardRelationship",
+  "type": "object",
+  "properties": {
+    "deck_id": {
+      "type": "string",
+      "description": "ID of the deck these cards belong to"
+    },
+    "card_id_1": {
+      "type": "string",
+      "description": "ID of the first card in the relationship"
+    },
+    "card_id_2": {
+      "type": "string",
+      "description": "ID of the second card in the relationship"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional description"
+    },
+    "relationship_key": {
+      "type": "string",
+      "description": "Canonical key '<minCardId>|<maxCardId>' for quick filtering"
+    },
+    "relationship_type": {
+      "type": "string",
+      "enum": [
+        "complement",
+        "contrast",
+        "sequence",
+        "elemental",
+        "thematic",
+        "custom"
+      ],
+      "default": "custom",
+      "description": "Type of relationship between the cards"
+    },
+    "strength": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0.5,
+      "description": "Strength of the relationship (0-1, where 1 is strongest)"
+    },
+    "auto_detected": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this relationship was automatically detected"
+    },
+    "detection_reasons": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Reasons why this relationship was detected (shared keywords, elements, etc.)"
+    },
+    "custom_notes": {
+      "type": "string",
+      "description": "User's custom notes about this relationship"
+    },
+    "shared_keywords": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Keywords shared by both cards"
+    },
+    "shared_themes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Themes or archetypes shared by both cards"
+    },
+    "element_relationship": {
+      "type": "string",
+      "enum": [
+        "same",
+        "complementary",
+        "opposing",
+        "none"
+      ],
+      "description": "Elemental relationship between the cards"
+    },
+    "number_sequence": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether cards are sequential by number"
+    },
+    "is_favorite": {
+      "type": "boolean",
+      "default": false,
+      "description": "User has marked this as an important relationship"
+    }
+  },
+  "required": [
+    "deck_id",
+    "card_id_1",
+    "card_id_2",
+    "relationship_key"
+  ]
+}

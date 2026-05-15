@@ -1,0 +1,130 @@
+{
+  "name": "JournalEntry",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Title of the journal entry"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional description"
+    },
+    "reading_id": {
+      "type": "string",
+      "description": "ID of the associated reading session (optional)"
+    },
+    "deck_id": {
+      "type": "string",
+      "description": "ID of the deck used (cached from reading or standalone)"
+    },
+    "spread_type": {
+      "type": "string",
+      "description": "Type of spread used (cached from reading)"
+    },
+    "cards_drawn": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "card_id": {
+            "type": "string"
+          },
+          "card_name": {
+            "type": "string"
+          },
+          "position": {
+            "type": "string"
+          },
+          "is_reversed": {
+            "type": "boolean"
+          }
+        }
+      },
+      "description": "Cards drawn in the reading (cached for quick access)"
+    },
+    "question": {
+      "type": "string",
+      "description": "The question asked during the reading"
+    },
+    "entry_content": {
+      "type": "string",
+      "description": "User's journal entry - reflections, thoughts, observations"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "User-defined tags for categorization"
+    },
+    "mood": {
+      "type": "string",
+      "enum": [
+        "hopeful",
+        "anxious",
+        "peaceful",
+        "confused",
+        "empowered",
+        "grateful",
+        "uncertain",
+        "inspired",
+        "reflective",
+        "other"
+      ],
+      "description": "User's mood when writing the entry"
+    },
+    "follow_up_notes": {
+      "type": "string",
+      "description": "Notes added later about how the reading manifested"
+    },
+    "manifestation_rating": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "How accurately the reading predicted outcomes (1-5 stars)"
+    },
+    "ai_summary": {
+      "type": "string",
+      "description": "AI-generated summary of the entry"
+    },
+    "ai_themes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "AI-extracted themes from the entry"
+    },
+    "ai_insights": {
+      "type": "string",
+      "description": "AI-generated insights and connections"
+    },
+    "related_entry_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "IDs of related journal entries (AI-suggested or user-linked)"
+    },
+    "is_favorite": {
+      "type": "boolean",
+      "default": false,
+      "description": "User has marked this as a favorite entry"
+    },
+    "is_private": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this entry is private (default) or shareable"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of the journal entry"
+    }
+  },
+  "required": [
+    "title",
+    "date"
+  ]
+}
