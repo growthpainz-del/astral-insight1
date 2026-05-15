@@ -168,27 +168,32 @@ function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, o
         top:       `${topPos}%`,
         transform: "translate(-50%, -50%)",
         width:     cardW,
+        height:    cardH,
         zIndex:    isRevealed ? 10 : 5,
       }}
       initial={animateIn ? { scale: 0, opacity: 0 } : false}
       animate={{ scale: 1, opacity: 1 }}
       transition={{ delay: animateIn ? index * 0.1 : 0, duration: 0.4, type: "spring", stiffness: 200, damping: 20 }}
     >
-      <div className="flex flex-col items-center w-full">
+      <div className="relative flex flex-col items-center w-full h-full">
 
         {/* ── Empty slot ── */}
         {!card && (
           <>
             <div
-              className="rounded-xl border-2 border-dashed border-purple-400/40 bg-purple-900/20 flex items-center justify-center backdrop-blur-sm shadow-[0_0_15px_rgba(168,85,247,0.1)]"
-              style={{ width: cardW, height: cardH, transform: `rotate(${rotation}deg)` }}
+              className="absolute inset-0 rounded-xl border-2 border-dashed border-purple-400/40 bg-purple-900/20 flex items-center justify-center backdrop-blur-sm shadow-[0_0_15px_rgba(168,85,247,0.1)]"
+              style={{ transform: `rotate(${rotation}deg)` }}
             >
-              <span className="text-purple-300/60 text-[10px] font-['Cinzel'] font-bold">{index + 1}</span>
+              <span className="text-purple-300/60 text-[10px] font-bold">{index + 1}</span>
             </div>
-            <p className="text-purple-200/80 text-[9px] font-semibold text-center leading-tight mt-1 bg-black/40 px-1 py-0.5 rounded backdrop-blur-sm w-max"
-               style={{ maxWidth: cardW + 16 }}>
-              {position.name}
-            </p>
+            {!spread.bgImage && (
+              <div className="absolute top-full mt-1 w-max left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none z-20">
+                <p className="text-purple-200/80 text-[9px] font-semibold text-center leading-tight bg-black/40 px-1 py-0.5 rounded backdrop-blur-sm"
+                   style={{ maxWidth: cardW + 16 }}>
+                  {position.name}
+                </p>
+              </div>
+            )}
           </>
         )}
 
@@ -198,8 +203,8 @@ function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, o
             <button
               type="button"
               onClick={() => { onReveal(index); onCardClick?.(card, index); }}
-              className="rounded-xl overflow-hidden shadow-lg border border-amber-400/25 hover:border-amber-400/55 hover:scale-105 active:scale-95 transition-all"
-              style={{ width: cardW, height: cardH, transform: `rotate(${rotation}deg)` }}
+              className="absolute inset-0 rounded-xl overflow-hidden shadow-lg border border-amber-400/25 hover:border-amber-400/55 hover:scale-105 active:scale-95 transition-all"
+              style={{ transform: `rotate(${rotation}deg)` }}
             >
               {deck?.back_image_url ? (
                 <img src={deck.back_image_url} alt="Card back" className="w-full h-full object-cover" draggable={false} />
@@ -210,10 +215,12 @@ function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, o
               )}
             </button>
             {!spread.bgImage && (
-              <p className="text-purple-200/55 text-[8px] font-semibold text-center leading-tight mt-1"
-                 style={{ maxWidth: cardW + 16 }}>
-                {position.name}
-              </p>
+              <div className="absolute top-full mt-1 w-max left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none z-20">
+                <p className="text-purple-200/55 text-[8px] font-semibold text-center leading-tight bg-black/40 px-1 py-0.5 rounded backdrop-blur-sm"
+                   style={{ maxWidth: cardW + 16 }}>
+                  {position.name}
+                </p>
+              </div>
             )}
           </>
         )}
@@ -227,8 +234,8 @@ function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, o
               initial={{ rotateY: 180, opacity: 0 }}
               animate={{ rotateY: 0, opacity: 1 }}
               transition={{ duration: 0.5, type: "spring" }}
-              className="rounded-xl overflow-hidden shadow-xl border border-amber-400/45 hover:border-amber-400/75 hover:scale-105 active:scale-95 transition-all"
-              style={{ width: cardW, height: cardH, transform: `rotate(${rotation}deg)` }}
+              className="absolute inset-0 rounded-xl overflow-hidden shadow-xl border border-amber-400/45 hover:border-amber-400/75 hover:scale-105 active:scale-95 transition-all"
+              style={{ transform: `rotate(${rotation}deg)` }}
             >
               {card.image_url ? (
                 <img
@@ -245,8 +252,8 @@ function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, o
             </motion.button>
 
             {!spread.bgImage && (
-              <div className="text-center mt-1" style={{ maxWidth: cardW + 16 }}>
-                <p className="text-white/90 text-[8px] font-semibold leading-tight truncate">{card.name}</p>
+              <div className="absolute top-full mt-1 w-max left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none z-20" style={{ maxWidth: cardW + 16 }}>
+                <p className="text-white/90 text-[8px] font-semibold leading-tight truncate bg-black/40 px-1 py-0.5 rounded backdrop-blur-sm">{card.name}</p>
                 <Badge className="bg-purple-600/80 text-white text-[7px] px-1.5 py-0 mt-0.5 leading-tight">
                   {position.name}
                 </Badge>
@@ -343,7 +350,7 @@ export default function SpreadLayout({
           <div 
             className="absolute inset-0 pointer-events-none"
             style={{
-              background: `url(${spreadDef.bgImage}) center/cover no-repeat`,
+              background: `url(${spreadDef.bgImage}) center/100% 100% no-repeat`,
               zIndex: 20,
               mixBlendMode: "screen",
               transform: "translateZ(50px)"
