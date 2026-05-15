@@ -169,7 +169,7 @@ function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, o
         transform: "translate(-50%, -50%)",
         width:     cardW,
         height:    cardH,
-        zIndex:    5,
+        zIndex:    5,   // Cards sit BELOW the frame overlay (zIndex 10)
       }}
       initial={animateIn ? { scale: 0, opacity: 0 } : false}
       animate={{ scale: 1, opacity: 1 }}
@@ -181,8 +181,8 @@ function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, o
         {!card && (
           <div
             className={`absolute inset-0 flex items-center justify-center ${
-              spread.bgImage 
-                ? "bg-transparent" 
+              spread.bgImage
+                ? "bg-transparent"
                 : "rounded-xl border-2 border-dashed border-purple-400/40 bg-purple-900/20 backdrop-blur-sm shadow-[0_0_15px_rgba(168,85,247,0.1)]"
             }`}
             style={{ transform: `rotate(${rotation}deg)` }}
@@ -199,14 +199,16 @@ function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, o
             type="button"
             onClick={() => { onReveal(index); onCardClick?.(card, index); }}
             className={`absolute inset-0 rounded-xl overflow-hidden transition-all ${
-              spread.bgImage ? "bg-transparent" : "shadow-lg border border-amber-400/25 hover:border-amber-400/55 hover:scale-105 active:scale-95"
+              spread.bgImage
+                ? "shadow-lg hover:scale-105 active:scale-95"
+                : "shadow-lg border border-amber-400/25 hover:border-amber-400/55 hover:scale-105 active:scale-95"
             }`}
             style={{ transform: `rotate(${rotation}deg)` }}
           >
             {deck?.back_image_url ? (
               <img src={deck.back_image_url} alt="Card back" className="w-full h-full object-cover" draggable={false} />
             ) : (
-              <div className={`w-full h-full flex items-center justify-center ${spread.bgImage ? "bg-transparent" : "bg-gradient-to-br from-purple-800 to-indigo-900"}`}>
+              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-800 to-indigo-900">
                 <Sparkles className="w-4 h-4 text-purple-300/40" />
               </div>
             )}
@@ -222,7 +224,9 @@ function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, o
             animate={{ rotateY: 0, opacity: 1 }}
             transition={{ duration: 0.5, type: "spring" }}
             className={`absolute inset-0 rounded-xl overflow-hidden transition-all ${
-              spread.bgImage ? "bg-transparent" : "shadow-xl border border-amber-400/45 hover:border-amber-400/75 hover:scale-105 active:scale-95"
+              spread.bgImage
+                ? "shadow-xl hover:scale-105 active:scale-95"
+                : "shadow-xl border border-amber-400/45 hover:border-amber-400/75 hover:scale-105 active:scale-95"
             }`}
             style={{ transform: `rotate(${rotation}deg)` }}
           >
@@ -234,7 +238,7 @@ function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, o
                 draggable={false}
               />
             ) : (
-              <div className={`w-full h-full flex items-center justify-center p-1 ${spread.bgImage ? "bg-transparent" : "bg-gradient-to-br from-purple-900 to-indigo-900"}`}>
+              <div className={`w-full h-full flex items-center justify-center p-1 ${spread.bgImage ? "bg-gradient-to-br from-purple-900/80 to-indigo-900/80" : "bg-gradient-to-br from-purple-900 to-indigo-900"}`}>
                 <span className="text-white text-[8px] text-center font-semibold leading-tight">{card.name}</span>
               </div>
             )}
@@ -304,7 +308,7 @@ export default function SpreadLayout({
   return (
     <div className="w-full flex flex-col items-center px-4">
 
-      {/* Spread title */}
+      {/* Spread title — only shown when no background image */}
       {!spreadDef.bgImage && (
         <p className="font-['Cinzel'] text-xs text-purple-300/60 tracking-widest uppercase mb-2 text-center">
           {spreadDef.name}
@@ -319,22 +323,28 @@ export default function SpreadLayout({
           width:      "100%",
           maxWidth:   380,
           height:     containerH,
-          background: spreadDef.bgImage ? "transparent" : "radial-gradient(ellipse at 50% 40%, rgba(88,28,135,0.22) 0%, rgba(8,4,18,0.75) 100%)",
+          background: spreadDef.bgImage
+            ? "transparent"
+            : "radial-gradient(ellipse at 50% 40%, rgba(88,28,135,0.22) 0%, rgba(8,4,18,0.75) 100%)",
           border:     spreadDef.bgImage ? "none" : "1px solid rgba(168,85,247,0.3)",
           boxShadow:  spreadDef.bgImage ? "none" : "0 0 40px rgba(100,50,200,0.15) inset",
         }}
       >
-        {/* Base Image - Layer 0 (Bottom) */}
+        {/* Background image — Layer 0 (very bottom, no blend mode) */}
         {spreadDef.bgImage && (
-          <img 
+          <img
             src={spreadDef.bgImage}
-            alt="Spread background"
+            alt=""
             className="absolute inset-0 w-full h-full pointer-events-none"
-            style={{ zIndex: 0, objectFit: "fill" }}
+            style={{
+              objectFit: "fill",
+              zIndex: 0,
+            }}
+            draggable={false}
           />
         )}
 
-        {/* Cards - Layer 1 (Bottom) */}
+        {/* Cards — Layer 5 (above bg image, below frame overlay) */}
         <AnimatePresence>
           {spreadDef.positions.map((position, idx) => (
             <CardSlot
@@ -354,21 +364,22 @@ export default function SpreadLayout({
           ))}
         </AnimatePresence>
 
-        {/* Frame Overlay - Layer 2 (Middle) */}
+        {/* Frame overlay — Layer 10 (sits on top of cards, transparent windows reveal cards) */}
         {spreadDef.bgImage && (
-          <div 
+          <div
             className="absolute inset-0 pointer-events-none"
             style={{
               backgroundImage: `url('${spreadDef.bgImage}')`,
               backgroundPosition: "center",
               backgroundSize: "100% 100%",
               backgroundRepeat: "no-repeat",
-              zIndex: 10
+              zIndex: 10,
+              // NO mixBlendMode — the PNG must have real transparency for the windows
             }}
           />
         )}
 
-        {/* Grid overlay */}
+        {/* Grid overlay — only for spreads without bg image */}
         {!spreadDef.bgImage && (
           <svg
             className="absolute inset-0 w-full h-full pointer-events-none"
@@ -384,7 +395,7 @@ export default function SpreadLayout({
           </svg>
         )}
 
-        {/* Badges - Layer 3 (Top) */}
+        {/* Badges — Layer 25 (always on top) */}
         {spreadDef.positions.map((position, idx) => {
           const card = cards[idx] || null;
           const isRevealed = revealedCards.has(idx);
@@ -394,7 +405,7 @@ export default function SpreadLayout({
           const cardH    = Math.round(cardW * 1.58);
 
           return (
-            <div 
+            <div
               key={`badge-${idx}`}
               className="absolute pointer-events-none"
               style={{
@@ -403,7 +414,7 @@ export default function SpreadLayout({
                 transform: "translate(-50%, -50%)",
                 width: cardW,
                 height: cardH,
-                zIndex: 25
+                zIndex: 25,
               }}
             >
               {!card && (
@@ -453,7 +464,7 @@ export default function SpreadLayout({
 
 export function SpreadSelector({ selectedId, onSelect, customSpreads = [] }) {
   const allSpreads = [...SYSTEM_SPREADS, ...customSpreads];
-  
+
   React.useEffect(() => {
     console.log("Checking all spread background images...");
     SYSTEM_SPREADS.forEach(spread => {
@@ -465,7 +476,7 @@ export function SpreadSelector({ selectedId, onSelect, customSpreads = [] }) {
       }
     });
   }, []);
-  
+
   return (
     <div className="grid grid-cols-2 gap-2.5">
       {allSpreads.map((spread) => (
