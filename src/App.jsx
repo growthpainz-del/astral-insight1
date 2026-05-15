@@ -31,6 +31,8 @@ const ADMIN_ONLY_PAGES = new Set([
   'AdminUsers',
   'AdminDeckReview',
   'AdminTokenGrant',
+  'SpreadManager',
+  'SpreadDesigner',
 ])
 
 const LayoutWrapper = ({ children, currentPageName }) =>
@@ -189,9 +191,7 @@ const AuthenticatedApp = () => {
       <Route
         path="/SpreadManager"
         element={
-          <LayoutWrapper currentPageName="SpreadManager">
-            <SpreadManager />
-          </LayoutWrapper>
+          <AdminRoute Page={SpreadManager} pageName="SpreadManager" user={user} />
         }
       />
       <Route

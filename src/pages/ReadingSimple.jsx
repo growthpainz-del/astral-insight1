@@ -4,7 +4,7 @@ import { Deck as DeckEntity, Card as CardEntity, Spread as SpreadEntity, Reading
 import { composeReading, composeCardQuick } from "@/utils/interpretationComposer";
 import { Button } from "@/components/ui/button";
 import { Loader2, ChevronLeft, Hand, Shuffle, RotateCcw, Eye, Sparkles, Settings2, Save } from "lucide-react";
-import SpreadLayout from "@/components/reading/SpreadLayout";
+import SpreadLayout, { SYSTEM_SPREADS } from "@/components/reading/CompactSpread";
 import BottomCardShelf from "@/components/reading/BottomCardShelf";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -196,10 +196,16 @@ export default function ReadingSimple() {
   const [showSpreadInterpretation, setShowSpreadInterpretation] = useState(false);
 
   const handleSaveSpread = async () => {
-    if (!selectedSpread?.id) return;
+    if (!selectedSpread) return;
     setIsSavingSpread(true);
     try {
-      await base44.entities.Spread.update(selectedSpread.id, { positions: selectedSpread.positions });
+      // If it's a custom spread, update it. If it's a system spread, we can't update it in DB
+      if (selectedSpread.id && !SYSTEM_SPREADS.find(s => s.id === selectedSpread.id)) {
+        await base44.entities.Spread.update(selectedSpread.id, { positions: selectedSpread.positions });
+      } else {
+        // Here we could fork the system spread into a custom one, but for now just exit edit mode
+        // as the local state is already updated for this reading session.
+      }
       setIsEditingSpread(false);
     } catch (e) {
       console.error(e);
@@ -298,8 +304,13 @@ export default function ReadingSimple() {
         setCards(loadedCards);
         setReadingHistory(history || []);
         if (spreadParam && spreadParam !== "freeform") {
-          const spread = loadedSpreads?.find(s => s.id === spreadParam);
-          setSelectedSpread(spread || null);
+          const sysSpread = SYSTEM_SPREADS.find(s => s.id === spreadParam);
+          if (sysSpread) {
+            setSelectedSpread(JSON.parse(JSON.stringify(sysSpread))); // Deep copy so we can edit
+          } else {
+            const customSpread = loadedSpreads?.find(s => s.id === spreadParam);
+            setSelectedSpread(customSpread ? JSON.parse(JSON.stringify(customSpread)) : null);
+          }
         }
         
         const shuffled = [...loadedCards].sort(() => Math.random() - 0.5);
@@ -597,11 +608,11 @@ export default function ReadingSimple() {
           {readingMode === "spread" && selectedSpread && (
             isEditingSpread ? (
               <Button size="sm" onClick={handleSaveSpread} disabled={isSavingSpread} variant="outline" className="shrink-0 border-purple-500/40 text-purple-200 hover:bg-purple-500/20">
-                {isSavingSpread ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Save className="w-4 h-4 mr-1" />} Save Layout
+                {isSavingSpread ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Save className="w-4 h-4 mr-1" />} Save Labels
               </Button>
             ) : (
               <Button size="sm" onClick={() => setIsEditingSpread(true)} variant="outline" className="shrink-0 border-purple-500/40 text-purple-200 hover:bg-purple-500/20">
-                <Settings2 className="w-4 h-4 mr-1" /> Edit Layout
+                <Settings2 className="w-4 h-4 mr-1" /> Edit Labels
               </Button>
             )
           )}
@@ -690,12 +701,7 @@ export default function ReadingSimple() {
           <div className="flex-1 relative flex flex-col overflow-auto" ref={canvasRef}>
             {isEditingSpread && (
               <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-black/80 backdrop-blur-md p-3 rounded-xl border border-purple-500/40 flex items-center gap-3">
-                <span className="text-xs text-purple-200 whitespace-nowrap font-semibold">Card Size</span>
-                <input 
-                  type="range" min="0.5" max="2" step="0.1" value={spreadScale} 
-                  onChange={(e) => setSpreadScale(parseFloat(e.target.value))} 
-                  className="w-24 accent-purple-500" 
-                />
+                <span className="text-xs text-purple-200 whitespace-nowrap font-semibold">Edit Position Labels</span>
                 <Button variant="ghost" size="sm" onClick={() => setIsEditingSpread(false)} className="text-red-400 hover:text-red-300 hover:bg-red-500/20 h-6 px-2 text-xs">Cancel</Button>
               </div>
             )}

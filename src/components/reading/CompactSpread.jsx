@@ -325,6 +325,8 @@ export default function SpreadLayout({
   onCardReveal   = () => {},
   onCardClick    = () => {},
   animateSpread  = true,
+  allowReposition = false,
+  onPositionUpdate = () => {},
 }) {
   // Resolve spread — accepts id string, spread object, or legacy spread with positions array
   const spreadDef =
@@ -436,12 +438,41 @@ export default function SpreadLayout({
             <span className="text-purple-500/60 text-[10px] font-bold shrink-0 w-4 text-right pt-px">
               {idx + 1}
             </span>
-            <span className="text-purple-200/80 text-[10px] font-semibold shrink-0">
-              {pos.name}
-            </span>
-            <span className="text-purple-400/45 text-[10px] leading-tight">
-              — {pos.meaning}
-            </span>
+            {allowReposition ? (
+              <div className="flex flex-col gap-1 w-full flex-1">
+                <input
+                  type="text"
+                  value={pos.name}
+                  onChange={(e) => {
+                    const newPositions = [...positions];
+                    newPositions[idx] = { ...pos, name: e.target.value };
+                    onPositionUpdate?.(newPositions);
+                  }}
+                  className="bg-black/40 border border-purple-500/30 rounded px-1.5 py-0.5 text-[10px] text-purple-200 font-semibold w-full focus:outline-none focus:border-purple-400"
+                  placeholder="Position Name"
+                />
+                <input
+                  type="text"
+                  value={pos.meaning}
+                  onChange={(e) => {
+                    const newPositions = [...positions];
+                    newPositions[idx] = { ...pos, meaning: e.target.value };
+                    onPositionUpdate?.(newPositions);
+                  }}
+                  className="bg-black/40 border border-purple-500/30 rounded px-1.5 py-0.5 text-[10px] text-purple-400 w-full focus:outline-none focus:border-purple-400"
+                  placeholder="Meaning"
+                />
+              </div>
+            ) : (
+              <>
+                <span className="text-purple-200/80 text-[10px] font-semibold shrink-0">
+                  {pos.name}
+                </span>
+                <span className="text-purple-400/45 text-[10px] leading-tight">
+                  — {pos.meaning}
+                </span>
+              </>
+            )}
           </div>
         ))}
       </div>
@@ -452,10 +483,12 @@ export default function SpreadLayout({
 // ─── Spread Selector ──────────────────────────────────────────────────────────
 // Drop-in replacement for ReadingSetup spread picker
 
-export function SpreadSelector({ selectedId, onSelect }) {
+export function SpreadSelector({ selectedId, onSelect, customSpreads = [] }) {
+  const allSpreads = [...SYSTEM_SPREADS, ...customSpreads];
+  
   return (
     <div className="grid grid-cols-2 gap-2.5">
-      {SYSTEM_SPREADS.map((spread) => (
+      {allSpreads.map((spread) => (
         <button
           key={spread.id}
           type="button"

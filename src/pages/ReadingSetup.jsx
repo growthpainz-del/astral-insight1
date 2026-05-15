@@ -10,6 +10,7 @@ import { createPageUrl } from "@/utils";
 import { queueApiCall } from "@/components/utils/apiQueue";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
+import { SpreadSelector, SYSTEM_SPREADS } from "@/components/reading/CompactSpread";
 
 export default function ReadingSetup() {
   const [searchParams] = useSearchParams();
@@ -71,9 +72,7 @@ export default function ReadingSetup() {
 
         setDeck(loadedDeck);
         setSpreads(loadedSpreads || []);
-        if (loadedSpreads && loadedSpreads.length > 0) {
-          setSelectedSpreadId(loadedSpreads[0].id);
-        }
+        setSelectedSpreadId(SYSTEM_SPREADS[0].id);
         setError("");
       } catch (err) {
         setError("Failed to load deck.");
@@ -148,28 +147,23 @@ export default function ReadingSetup() {
 
           {readingMode === "spread" && (
             <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="pt-2">
-              <label className="font-['Cinzel'] text-[11px] tracking-[0.2em] uppercase text-[#b4a0dc]/60 mb-2 block">Select Spread</label>
-              <div className="flex gap-2">
-                <Select value={selectedSpreadId} onValueChange={setSelectedSpreadId}>
-                  <SelectTrigger className="w-full h-14 bg-[#160f2a] border-[#a078ff]/20 text-white rounded-xl focus:ring-purple-500/50">
-                    <SelectValue placeholder="Select a spread layout" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-[#0f0b1e] border-purple-500/30 text-white max-h-60">
-                    {spreads.map(s => (
-                      <SelectItem key={s.id} value={s.id} className="focus:bg-purple-600/30">{s.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div className="flex items-center justify-between mb-2">
+                <label className="font-['Cinzel'] text-[11px] tracking-[0.2em] uppercase text-[#b4a0dc]/60 block">Select Spread</label>
                 <Button 
+                  size="sm"
                   onClick={handleGenerateAISpread} 
                   disabled={isGeneratingSpread}
                   variant="outline" 
-                  className="h-14 px-4 bg-[#160f2a] border-[#a078ff]/20 hover:bg-purple-600/20 text-purple-300 shrink-0"
-                  title="Generate Custom AI Spread"
+                  className="h-8 bg-[#160f2a] border-[#a078ff]/20 hover:bg-purple-600/20 text-purple-300 text-xs"
                 >
-                  {isGeneratingSpread ? <Loader2 className="w-5 h-5 animate-spin" /> : <Wand2 className="w-5 h-5" />}
+                  {isGeneratingSpread ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Wand2 className="w-3 h-3 mr-1" />} AI Spread
                 </Button>
               </div>
+              <SpreadSelector 
+                selectedId={selectedSpreadId}
+                onSelect={(spread) => setSelectedSpreadId(spread.id)}
+                customSpreads={spreads}
+              />
             </motion.div>
           )}
 
