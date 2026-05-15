@@ -148,7 +148,16 @@ function Portal({ to, icon, label, sub, accent, delay }) {
             animation: "ringPulse 1.2s ease-out infinite",
           }} />
         )}
-        <span style={{ fontSize: 38, lineHeight: 1, filter: "drop-shadow(0 0 8px white)" }}>
+        <span style={{ 
+          fontSize: 38, 
+          lineHeight: 1, 
+          filter: typeof icon === 'string' ? "drop-shadow(0 0 8px white)" : "none",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: "100%",
+          height: "100%"
+        }}>
           {icon}
         </span>
       </div>
@@ -339,9 +348,9 @@ export default function CosmicHub() {
               display: "flex", justifyContent: "space-around", alignItems: "flex-end",
               padding: "0 2%",
             }}>
-              <Portal to={createPageUrl("ReadingRoom")} icon="🌙" label="Reading Room" sub="Read the cards" accent="#a78bfa" delay={0.7} />
-              <Portal to={createPageUrl("DashboardHub")} icon={<img src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/8993c07af_DD71F027-9FC2-45E9-A098-8F595AD987B3.png" alt="Hub" style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'contain' }} />} label="Dashboard Hub" sub="All app features" accent="#67e8f9" delay={1.1} />
-              <Portal to={createPageUrl("Studio")} icon="🎨" label="Creators Studio" sub="Build oracle decks" accent="#f472b6" delay={0.9} />
+              <Portal to={createPageUrl("ReadingRoom")} icon={<img src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/de13d8a83_18C49029-1342-43EE-AB28-D1115D803D65.png" alt="Reading Room" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', display: 'block' }} />} label="Reading Room" sub="Read the cards" accent="#a78bfa" delay={0.7} />
+              <Portal to={createPageUrl("DashboardHub")} icon={<img src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/fba391e00_630F615F-A531-4AB9-BBCF-E051FCCA8F9C.png" alt="Hub" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', display: 'block' }} />} label="Dashboard Hub" sub="All app features" accent="#67e8f9" delay={1.1} />
+              <Portal to={createPageUrl("Studio")} icon={<img src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/5e7a2baa6_45107DE4-4C2E-4165-9143-3E21DD4BCF3E.png" alt="Studio" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', display: 'block' }} />} label="Creators Studio" sub="Build oracle decks" accent="#f472b6" delay={0.9} />
             </div>
           </div>
         </div>
