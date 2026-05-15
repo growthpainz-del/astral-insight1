@@ -179,87 +179,56 @@ function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, o
 
         {/* ── Empty slot ── */}
         {!card && (
-          <>
-            <div
-              className="absolute inset-0 rounded-xl border-2 border-dashed border-purple-400/40 bg-purple-900/20 flex items-center justify-center backdrop-blur-sm shadow-[0_0_15px_rgba(168,85,247,0.1)]"
-              style={{ transform: `rotate(${rotation}deg)` }}
-            >
-              <span className="text-purple-300/60 text-[10px] font-bold">{index + 1}</span>
-            </div>
-            {!spread.bgImage && (
-              <div className="absolute top-full mt-1 w-max left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none z-20">
-                <p className="text-purple-200/80 text-[9px] font-semibold text-center leading-tight bg-black/40 px-1 py-0.5 rounded backdrop-blur-sm"
-                   style={{ maxWidth: cardW + 16 }}>
-                  {position.name}
-                </p>
-              </div>
-            )}
-          </>
+          <div
+            className="absolute inset-0 rounded-xl border-2 border-dashed border-purple-400/40 bg-purple-900/20 flex items-center justify-center backdrop-blur-sm shadow-[0_0_15px_rgba(168,85,247,0.1)]"
+            style={{ transform: `rotate(${rotation}deg)` }}
+          >
+            <span className="text-purple-300/60 text-[10px] font-bold">{index + 1}</span>
+          </div>
         )}
 
         {/* ── Card back ── */}
         {card && !isRevealed && (
-          <>
-            <button
-              type="button"
-              onClick={() => { onReveal(index); onCardClick?.(card, index); }}
-              className="absolute inset-0 rounded-xl overflow-hidden shadow-lg border border-amber-400/25 hover:border-amber-400/55 hover:scale-105 active:scale-95 transition-all"
-              style={{ transform: `rotate(${rotation}deg)` }}
-            >
-              {deck?.back_image_url ? (
-                <img src={deck.back_image_url} alt="Card back" className="w-full h-full object-cover" draggable={false} />
-              ) : (
-                <div className="w-full h-full bg-gradient-to-br from-purple-800 to-indigo-900 flex items-center justify-center">
-                  <Sparkles className="w-4 h-4 text-purple-300/40" />
-                </div>
-              )}
-            </button>
-            {!spread.bgImage && (
-              <div className="absolute top-full mt-1 w-max left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none z-20">
-                <p className="text-purple-200/55 text-[8px] font-semibold text-center leading-tight bg-black/40 px-1 py-0.5 rounded backdrop-blur-sm"
-                   style={{ maxWidth: cardW + 16 }}>
-                  {position.name}
-                </p>
+          <button
+            type="button"
+            onClick={() => { onReveal(index); onCardClick?.(card, index); }}
+            className="absolute inset-0 rounded-xl overflow-hidden shadow-lg border border-amber-400/25 hover:border-amber-400/55 hover:scale-105 active:scale-95 transition-all"
+            style={{ transform: `rotate(${rotation}deg)` }}
+          >
+            {deck?.back_image_url ? (
+              <img src={deck.back_image_url} alt="Card back" className="w-full h-full object-cover" draggable={false} />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-purple-800 to-indigo-900 flex items-center justify-center">
+                <Sparkles className="w-4 h-4 text-purple-300/40" />
               </div>
             )}
-          </>
+          </button>
         )}
 
         {/* ── Revealed card ── */}
         {card && isRevealed && (
-          <>
-            <motion.button
-              type="button"
-              onClick={() => onCardClick?.(card, index)}
-              initial={{ rotateY: 180, opacity: 0 }}
-              animate={{ rotateY: 0, opacity: 1 }}
-              transition={{ duration: 0.5, type: "spring" }}
-              className="absolute inset-0 rounded-xl overflow-hidden shadow-xl border border-amber-400/45 hover:border-amber-400/75 hover:scale-105 active:scale-95 transition-all"
-              style={{ transform: `rotate(${rotation}deg)` }}
-            >
-              {card.image_url ? (
-                <img
-                  src={card.image_url}
-                  alt={card.name}
-                  className={`w-full h-full object-cover ${card.is_reversed ? "rotate-180" : ""}`}
-                  draggable={false}
-                />
-              ) : (
-                <div className="w-full h-full bg-gradient-to-br from-purple-900 to-indigo-900 flex items-center justify-center p-1">
-                  <span className="text-white text-[8px] text-center font-semibold leading-tight">{card.name}</span>
-                </div>
-              )}
-            </motion.button>
-
-            {!spread.bgImage && (
-              <div className="absolute top-full mt-1 w-max left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none z-20" style={{ maxWidth: cardW + 16 }}>
-                <p className="text-white/90 text-[8px] font-semibold leading-tight truncate bg-black/40 px-1 py-0.5 rounded backdrop-blur-sm">{card.name}</p>
-                <Badge className="bg-purple-600/80 text-white text-[7px] px-1.5 py-0 mt-0.5 leading-tight">
-                  {position.name}
-                </Badge>
+          <motion.button
+            type="button"
+            onClick={() => onCardClick?.(card, index)}
+            initial={{ rotateY: 180, opacity: 0 }}
+            animate={{ rotateY: 0, opacity: 1 }}
+            transition={{ duration: 0.5, type: "spring" }}
+            className="absolute inset-0 rounded-xl overflow-hidden shadow-xl border border-amber-400/45 hover:border-amber-400/75 hover:scale-105 active:scale-95 transition-all"
+            style={{ transform: `rotate(${rotation}deg)` }}
+          >
+            {card.image_url ? (
+              <img
+                src={card.image_url}
+                alt={card.name}
+                className={`w-full h-full object-cover ${card.is_reversed ? "rotate-180" : ""}`}
+                draggable={false}
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-purple-900 to-indigo-900 flex items-center justify-center p-1">
+                <span className="text-white text-[8px] text-center font-semibold leading-tight">{card.name}</span>
               </div>
             )}
-          </>
+          </motion.button>
         )}
 
       </div>
@@ -345,36 +314,7 @@ export default function SpreadLayout({
           boxShadow:  "0 0 40px rgba(100,50,200,0.15) inset",
         }}
       >
-        {/* Frame Overlay */}
-        {spreadDef.bgImage && (
-          <div 
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background: `url(${spreadDef.bgImage}) center/100% 100% no-repeat`,
-              zIndex: 20,
-              mixBlendMode: "screen",
-              transform: "translateZ(50px)"
-            }}
-          />
-        )}
-
-        {/* Grid overlay */}
-        {!spreadDef.bgImage && (
-          <svg
-            className="absolute inset-0 w-full h-full pointer-events-none"
-            style={{ opacity: 0.06 }}
-            preserveAspectRatio="xMidYMid slice"
-          >
-            <defs>
-              <pattern id="rg3" width="32" height="32" patternUnits="userSpaceOnUse">
-                <path d="M 32 0 L 0 0 0 32" fill="none" stroke="rgba(200,150,255,1)" strokeWidth="0.5"/>
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#rg3)" />
-          </svg>
-        )}
-
-        {/* Cards */}
+        {/* Cards - Layer 1 (Bottom) */}
         <AnimatePresence>
           {spreadDef.positions.map((position, idx) => (
             <CardSlot
@@ -393,6 +333,85 @@ export default function SpreadLayout({
             />
           ))}
         </AnimatePresence>
+
+        {/* Frame Overlay - Layer 2 (Middle) */}
+        {spreadDef.bgImage && (
+          <div 
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: `url(${spreadDef.bgImage}) center/100% 100% no-repeat`,
+              zIndex: 20,
+              mixBlendMode: "screen",
+              transform: "translateZ(50px)"
+            }}
+          />
+        )}
+
+        {/* Grid overlay */}
+        {!spreadDef.bgImage && (
+          <svg
+            className="absolute inset-0 w-full h-full pointer-events-none"
+            style={{ opacity: 0.06, zIndex: 20 }}
+            preserveAspectRatio="xMidYMid slice"
+          >
+            <defs>
+              <pattern id="rg3" width="32" height="32" patternUnits="userSpaceOnUse">
+                <path d="M 32 0 L 0 0 0 32" fill="none" stroke="rgba(200,150,255,1)" strokeWidth="0.5"/>
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#rg3)" />
+          </svg>
+        )}
+
+        {/* Badges - Layer 3 (Top) */}
+        {spreadDef.positions.map((position, idx) => {
+          const card = cards[idx] || null;
+          const isRevealed = revealedCards.has(idx);
+          const leftPos  = position.cx ?? position.x ?? 50;
+          const topPos   = position.cy ?? position.y ?? 50;
+          const cardW    = Math.round(containerW * (spreadDef.cardSizeW || 22) / 100);
+          const cardH    = Math.round(cardW * 1.58);
+
+          return (
+            <div 
+              key={`badge-${idx}`}
+              className="absolute pointer-events-none"
+              style={{
+                left: `${leftPos}%`,
+                top: `${topPos}%`,
+                transform: "translate(-50%, -50%)",
+                width: cardW,
+                height: cardH,
+                zIndex: 30
+              }}
+            >
+              {!card && (
+                <div className="absolute top-full mt-1 w-max left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none">
+                  <p className="text-purple-200/80 text-[9px] font-semibold text-center leading-tight bg-black/60 px-1.5 py-0.5 rounded backdrop-blur-sm"
+                     style={{ maxWidth: cardW + 24 }}>
+                    {position.name}
+                  </p>
+                </div>
+              )}
+              {card && !isRevealed && (
+                <div className="absolute top-full mt-1 w-max left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none">
+                  <p className="text-purple-200/55 text-[8px] font-semibold text-center leading-tight bg-black/60 px-1.5 py-0.5 rounded backdrop-blur-sm"
+                     style={{ maxWidth: cardW + 24 }}>
+                    {position.name}
+                  </p>
+                </div>
+              )}
+              {card && isRevealed && (
+                <div className="absolute top-full mt-1 w-max left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none" style={{ maxWidth: cardW + 24 }}>
+                  <p className="text-white/90 text-[8px] font-semibold leading-tight truncate bg-black/60 px-1.5 py-0.5 rounded backdrop-blur-sm mb-0.5">{card.name}</p>
+                  <Badge className="bg-purple-600/90 text-white text-[7px] px-1.5 py-0 leading-tight border-purple-400/40">
+                    {position.name}
+                  </Badge>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* Position guide */}
