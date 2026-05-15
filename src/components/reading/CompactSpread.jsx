@@ -169,7 +169,7 @@ function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, o
         transform: "translate(-50%, -50%)",
         width:     cardW,
         height:    cardH,
-        zIndex:    5,
+        zIndex:    20,
       }}
       initial={animateIn ? { scale: 0, opacity: 0 } : false}
       animate={{ scale: 1, opacity: 1 }}
@@ -394,7 +394,7 @@ export default function SpreadLayout({
                 transform: "translate(-50%, -50%)",
                 width: cardW,
                 height: cardH,
-                zIndex: 15
+                zIndex: 25
               }}
             >
               {!card && (
