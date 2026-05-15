@@ -169,7 +169,7 @@ function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, o
         transform: "translate(-50%, -50%)",
         width:     cardW,
         height:    cardH,
-        zIndex:    20,
+        zIndex:    5,
       }}
       initial={animateIn ? { scale: 0, opacity: 0 } : false}
       animate={{ scale: 1, opacity: 1 }}
@@ -319,11 +319,21 @@ export default function SpreadLayout({
           width:      "100%",
           maxWidth:   380,
           height:     containerH,
-          background: "radial-gradient(ellipse at 50% 40%, rgba(88,28,135,0.22) 0%, rgba(8,4,18,0.75) 100%)",
-          border:     "1px solid rgba(168,85,247,0.3)",
-          boxShadow:  "0 0 40px rgba(100,50,200,0.15) inset",
+          background: spreadDef.bgImage ? "transparent" : "radial-gradient(ellipse at 50% 40%, rgba(88,28,135,0.22) 0%, rgba(8,4,18,0.75) 100%)",
+          border:     spreadDef.bgImage ? "none" : "1px solid rgba(168,85,247,0.3)",
+          boxShadow:  spreadDef.bgImage ? "none" : "0 0 40px rgba(100,50,200,0.15) inset",
         }}
       >
+        {/* Base Image - Layer 0 (Bottom) */}
+        {spreadDef.bgImage && (
+          <img 
+            src={spreadDef.bgImage}
+            alt="Spread background"
+            className="absolute inset-0 w-full h-full pointer-events-none"
+            style={{ zIndex: 0, objectFit: "fill" }}
+          />
+        )}
+
         {/* Cards - Layer 1 (Bottom) */}
         <AnimatePresence>
           {spreadDef.positions.map((position, idx) => (
@@ -353,8 +363,7 @@ export default function SpreadLayout({
               backgroundPosition: "center",
               backgroundSize: "100% 100%",
               backgroundRepeat: "no-repeat",
-              zIndex: 10,
-              mixBlendMode: "screen"
+              zIndex: 10
             }}
           />
         )}
