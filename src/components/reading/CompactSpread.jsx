@@ -333,13 +333,22 @@ export default function SpreadLayout({
           width:      "100%",
           maxWidth:   380,
           height:     containerH,
-          background: spreadDef.bgImage 
-            ? `url(${spreadDef.bgImage}) center/cover no-repeat, radial-gradient(ellipse at 50% 40%, rgba(88,28,135,0.22) 0%, rgba(8,4,18,0.75) 100%)` 
-            : "radial-gradient(ellipse at 50% 40%, rgba(88,28,135,0.22) 0%, rgba(8,4,18,0.75) 100%)",
+          background: "radial-gradient(ellipse at 50% 40%, rgba(88,28,135,0.22) 0%, rgba(8,4,18,0.75) 100%)",
           border:     "1px solid rgba(168,85,247,0.3)",
           boxShadow:  "0 0 40px rgba(100,50,200,0.15) inset",
         }}
       >
+        {/* Frame Overlay */}
+        {spreadDef.bgImage && (
+          <div 
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: `url(${spreadDef.bgImage}) center/cover no-repeat`,
+              zIndex: 20
+            }}
+          />
+        )}
+
         {/* Grid overlay */}
         {!spreadDef.bgImage && (
           <svg
