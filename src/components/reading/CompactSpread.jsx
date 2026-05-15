@@ -157,13 +157,15 @@ function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, o
   const cardW    = Math.round(containerW * (spread.cardSizeW || 22) / 100);
   const cardH    = Math.round(cardW * 1.58);
   const rotation = position.rotation || 0;
+  const leftPos  = position.cx ?? position.x ?? 50;
+  const topPos   = position.cy ?? position.y ?? 50;
 
   return (
     <motion.div
       className="absolute"
       style={{
-        left:      `${position.cx}%`,
-        top:       `${position.cy}%`,
+        left:      `${leftPos}%`,
+        top:       `${topPos}%`,
         transform: "translate(-50%, -50%)",
         width:     cardW,
         zIndex:    isRevealed ? 10 : 5,
@@ -172,7 +174,7 @@ function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, o
       animate={{ scale: 1, opacity: 1 }}
       transition={{ delay: animateIn ? index * 0.1 : 0, duration: 0.4, type: "spring", stiffness: 200, damping: 20 }}
     >
-      <div className="flex flex-col items-center">
+      <div className="flex flex-col items-center w-full">
 
         {/* ── Empty slot ── */}
         {!card && (
@@ -183,7 +185,7 @@ function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, o
             >
               <span className="text-purple-300/60 text-[10px] font-['Cinzel'] font-bold">{index + 1}</span>
             </div>
-            <p className="text-purple-200/80 text-[9px] font-semibold text-center leading-tight mt-1 bg-black/40 px-1 py-0.5 rounded backdrop-blur-sm"
+            <p className="text-purple-200/80 text-[9px] font-semibold text-center leading-tight mt-1 bg-black/40 px-1 py-0.5 rounded backdrop-blur-sm w-max"
                style={{ maxWidth: cardW + 16 }}>
               {position.name}
             </p>
@@ -391,10 +393,12 @@ export default function SpreadLayout({
 
 // ─── Spread Selector ──────────────────────────────────────────────────────────
 
-export function SpreadSelector({ selectedId, onSelect }) {
+export function SpreadSelector({ selectedId, onSelect, customSpreads = [] }) {
+  const allSpreads = [...SYSTEM_SPREADS, ...customSpreads];
+  
   return (
     <div className="grid grid-cols-2 gap-2.5">
-      {SYSTEM_SPREADS.map((spread) => (
+      {allSpreads.map((spread) => (
         <button
           key={spread.id}
           type="button"
