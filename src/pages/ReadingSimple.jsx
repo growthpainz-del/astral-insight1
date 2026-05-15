@@ -160,6 +160,7 @@ const FreeformCard = ({ card, canvasRef, toggleFlip, deck, openInterpretation })
 };
 
 import { base44 } from "@/api/base44Client";
+import { composeCardQuick, composeReading } from "@/utils/interpretationComposer";
 
 export default function ReadingSimple() {
   const [searchParams] = useSearchParams();
@@ -187,10 +188,27 @@ export default function ReadingSimple() {
   const [selectedCardForInterpretation, setSelectedCardForInterpretation] = useState(null);
   const [aiInterpretation, setAiInterpretation] = useState(null);
   const [isAiLoading, setIsAiLoading] = useState(false);
+  const [composedCardOutput, setComposedCardOutput] = useState(null);
 
   const [spreadInterpretation, setSpreadInterpretation] = useState(null);
   const [isSpreadAiLoading, setIsSpreadAiLoading] = useState(false);
   const [showSpreadInterpretation, setShowSpreadInterpretation] = useState(false);
+  
+  const [composedReadingOutput, setComposedReadingOutput] = useState(null);
+  const [readingHistory, setReadingHistory] = useState([]);
+
+  // Load history for personal patterns
+  useEffect(() => {
+    const loadHistory = async () => {
+      try {
+        const history = await queueApiCall(() => base44.entities.Reading.list(), 3, 1000);
+        setReadingHistory(history || []);
+      } catch (err) {
+        console.error("Failed to load history for learning layer", err);
+      }
+    };
+    loadHistory();
+  }, []);
 
   const handleSaveSpread = async () => {
     if (!selectedSpread?.id) return;
@@ -213,25 +231,35 @@ export default function ReadingSimple() {
 
   const getSpreadInsight = async () => {
     if (drawnCards.length === 0 || isSpreadAiLoading) return;
+    
+    // Deterministic composition first
+    const fullReadingOutput = composeReading(
+      drawnCards, 
+      selectedSpread, 
+      questionParam, 
+      readingHistory, 
+      deck?.id
+    );
+    setComposedReadingOutput(fullReadingOutput);
+    
     setIsSpreadAiLoading(true);
     setShowSpreadInterpretation(true);
     try {
-      let cardsContext = drawnCards.map((c, i) => {
-        let posStr = "";
-        if (readingMode === "spread" && selectedSpread && selectedSpread.positions[i]) {
-          posStr = `Position: ${selectedSpread.positions[i].name} (${selectedSpread.positions[i].meaning}). `;
+      if (fullReadingOutput?.aiPrompts?.fullReading) {
+        const res = await base44.integrations.Core.InvokeLLM({ prompt: fullReadingOutput.aiPrompts.fullReading });
+        setSpreadInterpretation(res);
+        
+        // Asynchronously save the enriched reading data
+        try {
+          await base44.entities.Reading.create({
+            ...fullReadingOutput.saveData,
+            interpretation: res,
+            date: new Date().toISOString().split('T')[0]
+          });
+        } catch (saveErr) {
+          console.error("Failed to save enriched reading", saveErr);
         }
-        return `Card ${i+1}: ${c.cardData.name}. ${posStr}Meaning: ${c.cardData.upright_meaning || c.cardData.overall_meaning || "N/A"}`;
-      }).join("\n");
-
-      const prompt = `You are a mystical Tarot/Oracle reader. The user asked: "${questionParam || "General guidance"}". 
-      They have drawn the following cards:
-      ${cardsContext}
-
-      Provide a deep, synthesized reading connecting all these cards together to answer the user's question or provide guidance. Format with beautiful paragraphs, no markdown headers.`;
-
-      const res = await base44.integrations.Core.InvokeLLM({ prompt });
-      setSpreadInterpretation(res);
+      }
     } catch (e) {
       setSpreadInterpretation("The spirits are currently unreachable. Please try again later.");
     } finally {
@@ -444,21 +472,18 @@ export default function ReadingSimple() {
     const position = selectedSpread && positionIndex !== null ? selectedSpread.positions[positionIndex] : null;
     setSelectedCardForInterpretation({ ...cardWrapper, position });
     setAiInterpretation(null);
+    
+    // Build deterministic output immediately
+    const output = composeCardQuick(cardWrapper.cardData, position, cardWrapper.isReversed, questionParam);
+    setComposedCardOutput(output);
   };
 
   const getDeeperInsight = async () => {
-    if (!selectedCardForInterpretation || isAiLoading) return;
+    if (!selectedCardForInterpretation || !composedCardOutput || isAiLoading) return;
     setIsAiLoading(true);
     try {
-      const card = selectedCardForInterpretation.cardData;
-      const position = selectedCardForInterpretation.position;
-      
-      const prompt = `You are a mystical Tarot/Oracle reader. The user asked: "${questionParam || "General guidance"}". 
-      They drew the card "${card.name}"${position ? ` in the position of "${position.name}" (${position.meaning})` : ""}.
-      Card meanings: Upright: ${card.upright_meaning || card.overall_meaning || "N/A"}.
-      Provide a deep, insightful, and concise interpretation (2-3 paragraphs) connecting the card to the user's situation. Do not use markdown headers, just plain paragraphs.`;
-
-      const res = await base44.integrations.Core.InvokeLLM({ prompt });
+      // Use the pre-built prompt from the composer
+      const res = await base44.integrations.Core.InvokeLLM({ prompt: composedCardOutput.aiPrompt });
       setAiInterpretation(res);
     } catch (e) {
       setAiInterpretation("The spirits are currently unreachable. Please try again later.");
@@ -714,15 +739,38 @@ export default function ReadingSimple() {
             </div>
             
             <div className="p-4 overflow-y-auto custom-scrollbar flex-1 space-y-4">
-              <div className="text-sm text-purple-100">
-                <p className="font-semibold text-purple-300 mb-1">Basic Interpretation:</p>
-                <p>{selectedCardForInterpretation.cardData.overall_meaning || selectedCardForInterpretation.cardData.upright_meaning || "A mysterious force is at play. The meaning is hidden."}</p>
-              </div>
+              {composedCardOutput ? (
+                <>
+                  <div className="text-sm text-purple-100">
+                    <p className="font-semibold text-purple-300 mb-1">Basic Interpretation:</p>
+                    <p>{composedCardOutput.summary || "A mysterious force is at play. The meaning is hidden."}</p>
+                  </div>
 
-              {selectedCardForInterpretation.position && selectedCardForInterpretation.position.meaning && (
+                  {composedCardOutput.positionNote && (
+                    <div className="text-sm text-purple-100">
+                      <p className="font-semibold text-purple-300 mb-1">Position:</p>
+                      <p>{composedCardOutput.positionNote}</p>
+                    </div>
+                  )}
+
+                  {composedCardOutput.ancientNote && (
+                    <div className="text-sm text-purple-100">
+                      <p className="font-semibold text-amber-300 mb-1">Ancient Wisdom:</p>
+                      <p>{composedCardOutput.ancientNote}</p>
+                    </div>
+                  )}
+                  
+                  {composedCardOutput.actionNote && (
+                    <div className="text-sm text-purple-100">
+                      <p className="font-semibold text-emerald-300 mb-1">Action:</p>
+                      <p>{composedCardOutput.actionNote}</p>
+                    </div>
+                  )}
+                </>
+              ) : (
                 <div className="text-sm text-purple-100">
-                  <p className="font-semibold text-purple-300 mb-1">Position Meaning:</p>
-                  <p>{selectedCardForInterpretation.position.meaning}</p>
+                  <p className="font-semibold text-purple-300 mb-1">Basic Interpretation:</p>
+                  <p>{selectedCardForInterpretation.cardData.overall_meaning || selectedCardForInterpretation.cardData.upright_meaning || "A mysterious force is at play. The meaning is hidden."}</p>
                 </div>
               )}
 
