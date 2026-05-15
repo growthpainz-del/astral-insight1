@@ -251,6 +251,17 @@ export default function SpreadLayout({
           animate={{ x: pan.x, y: pan.y, scale: zoom }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
         >
+          {spread?.bgImage && (
+            <div 
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background: `url(${spread.bgImage}) center/cover no-repeat`,
+                zIndex: 20,
+                mixBlendMode: "screen",
+                transform: "translateZ(50px)"
+              }}
+            />
+          )}
           {positions.map((pos, idx) => renderCardSlot(pos, idx))}
         </motion.div>
       </div>

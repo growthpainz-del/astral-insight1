@@ -344,7 +344,9 @@ export default function SpreadLayout({
             className="absolute inset-0 pointer-events-none"
             style={{
               background: `url(${spreadDef.bgImage}) center/cover no-repeat`,
-              zIndex: 20
+              zIndex: 20,
+              mixBlendMode: "screen",
+              transform: "translateZ(50px)"
             }}
           />
         )}
