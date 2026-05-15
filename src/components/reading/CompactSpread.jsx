@@ -14,7 +14,7 @@ export const SYSTEM_SPREADS = [
     icon: "✦",
     cardCount: 1,
     heightRatio: 1.777,
-    cardSizeW: 52,
+    cardSizeW: 40,
     bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/2f5109427_IMG_0153.jpg",
     positions: [
       { name: "The Message", meaning: "What the universe wants you to know right now", cx: 50, cy: 50 }
@@ -27,7 +27,7 @@ export const SYSTEM_SPREADS = [
     icon: "◈",
     cardCount: 3,
     heightRatio: 1.777,
-    cardSizeW: 24,
+    cardSizeW: 18,
     bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/85781bbdb_IMG_0148.jpg",
     positions: [
       { name: "Root",      meaning: "What has shaped this situation",    cx: 19, cy: 51 },
@@ -42,7 +42,7 @@ export const SYSTEM_SPREADS = [
     icon: "◇",
     cardCount: 5,
     heightRatio: 1.777,
-    cardSizeW: 21,
+    cardSizeW: 16,
     bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/5fab2f0d2_IMG_0155.jpg",
     positions: [
       { name: "Foundation",  meaning: "What your business is built on", cx: 50,   cy: 28.5 },
@@ -59,7 +59,7 @@ export const SYSTEM_SPREADS = [
     icon: "→",
     cardCount: 7,
     heightRatio: 1.777,
-    cardSizeW: 18.5,
+    cardSizeW: 14,
     bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/0c8652d82_IMG_0147.jpg",
     positions: [
       { name: "Where You Stand", meaning: "Your current position",              cx: 11.5, cy: 50 },
@@ -78,7 +78,7 @@ export const SYSTEM_SPREADS = [
     icon: "♾",
     cardCount: 6,
     heightRatio: 1.777,
-    cardSizeW: 24,
+    cardSizeW: 18,
     bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/354dfaeb3_IMG_0149.jpg",
     positions: [
       { name: "Your Flame",  meaning: "Your current energy",                cx: 29.5, cy: 28 },
@@ -96,7 +96,7 @@ export const SYSTEM_SPREADS = [
     icon: "🌙",
     cardCount: 7,
     heightRatio: 1.777,
-    cardSizeW: 19.5,
+    cardSizeW: 14.5,
     bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/f88fb4ca6_IMG_0151.jpg",
     positions: [
       { name: "The Dark",    meaning: "What lives in your shadow right now",     cx: 28.5, cy: 73 },
@@ -115,7 +115,7 @@ export const SYSTEM_SPREADS = [
     icon: "✦",
     cardCount: 7,
     heightRatio: 1.777,
-    cardSizeW: 20,
+    cardSizeW: 15,
     bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/e3b6028b2_IMG_0152.jpg",
     positions: [
       { name: "Alcyone", meaning: "The calm at the center — your core truth",      cx: 50, cy: 53.5 },
@@ -134,7 +134,7 @@ export const SYSTEM_SPREADS = [
     icon: "✛",
     cardCount: 10,
     heightRatio: 1.777,
-    cardSizeW: 18.5,
+    cardSizeW: 14,
     bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/d8574faca_IMG_0154.jpg",
     positions: [
       { name: "The Present",    meaning: "What surrounds you now",         cx: 39, cy: 52.5 },
@@ -344,8 +344,7 @@ export default function SpreadLayout({
               backgroundSize: "100% 100%",
               backgroundRepeat: "no-repeat",
               zIndex: 20,
-              mixBlendMode: "screen",
-              transform: "translateZ(50px)"
+              mixBlendMode: "screen"
             }}
           />
         )}
