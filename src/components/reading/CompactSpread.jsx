@@ -180,9 +180,16 @@ function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, o
         {/* ── Empty slot ── */}
         {!card && (
           <div
-            className="absolute inset-0 flex items-center justify-center bg-transparent"
+            className={`absolute inset-0 flex items-center justify-center ${
+              spread.bgImage 
+                ? "bg-transparent" 
+                : "rounded-xl border-2 border-dashed border-purple-400/40 bg-purple-900/20 backdrop-blur-sm shadow-[0_0_15px_rgba(168,85,247,0.1)]"
+            }`}
             style={{ transform: `rotate(${rotation}deg)` }}
           >
+            {!spread.bgImage && (
+              <span className="text-purple-300/60 text-[10px] font-bold">{index + 1}</span>
+            )}
           </div>
         )}
 
@@ -191,13 +198,15 @@ function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, o
           <button
             type="button"
             onClick={() => { onReveal(index); onCardClick?.(card, index); }}
-            className="absolute inset-0 rounded-xl overflow-hidden transition-all bg-transparent"
+            className={`absolute inset-0 rounded-xl overflow-hidden transition-all ${
+              spread.bgImage ? "bg-transparent" : "shadow-lg border border-amber-400/25 hover:border-amber-400/55 hover:scale-105 active:scale-95"
+            }`}
             style={{ transform: `rotate(${rotation}deg)` }}
           >
             {deck?.back_image_url ? (
               <img src={deck.back_image_url} alt="Card back" className="w-full h-full object-cover" draggable={false} />
             ) : (
-              <div className="w-full h-full bg-transparent flex items-center justify-center">
+              <div className={`w-full h-full flex items-center justify-center ${spread.bgImage ? "bg-transparent" : "bg-gradient-to-br from-purple-800 to-indigo-900"}`}>
                 <Sparkles className="w-4 h-4 text-purple-300/40" />
               </div>
             )}
@@ -212,7 +221,9 @@ function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, o
             initial={{ rotateY: 180, opacity: 0 }}
             animate={{ rotateY: 0, opacity: 1 }}
             transition={{ duration: 0.5, type: "spring" }}
-            className="absolute inset-0 rounded-xl overflow-hidden transition-all bg-transparent"
+            className={`absolute inset-0 rounded-xl overflow-hidden transition-all ${
+              spread.bgImage ? "bg-transparent" : "shadow-xl border border-amber-400/45 hover:border-amber-400/75 hover:scale-105 active:scale-95"
+            }`}
             style={{ transform: `rotate(${rotation}deg)` }}
           >
             {card.image_url ? (
@@ -223,7 +234,7 @@ function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, o
                 draggable={false}
               />
             ) : (
-              <div className="w-full h-full bg-transparent flex items-center justify-center p-1">
+              <div className={`w-full h-full flex items-center justify-center p-1 ${spread.bgImage ? "bg-transparent" : "bg-gradient-to-br from-purple-900 to-indigo-900"}`}>
                 <span className="text-white text-[8px] text-center font-semibold leading-tight">{card.name}</span>
               </div>
             )}
