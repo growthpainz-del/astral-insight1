@@ -288,7 +288,7 @@ export default function CosmicHub() {
           position: "relative", zIndex: 10,
           display: "flex", flexDirection: "column", alignItems: "center", gap: 0,
         }}>
-          <div style={{ textAlign: "center", marginBottom: "clamp(80px, 16vh, 160px)", marginTop: "-12vh" }}>
+          <div style={{ textAlign: "center", marginBottom: "clamp(40px, 8vh, 80px)", marginTop: "-20vh" }}>
             <h1 style={{
               fontFamily: "'Cinzel', serif", fontWeight: 700,
               fontSize: "clamp(28px, 5vw, 52px)", letterSpacing: "0.22em",
@@ -344,7 +344,7 @@ export default function CosmicHub() {
             </svg>
 
             <div style={{
-              position: "absolute", bottom: "14%", left: 0, right: 0,
+              position: "absolute", bottom: "8%", left: 0, right: 0,
               display: "flex", justifyContent: "space-around", alignItems: "flex-end",
               padding: "0 2%",
             }}>
