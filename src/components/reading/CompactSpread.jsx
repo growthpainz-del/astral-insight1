@@ -436,6 +436,18 @@ export default function SpreadLayout({
 export function SpreadSelector({ selectedId, onSelect, customSpreads = [] }) {
   const allSpreads = [...SYSTEM_SPREADS, ...customSpreads];
   
+  React.useEffect(() => {
+    console.log("Checking all spread background images...");
+    SYSTEM_SPREADS.forEach(spread => {
+      if (spread.bgImage) {
+        const img = new Image();
+        img.onload = () => console.log(`✅ SUCCESS: ${spread.name} image loaded`);
+        img.onerror = () => console.error(`❌ ERROR: ${spread.name} image failed to load (${spread.bgImage})`);
+        img.src = spread.bgImage;
+      }
+    });
+  }, []);
+  
   return (
     <div className="grid grid-cols-2 gap-2.5">
       {allSpreads.map((spread) => (
