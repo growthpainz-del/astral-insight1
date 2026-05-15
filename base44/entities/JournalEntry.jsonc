@@ -6,11 +6,6 @@
       "type": "string",
       "description": "Title of the journal entry"
     },
-    "description": {
-      "type": "string",
-      "maxLength": 1000,
-      "description": "Optional description"
-    },
     "reading_id": {
       "type": "string",
       "description": "ID of the associated reading session (optional)"

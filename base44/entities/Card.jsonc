@@ -14,11 +14,6 @@
       "type": "string",
       "description": "Short subtitle shown with the card"
     },
-    "description": {
-      "type": "string",
-      "maxLength": 1000,
-      "description": "Optional description"
-    },
     "image_url": {
       "type": "string",
       "description": "URL to the card image"

@@ -12,11 +12,6 @@
       ],
       "description": "The type of content being reported"
     },
-    "description": {
-      "type": "string",
-      "maxLength": 1000,
-      "description": "Optional description"
-    },
     "context": {
       "type": "string",
       "description": "The content itself, URL, or context of the report"
