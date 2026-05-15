@@ -339,7 +339,10 @@ export default function SpreadLayout({
           <div 
             className="absolute inset-0 pointer-events-none"
             style={{
-              background: `url(${spreadDef.bgImage}) center/100% 100% no-repeat`,
+              backgroundImage: `url('${spreadDef.bgImage}')`,
+              backgroundPosition: "center",
+              backgroundSize: "100% 100%",
+              backgroundRepeat: "no-repeat",
               zIndex: 20,
               mixBlendMode: "screen",
               transform: "translateZ(50px)"
