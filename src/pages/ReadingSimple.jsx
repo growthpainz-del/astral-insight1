@@ -593,7 +593,7 @@ export default function ReadingSimple() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-2 md:pb-0 px-2 flex-nowrap w-full justify-start md:justify-end">
+        <div className="flex items-center gap-2 pb-2 md:pb-0 px-2 flex-wrap w-full justify-start md:justify-end">
           {readingMode === "spread" && selectedSpread && (
             isEditingSpread ? (
               <Button size="sm" onClick={handleSaveSpread} disabled={isSavingSpread} variant="outline" className="shrink-0 border-purple-500/40 text-purple-200 hover:bg-purple-500/20">

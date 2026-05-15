@@ -431,18 +431,13 @@ export function composeCardQuick(cardData, position = null, isReversed = false, 
   const interp = interpretCard(cardData, position, isReversed, question);
   if (!interp) return null;
 
+  const emptyPatterns = { recurringCards: [], shadowCards: [] };
+  const composed = composeCardOutput(interp, emptyPatterns, null);
+  
   return {
-    cardName:    interp.cardName,
-    isReversed:  interp.isReversed,
-    keywords:    interp.keywords,
-    summary:     interp.primaryMeaning,
-    positionNote: interp.positionLens,
-    ancientNote: interp.ancientThread
-      ? `${interp.ancientThread.name} · ${interp.ancientThread.wisdom}`
-      : null,
-    actionNote:  interp.primaryAction,
+    ...composed,
     // Pre-built AI prompt for if user taps "Deeper Insight"
-    aiPrompt: buildCardAiPrompt(interp, question, { recurringCards: [], shadowCards: [] }),
+    aiPrompt: buildCardAiPrompt(interp, question, emptyPatterns),
   };
 }
 
