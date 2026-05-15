@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { UploadAsset } from "@/entities/UploadAsset";
+import { base44 } from "@/api/base44Client";
 import { User } from "@/entities/User";
 import { Card as CardEntity } from "@/entities/Card";
 import { Deck } from "@/entities/Deck";
@@ -88,14 +88,14 @@ export default function PhotoLibraryPicker({ isOpen, onClose, onSelect, deckId }
       let mine = [];
       if (userEmail) {
         try {
-          mine = await UploadAsset.filter({ created_by: userEmail }, "-created_date", 400);
+          mine = await base44.entities.UploadAsset.filter({ created_by: userEmail }, "-created_date", 400);
         } catch {
           mine = [];
         }
       }
       let allAssets = [];
       try {
-        allAssets = await UploadAsset.filter(deckId ? { linked_deck_id: deckId } : {}, "-created_date", 200);
+        allAssets = await base44.entities.UploadAsset.filter(deckId ? { linked_deck_id: deckId } : {}, "-created_date", 200);
       } catch {
         allAssets = [];
       }
@@ -216,7 +216,7 @@ export default function PhotoLibraryPicker({ isOpen, onClose, onSelect, deckId }
           full_url = file_url;
         }
 
-        await UploadAsset.create({
+        await base44.entities.UploadAsset.create({
           file_url: full_url,
           thumbnail_url: thumb_url,
           file_name: f.name || "image",
@@ -261,7 +261,7 @@ export default function PhotoLibraryPicker({ isOpen, onClose, onSelect, deckId }
         const id = it.id.replace("card-", "");
         await CardEntity.update(id, { name: newName });
       } else {
-        await UploadAsset.update(it.id, { file_name: newName });
+        await base44.entities.UploadAsset.update(it.id, { file_name: newName });
       }
       setItems(items.map(i => i.id === it.id ? { ...i, file_name: newName } : i));
     } catch (e) {

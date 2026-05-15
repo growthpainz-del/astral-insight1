@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Image as ImageIcon, Upload, Copy, Check, Loader2, Link as LinkIcon } from "lucide-react";
-import { UploadAsset } from "@/entities/UploadAsset";
+import { base44 } from "@/api/base44Client";
 import { Deck } from "@/entities/Deck";
 import { Card as CardEntity } from "@/entities/Card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -157,7 +157,7 @@ export default function PhotoUploader() {
         const inferredName = normalizeName(stripNumericPrefix(f.name));
 
         // save asset record
-        await UploadAsset.create({
+        await base44.entities.UploadAsset.create({
           file_url,
           file_name: f.name,
           mime_type: f.type || "",
@@ -253,9 +253,9 @@ export default function PhotoUploader() {
           const inferredNumber = extractNumberFromFilename(r.name);
           const inferredName = normalizeName(stripNumericPrefix(r.name));
           // best-effort update matching UploadAsset by url
-          const maybe = await UploadAsset.filter({ file_url: r.url }, "-created_date", 1);
+          const maybe = await base44.entities.UploadAsset.filter({ file_url: r.url }, "-created_date", 1);
           if (Array.isArray(maybe) && maybe[0]) {
-            await UploadAsset.update(maybe[0].id, {
+            await base44.entities.UploadAsset.update(maybe[0].id, {
               linked_deck_id: selectedDeckId,
               linked_card_id: target.id,
               card_number: inferredNumber || undefined,

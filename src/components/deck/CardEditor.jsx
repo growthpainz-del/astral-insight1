@@ -10,7 +10,7 @@ import { Loader2, Save, Wand2, Image as ImageIcon, X, Upload, FolderOpen, Sparkl
 import { Card as CardEntity } from "@/entities/Card";
 import AIImageGenModal from "@/components/deck/AIImageGenModal";
 import PhotoLibraryPicker from "@/components/media/PhotoLibraryPicker";
-import { UploadAsset } from "@/entities/UploadAsset";
+import { base44 } from "@/api/base44Client";
 
 // New imports
 import { UploadFile } from "@/integrations/Core";
@@ -230,7 +230,7 @@ export default function CardEditor({ deckId, card, isOpen, onClose, onSave }) {
       const { file_url } = await UploadFile({ file });
       update({ image_url: file_url });
       try {
-        await UploadAsset.create({
+        await base44.entities.UploadAsset.create({
           file_url,
           file_name: file.name,
           mime_type: file.type || "",
