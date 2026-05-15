@@ -74,9 +74,9 @@ export default function MobileBottomNav() {
       <Carousel opts={{ align: "start", dragFree: true, loop: true }} className="w-full max-w-[100vw] overflow-hidden relative touch-pan-y">
         <CarouselContent className="m-0 py-3 px-2">
           {[
-            { key: "Home", icon: "⌂", label: "Hub" },
+            { key: "Home", img: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/191ca6b2e_F4082EFB-2830-4175-A49F-A7A110359B6D.png", label: "Hub" },
             { key: "Read", icon: "◎", label: "Read" },
-            { key: "Studio", icon: "⬡", label: "Studio" },
+            { key: "Studio", img: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/4c1624134_3790AA04-E486-40D3-B922-C73E810A4B0E.png", label: "Studio" },
             { key: "Journal", icon: "◈", label: "Journal" },
             { key: "Agent", icon: "✦", label: "Agent" },
           ].map(tab => {
@@ -85,14 +85,21 @@ export default function MobileBottomNav() {
               <CarouselItem key={tab.key} className="basis-auto shrink-0 pl-3">
                 <button
                   onClick={() => handleTabClick(tabs.find(t => t.key === tab.key))}
-                  className={`flex items-center gap-2 rounded-full px-5 py-2.5 border transition-all ${
+                  className={tab.img ? `flex items-center p-0 rounded-full transition-all ${active ? 'shadow-[0_0_12px_rgba(124,58,237,0.5)] ring-1 ring-purple-500/50' : 'opacity-80 hover:opacity-100'}` : `flex items-center gap-2 rounded-full px-5 py-2.5 border transition-all ${
                     active 
                       ? 'bg-purple-600/20 border-purple-500/50 text-purple-300 shadow-[0_0_12px_rgba(124,58,237,0.3)]' 
                       : 'bg-purple-500/10 border-purple-500/20 text-purple-300/60 hover:bg-purple-500/20 hover:text-purple-200'
                   }`}
+                  style={tab.img ? { height: "38px" } : {}}
                 >
-                  <span className="text-xl leading-none mb-0.5 font-['Cinzel']">{tab.icon}</span>
-                  <span className="text-[11px] font-bold uppercase tracking-wider font-['Cinzel']">{tab.label}</span>
+                  {tab.img ? (
+                    <img src={tab.img} alt={tab.label} className="h-full w-auto object-contain rounded-full" />
+                  ) : (
+                    <>
+                      <span className="text-xl leading-none mb-0.5 font-['Cinzel']">{tab.icon}</span>
+                      <span className="text-[11px] font-bold uppercase tracking-wider font-['Cinzel']">{tab.label}</span>
+                    </>
+                  )}
                 </button>
               </CarouselItem>
             )
