@@ -44,12 +44,18 @@ export default function BottomCardShelf({ cards = [], onCardClick = () => {} }) 
                   alt={card.name}
                   className="w-full h-full object-cover rounded"
                   draggable={false}
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'flex';
+                  }}
                 />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-white/70 text-xs">
-                  {card.name || "Card"}
-                </div>
-              )}
+              ) : null}
+              <div 
+                className="w-full h-full items-center justify-center text-white/70 text-xs"
+                style={{ display: card.image_url ? 'none' : 'flex' }}
+              >
+                {card.name || "Card"}
+              </div>
             </div>
           ))}
         </div>

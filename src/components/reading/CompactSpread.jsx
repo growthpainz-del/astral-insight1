@@ -178,17 +178,15 @@ function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, o
         {!card && (
           <>
             <div
-              className={`rounded-xl border-2 border-dashed ${spread.bgImage ? 'border-white/30 bg-white/5' : 'border-purple-400/35 bg-purple-900/10'} flex items-center justify-center backdrop-blur-sm`}
+              className="rounded-xl border-2 border-dashed border-purple-400/40 bg-purple-900/20 flex items-center justify-center backdrop-blur-sm shadow-[0_0_15px_rgba(168,85,247,0.1)]"
               style={{ width: cardW, height: cardH, transform: `rotate(${rotation}deg)` }}
             >
-              <span className={`${spread.bgImage ? 'text-white/50' : 'text-purple-300/40'} text-[9px] font-['Cinzel'] font-bold`}>{index + 1}</span>
+              <span className="text-purple-300/60 text-[10px] font-['Cinzel'] font-bold">{index + 1}</span>
             </div>
-            {!spread.bgImage && (
-              <p className="text-purple-300/55 text-[8px] font-semibold text-center leading-tight mt-1"
-                 style={{ maxWidth: cardW + 16 }}>
-                {position.name}
-              </p>
-            )}
+            <p className="text-purple-200/80 text-[9px] font-semibold text-center leading-tight mt-1 bg-black/40 px-1 py-0.5 rounded backdrop-blur-sm"
+               style={{ maxWidth: cardW + 16 }}>
+              {position.name}
+            </p>
           </>
         )}
 
@@ -334,10 +332,10 @@ export default function SpreadLayout({
           maxWidth:   380,
           height:     containerH,
           background: spreadDef.bgImage 
-            ? `url(${spreadDef.bgImage}) center/cover no-repeat` 
+            ? `url(${spreadDef.bgImage}) center/cover no-repeat, radial-gradient(ellipse at 50% 40%, rgba(88,28,135,0.22) 0%, rgba(8,4,18,0.75) 100%)` 
             : "radial-gradient(ellipse at 50% 40%, rgba(88,28,135,0.22) 0%, rgba(8,4,18,0.75) 100%)",
-          border:     spreadDef.bgImage ? "none" : "1px solid rgba(168,85,247,0.18)",
-          boxShadow:  spreadDef.bgImage ? "none" : "0 0 40px rgba(100,50,200,0.08) inset",
+          border:     "1px solid rgba(168,85,247,0.3)",
+          boxShadow:  "0 0 40px rgba(100,50,200,0.15) inset",
         }}
       >
         {/* Grid overlay */}
