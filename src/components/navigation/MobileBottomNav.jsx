@@ -77,8 +77,8 @@ export default function MobileBottomNav() {
             { key: "Home", img: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/191ca6b2e_F4082EFB-2830-4175-A49F-A7A110359B6D.png", label: "Hub" },
             { key: "Read", img: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/9ff29b78d_9F83D3B4-B2C9-4CC6-91C3-2463FAF5CB23.png", label: "Read" },
             { key: "Studio", img: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/4c1624134_3790AA04-E486-40D3-B922-C73E810A4B0E.png", label: "Studio" },
-            { key: "Journal", icon: "◈", label: "Journal" },
-            { key: "Agent", icon: "✦", label: "Agent" },
+            { key: "Journal", img: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/813bc1daf_95CC2125-D656-406E-BF7A-11B463053039.png", label: "Journal" },
+            { key: "Agent", img: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/59708a87f_9DD7135A-99D4-46D9-877B-4CE7401C7235.png", label: "Agent" },
           ].map(tab => {
             const active = activeTab === tab.key;
             return (
