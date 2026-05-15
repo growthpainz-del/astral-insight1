@@ -499,7 +499,7 @@ export function SpreadSelector({ selectedId, onSelect, customSpreads = [] }) {
               : "border-purple-500/20 bg-[#160f2a] hover:border-purple-500/40"
           }`}
         >
-          <div className="text-xl mb-1 leading-none">{spread.icon}</div>
+          <div className="text-xl mb-1 leading-none text-white">{spread.icon}</div>
           <div className="font-['Cinzel'] text-[10px] text-white font-semibold leading-tight mb-1">
             {spread.name}
           </div>
