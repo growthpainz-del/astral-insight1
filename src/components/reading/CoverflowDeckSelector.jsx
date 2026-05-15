@@ -70,7 +70,7 @@ export default function CoverflowDeckSelector({ publicDecks, myDecks, onDrawCard
     <div className="w-full max-w-md mx-auto pt-6 animate-in fade-in zoom-in duration-300">
       
       <div className="flex items-center gap-2 mb-3 px-5">
-        <div className="font-['Cinzel'] text-[9px] tracking-[0.28em] uppercase text-[#b4a0dc]/45">Choose Your Deck</div>
+        <div className="text-xs font-semibold tracking-widest uppercase text-purple-300/60">Choose Your Deck</div>
         <div className="flex-1 h-[1px] bg-[#a078ff]/15"></div>
       </div>
 
@@ -83,19 +83,19 @@ export default function CoverflowDeckSelector({ publicDecks, myDecks, onDrawCard
             placeholder="Search decks..." 
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className="bg-transparent border-none outline-none font-['Crimson_Text'] text-[15px] text-[#e1d7ff]/90 w-full placeholder:text-[#b4a0dc]/45"
+            className="bg-transparent border-none outline-none text-sm text-[#e1d7ff]/90 w-full placeholder:text-[#b4a0dc]/45 font-sans"
           />
         </div>
         <div className="flex items-center bg-[#160f2a] border border-[#a078ff]/15 rounded-full p-[3px] gap-[2px]">
           <button 
             onClick={() => setDeckMode("personal")}
-            className={`font-['Cinzel'] text-[8.5px] tracking-[0.12em] uppercase px-[11px] py-[6px] rounded-full transition-all whitespace-nowrap ${deckMode === 'personal' ? 'bg-[#7c3aed] text-white shadow-[0_0_14px_rgba(167,139,250,0.4)]' : 'text-[#b4a0dc]/45'}`}
+            className={`text-[10px] font-semibold tracking-wider uppercase px-3 py-1.5 rounded-full transition-all whitespace-nowrap ${deckMode === 'personal' ? 'bg-[#7c3aed] text-white shadow-[0_0_14px_rgba(167,139,250,0.4)]' : 'text-purple-300/60'}`}
           >
             Mine
           </button>
           <button 
             onClick={() => setDeckMode("public")}
-            className={`font-['Cinzel'] text-[8.5px] tracking-[0.12em] uppercase px-[11px] py-[6px] rounded-full transition-all whitespace-nowrap ${deckMode === 'public' ? 'bg-[#7c3aed] text-white shadow-[0_0_14px_rgba(167,139,250,0.4)]' : 'text-[#b4a0dc]/45'}`}
+            className={`text-[10px] font-semibold tracking-wider uppercase px-3 py-1.5 rounded-full transition-all whitespace-nowrap ${deckMode === 'public' ? 'bg-[#7c3aed] text-white shadow-[0_0_14px_rgba(167,139,250,0.4)]' : 'text-purple-300/60'}`}
           >
             Public
           </button>
@@ -121,7 +121,7 @@ export default function CoverflowDeckSelector({ publicDecks, myDecks, onDrawCard
           style={{ transform: `translateX(${-focusIdx * 132}px)` }}
         >
           {currentDecks.length === 0 ? (
-            <div className="w-[120px] h-[170px] flex items-center justify-center text-[#b4a0dc]/45 text-sm font-['IM_Fell_English'] italic text-center">
+            <div className="w-[120px] h-[170px] flex items-center justify-center text-purple-300/60 text-sm italic text-center">
               No decks found
             </div>
           ) : (
@@ -141,10 +141,10 @@ export default function CoverflowDeckSelector({ publicDecks, myDecks, onDrawCard
                       <BookOpen className="w-8 h-8 text-white/40" />
                     )}
                   </div>
-                  <div className={`font-['Cinzel'] text-[8.5px] tracking-[0.13em] uppercase text-center max-w-[110px] leading-[1.4] transition-colors ${diff === 0 ? 'text-[#a78bfa]' : 'text-[#b4a0dc]/45'}`}>
+                  <div className={`text-[10px] font-bold tracking-wider uppercase text-center max-w-[110px] leading-snug transition-colors ${diff === 0 ? 'text-purple-300' : 'text-purple-300/50'}`}>
                     {d.name}
                   </div>
-                  <div className={`font-['IM_Fell_English'] italic text-[11px] transition-colors ${diff === 0 ? 'text-[#a78bfa]/70' : 'text-[#a78bfa]/40'}`}>
+                  <div className={`italic text-xs transition-colors ${diff === 0 ? 'text-purple-300/80' : 'text-purple-300/40'}`}>
                     {d.category || "Oracle"}
                   </div>
                 </div>
@@ -171,8 +171,8 @@ export default function CoverflowDeckSelector({ publicDecks, myDecks, onDrawCard
       {focusedDeck && (
         <div className="m-[12px_18px_6px] p-[13px_16px] bg-[#160f2a] border border-[#a78bfa]/20 rounded-[13px] flex items-center justify-between animate-in slide-in-from-bottom-2 duration-300">
           <div>
-            <div className="font-['Cinzel'] text-[13px] tracking-[0.09em] text-white truncate max-w-[200px]">{focusedDeck.name}</div>
-            <div className="font-['IM_Fell_English'] italic text-[12px] text-[#b4a0dc]/45 mt-[2px]">{focusedDeck.category || "Oracle"}</div>
+            <div className="font-bold text-sm tracking-wide text-white truncate max-w-[200px]">{focusedDeck.name}</div>
+            <div className="italic text-xs text-purple-300/60 mt-[2px]">{focusedDeck.category || "Oracle"}</div>
           </div>
           <div className="w-[28px] h-[28px] rounded-full bg-[#a78bfa]/15 border border-[#a78bfa]/35 flex items-center justify-center text-[13px]">✦</div>
         </div>
@@ -183,13 +183,13 @@ export default function CoverflowDeckSelector({ publicDecks, myDecks, onDrawCard
         <button 
           onClick={() => focusedDeck && onDrawCards(focusedDeck)}
           disabled={!focusedDeck}
-          className="w-full p-[14px] rounded-[50px] border-none cursor-pointer font-['Cinzel'] text-[12px] tracking-[0.18em] uppercase text-white bg-gradient-to-br from-[#7c3aed] to-[#a78bfa] shadow-[0_4px_20px_rgba(124,58,237,0.45)] flex items-center justify-center gap-[9px] transition-all hover:-translate-y-[2px] hover:shadow-[0_6px_28px_rgba(124,58,237,0.6)] active:scale-[0.97] disabled:opacity-50 disabled:animate-none"
+          className="w-full p-[14px] rounded-[50px] border-none cursor-pointer font-bold text-sm tracking-widest uppercase text-white bg-gradient-to-br from-[#7c3aed] to-[#a78bfa] shadow-[0_4px_20px_rgba(124,58,237,0.45)] flex items-center justify-center gap-[9px] transition-all hover:-translate-y-[2px] hover:shadow-[0_6px_28px_rgba(124,58,237,0.6)] active:scale-[0.97] disabled:opacity-50 disabled:animate-none"
         >
           <span className="text-[16px]">✦</span> Select Deck
         </button>
       </div>
 
-      <div className="text-center font-['Crimson_Text'] italic text-[11px] text-[#a08cc8]/35 p-[8px_24px_4px] leading-[1.5]">
+      <div className="text-center italic text-xs text-purple-300/40 p-[8px_24px_4px] leading-[1.5]">
         Readings are for entertainment purposes only and do not constitute professional advice.
       </div>
 
