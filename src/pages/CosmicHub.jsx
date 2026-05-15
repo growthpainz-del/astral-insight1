@@ -156,14 +156,14 @@ function Portal({ to, icon, label, sub, accent, delay }) {
       <div style={{ textAlign: "center" }}>
         <div style={{
           fontFamily: "'Cinzel', serif", fontSize: 13, letterSpacing: "0.18em",
-          textTransform: "uppercase", color: hovered ? "#fff" : "rgba(255,255,255,0.75)",
+          textTransform: "uppercase", color: hovered ? "#fff" : "rgba(255,255,255,0.95)",
           transition: "color 0.3s", marginBottom: 3,
         }}>
           {label}
         </div>
         <div style={{
           fontFamily: "'IM Fell English', serif", fontStyle: "italic", fontSize: 11,
-          color: hovered ? accent : "rgba(180,160,220,0.55)",
+          color: hovered ? accent : "rgba(220,210,255,0.85)",
           transition: "color 0.3s", letterSpacing: "0.06em",
         }}>
           {sub}
@@ -263,12 +263,12 @@ export default function CosmicHub() {
               href="mailto:growthpainz@protonmail.com?subject=Astral Insight"
               style={{
                 fontFamily: "'Cinzel', serif", fontSize: 10.5, letterSpacing: "0.2em",
-                textTransform: "uppercase", color: "rgba(200,180,255,0.55)",
+                textTransform: "uppercase", color: "rgba(220,210,255,0.9)",
                 textDecoration: "none", transition: "color 0.25s",
                 animation: "communityPop 0.8s 1.6s both",
               }}
-              onMouseEnter={(e) => (e.target.style.color = "rgba(200,170,255,1)")}
-              onMouseLeave={(e) => (e.target.style.color = "rgba(200,180,255,0.55)")}
+              onMouseEnter={(e) => (e.target.style.color = "rgba(255,255,255,1)")}
+              onMouseLeave={(e) => (e.target.style.color = "rgba(220,210,255,0.9)")}
             >
               About Us
             </a>
@@ -294,7 +294,7 @@ export default function CosmicHub() {
             </h1>
             <p style={{
               fontFamily: "'IM Fell English', serif", fontStyle: "italic",
-              fontSize: "clamp(13px, 1.6vw, 17px)", color: "rgba(190,165,255,0.65)",
+              fontSize: "clamp(13px, 1.6vw, 17px)", color: "rgba(230,220,255,0.9)",
               letterSpacing: "0.08em", animation: "subtitleReveal 1.2s 0.9s ease both",
             }}>
               Choose your path among the stars
@@ -331,7 +331,7 @@ export default function CosmicHub() {
               <polyline points="90,168 155,195 240,210 310,215 380,210 465,195 530,168"
                 stroke="rgba(180,140,255,0.18)" strokeWidth="0.8" fill="none" />
               <text x="310" y="205" textAnchor="middle" fontFamily="serif" fontSize="13"
-                fill="rgba(200,170,255,0.4)" letterSpacing="6">✦  ◈  ✦</text>
+                fill="rgba(220,200,255,0.8)" letterSpacing="6">✦  ◈  ✦</text>
             </svg>
 
             <div style={{
