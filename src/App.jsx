@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
-import VisualEditAgent from '@/lib/VisualEditAgent'
+
 import NavigationTracker from '@/lib/NavigationTracker'
 import { pagesConfig } from './pages.config'
 import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'react-router-dom'
@@ -16,11 +16,10 @@ import Pendulum from './pages/Pendulum'
 import CardMaker from './pages/CardMaker'
 import CardLibrary from './pages/CardLibrary'
 import Studio from './pages/Studio'
-import SpreadTester from './pages/SpreadTester'
 import SpreadManager from './pages/SpreadManager'
-import SpreadDesigner from './pages/SpreadDesigner'
 import DashboardHub from './pages/DashboardHub'
 import ReadingSetup from './pages/ReadingSetup'
+import ReadingSimple from './pages/ReadingSimple'
 
 const { Pages, Layout, mainPage } = pagesConfig
 
@@ -32,11 +31,6 @@ const ADMIN_ONLY_PAGES = new Set([
   'AdminUsers',
   'AdminDeckReview',
   'AdminTokenGrant',
-  'AdminTokenGrant',
-  'AIWorkspace',
-  'WebhookTester',
-  'SpreadSeeder',
-  'WiccanSeeder',
 ])
 
 const LayoutWrapper = ({ children, currentPageName }) =>
@@ -49,7 +43,7 @@ const LayoutWrapper = ({ children, currentPageName }) =>
  * Redirects non-admins to Dashboard instead of silently showing an empty page.
  */
 const AdminRoute = ({ Page, pageName, user }) => {
-  if (!user) return <Navigate to="/Dashboard" replace />
+  if (!user) return <Navigate to="/DashboardHub" replace />
   if (user.role !== 'admin') {
     return (
       <div className="min-h-screen flex items-center justify-center p-6">
@@ -58,7 +52,7 @@ const AdminRoute = ({ Page, pageName, user }) => {
           <p className="text-red-200 mb-4">
             You need admin privileges to view this page.
           </p>
-          <a href="/Dashboard" className="text-purple-300 underline">
+          <a href="/DashboardHub" className="text-purple-300 underline">
             Go to Dashboard
           </a>
         </div>
@@ -193,26 +187,10 @@ const AuthenticatedApp = () => {
       />
 
       <Route
-        path="/SpreadTester"
-        element={
-          <LayoutWrapper currentPageName="SpreadTester">
-            <SpreadTester />
-          </LayoutWrapper>
-        }
-      />
-      <Route
         path="/SpreadManager"
         element={
           <LayoutWrapper currentPageName="SpreadManager">
             <SpreadManager />
-          </LayoutWrapper>
-        }
-      />
-      <Route
-        path="/SpreadDesigner"
-        element={
-          <LayoutWrapper currentPageName="SpreadDesigner">
-            <SpreadDesigner />
           </LayoutWrapper>
         }
       />
@@ -228,11 +206,13 @@ const AuthenticatedApp = () => {
         path="/Reading"
         element={
           <LayoutWrapper currentPageName="Reading">
-            {Pages.ReadingSimple ? <Pages.ReadingSimple /> : <PageNotFound />}
+            <ReadingSimple />
           </LayoutWrapper>
         }
       />
-      {Object.entries(Pages).map(([path, Page]) => (
+      {Object.entries(Pages)
+        .filter(([path]) => !['ReadingSimple', 'SpreadDesigner', 'SpreadTester'].includes(path))
+        .map(([path, Page]) => (
         <Route
           key={path}
           path={`/${path}`}
@@ -262,7 +242,6 @@ function App() {
           <AuthenticatedApp />
         </Router>
         <Toaster />
-        <VisualEditAgent />
       </QueryClientProvider>
     </AuthProvider>
   )
