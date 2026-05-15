@@ -177,24 +177,17 @@ function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, o
         {/* ── Empty slot ── */}
         {!card && (
           <>
-            {spread.bgImage ? (
-              <div
-                className="rounded-xl"
-                style={{ width: cardW, height: cardH, transform: `rotate(${rotation}deg)` }}
-              />
-            ) : (
-              <>
-                <div
-                  className="rounded-xl border-2 border-dashed border-purple-400/35 bg-purple-900/10 flex items-center justify-center"
-                  style={{ width: cardW, height: cardH, transform: `rotate(${rotation}deg)` }}
-                >
-                  <span className="text-purple-300/40 text-[9px] font-['Cinzel'] font-bold">{index + 1}</span>
-                </div>
-                <p className="text-purple-300/55 text-[8px] font-semibold text-center leading-tight mt-1"
-                   style={{ maxWidth: cardW + 16 }}>
-                  {position.name}
-                </p>
-              </>
+            <div
+              className={`rounded-xl border-2 border-dashed ${spread.bgImage ? 'border-white/30 bg-white/5' : 'border-purple-400/35 bg-purple-900/10'} flex items-center justify-center backdrop-blur-sm`}
+              style={{ width: cardW, height: cardH, transform: `rotate(${rotation}deg)` }}
+            >
+              <span className={`${spread.bgImage ? 'text-white/50' : 'text-purple-300/40'} text-[9px] font-['Cinzel'] font-bold`}>{index + 1}</span>
+            </div>
+            {!spread.bgImage && (
+              <p className="text-purple-300/55 text-[8px] font-semibold text-center leading-tight mt-1"
+                 style={{ maxWidth: cardW + 16 }}>
+                {position.name}
+              </p>
             )}
           </>
         )}
