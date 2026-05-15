@@ -8,7 +8,7 @@ import SpreadLayout, { SYSTEM_SPREADS } from "@/components/reading/CompactSpread
 import BottomCardShelf from "@/components/reading/BottomCardShelf";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useAnimation } from "framer-motion";
 import { createPageUrl } from "@/utils";
 import { queueApiCall } from "@/components/utils/apiQueue";
 import { isNetworkError } from "@/components/utils/isNetworkError";
@@ -17,6 +17,27 @@ const FreeformCard = ({ card, canvasRef, toggleFlip, deck, openInterpretation })
   const [scale, setScale] = useState(1);
   const [rotation, setRotation] = useState(card.rotation || 0);
   const initialPinch = useRef(null);
+  const controls = useAnimation();
+
+  useEffect(() => {
+    controls.start({
+      opacity: 1,
+      scale: scale,
+      x: card.x,
+      y: card.y,
+      rotate: rotation + (card.isReversed ? 180 : 0),
+      transition: { type: "spring", stiffness: 200, damping: 20 }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    controls.start({
+      scale: scale,
+      rotate: rotation + (card.isReversed ? 180 : 0),
+      transition: { type: "spring", stiffness: 300, damping: 30 }
+    });
+  }, [scale, rotation, card.isReversed, controls]);
 
   const handleWheel = (e) => {
     e.stopPropagation();
@@ -72,14 +93,8 @@ const FreeformCard = ({ card, canvasRef, toggleFlip, deck, openInterpretation })
       dragConstraints={canvasRef}
       dragMomentum={false}
       dragElastic={0.1}
-      initial={{ opacity: 0, scale: 0.5, x: 0, y: 300 }}
-      animate={{ 
-        opacity: 1, 
-        scale: scale,
-        x: card.x, 
-        y: card.y,
-        rotate: rotation + (card.isReversed ? 180 : 0)
-      }}
+      initial={{ opacity: 0, scale: 0.5, x: card.x, y: card.y + 300 }}
+      animate={controls}
       exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.2 } }}
       whileHover={{ scale: scale * 1.05, zIndex: 50 }}
       whileDrag={{ scale: scale * 1.1, zIndex: 100, boxShadow: "0 20px 40px rgba(0,0,0,0.5)" }}
