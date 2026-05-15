@@ -76,8 +76,9 @@ function ParticleBurst({ color, active, cardRect }) {
         p.life -= p.decay;
 
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${p.r},${p.g},${p.b},${p.life * 0.9})`;
+        const radius = Math.max(0, p.size * p.life);
+        ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${p.r},${p.g},${p.b},${Math.max(0, p.life) * 0.9})`;
         // glow
         ctx.shadowBlur = 12;
         ctx.shadowColor = `rgba(${p.r},${p.g},${p.b},0.7)`;
