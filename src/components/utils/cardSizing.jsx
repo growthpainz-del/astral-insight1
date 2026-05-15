@@ -16,7 +16,7 @@ export function calculateCardSize(containerWidth, cardCount, isVerticalSpread = 
   
   // Special case: Single card gets optimal size
   if (cardCount === 1) {
-    const cardWidth = Math.min(Math.round(w * 0.5), 280);
+    const cardWidth = Math.min(Math.round(w * 0.4), 220);
     return {
       cardWidth,
       cardHeight: Math.round(cardWidth * CARD_ASPECT_RATIO)
@@ -26,15 +26,15 @@ export function calculateCardSize(containerWidth, cardCount, isVerticalSpread = 
   // Determine scaling factor based on card count
   let factor;
   if (cardCount <= 3) {
-    factor = 0.42;
+    factor = 0.25;
   } else if (cardCount <= 5) {
-    factor = 0.28;
+    factor = 0.20;
   } else if (cardCount <= 7) {
-    factor = 0.22;
+    factor = 0.16;
   } else if (cardCount <= 10) {
-    factor = 0.18;
+    factor = 0.14;
   } else {
-    factor = 0.15;
+    factor = 0.12;
   }
   
   // Vertical spreads can be slightly wider per card
@@ -42,7 +42,8 @@ export function calculateCardSize(containerWidth, cardCount, isVerticalSpread = 
     factor *= 1.2;
   }
   
-  const cardWidth = Math.max(80, Math.min(Math.round(w * factor), 380));
+  // Cap max width to 180px so they don't get massive on desktop
+  const cardWidth = Math.max(70, Math.min(Math.round(w * factor), 180));
   const cardHeight = Math.round(cardWidth * CARD_ASPECT_RATIO);
   
   return { cardWidth, cardHeight };
