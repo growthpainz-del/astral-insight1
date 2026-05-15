@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Deck as DeckEntity, Card as CardEntity, Spread as SpreadEntity } from "@/entities/all";
+import { Deck as DeckEntity, Card as CardEntity, Spread as SpreadEntity, Reading as ReadingEntity } from "@/entities/all";
+import { composeReading, composeCardQuick } from "@/utils/interpretationComposer";
 import { Button } from "@/components/ui/button";
 import { Loader2, ChevronLeft, Hand, Shuffle, RotateCcw, Eye, Sparkles, Settings2, Save } from "lucide-react";
 import SpreadLayout from "@/components/reading/SpreadLayout";
@@ -160,7 +161,6 @@ const FreeformCard = ({ card, canvasRef, toggleFlip, deck, openInterpretation })
 };
 
 import { base44 } from "@/api/base44Client";
-import { composeCardQuick, composeReading } from "@/utils/interpretationComposer";
 
 export default function ReadingSimple() {
   const [searchParams] = useSearchParams();
@@ -172,6 +172,8 @@ export default function ReadingSimple() {
   const [cards, setCards] = useState([]);
   const [deckRemaining, setDeckRemaining] = useState([]);
   const [drawnCards, setDrawnCards] = useState([]);
+  const [readingHistory, setReadingHistory] = useState([]);
+  const [composedReading, setComposedReading] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const canvasRef = React.useRef(null);
@@ -188,27 +190,10 @@ export default function ReadingSimple() {
   const [selectedCardForInterpretation, setSelectedCardForInterpretation] = useState(null);
   const [aiInterpretation, setAiInterpretation] = useState(null);
   const [isAiLoading, setIsAiLoading] = useState(false);
-  const [composedCardOutput, setComposedCardOutput] = useState(null);
 
   const [spreadInterpretation, setSpreadInterpretation] = useState(null);
   const [isSpreadAiLoading, setIsSpreadAiLoading] = useState(false);
   const [showSpreadInterpretation, setShowSpreadInterpretation] = useState(false);
-  
-  const [composedReadingOutput, setComposedReadingOutput] = useState(null);
-  const [readingHistory, setReadingHistory] = useState([]);
-
-  // Load history for personal patterns
-  useEffect(() => {
-    const loadHistory = async () => {
-      try {
-        const history = await queueApiCall(() => base44.entities.Reading.list(), 3, 1000);
-        setReadingHistory(history || []);
-      } catch (err) {
-        console.error("Failed to load history for learning layer", err);
-      }
-    };
-    loadHistory();
-  }, []);
 
   const handleSaveSpread = async () => {
     if (!selectedSpread?.id) return;
@@ -229,37 +214,52 @@ export default function ReadingSimple() {
     }
   };
 
-  const getSpreadInsight = async () => {
-    if (drawnCards.length === 0 || isSpreadAiLoading) return;
+  const getComposedReading = () => {
+    const validCards = [];
+    const validPositions = [];
     
-    // Deterministic composition first
-    const fullReadingOutput = composeReading(
-      drawnCards, 
-      selectedSpread, 
-      questionParam, 
-      readingHistory, 
-      deck?.id
-    );
-    setComposedReadingOutput(fullReadingOutput);
-    
-    setIsSpreadAiLoading(true);
-    setShowSpreadInterpretation(true);
-    try {
-      if (fullReadingOutput?.aiPrompts?.fullReading) {
-        const res = await base44.integrations.Core.InvokeLLM({ prompt: fullReadingOutput.aiPrompts.fullReading });
-        setSpreadInterpretation(res);
-        
-        // Asynchronously save the enriched reading data
-        try {
-          await base44.entities.Reading.create({
-            ...fullReadingOutput.saveData,
-            interpretation: res,
-            date: new Date().toISOString().split('T')[0]
-          });
-        } catch (saveErr) {
-          console.error("Failed to save enriched reading", saveErr);
+    drawnCards.forEach((c, i) => {
+      if (c) {
+        validCards.push(c);
+        if (selectedSpread && selectedSpread.positions[i]) {
+          validPositions.push(selectedSpread.positions[i]);
         }
       }
+    });
+    
+    const matchedSpread = selectedSpread ? {
+      ...selectedSpread,
+      positions: validPositions
+    } : null;
+    
+    return composeReading(validCards, matchedSpread, questionParam || "", readingHistory, deckIdFromUrl);
+  };
+
+  const getSpreadInsight = async () => {
+    const validDrawn = drawnCards.filter(Boolean);
+    if (validDrawn.length === 0 || isSpreadAiLoading) return;
+    
+    const output = getComposedReading();
+    if (!output) return;
+    
+    setComposedReading(output);
+    setSpreadInterpretation(null);
+    setShowSpreadInterpretation(true);
+    
+    if (output.saveData) {
+      try {
+        await ReadingEntity.create(output.saveData);
+      } catch(e) { console.error("Failed to save reading", e) }
+    }
+  };
+
+  const handleDeepenSpread = async () => {
+    if (!composedReading || isSpreadAiLoading) return;
+    setIsSpreadAiLoading(true);
+    try {
+      const prompt = composedReading.aiPrompts.fullReading;
+      const res = await base44.integrations.Core.InvokeLLM({ prompt });
+      setSpreadInterpretation(res);
     } catch (e) {
       setSpreadInterpretation("The spirits are currently unreachable. Please try again later.");
     } finally {
@@ -285,16 +285,18 @@ export default function ReadingSimple() {
     const loadDeck = async () => {
       try {
         
-        const [loadedDeck, loadedCards, loadedSpreads] = await Promise.all([
+        const [loadedDeck, loadedCards, loadedSpreads, history] = await Promise.all([
           queueApiCall(() => DeckEntity.get(deckIdFromUrl), 3, 1500),
           queueApiCall(() => CardEntity.filter({ deck_id: deckIdFromUrl }), 3, 1500),
-          queueApiCall(() => SpreadEntity.list(), 3, 1500)
+          queueApiCall(() => SpreadEntity.list(), 3, 1500),
+          queueApiCall(() => ReadingEntity.list('-date', 100).catch(() => []), 3, 1500)
         ]);
 
         if (cancelled) return;
 
         setDeck(loadedDeck);
         setCards(loadedCards);
+        setReadingHistory(history || []);
         if (spreadParam && spreadParam !== "freeform") {
           const spread = loadedSpreads?.find(s => s.id === spreadParam);
           setSelectedSpread(spread || null);
@@ -469,21 +471,31 @@ export default function ReadingSimple() {
   };
 
   const openInterpretation = (cardWrapper, positionIndex = null) => {
-    const position = selectedSpread && positionIndex !== null ? selectedSpread.positions[positionIndex] : null;
-    setSelectedCardForInterpretation({ ...cardWrapper, position });
-    setAiInterpretation(null);
+    const output = getComposedReading();
+    const validCards = drawnCards.filter(Boolean);
+    const cardIndex = validCards.findIndex(c => c.id === cardWrapper.id);
     
-    // Build deterministic output immediately
-    const output = composeCardQuick(cardWrapper.cardData, position, cardWrapper.isReversed, questionParam);
-    setComposedCardOutput(output);
+    const cardOutput = output?.cards[cardIndex];
+    const aiPrompt = output?.aiPrompts.perCard[cardIndex];
+    
+    const position = selectedSpread && positionIndex !== null ? selectedSpread.positions[positionIndex] : null;
+    const composed = cardOutput || composeCardQuick(cardWrapper.cardData, position, false, questionParam || "");
+    
+    setSelectedCardForInterpretation({ 
+      ...cardWrapper, 
+      position, 
+      composed,
+      aiPrompt: aiPrompt || composed?.aiPrompt
+    });
+    setAiInterpretation(null);
   };
 
   const getDeeperInsight = async () => {
-    if (!selectedCardForInterpretation || !composedCardOutput || isAiLoading) return;
+    if (!selectedCardForInterpretation || isAiLoading) return;
     setIsAiLoading(true);
     try {
-      // Use the pre-built prompt from the composer
-      const res = await base44.integrations.Core.InvokeLLM({ prompt: composedCardOutput.aiPrompt });
+      const prompt = selectedCardForInterpretation.aiPrompt;
+      const res = await base44.integrations.Core.InvokeLLM({ prompt });
       setAiInterpretation(res);
     } catch (e) {
       setAiInterpretation("The spirits are currently unreachable. Please try again later.");
@@ -730,8 +742,10 @@ export default function ReadingSimple() {
           >
             <div className="p-4 border-b border-purple-500/30 flex justify-between items-center bg-purple-900/20">
               <div>
-                <h3 className="text-lg font-bold text-white font-['Cinzel']">{selectedCardForInterpretation.cardData.name}</h3>
-                {selectedCardForInterpretation.position && (
+                <h3 className="text-lg font-bold text-white font-['Cinzel']">{selectedCardForInterpretation.composed?.cardName || selectedCardForInterpretation.cardData.name}</h3>
+                {selectedCardForInterpretation.composed?.subtitle ? (
+                  <p className="text-xs text-purple-300">{selectedCardForInterpretation.composed.subtitle}</p>
+                ) : selectedCardForInterpretation.position && (
                   <p className="text-xs text-purple-300">Position: {selectedCardForInterpretation.position.name}</p>
                 )}
               </div>
@@ -739,38 +753,20 @@ export default function ReadingSimple() {
             </div>
             
             <div className="p-4 overflow-y-auto custom-scrollbar flex-1 space-y-4">
-              {composedCardOutput ? (
-                <>
-                  <div className="text-sm text-purple-100">
-                    <p className="font-semibold text-purple-300 mb-1">Basic Interpretation:</p>
-                    <p>{composedCardOutput.summary || "A mysterious force is at play. The meaning is hidden."}</p>
+              {selectedCardForInterpretation.composed?.sections ? (
+                selectedCardForInterpretation.composed.sections.map((sec, idx) => (
+                  <div key={idx} className={`text-sm ${sec.isPersonal ? 'bg-indigo-900/30 p-3 rounded-xl border border-indigo-500/30' : ''}`}>
+                    <p className="font-semibold text-purple-300 mb-1 flex items-center gap-1.5">
+                      <span>{sec.icon}</span> {sec.label}
+                    </p>
+                    <p className="text-purple-100 leading-relaxed">{sec.content}</p>
+                    {sec.meta && <p className="text-xs text-purple-400 mt-1 opacity-80">{sec.meta}</p>}
                   </div>
-
-                  {composedCardOutput.positionNote && (
-                    <div className="text-sm text-purple-100">
-                      <p className="font-semibold text-purple-300 mb-1">Position:</p>
-                      <p>{composedCardOutput.positionNote}</p>
-                    </div>
-                  )}
-
-                  {composedCardOutput.ancientNote && (
-                    <div className="text-sm text-purple-100">
-                      <p className="font-semibold text-amber-300 mb-1">Ancient Wisdom:</p>
-                      <p>{composedCardOutput.ancientNote}</p>
-                    </div>
-                  )}
-                  
-                  {composedCardOutput.actionNote && (
-                    <div className="text-sm text-purple-100">
-                      <p className="font-semibold text-emerald-300 mb-1">Action:</p>
-                      <p>{composedCardOutput.actionNote}</p>
-                    </div>
-                  )}
-                </>
+                ))
               ) : (
                 <div className="text-sm text-purple-100">
                   <p className="font-semibold text-purple-300 mb-1">Basic Interpretation:</p>
-                  <p>{selectedCardForInterpretation.cardData.overall_meaning || selectedCardForInterpretation.cardData.upright_meaning || "A mysterious force is at play. The meaning is hidden."}</p>
+                  <p>{selectedCardForInterpretation.composed?.summary || selectedCardForInterpretation.cardData.overall_meaning || "A mysterious force is at play."}</p>
                 </div>
               )}
 
@@ -820,17 +816,40 @@ export default function ReadingSimple() {
                 </h3>
                 <Button variant="ghost" size="sm" onClick={() => setShowSpreadInterpretation(false)} className="text-white hover:bg-white/10 rounded-full h-8 w-8 p-0">✕</Button>
               </div>
-              <div className="p-6 overflow-y-auto custom-scrollbar flex-1">
-                {isSpreadAiLoading ? (
-                   <div className="flex flex-col items-center justify-center py-12">
-                     <Loader2 className="w-12 h-12 animate-spin text-purple-400 mb-4" />
-                     <p className="text-purple-300 text-lg">The spirits are synthesizing your reading...</p>
-                   </div>
-                ) : (
-                  <div className="text-purple-100 whitespace-pre-wrap leading-relaxed text-lg">
-                    {spreadInterpretation}
+              <div className="p-6 overflow-y-auto custom-scrollbar flex-1 space-y-6">
+                {composedReading && (
+                  <div className="space-y-4">
+                    {composedReading.synthesis.sections.map((sec, idx) => (
+                      <div key={idx} className={`p-4 rounded-xl border ${sec.isPersonal ? 'bg-indigo-900/30 border-indigo-500/40' : 'bg-purple-900/20 border-purple-500/30'}`}>
+                        <h4 className="text-purple-300 font-semibold mb-2 flex items-center gap-2">
+                          <span className="text-xl">{sec.icon}</span> {sec.label}
+                        </h4>
+                        <p className="text-purple-100 leading-relaxed">{sec.content}</p>
+                      </div>
+                    ))}
                   </div>
                 )}
+                
+                <div className="pt-6 border-t border-purple-500/30">
+                  {!spreadInterpretation && !isSpreadAiLoading ? (
+                    <Button 
+                      onClick={handleDeepenSpread} 
+                      className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-[0_0_15px_rgba(147,51,234,0.3)]"
+                    >
+                      <Sparkles className="w-4 h-4 mr-2" /> Ask AI for Deeper Synthesis
+                    </Button>
+                  ) : isSpreadAiLoading ? (
+                    <div className="flex flex-col items-center justify-center py-8">
+                      <Loader2 className="w-8 h-8 animate-spin text-purple-400 mb-4" />
+                      <p className="text-purple-300">The spirits are synthesizing your reading...</p>
+                    </div>
+                  ) : (
+                    <div className="text-purple-100 whitespace-pre-wrap leading-relaxed text-lg bg-indigo-900/30 p-6 rounded-xl border border-indigo-500/30">
+                      <p className="font-semibold text-cyan-300 mb-4 flex items-center"><Sparkles className="w-5 h-5 mr-2" /> Deeper AI Insight:</p>
+                      {spreadInterpretation}
+                    </div>
+                  )}
+                </div>
               </div>
             </motion.div>
           </motion.div>
