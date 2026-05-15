@@ -121,12 +121,12 @@ const FreeformCard = ({ card, canvasRef, toggleFlip, deck, openInterpretation })
             />
           ) : (
             <div className="w-full h-full flex flex-col items-center justify-center p-4 bg-gradient-to-br from-indigo-900 to-purple-900">
-              <p className="text-white text-center font-bold pointer-events-none">{card.cardData.name}</p>
+              <p className="text-purple-50 text-center font-bold pointer-events-none">{card.cardData.name}</p>
             </div>
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
           <div className="absolute bottom-3 left-0 right-0 px-3 pointer-events-none">
-            <p className="text-white text-sm font-semibold text-center drop-shadow-md truncate">
+            <p className="text-purple-50 text-sm font-semibold text-center drop-shadow-md truncate">
               {card.cardData.name}
             </p>
           </div>
@@ -355,10 +355,10 @@ export default function ReadingSimple() {
   if (error) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-indigo-950 to-purple-950 flex items-center justify-center p-6">
-        <div className="bg-red-900/20 border border-red-500 rounded-lg p-6 max-w-md text-center">
+        <div className="bg-red-900/20 border border-red-500/50 rounded-lg p-6 max-w-md text-center">
           <p className="text-red-200 mb-4">{error}</p>
           <Link to={createPageUrl("Dashboard")}>
-            <Button variant="outline" className="text-white">
+            <Button variant="outline" className="text-red-200 border-red-500/50 hover:bg-red-500/20 hover:text-red-100">
               <ChevronLeft className="w-4 h-4 mr-2" />
               Back to Dashboard
             </Button>
@@ -586,7 +586,7 @@ export default function ReadingSimple() {
       <div className="bg-black/40 backdrop-blur-md border-b border-purple-500/20 p-2 md:p-4 flex flex-col md:flex-row items-start md:items-center justify-between z-10 gap-2">
         <div className="flex items-center gap-4 shrink-0 px-2 w-full md:w-auto justify-between md:justify-start">
           <Link to={createPageUrl("ReadingRoom")}>
-            <Button variant="ghost" className="text-purple-200 hover:text-white hover:bg-purple-500/20 h-8 px-2 md:h-10 md:px-4">
+            <Button variant="ghost" className="text-purple-200 hover:text-purple-100 hover:bg-purple-500/20 h-8 px-2 md:h-10 md:px-4">
               <ChevronLeft className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
               <span className="text-sm md:text-base">Room</span>
             </Button>
@@ -620,7 +620,7 @@ export default function ReadingSimple() {
             size="sm"
             onClick={handleDrawCard} 
             disabled={deckRemaining.length === 0 || (readingMode === "spread" && selectedSpread && drawnCards.length >= selectedSpread.positions.length)}
-            className="shrink-0 bg-purple-600 hover:bg-purple-700 text-white shadow-[0_0_15px_rgba(147,51,234,0.3)]"
+            className="shrink-0 bg-purple-600 hover:bg-purple-700 text-purple-50 shadow-[0_0_15px_rgba(147,51,234,0.3)]"
           >
             <Hand className="w-4 h-4 mr-1" />
             Draw
@@ -751,14 +751,14 @@ export default function ReadingSimple() {
           >
             <div className="p-4 border-b border-purple-500/30 flex justify-between items-center bg-purple-900/20">
               <div>
-                <h3 className="text-lg font-bold text-white font-['Cinzel']">{selectedCardForInterpretation.composed?.cardName || selectedCardForInterpretation.cardData.name}</h3>
+                <h3 className="text-lg font-bold text-purple-50 font-['Cinzel']">{selectedCardForInterpretation.composed?.cardName || selectedCardForInterpretation.cardData.name}</h3>
                 {selectedCardForInterpretation.composed?.subtitle ? (
                   <p className="text-xs text-purple-300">{selectedCardForInterpretation.composed.subtitle}</p>
                 ) : selectedCardForInterpretation.position && (
                   <p className="text-xs text-purple-300">Position: {selectedCardForInterpretation.position.name}</p>
                 )}
               </div>
-              <Button variant="ghost" size="sm" onClick={() => setSelectedCardForInterpretation(null)} className="text-white hover:bg-white/10 rounded-full h-8 w-8 p-0">✕</Button>
+              <Button variant="ghost" size="sm" onClick={() => setSelectedCardForInterpretation(null)} className="text-purple-50 hover:bg-purple-500/20 rounded-full h-8 w-8 p-0">✕</Button>
             </div>
             
             <div className="p-4 overflow-y-auto custom-scrollbar flex-1 space-y-4">
@@ -783,7 +783,7 @@ export default function ReadingSimple() {
                 {!aiInterpretation && !isAiLoading ? (
                   <Button 
                     onClick={getDeeperInsight} 
-                    className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-[0_0_15px_rgba(147,51,234,0.3)]"
+                    className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-purple-50 shadow-[0_0_15px_rgba(147,51,234,0.3)]"
                   >
                     <Sparkles className="w-4 h-4 mr-2" /> Deeper Insight (AI)
                   </Button>
@@ -793,7 +793,7 @@ export default function ReadingSimple() {
                     <span className="ml-2 text-purple-300 text-sm">Consulting the spirits...</span>
                   </div>
                 ) : (
-                  <div className="text-sm text-white/90 bg-indigo-900/30 p-4 rounded-xl border border-indigo-500/30">
+                  <div className="text-sm text-purple-50/90 bg-indigo-900/30 p-4 rounded-xl border border-indigo-500/30">
                     <p className="font-semibold text-cyan-300 mb-2 flex items-center"><Sparkles className="w-4 h-4 mr-2" /> AI Insight:</p>
                     <div className="whitespace-pre-wrap leading-relaxed">{aiInterpretation}</div>
                   </div>
@@ -819,11 +819,11 @@ export default function ReadingSimple() {
               className="bg-slate-900 border border-purple-500/50 rounded-2xl shadow-2xl overflow-hidden w-full max-w-2xl max-h-[85vh] flex flex-col"
             >
               <div className="p-4 border-b border-purple-500/30 flex justify-between items-center bg-purple-900/40">
-                <h3 className="text-xl font-bold text-white font-['Cinzel'] flex items-center gap-2">
+                <h3 className="text-xl font-bold text-purple-50 font-['Cinzel'] flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-purple-400" />
                   Reading Interpretation
                 </h3>
-                <Button variant="ghost" size="sm" onClick={() => setShowSpreadInterpretation(false)} className="text-white hover:bg-white/10 rounded-full h-8 w-8 p-0">✕</Button>
+                <Button variant="ghost" size="sm" onClick={() => setShowSpreadInterpretation(false)} className="text-purple-50 hover:bg-purple-500/20 rounded-full h-8 w-8 p-0">✕</Button>
               </div>
               <div className="p-6 overflow-y-auto custom-scrollbar flex-1 space-y-6">
                 {composedReading && (
@@ -843,7 +843,7 @@ export default function ReadingSimple() {
                   {!spreadInterpretation && !isSpreadAiLoading ? (
                     <Button 
                       onClick={handleDeepenSpread} 
-                      className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-[0_0_15px_rgba(147,51,234,0.3)]"
+                      className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-purple-50 shadow-[0_0_15px_rgba(147,51,234,0.3)]"
                     >
                       <Sparkles className="w-4 h-4 mr-2" /> Ask AI for Deeper Synthesis
                     </Button>

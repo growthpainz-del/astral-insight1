@@ -88,7 +88,7 @@ export default function MobileBottomNav() {
                   className={`flex items-center gap-2 rounded-full px-5 py-2.5 border transition-all ${
                     active 
                       ? 'bg-purple-600/20 border-purple-500/50 text-purple-300 shadow-[0_0_12px_rgba(124,58,237,0.3)]' 
-                      : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10 hover:text-white/90'
+                      : 'bg-purple-500/10 border-purple-500/20 text-purple-300/60 hover:bg-purple-500/20 hover:text-purple-200'
                   }`}
                 >
                   <span className="text-xl leading-none mb-0.5 font-['Cinzel']">{tab.icon}</span>
