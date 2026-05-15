@@ -21,7 +21,7 @@ const FreeformCard = ({ card, canvasRef, toggleFlip, deck, openInterpretation })
   const handleWheel = (e) => {
     e.stopPropagation();
     const delta = -e.deltaY * 0.002;
-    setScale(s => Math.min(Math.max(0.4, s + 3), 3));
+    setScale(s => Math.min(Math.max(0.4, s + delta), 3));
   };
 
   const handleTouchStart = (e) => {
@@ -78,7 +78,7 @@ const FreeformCard = ({ card, canvasRef, toggleFlip, deck, openInterpretation })
         scale: scale,
         x: card.x, 
         y: card.y,
-        rotate: rotation
+        rotate: rotation + (card.isReversed ? 180 : 0)
       }}
       exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.2 } }}
       whileHover={{ scale: scale * 1.05, zIndex: 50 }}
@@ -377,7 +377,8 @@ export default function ReadingSimple() {
       x,
       y,
       rotation,
-      isFlipped: false
+      isFlipped: false,
+      isReversed: Math.random() < 0.25
     }]);
     
     setDeckRemaining(newRemaining);
@@ -400,7 +401,8 @@ export default function ReadingSimple() {
       x,
       y,
       rotation,
-      isFlipped: false
+      isFlipped: false,
+      isReversed: Math.random() < 0.25
     }]);
     
     setDeckRemaining(newRemaining);
@@ -427,7 +429,8 @@ export default function ReadingSimple() {
       x: 0,
       y: 0,
       rotation: 0,
-      isFlipped: false
+      isFlipped: false,
+      isReversed: Math.random() < 0.25
     };
     
     setDrawnCards(newDrawnCards);
