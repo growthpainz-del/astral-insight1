@@ -21,6 +21,30 @@ export default function CoverflowDeckSelector({ publicDecks, myDecks, onDrawCard
 
   const focusedDeck = currentDecks[focusIdx];
 
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Don't trigger if user is typing in the search input
+      if (e.target.tagName.toLowerCase() === 'input' || e.target.tagName.toLowerCase() === 'textarea') {
+        return;
+      }
+      
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        setFocusIdx((prev) => Math.max(0, prev - 1));
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        setFocusIdx((prev) => Math.min(currentDecks.length - 1, prev + 1));
+      } else if (e.key === "Enter" && focusedDeck) {
+        e.preventDefault();
+        onDrawCards(focusedDeck);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [currentDecks.length, focusedDeck, onDrawCards]);
+
   // Drag handling
   const trackRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
