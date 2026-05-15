@@ -67,15 +67,15 @@ export default function CoverflowDeckSelector({ publicDecks, myDecks, onDrawCard
   };
 
   return (
-    <div className="w-full max-w-md mx-auto pt-6 animate-in fade-in zoom-in duration-300">
+    <div className="w-full max-w-md mx-auto pt-2 animate-in fade-in zoom-in duration-300">
       
-      <div className="flex items-center gap-2 mb-3 px-5">
+      <div className="flex items-center gap-2 mb-2 px-5">
         <div className="text-xs font-semibold tracking-widest uppercase text-purple-300/60">Choose Your Deck</div>
         <div className="flex-1 h-[1px] bg-[#a078ff]/15"></div>
       </div>
 
       {/* Deck Controls */}
-      <div className="flex items-center gap-2 px-[18px] mb-[18px]">
+      <div className="flex items-center gap-2 px-[18px] mb-[8px]">
         <div className="flex-1 flex items-center gap-2 bg-[#160f2a] border border-[#a078ff]/20 rounded-full px-4 py-2 transition-colors focus-within:border-[#a78bfa]/45">
           <Search className="w-4 h-4 text-[#b4a0dc]/45" />
           <input 
@@ -117,24 +117,24 @@ export default function CoverflowDeckSelector({ publicDecks, myDecks, onDrawCard
           onMouseUp={handlePointerUp}
           onTouchEnd={handlePointerUp}
           onMouseLeave={() => setIsDragging(false)}
-          className="flex items-center gap-[12px] px-[calc(50%-60px)] transition-transform duration-[380ms] ease-[cubic-bezier(0.25,0.8,0.25,1)] cursor-grab active:cursor-grabbing select-none"
-          style={{ transform: `translateX(${-focusIdx * 132}px)` }}
+          className="flex items-center gap-[10px] px-[calc(50%-55px)] transition-transform duration-[380ms] ease-[cubic-bezier(0.25,0.8,0.25,1)] cursor-grab active:cursor-grabbing select-none"
+          style={{ transform: `translateX(${-focusIdx * 120}px)` }}
         >
           {currentDecks.length === 0 ? (
-            <div className="w-[120px] h-[170px] flex items-center justify-center text-purple-300/60 text-sm italic text-center">
+            <div className="w-[110px] h-[155px] flex items-center justify-center text-purple-300/60 text-sm italic text-center">
               No decks found
             </div>
           ) : (
             currentDecks.map((d, i) => {
               const diff = Math.abs(i - focusIdx);
-              let className = "flex-shrink-0 w-[120px] flex flex-col items-center gap-[9px] transition-all duration-[380ms] ease-[cubic-bezier(0.25,0.8,0.25,1)] ";
+              let className = "flex-shrink-0 w-[110px] flex flex-col items-center gap-[6px] transition-all duration-[380ms] ease-[cubic-bezier(0.25,0.8,0.25,1)] ";
               if (diff === 0) className += "scale-100 translate-y-0 opacity-100 z-10";
-              else if (diff === 1) className += "scale-[0.86] translate-y-[5px] opacity-[0.66] z-0";
-              else className += "scale-[0.74] translate-y-[10px] opacity-[0.42] z-0";
+              else if (diff === 1) className += "scale-[0.86] translate-y-[4px] opacity-[0.66] z-0";
+              else className += "scale-[0.74] translate-y-[8px] opacity-[0.42] z-0";
 
               return (
                 <div key={d.id} className={className} onClick={() => setFocusIdx(i)}>
-                  <div className={`w-[120px] h-[170px] rounded-[13px] overflow-hidden border-[1.5px] transition-all duration-[380ms] flex items-center justify-center bg-[#160f2a] text-4xl ${diff === 0 ? 'border-[#a78bfa]/55 shadow-[0_0_0_1px_rgba(167,139,250,0.25),0_10px_35px_rgba(100,50,200,0.5),0_0_60px_rgba(100,50,200,0.12)]' : 'border-[#a078ff]/15'}`}>
+                  <div className={`w-[110px] h-[155px] rounded-[13px] overflow-hidden border-[1.5px] transition-all duration-[380ms] flex items-center justify-center bg-[#160f2a] text-4xl ${diff === 0 ? 'border-[#a78bfa]/55 shadow-[0_0_0_1px_rgba(167,139,250,0.25),0_8px_25px_rgba(100,50,200,0.5),0_0_40px_rgba(100,50,200,0.12)]' : 'border-[#a078ff]/15'}`}>
                     {d.cover_image ? (
                       <img src={d.cover_image} alt={d.name} className="w-full h-full object-cover pointer-events-none" />
                     ) : (
@@ -156,7 +156,7 @@ export default function CoverflowDeckSelector({ publicDecks, myDecks, onDrawCard
 
       {/* Dots */}
       {currentDecks.length > 0 && (
-        <div className="flex justify-center gap-[5px] pt-[10px] pb-[4px]">
+        <div className="flex justify-center gap-[5px] pt-[6px] pb-[2px]">
           {currentDecks.map((_, i) => (
             <div 
               key={i} 
@@ -169,7 +169,7 @@ export default function CoverflowDeckSelector({ publicDecks, myDecks, onDrawCard
 
       {/* Selected strip */}
       {focusedDeck && (
-        <div className="m-[12px_18px_6px] p-[13px_16px] bg-[#160f2a] border border-[#a78bfa]/20 rounded-[13px] flex items-center justify-between animate-in slide-in-from-bottom-2 duration-300">
+        <div className="m-[6px_18px_4px] p-[10px_16px] bg-[#160f2a] border border-[#a78bfa]/20 rounded-[13px] flex items-center justify-between animate-in slide-in-from-bottom-2 duration-300">
           <div>
             <div className="font-bold text-sm tracking-wide text-white truncate max-w-[200px]">{focusedDeck.name}</div>
             <div className="italic text-xs text-purple-300/60 mt-[2px]">{focusedDeck.category || "Oracle"}</div>
@@ -179,17 +179,17 @@ export default function CoverflowDeckSelector({ publicDecks, myDecks, onDrawCard
       )}
 
       {/* Select Deck Button */}
-      <div className="m-[14px_18px]">
+      <div className="m-[8px_18px]">
         <button 
           onClick={() => focusedDeck && onDrawCards(focusedDeck)}
           disabled={!focusedDeck}
-          className="w-full p-[14px] rounded-[50px] border-none cursor-pointer font-bold text-sm tracking-widest uppercase text-white bg-gradient-to-br from-[#7c3aed] to-[#a78bfa] shadow-[0_4px_20px_rgba(124,58,237,0.45)] flex items-center justify-center gap-[9px] transition-all hover:-translate-y-[2px] hover:shadow-[0_6px_28px_rgba(124,58,237,0.6)] active:scale-[0.97] disabled:opacity-50 disabled:animate-none"
+          className="w-full p-[12px] rounded-[50px] border-none cursor-pointer font-bold text-sm tracking-widest uppercase text-white bg-gradient-to-br from-[#7c3aed] to-[#a78bfa] shadow-[0_4px_20px_rgba(124,58,237,0.45)] flex items-center justify-center gap-[9px] transition-all hover:-translate-y-[2px] hover:shadow-[0_6px_28px_rgba(124,58,237,0.6)] active:scale-[0.97] disabled:opacity-50 disabled:animate-none"
         >
           <span className="text-[16px]">✦</span> Select Deck
         </button>
       </div>
 
-      <div className="text-center italic text-xs text-purple-300/40 p-[8px_24px_4px] leading-[1.5]">
+      <div className="text-center italic text-xs text-purple-300/40 p-[4px_24px_12px] leading-[1.5]">
         Readings are for entertainment purposes only and do not constitute professional advice.
       </div>
 
