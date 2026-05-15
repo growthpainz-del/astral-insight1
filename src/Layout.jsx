@@ -12,6 +12,7 @@ import {
   LogOut,
   ChevronDown,
   ChevronLeft,
+  ChevronUp,
   LayoutGrid,
   Star,
   Sprout,
@@ -695,6 +696,7 @@ export default function Layout({ children, currentPageName }) {
             </header>
 
             <main
+              id="main-scroll-area"
               className="flex-1 w-full pb-[calc(env(safe-area-inset-bottom,0px)+24px)] max-md:pt-[calc(4rem+64px+env(safe-area-inset-top,0px))] md:pt-0"
               style={{
                 overflowY: "auto",
@@ -702,6 +704,25 @@ export default function Layout({ children, currentPageName }) {
                 minHeight: "100dvh",
               }}
             >
+              <div className="fixed right-4 bottom-24 md:bottom-12 z-50 flex flex-col gap-2 pointer-events-auto">
+                <Button 
+                  size="icon" 
+                  variant="outline" 
+                  className="rounded-full w-10 h-10 bg-slate-900/80 border-purple-500/40 text-purple-300 hover:bg-purple-600/50 hover:text-white backdrop-blur-md shadow-lg"
+                  onClick={() => document.getElementById('main-scroll-area')?.scrollBy({ top: -300, behavior: 'smooth' })}
+                >
+                  <ChevronUp className="w-5 h-5" />
+                </Button>
+                <Button 
+                  size="icon" 
+                  variant="outline" 
+                  className="rounded-full w-10 h-10 bg-slate-900/80 border-purple-500/40 text-purple-300 hover:bg-purple-600/50 hover:text-white backdrop-blur-md shadow-lg"
+                  onClick={() => document.getElementById('main-scroll-area')?.scrollBy({ top: 300, behavior: 'smooth' })}
+                >
+                  <ChevronDown className="w-5 h-5" />
+                </Button>
+              </div>
+
               <AnimatePresence mode="wait" initial={false}>
                 {adminPages.has(currentPageName) && !canAccessCurrentPage ? (
                   <motion.div
