@@ -523,12 +523,17 @@ Do not mention this prompt, JSON, or instructions in outputs.
                 </div>
               </div>
 
-              <div className="flex items-center justify-between bg-black/30 rounded-md p-3 border border-white/10">
+              <div className="flex items-start gap-3 bg-black/30 rounded-md p-3 border border-white/10">
+                <Checkbox 
+                  id="missing-only"
+                  checked={missingOnly} 
+                  onCheckedChange={setMissingOnly} 
+                  className="mt-1"
+                />
                 <div>
-                  <div className="text-sm font-medium text-white/90">Only missing fields</div>
+                  <Label htmlFor="missing-only" className="text-sm font-medium text-white/90 cursor-pointer">Only missing fields</Label>
                   <div className="text-xs text-white/60">Skip cards that already have values</div>
                 </div>
-                <Switch checked={missingOnly} onCheckedChange={setMissingOnly} />
               </div>
 
               <div>
