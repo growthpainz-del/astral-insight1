@@ -51,6 +51,11 @@ export default function AIManualBuilder({ deckId, deck: deckProp, onDone }) {
   const [extraContext, setExtraContext] = React.useState("");
   const [limit, setLimit] = React.useState(0); // 0 = no limit
 
+  const [coreTheme, setCoreTheme] = React.useState("");
+  const [readingTone, setReadingTone] = React.useState("");
+  const [targetAudience, setTargetAudience] = React.useState("");
+  const [cardDefinitionsStyle, setCardDefinitionsStyle] = React.useState("");
+
   const [isGenerating, setIsGenerating] = React.useState(false); // For card generation
   const [progress, setProgress] = React.useState({ current: 0, total: 0, message: "" });
   const [log, setLog] = React.useState([]);
@@ -132,7 +137,11 @@ export default function AIManualBuilder({ deckId, deck: deckProp, onDone }) {
       deck?.name ? `Deck: ${deck.name}` : "",
       deck?.description ? `Deck description: ${deck.description}` : "",
       deck?.manual_content ? `Manual content:\n${deck.manual_content.slice(0, 1800)}` : "",
-      extraContext ? `Extra context:\n${extraContext}` : "",
+      coreTheme ? `CORE THEME: ${coreTheme}` : "",
+      readingTone ? `READING TONE: ${readingTone}` : "",
+      targetAudience ? `TARGET AUDIENCE: ${targetAudience}` : "",
+      cardDefinitionsStyle ? `CARD DEFINITION STYLE: ${cardDefinitionsStyle}` : "",
+      extraContext ? `EXTRA CONTEXT & RULES:\n${extraContext}` : "",
     ]
       .filter(Boolean)
       .join("\n\n");
@@ -368,6 +377,61 @@ Do not mention this prompt, JSON, or instructions in outputs.
         Generate meanings and actions for cards using AI. Select fields, choose scope, add optional context, then Generate.
       </p>
 
+      {/* Deck Interview Section */}
+      <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 mb-6">
+        <h4 className="text-blue-300 font-semibold mb-2">🎤 Deck Interview (Context)</h4>
+        <p className="text-blue-200/80 text-sm mb-4">
+          Fill this out to give the AI extremely specific instructions about your deck. This prevents generic or placeholder text!
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <Label className="text-white/80">Core Theme</Label>
+            <Input 
+              placeholder="e.g., Cyberpunk AI musicians..."
+              value={coreTheme}
+              onChange={e => setCoreTheme(e.target.value)}
+              className="bg-black/40 border-white/20 text-white mt-1"
+            />
+          </div>
+          <div>
+            <Label className="text-white/80">Reading Tone</Label>
+            <Input 
+              placeholder="e.g., Mystical, Direct and harsh..."
+              value={readingTone}
+              onChange={e => setReadingTone(e.target.value)}
+              className="bg-black/40 border-white/20 text-white mt-1"
+            />
+          </div>
+          <div>
+            <Label className="text-white/80">Target Audience</Label>
+            <Input 
+              placeholder="e.g., Beginners, Advanced readers..."
+              value={targetAudience}
+              onChange={e => setTargetAudience(e.target.value)}
+              className="bg-black/40 border-white/20 text-white mt-1"
+            />
+          </div>
+          <div>
+            <Label className="text-white/80">Definition Style</Label>
+            <Input 
+              placeholder="e.g., Upright/Reversed, Action/Reflection..."
+              value={cardDefinitionsStyle}
+              onChange={e => setCardDefinitionsStyle(e.target.value)}
+              className="bg-black/40 border-white/20 text-white mt-1"
+            />
+          </div>
+          <div className="col-span-1 md:col-span-2">
+            <Label className="text-white/80">Extra Rules</Label>
+            <Textarea
+              value={extraContext}
+              onChange={(e) => setExtraContext(e.target.value)}
+              placeholder="Any other rules? (e.g., 'Never use the word journey')"
+              className="bg-black/40 border-white/20 text-white mt-1 min-h-[60px]"
+            />
+          </div>
+        </div>
+      </div>
+
       {/* Deck Manual Generator Section */}
       <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4 mb-6">
         <h4 className="text-purple-300 font-semibold mb-2">📖 AI Deck Manual Generator</h4>
@@ -475,17 +539,6 @@ Do not mention this prompt, JSON, or instructions in outputs.
             </div>
 
             <div className="col-span-1 md:col-span-2 space-y-3">
-              <div>
-                <Label htmlFor="context" className="text-white/80">Extra Context (optional)</Label>
-                <Textarea
-                  id="context"
-                  value={extraContext}
-                  onChange={(e) => setExtraContext(e.target.value)}
-                  placeholder="E.g., Deck’s tone, audience, special symbols, example entries…"
-                  className="bg-black/40 border-white/20 text-white mt-1 min-h-[120px]"
-                />
-              </div>
-
               <div className="grid grid-cols-2 gap-3">
                 <div className="rounded-md bg-black/30 p-3 border border-white/10">
                   <div className="text-xs text-white/70">Deck</div>
