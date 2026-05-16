@@ -135,7 +135,7 @@ export const SYSTEM_SPREADS = [
     cardCount: 10,
     heightRatio: 1.777,
     cardSizeW: 14,
-    bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/d8574faca_IMG_0154.jpg",
+    bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/7b990a5da_20560908-71DC-4542-9A8A-4417D41E721A.png",
     positions: [
       { name: "The Present",    meaning: "What surrounds you now",         cx: 39, cy: 52.5 },
       { name: "The Cross",      meaning: "What challenges or supports you", cx: 39, cy: 52.5, rotation: 90 },
