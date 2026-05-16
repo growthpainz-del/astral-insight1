@@ -61,9 +61,12 @@ export function composeReading(
   };
 
   // Layer 5: Enriched save data
+  const validSpreadTypes = ["single", "three_card", "diamond", "path_forward", "celtic_cross", "relationship", "chakra", "seven_sisters", "message_of_the_day", "custom"];
+  const spreadType = spread?.id && validSpreadTypes.includes(spread.id) ? spread.id : (spread ? "custom" : "single");
+
   const saveData = enrichReadingForSave(reading, {
     title: question || `Reading with ${spread?.name || "Freeform"}`,
-    spread_type: spread?.name || "freeform",
+    spread_type: spreadType,
     deck_id: currentDeckId,
     cards_drawn: drawnCards.map((d, idx) => ({
       card_id: d.cardData?.id || d.cardData?.card_id,

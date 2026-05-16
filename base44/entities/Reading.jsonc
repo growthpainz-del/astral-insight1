@@ -1,6 +1,7 @@
 {
   "name": "Reading",
   "type": "object",
+  "additionalProperties": true,
   "properties": {
     "title": {
       "type": "string",
@@ -35,6 +36,7 @@
       "type": "array",
       "items": {
         "type": "object",
+        "additionalProperties": true,
         "properties": {
           "card_id": {
             "type": "string"

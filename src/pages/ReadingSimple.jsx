@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Deck as DeckEntity, Card as CardEntity, Spread as SpreadEntity, Reading as ReadingEntity } from "@/entities/all";
+// entities imported via base44 client instead
 import { composeReading, composeCardQuick } from "@/utils/interpretationComposer";
 import { Button } from "@/components/ui/button";
 import { Loader2, ChevronLeft, Hand, Shuffle, RotateCcw, Eye, Sparkles, Settings2, Save } from "lucide-react";
@@ -269,7 +269,7 @@ export default function ReadingSimple() {
     
     if (output.saveData) {
       try {
-        await ReadingEntity.create(output.saveData);
+        await base44.entities.Reading.create(output.saveData);
       } catch(e) { console.error("Failed to save reading", e) }
     }
   };
@@ -307,10 +307,10 @@ export default function ReadingSimple() {
       try {
         
         const [loadedDeck, loadedCards, loadedSpreads, history] = await Promise.all([
-          queueApiCall(() => DeckEntity.get(deckIdFromUrl), 3, 1500),
-          queueApiCall(() => CardEntity.filter({ deck_id: deckIdFromUrl }), 3, 1500),
-          queueApiCall(() => SpreadEntity.list(), 3, 1500),
-          queueApiCall(() => ReadingEntity.list('-date', 100).catch(() => []), 3, 1500)
+          queueApiCall(() => base44.entities.Deck.get(deckIdFromUrl), 3, 1500),
+          queueApiCall(() => base44.entities.Card.filter({ deck_id: deckIdFromUrl }), 3, 1500),
+          queueApiCall(() => base44.entities.Spread.list(), 3, 1500),
+          queueApiCall(() => base44.entities.Reading.list('-date', 100).catch(() => []), 3, 1500)
         ]);
 
         if (cancelled) return;
