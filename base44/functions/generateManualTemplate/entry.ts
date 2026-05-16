@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.7.1';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.28';
 
 Deno.serve(async (req) => {
   try {
@@ -8,7 +8,12 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { deckId, deckName, deckDescription, deckCategory } = await req.json();
+    const { 
+      deckId, deckName, deckDescription, deckCategory,
+      coreTheme, readingTone, targetAudience, cardDefinitionsStyle, extraContext,
+      overwriteCards 
+    } = await req.json();
+
     if (!deckId) {
       return Response.json({ error: 'Deck ID is required' }, { status: 400 });
     }
@@ -16,70 +21,49 @@ Deno.serve(async (req) => {
     const deck = await base44.entities.Deck.get(deckId);
     const cards = await base44.entities.Card.filter({ deck_id: deckId }, 'number', 78);
 
-    // Generate comprehensive manual text
-    const manualSections = [
-      `# ${deckName} - Manual Reading Guide`,
-      ``,
-      `## Introduction`,
-      `This guide teaches you how to read the ${deckName} deck without AI assistance.`,
-      deckDescription ? `\n${deckDescription}\n` : '',
-      ``,
-      `## How to Do a Reading Manually`,
-      ``,
-      `### Step 1: Prepare Your Space`,
-      `- Find a quiet, comfortable space`,
-      `- Clear your mind and focus on your question`,
-      `- Shuffle the deck while concentrating on what you want to know`,
-      ``,
-      `### Step 2: Draw Your Cards`,
-      `- Choose a spread that fits your question (single card, 3-card, etc.)`,
-      `- Draw cards intuitively - trust your instincts`,
-      `- Lay them out in the spread pattern`,
-      ``,
-      `### Step 3: Interpret the Cards`,
-      `- Look at each card's imagery and symbolism`,
-      `- Consider the position meaning in your spread`,
-      `- Note if cards are reversed (upside down)`,
-      `- Reflect on how the cards relate to your question`,
-      ``,
-      `## Card Meanings`,
-      ``
-    ];
+    // Prepare card list for the AI context
+    const cardContext = cards.map(c => {
+      const parts = [`Card: ${c.name}`];
+      if (c.overall_meaning) parts.push(`Overall: ${c.overall_meaning}`);
+      if (c.upright_meaning) parts.push(`Upright: ${c.upright_meaning}`);
+      if (c.reversed_meaning) parts.push(`Reversed: ${c.reversed_meaning}`);
+      if (c.keywords?.length) parts.push(`Keywords: ${c.keywords.join(', ')}`);
+      return parts.join(' | ');
+    }).join('\n');
 
-    // Add card meanings
-    cards.forEach((card, idx) => {
-      manualSections.push(`### ${card.number || idx + 1}. ${card.name}`);
-      if (card.overall_meaning) {
-        manualSections.push(`**Overall:** ${card.overall_meaning}`);
-      }
-      if (card.upright_meaning) {
-        manualSections.push(`**Upright:** ${card.upright_meaning}`);
-      }
-      if (card.reversed_meaning) {
-        manualSections.push(`**Reversed:** ${card.reversed_meaning}`);
-      }
-      if (card.keywords?.length) {
-        manualSections.push(`**Keywords:** ${card.keywords.join(', ')}`);
-      }
-      manualSections.push('');
+    const prompt = `You are a professional oracle/tarot deck creator writing a comprehensive, beautifully formatted guidebook (manual) for a new deck.
+
+DECK INFO:
+Name: ${deckName}
+Description: ${deckDescription}
+Category: ${deckCategory}
+Theme: ${coreTheme || 'General Oracle'}
+Tone: ${readingTone || 'Mystical and insightful'}
+Target Audience: ${targetAudience || 'Anyone'}
+Definition Style: ${cardDefinitionsStyle || 'Standard Upright/Reversed'}
+Extra Instructions: ${extraContext || 'None'}
+
+EXISTING CARDS:
+${cardContext}
+
+TASK:
+Write the complete Markdown manual for this deck. Do NOT output JSON, just output the raw Markdown text.
+
+REQUIREMENTS:
+1. Include an Introduction and "How to use this deck" section.
+2. Include 2-3 custom reading spreads tailored to the deck's theme.
+3. Include a comprehensive "Card Meanings" section. For each card in the deck, provide detailed meanings matching the requested Definition Style and Tone.
+4. If "overwriteCards" is true or if existing card meanings are empty/generic, generate entirely NEW, deep, creative meanings for every card. Do NOT just copy the brief existing text. Expand on it creatively!
+5. Make sure the manual is beautifully structured using Markdown headings (##, ###), bullet points, and bold text.
+6. The manual should sound like a published, professional guidebook.`;
+
+    const result = await base44.integrations.Core.InvokeLLM({
+      prompt,
+      model: "claude_sonnet_4_6" // Use a better model for writing long manuals
     });
 
-    // Add spread guidance
-    manualSections.push(`## Common Spreads`);
-    manualSections.push(``);
-    manualSections.push(`### Single Card Draw`);
-    manualSections.push(`Perfect for daily guidance or quick questions.`);
-    manualSections.push(``);
-    manualSections.push(`### Three Card Spread (Past-Present-Future)`);
-    manualSections.push(`- Position 1: Past influences`);
-    manualSections.push(`- Position 2: Current situation`);
-    manualSections.push(`- Position 3: Future outcome`);
-    manualSections.push(``);
-
-    const manual_content = manualSections.join('\n');
-
     return Response.json({ 
-      manual_content,
+      manual_content: result,
       success: true 
     });
 

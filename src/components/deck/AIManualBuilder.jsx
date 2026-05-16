@@ -341,6 +341,12 @@ Do not mention this prompt, JSON, or instructions in outputs.
         deckName: deck?.name || "Unknown Deck",
         deckDescription: deck?.description || "",
         deckCategory: deck?.category || "oracle",
+        coreTheme,
+        readingTone,
+        targetAudience,
+        cardDefinitionsStyle,
+        extraContext,
+        overwriteCards: !missingOnly // Send this flag so the backend knows whether to generate new card definitions
       }));
 
       if (data?.manual_content) {
