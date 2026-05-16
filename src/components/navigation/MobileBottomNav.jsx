@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Home, BookOpen, Palette, Sparkles } from "lucide-react";
+import { Home, BookOpen, Palette, Sparkles, HelpCircle, Coins, Star } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 
 export default function MobileBottomNav() {
@@ -14,13 +14,19 @@ export default function MobileBottomNav() {
     { key: "Studio", root: createPageUrl("Studio"), label: "Studio", icon: Palette },
     { key: "Journal", root: createPageUrl("Journal"), label: "Journal", icon: BookOpen },
     { key: "Agent", root: createPageUrl("AgentChat"), label: "Agent", icon: Sparkles },
+    { key: "Help", root: createPageUrl("Help"), label: "Help", icon: HelpCircle },
+    { key: "Tokens", root: createPageUrl("Account"), label: "Tokens", icon: Coins },
+    { key: "Membership", root: createPageUrl("SubscriptionManagement"), label: "Membership", icon: Star },
   ];
 
   const getTabFromPath = (pathname) => {
     if (pathname.startsWith("/Reading") || pathname.startsWith("/History") || pathname.startsWith("/ZodiacReading") || pathname.startsWith("/FusionReading") || pathname.startsWith("/DeckGallery")) return "Read";
     if (pathname.startsWith("/Studio") || pathname.startsWith("/CreateDeck") || pathname.startsWith("/DeckView") || pathname.startsWith("/PhotoUploader") || pathname.startsWith("/SpreadManager")) return "Studio";
     if (pathname.startsWith("/Journal")) return "Journal";
-    if (pathname.startsWith("/LiveAgent")) return "Agent";
+    if (pathname.startsWith("/LiveAgent") || pathname.startsWith("/AgentChat")) return "Agent";
+    if (pathname.startsWith("/Help")) return "Help";
+    if (pathname.startsWith("/Account")) return "Tokens";
+    if (pathname.startsWith("/SubscriptionManagement")) return "Membership";
     return "Home";
   };
 
@@ -33,9 +39,15 @@ export default function MobileBottomNav() {
         Studio: saved.Studio || tabs[2].root,
         Journal: saved.Journal || tabs[3].root,
         Agent: saved.Agent || tabs[4].root,
+        Help: saved.Help || tabs[5].root,
+        Tokens: saved.Tokens || tabs[6].root,
+        Membership: saved.Membership || tabs[7].root,
       };
     } catch {
-      return { Home: tabs[0].root, Read: tabs[1].root, Studio: tabs[2].root, Journal: tabs[3].root, Agent: tabs[4].root };
+      return { 
+        Home: tabs[0].root, Read: tabs[1].root, Studio: tabs[2].root, Journal: tabs[3].root, Agent: tabs[4].root,
+        Help: tabs[5].root, Tokens: tabs[6].root, Membership: tabs[7].root
+      };
     }
   });
 
@@ -79,6 +91,9 @@ export default function MobileBottomNav() {
             { key: "Studio", img: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/4c1624134_3790AA04-E486-40D3-B922-C73E810A4B0E.png", label: "Studio" },
             { key: "Journal", img: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/813bc1daf_95CC2125-D656-406E-BF7A-11B463053039.png", label: "Journal" },
             { key: "Agent", img: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/59708a87f_9DD7135A-99D4-46D9-877B-4CE7401C7235.png", label: "Agent" },
+            { key: "Help", icon: <HelpCircle className="w-4 h-4 mb-0.5" />, label: "Help" },
+            { key: "Tokens", icon: <Coins className="w-4 h-4 mb-0.5" />, label: "Tokens" },
+            { key: "Membership", icon: <Star className="w-4 h-4 mb-0.5" />, label: "Membership" },
           ].map(tab => {
             const active = activeTab === tab.key;
             return (
@@ -96,8 +111,8 @@ export default function MobileBottomNav() {
                     <img src={tab.img} alt={tab.label} className="h-full w-auto object-contain rounded-full" />
                   ) : (
                     <>
-                      <span className="text-xl leading-none mb-0.5 font-['Cinzel']">{tab.icon}</span>
-                      <span className="text-[11px] font-bold uppercase tracking-wider font-['Cinzel']">{tab.label}</span>
+                      <span className="flex items-center justify-center">{tab.icon}</span>
+                      <span className="text-[11px] font-bold uppercase tracking-wider font-['Cinzel'] mt-0.5">{tab.label}</span>
                     </>
                   )}
                 </button>
