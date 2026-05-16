@@ -2,7 +2,9 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import MoonPhaseWidget from "@/components/dashboard/MoonPhaseWidget";
-import { BookOpen, Palette, Sparkles, Layers, Image as ImageIcon, History, Compass, HelpCircle, Star, GitMerge, Sprout, Users, Coins } from "lucide-react";
+import { BookOpen, Palette, Sparkles, Layers, Image as ImageIcon, History, Compass, HelpCircle, Star, GitMerge, Sprout, Users, Coins, ShieldAlert } from "lucide-react";
+import { isUserAdmin } from "@/components/utils/adminGuard";
+import { base44 } from "@/api/base44Client";
 
 const STAR_COUNT = 180;
 const NEBULA_COUNT = 6;
@@ -178,7 +180,30 @@ const CATEGORIES = [
   }
 ];
 
+const ADMIN_CATEGORY = {
+  title: "Admin Controls",
+  icon: ShieldAlert,
+  features: [
+    { title: "Manage Users", desc: "View and manage user accounts.", to: createPageUrl("AdminUsers"), icon: Users, color: "#ef4444" },
+    { title: "Review Decks", desc: "Approve submitted decks.", to: createPageUrl("AdminDeckReview"), icon: Sparkles, color: "#f97316" },
+    { title: "Token Grant", desc: "Grant tokens to users.", to: createPageUrl("AdminTokenGrant"), icon: Coins, color: "#eab308" },
+    { title: "Seed Spreads", desc: "Manage system spreads.", to: createPageUrl("SpreadManager"), icon: Layers, color: "#3b82f6" },
+  ]
+};
+
 export default function DashboardHub() {
+  const [user, setUser] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    base44.auth.me().then(u => {
+      setUser(u);
+      setIsAdmin(isUserAdmin(u));
+    }).catch(console.error);
+  }, []);
+
+  const visibleCategories = isAdmin ? [...CATEGORIES, ADMIN_CATEGORY] : CATEGORIES;
+
   return (
     <>
       <link
@@ -226,7 +251,7 @@ export default function DashboardHub() {
           </section>
 
           <div className="space-y-12">
-            {CATEGORIES.map((category, idx) => {
+            {visibleCategories.map((category, idx) => {
               const Icon = category.icon;
               return (
               <section key={category.title} className={`animate-in fade-in slide-in-from-bottom-8 duration-700 delay-${(idx + 2) * 100} fill-mode-both`}>
