@@ -473,8 +473,8 @@ export default function Layout({ children, currentPageName }) {
         <div className="flex flex-1 bg-transparent">
           {/* Sidebar removed */}
           <div className="flex-1 flex flex-col">
-            {/* Mobile header */}
-            <header className="md:hidden bg-slate-900/95 backdrop-blur-lg border-b border-purple-800/40 h-16 pt-[env(safe-area-inset-top)] flex items-center px-4 justify-between flex-shrink-0 sticky top-0 z-40">
+            {/* Global header */}
+            <header className="bg-slate-900/95 backdrop-blur-lg border-b border-purple-800/40 h-16 pt-[env(safe-area-inset-top)] flex items-center px-4 justify-between flex-shrink-0 sticky top-0 z-40">
               <div className="w-10"></div>
               <Link to={createPageUrl("DashboardHub")} className="flex items-center gap-2">
                 <img
@@ -510,31 +510,14 @@ export default function Layout({ children, currentPageName }) {
 
             <main
               id="main-scroll-area"
-              className="flex-1 w-full pb-[calc(env(safe-area-inset-bottom,0px)+24px)] max-md:pt-[calc(4rem+64px+env(safe-area-inset-top,0px))] md:pt-0"
+              className="flex-1 w-full pb-[calc(env(safe-area-inset-bottom,0px)+24px)] pt-[calc(4rem+64px+env(safe-area-inset-top,0px))]"
               style={{
                 overflowY: "auto",
                 WebkitOverflowScrolling: "touch",
                 minHeight: "100dvh",
               }}
             >
-              <div className="fixed right-4 bottom-24 md:bottom-12 z-50 flex flex-col gap-2 pointer-events-auto">
-                <Button 
-                  size="icon" 
-                  variant="outline" 
-                  className="rounded-full w-10 h-10 bg-slate-900/80 border-purple-500/40 text-purple-300 hover:bg-purple-600/50 hover:text-white backdrop-blur-md shadow-lg"
-                  onClick={() => document.getElementById('main-scroll-area')?.scrollBy({ top: -300, behavior: 'smooth' })}
-                >
-                  <ChevronUp className="w-5 h-5" />
-                </Button>
-                <Button 
-                  size="icon" 
-                  variant="outline" 
-                  className="rounded-full w-10 h-10 bg-slate-900/80 border-purple-500/40 text-purple-300 hover:bg-purple-600/50 hover:text-white backdrop-blur-md shadow-lg"
-                  onClick={() => document.getElementById('main-scroll-area')?.scrollBy({ top: 300, behavior: 'smooth' })}
-                >
-                  <ChevronDown className="w-5 h-5" />
-                </Button>
-              </div>
+
 
               <AnimatePresence mode="wait" initial={false}>
                 {adminPages.has(currentPageName) && !canAccessCurrentPage ? (

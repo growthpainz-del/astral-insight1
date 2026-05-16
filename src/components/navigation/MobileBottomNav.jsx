@@ -80,7 +80,7 @@ export default function MobileBottomNav() {
 
   return (
     <nav 
-      className="md:hidden fixed left-0 w-full bg-[#07050f]/95 border-b border-[#a078ff]/15 backdrop-blur-[16px] z-[100]" 
+      className="fixed left-0 w-full bg-[#07050f]/95 border-b border-[#a078ff]/15 backdrop-blur-[16px] z-[100]" 
       style={{ top: "calc(4rem + env(safe-area-inset-top, 0px))" }}
     >
       <Carousel opts={{ align: "start", dragFree: true, loop: true }} className="w-full max-w-[100vw] overflow-hidden relative touch-pan-y">
