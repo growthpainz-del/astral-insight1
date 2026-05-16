@@ -17,7 +17,9 @@ export default function AdminTokenGrant() {
     // Load current user to show their email
     User.me().then(user => {
       setCurrentUser(user);
-      setEmail(user.email); // Pre-fill with current user's email
+      if (!email) {
+        setEmail(user.email); // Pre-fill with current user's email
+      }
     }).catch(() => {});
   }, []);
 
