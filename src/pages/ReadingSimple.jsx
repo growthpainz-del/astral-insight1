@@ -102,6 +102,8 @@ const FreeformCard = ({ card, canvasRef, toggleFlip, deck, openInterpretation })
       onClick={() => {
         if (card.isFlipped && openInterpretation) {
           openInterpretation(card);
+        } else {
+          toggleFlip(card.id);
         }
       }}
       onWheel={(e) => {
@@ -500,23 +502,27 @@ export default function ReadingSimple() {
   };
 
   const openInterpretation = (cardWrapper, positionIndex = null) => {
-    const output = getComposedReading();
-    const validCards = drawnCards.filter(Boolean);
-    const cardIndex = validCards.findIndex(c => c.id === cardWrapper.id);
-    
-    const cardOutput = output?.cards[cardIndex];
-    const aiPrompt = output?.aiPrompts.perCard[cardIndex];
-    
-    const position = selectedSpread && positionIndex !== null ? selectedSpread.positions[positionIndex] : null;
-    const composed = cardOutput || composeCardQuick(cardWrapper.cardData, position, false, questionParam || "");
-    
-    setSelectedCardForInterpretation({ 
-      ...cardWrapper, 
-      position, 
-      composed,
-      aiPrompt: aiPrompt || composed?.aiPrompt
-    });
-    setAiInterpretation(null);
+    try {
+      const output = getComposedReading();
+      const validCards = drawnCards.filter(Boolean);
+      const cardIndex = validCards.findIndex(c => c.id === cardWrapper.id);
+      
+      const cardOutput = output?.cards[cardIndex];
+      const aiPrompt = output?.aiPrompts.perCard[cardIndex];
+      
+      const position = selectedSpread && positionIndex !== null ? selectedSpread.positions[positionIndex] : null;
+      const composed = cardOutput || composeCardQuick(cardWrapper.cardData, position, cardWrapper.isReversed, questionParam || "");
+      
+      setSelectedCardForInterpretation({ 
+        ...cardWrapper, 
+        position, 
+        composed,
+        aiPrompt: aiPrompt || composed?.aiPrompt
+      });
+      setAiInterpretation(null);
+    } catch (e) {
+      console.error("openInterpretation error", e);
+    }
   };
 
   const getDeeperInsight = async () => {

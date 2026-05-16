@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles } from "lucide-react";
@@ -197,7 +197,7 @@ function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, o
         {card && !isRevealed && (
           <button
             type="button"
-            onClick={() => { onReveal(index); onCardClick?.(card, index); }}
+            onClick={() => { onReveal(index); }}
             className={`absolute inset-0 rounded-xl overflow-hidden transition-all ${
               spread.bgImage
                 ? "shadow-lg hover:scale-105 active:scale-95"
