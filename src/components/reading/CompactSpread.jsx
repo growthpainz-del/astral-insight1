@@ -169,7 +169,7 @@ function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, o
         transform: "translate(-50%, -50%)",
         width:     cardW,
         height:    cardH,
-        zIndex:    5,   // Cards sit BELOW the frame overlay (zIndex 10)
+        zIndex:    10,   // Cards sit BELOW the frame overlay (zIndex 20)
       }}
       initial={animateIn ? { scale: 0, opacity: 0 } : false}
       animate={{ scale: 1, opacity: 1 }}
@@ -364,7 +364,7 @@ export default function SpreadLayout({
           ))}
         </AnimatePresence>
 
-        {/* Frame overlay — Layer 10 (sits on top of cards, transparent windows reveal cards) */}
+        {/* Frame overlay — Layer 20 (sits on top of cards, transparent windows reveal cards) */}
         {spreadDef.bgImage && (
           <div
             className="absolute inset-0 pointer-events-none"
@@ -373,7 +373,7 @@ export default function SpreadLayout({
               backgroundPosition: "center",
               backgroundSize: "100% 100%",
               backgroundRepeat: "no-repeat",
-              zIndex: 10,
+              zIndex: 20,
               // NO mixBlendMode — the PNG must have real transparency for the windows
             }}
           />
