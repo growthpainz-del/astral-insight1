@@ -374,7 +374,6 @@ export default function SpreadLayout({
               backgroundSize: "100% 100%",
               backgroundRepeat: "no-repeat",
               zIndex: 20,
-              // NO mixBlendMode — the PNG must have real transparency for the windows
             }}
           />
         )}

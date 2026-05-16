@@ -1862,7 +1862,7 @@ export default function BulkAIImageGenerator({ deckId, onDone }) {
 
       {/* NEW: Refinement Modal */}
       <Dialog open={refinementModal.open} onOpenChange={closeRefinementModal}>
-        <DialogContent className="max-w-2xl bg-slate-900 border-purple-500/30">
+        <DialogContent className="max-w-2xl bg-slate-900 border-purple-500/30 max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-white flex items-center gap-2">
               <Wand2 className="w-5 h-5 text-purple-400" />
