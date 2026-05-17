@@ -226,7 +226,16 @@ export default function ReadingSimple() {
         ]);
         if (cancelled) return;
         setDeck(loadedDeck);
-        setCards(loadedCards);
+        
+        const fixedCards = loadedCards.map(c => {
+          let updated = { ...c };
+          if (updated.image_url && updated.image_url.includes('base44.app/api/apps/')) {
+            updated.image_url = updated.image_url.replace('https://base44.app/api/apps/68d2a300021f94d0f312c039/files/mp/public/', 'https://media.base44.com/images/public/');
+          }
+          return updated;
+        });
+
+        setCards(fixedCards);
         setReadingHistory(history || []);
         if (spreadParam && spreadParam !== "freeform") {
           const sysSpread = SYSTEM_SPREADS.find(s => s.id === spreadParam);
@@ -236,7 +245,7 @@ export default function ReadingSimple() {
             setSelectedSpread(customSpread ? JSON.parse(JSON.stringify(customSpread)) : null);
           }
         }
-        setDeckRemaining([...loadedCards].sort(() => Math.random() - 0.5));
+        setDeckRemaining([...fixedCards].sort(() => Math.random() - 0.5));
         setError("");
       } catch (err) {
         if (cancelled) return;
