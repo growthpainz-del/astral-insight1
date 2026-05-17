@@ -388,7 +388,7 @@ export default function ReadingSimple() {
   const handleDrawCard = () => {
     if (deckRemaining.length === 0) return;
     
-    if (readingMode === "spread" && selectedSpread && drawnCards.length >= selectedSpread.positions.length) {
+    if (readingMode === "spread" && selectedSpread && drawnCards.filter(Boolean).length >= selectedSpread.positions.length) {
       return;
     }
     
@@ -399,7 +399,7 @@ export default function ReadingSimple() {
     const y = Math.floor(Math.random() * 60) - 30;
     const rotation = Math.floor(Math.random() * 10) - 5;
     
-    setDrawnCards([...drawnCards, {
+    const newCard = {
       id: Date.now().toString() + Math.random(),
       cardData,
       x,
@@ -407,13 +407,26 @@ export default function ReadingSimple() {
       rotation,
       isFlipped: false,
       isReversed: Math.random() < 0.25
-    }]);
+    };
+
+    const newDrawnCards = [...drawnCards];
+    if (readingMode === "spread" && selectedSpread) {
+      const firstEmptyIndex = newDrawnCards.findIndex(c => !c);
+      if (firstEmptyIndex !== -1) {
+        newDrawnCards[firstEmptyIndex] = newCard;
+      } else {
+        newDrawnCards.push(newCard);
+      }
+    } else {
+      newDrawnCards.push(newCard);
+    }
     
+    setDrawnCards(newDrawnCards);
     setDeckRemaining(newRemaining);
   };
 
   const handleDrawSpecificCard = (cardIndex) => {
-    if (readingMode === "spread" && selectedSpread && drawnCards.length >= selectedSpread.positions.length) {
+    if (readingMode === "spread" && selectedSpread && drawnCards.filter(Boolean).length >= selectedSpread.positions.length) {
       return;
     }
     const newRemaining = [...deckRemaining];
@@ -423,7 +436,7 @@ export default function ReadingSimple() {
     const y = Math.floor(Math.random() * 60) - 30;
     const rotation = Math.floor(Math.random() * 10) - 5;
     
-    setDrawnCards([...drawnCards, {
+    const newCard = {
       id: Date.now().toString() + Math.random(),
       cardData,
       x,
@@ -431,8 +444,22 @@ export default function ReadingSimple() {
       rotation,
       isFlipped: false,
       isReversed: Math.random() < 0.25
-    }]);
+    };
     
+    const newDrawnCards = [...drawnCards];
+    // Find the first empty slot if in spread mode
+    if (readingMode === "spread" && selectedSpread) {
+      const firstEmptyIndex = newDrawnCards.findIndex(c => !c);
+      if (firstEmptyIndex !== -1) {
+        newDrawnCards[firstEmptyIndex] = newCard;
+      } else {
+        newDrawnCards.push(newCard);
+      }
+    } else {
+      newDrawnCards.push(newCard);
+    }
+    
+    setDrawnCards(newDrawnCards);
     setDeckRemaining(newRemaining);
   };
 
@@ -719,7 +746,19 @@ export default function ReadingSimple() {
             </AnimatePresence>
           </div>
         ) : (
-          <div className="flex-1 relative flex flex-col overflow-auto" ref={canvasRef}>
+          <div className="flex-1 relative flex flex-col overflow-auto" ref={canvasRef}
+            onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; }}
+            onDrop={(e) => {
+              e.preventDefault();
+              try {
+                const data = e.dataTransfer.getData('application/json');
+                const payload = JSON.parse(data);
+                if (payload && payload.source === 'bottom-shelf' && typeof payload.cardIndex === 'number') {
+                  handleDrawSpecificCard(payload.cardIndex);
+                }
+              } catch (err) { console.error('Drop parse error:', err); }
+            }}
+          >
             {isEditingSpread && (
               <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-black/80 backdrop-blur-md p-3 rounded-xl border border-purple-500/40 flex items-center gap-3">
                 <span className="text-xs text-purple-200 whitespace-nowrap font-semibold">Edit Position Labels</span>

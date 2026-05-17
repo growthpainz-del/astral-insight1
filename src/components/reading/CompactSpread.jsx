@@ -153,7 +153,7 @@ export const SYSTEM_SPREADS = [
 
 // ─── Card Slot ─────────────────────────────────────────────────────────────────
 
-function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, onCardClick, animateIn, containerW, containerH }) {
+function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, onCardClick, animateIn, containerW, containerH, enableExternalDrops, onExternalDrop }) {
   const cardW    = Math.round(containerW * (spread.cardSizeW || 22) / 100);
   const cardH    = Math.round(cardW * 1.58);
   const rotation = position.rotation || 0;
@@ -187,6 +187,23 @@ function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, o
                 : "rounded-xl border-2 border-dashed border-purple-400/40 bg-purple-900/20 backdrop-blur-sm shadow-[0_0_15px_rgba(168,85,247,0.1)]"
             }`}
             style={{ transform: `rotate(${rotation}deg)` }}
+            onDragOver={enableExternalDrops ? (e) => {
+              e.preventDefault();
+              e.dataTransfer.dropEffect = "copy";
+            } : undefined}
+            onDrop={enableExternalDrops ? (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              try {
+                const data = e.dataTransfer.getData("application/json");
+                const payload = JSON.parse(data);
+                if (payload && payload.source === "bottom-shelf" && typeof payload.cardIndex === "number") {
+                  onExternalDrop({ targetIndex: index, cardIndex: payload.cardIndex });
+                }
+              } catch (err) {
+                console.error("Drop parse error:", err);
+              }
+            } : undefined}
           >
             {!spread.bgImage && (
               <span className="text-purple-300/60 text-[10px] font-bold">{index + 1}</span>
@@ -261,6 +278,8 @@ export default function SpreadLayout({
   onCardReveal  = () => {},
   onCardClick   = () => {},
   animateSpread = true,
+  enableExternalDrops = false,
+  onExternalDrop = () => {},
 }) {
   const containerRef = React.useRef(null);
   const [containerW, setContainerW] = React.useState(320);
@@ -361,6 +380,8 @@ export default function SpreadLayout({
               animateIn={animateSpread}
               containerW={containerW}
               containerH={containerH}
+              enableExternalDrops={enableExternalDrops}
+              onExternalDrop={onExternalDrop}
             />
           ))}
         </AnimatePresence>
