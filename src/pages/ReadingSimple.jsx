@@ -100,13 +100,6 @@ const FreeformCard = ({ card, canvasRef, toggleFlip, deck, openInterpretation })
       whileHover={{ scale: scale * 1.05, zIndex: 50 }}
       whileDrag={{ scale: scale * 1.1, zIndex: 100, boxShadow: "0 20px 40px rgba(0,0,0,0.5)" }}
       onDoubleClick={() => toggleFlip(card.id)}
-      onClick={() => {
-        if (card.isFlipped && openInterpretation) {
-          openInterpretation(card);
-        } else {
-          toggleFlip(card.id);
-        }
-      }}
       onWheel={(e) => {
         e.stopPropagation();
         const delta = -e.deltaY * 0.002;
@@ -148,6 +141,17 @@ const FreeformCard = ({ card, canvasRef, toggleFlip, deck, openInterpretation })
               {card.cardData.name}
             </p>
           </div>
+          <button 
+            type="button"
+            className="absolute top-2 right-2 p-2 bg-black/60 rounded-full backdrop-blur-sm pointer-events-auto hover:bg-purple-600 transition-colors shadow-lg border border-purple-500/40"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (openInterpretation) openInterpretation(card);
+            }}
+          >
+            <Sparkles className="w-4 h-4 text-purple-300" />
+          </button>
         </div>
 
         <div 
