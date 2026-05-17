@@ -267,6 +267,58 @@ function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, o
   );
 }
 
+function SpreadMask({ spreadId, positions, cardSizeW, containerW, containerH }) {
+  if (!positions || !containerW || !containerH) return null;
+
+  const cardW = Math.round(containerW * (cardSizeW || 22) / 100);
+  const cardH = Math.round(cardW * 1.58);
+  const rx = cardW * 0.08; // rounded corners
+
+  return (
+    <svg
+      className="absolute inset-0 pointer-events-none"
+      style={{ zIndex: 15, width: "100%", height: "100%" }}
+      viewBox={`0 0 ${containerW} ${containerH}`}
+      preserveAspectRatio="none"
+    >
+      <defs>
+        <mask id={`spread-mask-${spreadId}`}>
+          {/* White = visible, Black = hidden */}
+          <rect width="100%" height="100%" fill="white" />
+          {positions.map((pos, idx) => {
+            const cx = ((pos.cx ?? 50) / 100) * containerW;
+            const cy = ((pos.cy ?? 50) / 100) * containerH;
+            const rotation = pos.rotation || 0;
+            return (
+              <rect
+                key={idx}
+                x={cx - cardW / 2}
+                y={cy - cardH / 2}
+                width={cardW}
+                height={cardH}
+                rx={rx}
+                ry={rx}
+                fill="black"
+                transform={rotation ? `rotate(${rotation}, ${cx}, ${cy})` : undefined}
+              />
+            );
+          })}
+        </mask>
+      </defs>
+      {/* Frame overlay — masked so card slots are transparent */}
+      <image
+        href={positions[0]?._bgImage}
+        x="0"
+        y="0"
+        width="100%"
+        height="100%"
+        preserveAspectRatio="none"
+        mask={`url(#spread-mask-${spreadId})`}
+      />
+    </svg>
+  );
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function SpreadLayout({
@@ -391,17 +443,14 @@ export default function SpreadLayout({
           ))}
         </AnimatePresence>
 
-        {/* Frame overlay — Layer 20 (sits on top of cards, transparent windows reveal cards) */}
+        {/* Frame overlay — Layer 20, SVG masked so card slots are transparent */}
         {spreadDef.bgImage && (
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              backgroundImage: `url('${spreadDef.bgImage}')`,
-              backgroundPosition: "center",
-              backgroundSize: "100% 100%",
-              backgroundRepeat: "no-repeat",
-              zIndex: 20,
-            }}
+          <SpreadMask
+            spreadId={spreadDef.id}
+            positions={spreadDef.positions.map(p => ({ ...p, _bgImage: spreadDef.bgImage }))}
+            cardSizeW={spreadDef.cardSizeW}
+            containerW={containerW}
+            containerH={containerH}
           />
         )}
 
