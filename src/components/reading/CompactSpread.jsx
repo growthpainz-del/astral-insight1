@@ -97,7 +97,7 @@ export const SYSTEM_SPREADS = [
     cardCount: 7,
     heightRatio: 1.777,
     cardSizeW: 14.5,
-    bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/e57be2323_openart-c244b4a6215d4cb2a9d9096f68b8f8e4_raw_1779028164197_ee18c969.png",
+    bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/9d4bf3e3f_openart-image_1779028979511_53490d8d_1779028979979_f8b3b17b.png",
     positions: [
       { name: "The Heart",   meaning: "What you are growing toward",             cx: 50,  cy: 12 },
       { name: "The Glow",    meaning: "Your emerging strength",                  cx: 78,  cy: 25 },
