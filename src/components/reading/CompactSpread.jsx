@@ -40,7 +40,7 @@ export const SYSTEM_SPREADS = [
     cardCount: 5,
     heightRatio: 1.5,
     cardSizeW: 22,
-    bgImage: null,
+    bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/4cc2eb239_DFB9ECCF-D95C-40DE-A441-C8D5943DAC51.jpg",
     positions: [
       { name: "Foundation",  meaning: "What your business is built on", cx: 50, cy: 13 },
       { name: "Challenge",   meaning: "What is blocking growth",        cx: 16, cy: 50 },
