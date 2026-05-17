@@ -20,7 +20,7 @@ export default function DeckGallery() {
   return (
     <div className="min-h-screen px-4 md:px-8 lg:px-12 py-6">
       <div className="flex items-center gap-3 mb-6">
-        <Link to={createPageUrl("CosmicHub")}>
+        <Link to={createPageUrl("DashboardHub")}>
           <Button
             variant="secondary"
             className="bg-white/10 border border-white/10 text-white"

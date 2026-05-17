@@ -221,7 +221,7 @@ export default function DeckView() {
       const { data } = await base44.functions.invoke("deleteDeckCascade", { deckId: deck.id });
       if (data?.error) throw new Error(data.error);
       toast.success("Deck deleted.");
-      navigate(createPageUrl("Dashboard"));
+      navigate(createPageUrl("DashboardHub"));
     } catch (e) {
       toast.error(`Delete failed: ${e.message || "Unknown error"}`);
     } finally {
@@ -247,7 +247,7 @@ export default function DeckView() {
         <div className="text-center max-w-md">
           <AlertTriangle className="w-12 h-12 text-red-400 mx-auto mb-4" />
           <p className="text-white/80 mb-6">{error || "Deck not found."}</p>
-          <Link to={createPageUrl("Dashboard")}>
+          <Link to={createPageUrl("DashboardHub")}>
             <Button variant="outline" className="border-white/20 text-white hover:bg-white/10">
               <ChevronLeft className="w-4 h-4 mr-2" /> Back to Dashboard
             </Button>

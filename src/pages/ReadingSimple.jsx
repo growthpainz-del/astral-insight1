@@ -399,7 +399,7 @@ export default function ReadingSimple() {
       <div className="min-h-screen bg-gradient-to-br from-indigo-950 to-purple-950 flex items-center justify-center p-6">
         <div className="bg-red-900/20 border border-red-500/50 rounded-lg p-6 max-w-md text-center">
           <p className="text-red-200 mb-4">{error}</p>
-          <Link to={createPageUrl("Dashboard")}>
+          <Link to={createPageUrl("DashboardHub")}>
             <Button variant="outline" className="text-red-200 border-red-500/50 hover:bg-red-500/20 hover:text-red-100">
               <ChevronLeft className="w-4 h-4 mr-2" />
               Back to Dashboard

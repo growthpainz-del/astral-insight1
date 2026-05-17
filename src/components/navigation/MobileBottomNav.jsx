@@ -10,7 +10,7 @@ export default function MobileBottomNav() {
 
   const tabs = [
     { key: "Home", root: "/", label: "Hub", icon: Home },
-    { key: "Read", root: createPageUrl("Dashboard"), label: "Read", icon: BookOpen },
+    { key: "Read", root: createPageUrl("ReadingRoom"), label: "Read", icon: BookOpen },
     { key: "Studio", root: createPageUrl("Studio"), label: "Studio", icon: Palette },
     { key: "Journal", root: createPageUrl("Journal"), label: "Journal", icon: BookOpen },
     { key: "Agent", root: createPageUrl("AgentChat"), label: "CosMosis", icon: Sparkles },
