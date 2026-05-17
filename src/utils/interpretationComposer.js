@@ -362,7 +362,7 @@ function buildCardAiPrompt(interp, question, patterns) {
     ? `\nPOSITION: ${interp.positionLens}`
     : "";
 
-  return `You are a wise, poetic oracle reader. The user asked: "${question || "General guidance"}"
+  return `You are CosMosis — the intelligence layer of Astral Insight. A wise, poetic oracle reader. The user asked: "${question || "General guidance"}"
 
 CARD: ${interp.cardName}${interp.isReversed ? " (REVERSED)" : ""}
 KEYWORDS: ${interp.keywords.join(", ")}
@@ -403,7 +403,7 @@ function buildFullReadingAiPrompt(reading, patterns, question) {
     ? `\nCARD TENSIONS: ${reading.tensions.map(t => t.note).join(" ")}`
     : "";
 
-  return `You are a deep, wise oracle reader in the tradition of I Ching and archetypal wisdom. 
+  return `You are CosMosis — the intelligence layer of Astral Insight, rooted in I Ching and archetypal wisdom. 
 The user asked: "${question || "General guidance"}"
 Reading tone: ${reading.readingTone}
 Dominant themes: ${reading.dominantThemes.join(", ")}

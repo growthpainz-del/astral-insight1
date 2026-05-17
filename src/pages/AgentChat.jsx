@@ -156,8 +156,8 @@ export default function AgentChat() {
                                 <div className="w-16 h-16 rounded-full bg-purple-900/20 border border-purple-500/30 flex items-center justify-center mb-4">
                                     <Sparkles className="w-8 h-8 text-purple-400 opacity-80" />
                                 </div>
-                                <p className="text-lg font-medium text-slate-300">Start a conversation with {agents.find(a => a.id === agentName)?.name}</p>
-                                <p className="text-sm mt-2 max-w-md">Ask questions, draw cards, or explore the mysteries of the oracle.</p>
+                                <p className="text-lg font-medium text-slate-300">CosMosis is ready</p>
+                                <p className="text-sm mt-2 max-w-md">Discover the cosmos within. Ask a question, share what stirs, or begin a reading.</p>
                             </div>
                         )}
                         
@@ -174,7 +174,7 @@ export default function AgentChat() {
                         <Input
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
-                            placeholder="Ask the oracle a question..."
+                            placeholder="What stirs in you right now..."
                             className="w-full bg-slate-800/80 border-slate-700 text-white pr-12 py-6 rounded-2xl focus-visible:ring-purple-500 shadow-inner"
                         />
                         <Button 
