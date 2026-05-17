@@ -237,15 +237,14 @@ function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, o
           <motion.button
             type="button"
             onClick={() => onCardClick?.(card, index)}
-            initial={{ rotateY: 180, opacity: 0 }}
-            animate={{ rotateY: 0, opacity: 1 }}
+            initial={{ rotateY: 180, opacity: 0, rotate: rotation }}
+            animate={{ rotateY: 0, opacity: 1, rotate: rotation }}
             transition={{ duration: 0.5, type: "spring" }}
             className={`absolute inset-0 rounded-xl overflow-hidden transition-all ${
               spread.bgImage
                 ? "shadow-xl hover:scale-105 active:scale-95"
                 : "shadow-xl border border-amber-400/45 hover:border-amber-400/75 hover:scale-105 active:scale-95"
             }`}
-            style={{ transform: `rotate(${rotation}deg)` }}
           >
             {card.image_url ? (
               <img
@@ -398,21 +397,7 @@ export default function SpreadLayout({
             boxShadow:  spreadDef.bgImage ? "none" : "0 0 40px rgba(100,50,200,0.15) inset",
           }}
         >
-        {/* Background image — Layer 0 (very bottom, no blend mode) */}
-        {spreadDef.bgImage && (
-          <img
-            src={spreadDef.bgImage}
-            alt=""
-            className="absolute inset-0 w-full h-full pointer-events-none"
-            style={{
-              objectFit: "fill",
-              zIndex: 0,
-            }}
-            draggable={false}
-          />
-        )}
-
-        {/* Cards — Layer 10 (above bg image, below frame overlay) */}
+        {/* Cards — Layer 10 (below background frame overlay) */}
         <AnimatePresence>
           {spreadDef.positions.map((position, idx) => (
             <CardSlot
@@ -434,14 +419,17 @@ export default function SpreadLayout({
           ))}
         </AnimatePresence>
 
-        {/* Frame overlay — Layer 20, SVG masked so card slots are transparent */}
+        {/* Background image — Layer 20 (above cards to frame them) */}
         {spreadDef.bgImage && (
-          <SpreadMask
-            spreadId={spreadDef.id}
-            positions={spreadDef.positions.map(p => ({ ...p, _bgImage: spreadDef.bgImage }))}
-            cardSizeW={spreadDef.cardSizeW}
-            containerW={containerW}
-            containerH={containerH}
+          <img
+            src={spreadDef.bgImage}
+            alt=""
+            className="absolute inset-0 w-full h-full pointer-events-none"
+            style={{
+              objectFit: "fill",
+              zIndex: 20,
+            }}
+            draggable={false}
           />
         )}
 
@@ -514,7 +502,8 @@ export default function SpreadLayout({
       </div>
 
       {/* Position guide */}
-      <div className="w-full max-w-sm mt-3 space-y-1 px-1">
+      {/* Position guide */}
+      <div className="w-full max-w-sm mt-3 space-y-1 px-1 relative z-30">
         {spreadDef.positions.map((pos, idx) => (
           <div key={idx} className="flex items-start gap-2">
             <span className="text-purple-400/60 text-[10px] font-bold shrink-0 w-4 text-right pt-px">{idx + 1}</span>
