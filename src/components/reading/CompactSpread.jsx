@@ -391,7 +391,7 @@ export default function SpreadLayout({
             width:      "100%",
             height:     containerH,
             background: spreadDef.bgImage
-              ? "transparent"
+              ? "radial-gradient(ellipse at 50% 40%, rgba(30,10,60,1) 0%, rgba(4,2,12,1) 100%)"
               : "radial-gradient(ellipse at 50% 40%, rgba(88,28,135,0.22) 0%, rgba(8,4,18,0.75) 100%)",
             border:     spreadDef.bgImage ? "none" : "1px solid rgba(168,85,247,0.3)",
             boxShadow:  spreadDef.bgImage ? "none" : "0 0 40px rgba(100,50,200,0.15) inset",
@@ -522,18 +522,6 @@ export default function SpreadLayout({
 
 export function SpreadSelector({ selectedId, onSelect, customSpreads = [] }) {
   const allSpreads = [...SYSTEM_SPREADS, ...customSpreads];
-
-  React.useEffect(() => {
-    console.log("Checking all spread background images...");
-    SYSTEM_SPREADS.forEach(spread => {
-      if (spread.bgImage) {
-        const img = new Image();
-        img.onload = () => console.log(`✅ SUCCESS: ${spread.name} image loaded`);
-        img.onerror = () => console.error(`❌ ERROR: ${spread.name} image failed to load (${spread.bgImage})`);
-        img.src = spread.bgImage;
-      }
-    });
-  }, []);
 
   return (
     <div className="grid grid-cols-2 gap-2.5">
