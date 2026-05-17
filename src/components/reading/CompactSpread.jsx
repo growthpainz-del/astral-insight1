@@ -174,7 +174,7 @@ function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, o
         {!card && (
           <div
             className="absolute inset-0 flex items-center justify-center bg-transparent"
-            style={{ transform: `rotate(${rotation}deg)` }}
+            style={{ transform: `rotate(${rotation}deg)`, zIndex: 15 }}
             onDragOver={enableExternalDrops ? (e) => { e.preventDefault(); e.dataTransfer.dropEffect = "copy"; } : undefined}
             onDrop={enableExternalDrops ? (e) => {
               e.preventDefault(); e.stopPropagation();
@@ -190,7 +190,7 @@ function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, o
         {card && !isRevealed && (
           <button type="button" onClick={() => onReveal(index)}
             className="absolute inset-0 rounded-xl overflow-hidden shadow-lg hover:scale-105 active:scale-95 transition-all"
-            style={{ transform: `rotate(${rotation}deg)` }}
+            style={{ transform: `rotate(${rotation}deg)`, zIndex: 15 }}
           >
             {deck?.back_image_url
               ? <img src={deck.back_image_url} alt="Card back" className="w-full h-full object-cover" draggable={false} />
