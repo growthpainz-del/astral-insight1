@@ -784,7 +784,7 @@ export default function ReadingSimple() {
             )}
             {selectedSpread ? (
               <div className="w-full min-h-full flex items-center justify-center pb-8 px-4 md:px-8">
-                <div className="w-full max-w-lg mx-auto flex items-center justify-center">
+                <div className="w-full max-w-lg mx-auto">
                   <SpreadLayout 
                     spread={selectedSpread}
                   positions={selectedSpread.positions}
