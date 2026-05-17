@@ -17,7 +17,7 @@ export const SYSTEM_SPREADS = [
     cardSizeW: 42,
     bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/601920d9e_openart-image_1779030000153_98b5ff1d_1779030000591_e09e517a.png",
     positions: [
-      { name: "The Message", meaning: "What the universe wants you to know right now", cx: 50, cy: 49 }
+      { name: "The Message", meaning: "What the universe wants you to know right now", cx: 50, cy: 45 }
     ]
   },
   {
@@ -305,16 +305,7 @@ function SpreadMask({ spreadId, positions, cardSizeW, containerW, containerH }) 
           })}
         </mask>
       </defs>
-      {/* Frame overlay — masked so card slots are transparent */}
-      <image
-        href={positions[0]?._bgImage}
-        x="0"
-        y="0"
-        width="100%"
-        height="100%"
-        preserveAspectRatio="none"
-        mask={`url(#spread-mask-${spreadId})`}
-      />
+      {/* Frame overlay removed as PNG transparency handles it natively */}
     </svg>
   );
 }
@@ -519,6 +510,7 @@ export default function SpreadLayout({
             </div>
           );
         })}
+        {/* End of Mat */}
       </div>
 
       {/* Position guide */}
@@ -531,6 +523,7 @@ export default function SpreadLayout({
           </div>
         ))}
       </div>
+      {/* End of containerRef */}
       </div>
     </div>
   );
