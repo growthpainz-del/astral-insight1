@@ -97,15 +97,15 @@ export const SYSTEM_SPREADS = [
     cardCount: 7,
     heightRatio: 1.777,
     cardSizeW: 14.5,
-    bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/f88fb4ca6_IMG_0151.jpg",
+    bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/e57be2323_openart-c244b4a6215d4cb2a9d9096f68b8f8e4_raw_1779028164197_ee18c969.png",
     positions: [
-      { name: "The Dark",    meaning: "What lives in your shadow right now",     cx: 28.5, cy: 73 },
-      { name: "The Turning", meaning: "What is beginning to shift",              cx: 17.5, cy: 54 },
-      { name: "The Sliver",  meaning: "The first light of new awareness",        cx: 28.5, cy: 35 },
-      { name: "The Heart",   meaning: "What you are growing toward",             cx: 50,   cy: 26 },
-      { name: "The Glow",    meaning: "Your emerging strength",                  cx: 71.5, cy: 29 },
-      { name: "The Pull",    meaning: "What the moon is calling you to release", cx: 50,   cy: 82.5 },
-      { name: "The Promise", meaning: "What is being born in you",               cx: 83,   cy: 41 },
+      { name: "The Heart",   meaning: "What you are growing toward",             cx: 50,  cy: 12 },
+      { name: "The Glow",    meaning: "Your emerging strength",                  cx: 78,  cy: 25 },
+      { name: "The Promise", meaning: "What is being born in you",               cx: 82,  cy: 68 },
+      { name: "The Pull",    meaning: "What the moon is calling you to release", cx: 50,  cy: 85 },
+      { name: "The Dark",    meaning: "What lives in your shadow right now",     cx: 18,  cy: 68 },
+      { name: "The Turning", meaning: "What is beginning to shift",              cx: 12,  cy: 35 },
+      { name: "The Sliver",  meaning: "The first light of new awareness",        cx: 28,  cy: 18 },
     ]
   },
   {
