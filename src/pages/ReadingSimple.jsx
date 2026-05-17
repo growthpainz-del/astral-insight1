@@ -783,10 +783,9 @@ export default function ReadingSimple() {
               </div>
             )}
             {selectedSpread ? (
-              <div className="w-full min-h-full flex items-center justify-center pb-8 px-4 md:px-8">
-                <div className="w-full max-w-lg mx-auto">
-                  <SpreadLayout 
-                    spread={selectedSpread}
+              <div className="w-full min-h-full flex items-center justify-center pb-8">
+                <SpreadLayout 
+                  spread={selectedSpread}
                   positions={selectedSpread.positions}
                   cards={drawnCards.map(c => c ? c.cardData : null)}
                   deck={deck}
@@ -799,7 +798,6 @@ export default function ReadingSimple() {
                   onPositionUpdate={handlePositionUpdate}
                   sizeScale={spreadScale}
                 />
-                </div>
               </div>
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center text-center opacity-50">

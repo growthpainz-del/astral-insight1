@@ -326,7 +326,7 @@ export default function SpreadLayout({
   const containerH = Math.round(containerW * (spreadDef.heightRatio || 1.5));
 
   return (
-    <div className="w-full flex flex-col items-center px-2 md:px-0">
+    <div className="w-full flex flex-col items-center px-4">
 
       {/* Spread title — only shown when no background image */}
       {!spreadDef.bgImage && (
@@ -341,8 +341,7 @@ export default function SpreadLayout({
         className="relative rounded-2xl overflow-hidden"
         style={{
           width:      "100%",
-          maxWidth:   460,
-          margin:     "0 auto",
+          maxWidth:   380,
           height:     containerH,
           background: spreadDef.bgImage
             ? "transparent"
