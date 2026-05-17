@@ -326,31 +326,36 @@ export default function SpreadLayout({
   const containerH = Math.round(containerW * (spreadDef.heightRatio || 1.5));
 
   return (
-    <div className="w-full flex flex-col items-center justify-center px-2 md:px-0 mx-auto">
-
-      {/* Spread title — only shown when no background image */}
-      {!spreadDef.bgImage && (
-        <p className="font-['Cinzel'] text-xs text-purple-300/60 tracking-widest uppercase mb-2 text-center">
-          {spreadDef.name}
-        </p>
-      )}
-
-      {/* Mat */}
+    <div className="flex flex-col items-center justify-center w-full h-full">
       <div
         ref={containerRef}
-        className="relative rounded-2xl overflow-hidden"
         style={{
-          width:      "100%",
-          maxWidth:   460,
-          margin:     "0 auto",
-          height:     containerH,
-          background: spreadDef.bgImage
-            ? "transparent"
-            : "radial-gradient(ellipse at 50% 40%, rgba(88,28,135,0.22) 0%, rgba(8,4,18,0.75) 100%)",
-          border:     spreadDef.bgImage ? "none" : "1px solid rgba(168,85,247,0.3)",
-          boxShadow:  spreadDef.bgImage ? "none" : "0 0 40px rgba(100,50,200,0.15) inset",
+          width: "100%",
+          maxWidth: 460,
+          margin: "0 auto",
+          position: "relative",
         }}
       >
+        {/* Spread title — only shown when no background image */}
+        {!spreadDef.bgImage && (
+          <p className="font-['Cinzel'] text-xs text-purple-300/60 tracking-widest uppercase mb-2 text-center">
+            {spreadDef.name}
+          </p>
+        )}
+
+        {/* Mat */}
+        <div
+          className="relative rounded-2xl overflow-hidden"
+          style={{
+            width:      "100%",
+            height:     containerH,
+            background: spreadDef.bgImage
+              ? "transparent"
+              : "radial-gradient(ellipse at 50% 40%, rgba(88,28,135,0.22) 0%, rgba(8,4,18,0.75) 100%)",
+            border:     spreadDef.bgImage ? "none" : "1px solid rgba(168,85,247,0.3)",
+            boxShadow:  spreadDef.bgImage ? "none" : "0 0 40px rgba(100,50,200,0.15) inset",
+          }}
+        >
         {/* Background image — Layer 0 (very bottom, no blend mode) */}
         {spreadDef.bgImage && (
           <img
@@ -477,6 +482,7 @@ export default function SpreadLayout({
             <span className="text-purple-400/45 text-[10px] leading-tight">— {pos.meaning}</span>
           </div>
         ))}
+      </div>
       </div>
     </div>
   );
