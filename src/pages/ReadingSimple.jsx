@@ -235,12 +235,8 @@ export default function ReadingSimple() {
     if (!selectedSpread) return;
     setIsSavingSpread(true);
     try {
-      // If it's a custom spread, update it. If it's a system spread, we can't update it in DB
       if (selectedSpread.id && !SYSTEM_SPREADS.find(s => s.id === selectedSpread.id)) {
         await base44.entities.Spread.update(selectedSpread.id, { positions: selectedSpread.positions });
-      } else {
-        // Here we could fork the system spread into a custom one, but for now just exit edit mode
-        // as the local state is already updated for this reading session.
       }
       setIsEditingSpread(false);
     } catch (e) {
@@ -332,7 +328,6 @@ export default function ReadingSimple() {
 
     const loadDeck = async () => {
       try {
-        
         const [loadedDeck, loadedCards, loadedSpreads, history] = await Promise.all([
           queueApiCall(() => base44.entities.Deck.get(deckIdFromUrl), 3, 1500),
           queueApiCall(() => base44.entities.Card.filter({ deck_id: deckIdFromUrl }), 3, 1500),
@@ -348,7 +343,7 @@ export default function ReadingSimple() {
         if (spreadParam && spreadParam !== "freeform") {
           const sysSpread = SYSTEM_SPREADS.find(s => s.id === spreadParam);
           if (sysSpread) {
-            setSelectedSpread(JSON.parse(JSON.stringify(sysSpread))); // Deep copy so we can edit
+            setSelectedSpread(JSON.parse(JSON.stringify(sysSpread)));
           } else {
             const customSpread = loadedSpreads?.find(s => s.id === spreadParam);
             setSelectedSpread(customSpread ? JSON.parse(JSON.stringify(customSpread)) : null);
@@ -472,7 +467,6 @@ export default function ReadingSimple() {
     };
     
     const newDrawnCards = [...drawnCards];
-    // Find the first empty slot if in spread mode
     if (readingMode === "spread" && selectedSpread) {
       const firstEmptyIndex = newDrawnCards.findIndex(c => !c);
       if (firstEmptyIndex !== -1) {
@@ -490,15 +484,12 @@ export default function ReadingSimple() {
 
   const handleExternalDrop = ({ targetIndex, cardIndex }) => {
     if (readingMode !== "spread" || !selectedSpread) return;
-    // Don't allow dropping on a slot that already has a card
     if (drawnCards[targetIndex]) return;
     
     const newRemaining = [...deckRemaining];
     const cardData = newRemaining.splice(cardIndex, 1)[0];
     
-    // We need to place this card exactly at targetIndex
     const newDrawnCards = [...drawnCards];
-    // Pad array with nulls if needed so targetIndex exists
     while (newDrawnCards.length < targetIndex) {
       newDrawnCards.push(null);
     }
@@ -605,15 +596,20 @@ export default function ReadingSimple() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-950 via-slate-900 to-black flex flex-col overflow-hidden">
-      {/* Shuffling Overlay */}
+    // FIX 1: position:relative ensures absolute children (shuffling overlay) are contained here
+    <div
+      className="bg-gradient-to-br from-indigo-950 via-slate-900 to-black flex flex-col"
+      style={{ position: "relative", width: "100%", height: "100vh", overflow: "hidden" }}
+    >
+      {/* FIX 2: Shuffling overlay uses fixed so it covers the full viewport correctly */}
       <AnimatePresence>
         {isShuffling && (
           <motion.div 
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }} 
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm"
+            style={{ position: "fixed", inset: 0, zIndex: 50 }}
+            className="flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm"
           >
             <div className="relative w-32 h-48">
               {[0, 1, 2, 3].map((i) => (
@@ -656,7 +652,7 @@ export default function ReadingSimple() {
       </AnimatePresence>
 
       {/* Top Bar */}
-      <div className="bg-black/40 backdrop-blur-md border-b border-purple-500/20 p-2 md:p-4 flex flex-col md:flex-row items-start md:items-center justify-between z-10 gap-2">
+      <div className="bg-black/40 backdrop-blur-md border-b border-purple-500/20 p-2 md:p-4 flex flex-col md:flex-row items-start md:items-center justify-between z-10 gap-2 shrink-0">
         <div className="flex items-center gap-4 shrink-0 px-2 w-full md:w-auto justify-between md:justify-start">
           <Link to={createPageUrl("ReadingRoom")}>
             <Button variant="ghost" className="text-purple-200 hover:text-purple-100 hover:bg-purple-500/20 h-8 px-2 md:h-10 md:px-4">
@@ -670,7 +666,6 @@ export default function ReadingSimple() {
             </h1>
             <p className="text-xs text-purple-300/70">{deckRemaining.length} cards remaining</p>
           </div>
-          {/* Mobile minimal title */}
           <div className="md:hidden text-right">
             <div className="text-xs font-bold text-purple-300 truncate max-w-[150px]">{deck?.name}</div>
             <div className="text-[10px] text-purple-400/70">{deckRemaining.length} cards</div>
@@ -731,10 +726,12 @@ export default function ReadingSimple() {
       </div>
 
       {/* Interactive Canvas / Spread */}
-      <div className="flex-1 relative flex flex-col overflow-hidden">
+      {/* FIX 3: flex-1 with min-h-0 prevents this from pushing the bottom shelf off screen */}
+      <div className="flex-1 relative flex flex-col" style={{ minHeight: 0, overflow: "hidden" }}>
         {readingMode === "freeform" ? (
           <div 
-            className="flex-1 relative p-4 overflow-hidden" 
+            className="flex-1 relative p-4"
+            style={{ overflow: "hidden" }}
             ref={canvasRef}
             onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; }}
             onDrop={(e) => {
@@ -748,7 +745,6 @@ export default function ReadingSimple() {
               } catch (err) { console.error('Drop parse error:', err); }
             }}
           >
-            {/* Subtle instructions */}
             {drawnCards.length === 0 && (
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none opacity-50">
                 <Sparkles className="w-12 h-12 text-purple-400 mb-4 animate-pulse" />
@@ -771,7 +767,9 @@ export default function ReadingSimple() {
             </AnimatePresence>
           </div>
         ) : (
-          <div className="flex-1 relative flex flex-col overflow-auto" ref={canvasRef}
+          <div
+            className="flex-1 relative flex flex-col overflow-auto"
+            ref={canvasRef}
             onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; }}
             onDrop={(e) => {
               e.preventDefault();
@@ -820,8 +818,11 @@ export default function ReadingSimple() {
           </div>
         )}
         
-        {/* Universal Bottom Carousel */}
-        <div className="w-full bg-black/60 backdrop-blur-md border-t border-purple-500/20 p-4 shrink-0 z-40 overflow-hidden">
+        {/* FIX 4: Bottom shelf is strictly contained — overflow hidden, no bleed */}
+        <div
+          className="bg-black/60 backdrop-blur-md border-t border-purple-500/20 shrink-0 z-40"
+          style={{ width: "100%", overflow: "hidden", padding: "12px 16px" }}
+        >
           <BottomCardShelf 
             cards={deckRemaining.map(c => ({...c, image_url: deck?.back_image_url || null, name: "Hidden Card"}))} 
             onCardClick={(c, idx) => handleDrawSpecificCard(idx)} 
