@@ -78,15 +78,15 @@ export const SYSTEM_SPREADS = [
     icon: "♾",
     cardCount: 6,
     heightRatio: 1.777,
-    cardSizeW: 18,
-    bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/354dfaeb3_IMG_0149.jpg",
+    cardSizeW: 28,
+    bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/3a70752b3_openart-image_1779029767906_f47dae6a_1779029768222_7ab841d7.png",
     positions: [
-      { name: "Your Flame",  meaning: "Your current energy",                cx: 29.5, cy: 28 },
-      { name: "Their Flame", meaning: "Their current energy",               cx: 70.5, cy: 28 },
-      { name: "The Mirror",  meaning: "What you reflect in each other",     cx: 29.5, cy: 53.5 },
-      { name: "The Shadow",  meaning: "What is unresolved between you",     cx: 70.5, cy: 53.5 },
-      { name: "The Wound",   meaning: "What is asking to be healed",        cx: 29.5, cy: 79 },
-      { name: "The Union",   meaning: "The potential of this connection",   cx: 70.5, cy: 79 },
+      { name: "Your Flame",  meaning: "Your current energy",              cx: 27, cy: 16 },
+      { name: "Their Flame", meaning: "Their current energy",             cx: 73, cy: 16 },
+      { name: "The Mirror",  meaning: "What you reflect in each other",   cx: 27, cy: 50 },
+      { name: "The Shadow",  meaning: "What is unresolved between you",   cx: 73, cy: 50 },
+      { name: "The Wound",   meaning: "What is asking to be healed",      cx: 27, cy: 84 },
+      { name: "The Union",   meaning: "The potential of this connection",  cx: 73, cy: 84 },
     ]
   },
   {
