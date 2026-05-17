@@ -41,15 +41,15 @@ export const SYSTEM_SPREADS = [
     description: "Clarity for your path as a creator and builder",
     icon: "◇",
     cardCount: 5,
-    heightRatio: 1.777,
-    cardSizeW: 16,
-    bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/5fab2f0d2_IMG_0155.jpg",
+    heightRatio: 1.5,
+    cardSizeW: 22,
+    bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/b66b1e7a7_openart-image_1779030459698_364fbc70_1779030459757_4379968b.png",
     positions: [
-      { name: "Foundation",  meaning: "What your business is built on", cx: 50,   cy: 28.5 },
-      { name: "Challenge",   meaning: "What is blocking growth",        cx: 21.5, cy: 52 },
-      { name: "Core",        meaning: "The heart of your vision",       cx: 50,   cy: 52 },
-      { name: "Opportunity", meaning: "What wants to emerge",           cx: 78.5, cy: 52 },
-      { name: "Outcome",     meaning: "Where this path leads",          cx: 50,   cy: 75.5 },
+      { name: "Foundation",  meaning: "What your business is built on", cx: 50, cy: 13 },
+      { name: "Challenge",   meaning: "What is blocking growth",        cx: 16, cy: 50 },
+      { name: "Core",        meaning: "The heart of your vision",       cx: 50, cy: 50 },
+      { name: "Opportunity", meaning: "What wants to emerge",           cx: 84, cy: 50 },
+      { name: "Outcome",     meaning: "Where this path leads",          cx: 50, cy: 85 },
     ]
   },
   {
