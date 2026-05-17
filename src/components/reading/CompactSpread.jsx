@@ -290,11 +290,11 @@ export default function SpreadLayout({
     const ro = new ResizeObserver(entries => {
       for (const e of entries) {
         const w = Math.round(e.contentRect.width || el.clientWidth || 320);
-        setContainerW(Math.min(w, 380));
+        setContainerW(Math.min(w, 460));
       }
     });
     ro.observe(el);
-    setContainerW(Math.min(Math.round(el.clientWidth || 320), 380));
+    setContainerW(Math.min(Math.round(el.clientWidth || 320), 460));
     return () => ro.disconnect();
   }, []);
 
@@ -326,7 +326,7 @@ export default function SpreadLayout({
   const containerH = Math.round(containerW * (spreadDef.heightRatio || 1.5));
 
   return (
-    <div className="w-full flex flex-col items-center px-2 md:px-0">
+    <div className="w-full flex flex-col items-center justify-center px-2 md:px-0 mx-auto">
 
       {/* Spread title — only shown when no background image */}
       {!spreadDef.bgImage && (
