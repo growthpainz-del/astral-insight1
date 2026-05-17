@@ -596,10 +596,10 @@ export default function ReadingSimple() {
   };
 
   return (
-    // FIX 1: position:relative ensures absolute children (shuffling overlay) are contained here
+    // FIX 1: Allow it to flex inside the main container to avoid being pushed off-screen
     <div
-      className="bg-gradient-to-br from-indigo-950 via-slate-900 to-black flex flex-col"
-      style={{ position: "relative", width: "100%", height: "100vh", overflow: "hidden" }}
+      className="bg-gradient-to-br from-indigo-950 via-slate-900 to-black flex flex-col w-full"
+      style={{ position: "relative", minHeight: "calc(100dvh - 120px)", flex: "1 1 auto", overflow: "hidden" }}
     >
       {/* FIX 2: Shuffling overlay uses fixed so it covers the full viewport correctly */}
       <AnimatePresence>
