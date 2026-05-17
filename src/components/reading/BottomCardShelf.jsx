@@ -9,12 +9,11 @@ export default function BottomCardShelf({ cards = [], onCardClick = () => {} }) 
       const payload = { source: "bottom-shelf", cardIndex };
       e.dataTransfer.setData("application/json", JSON.stringify(payload));
       e.dataTransfer.effectAllowed = "copyMove";
-      // Optional: set a transparent drag image for smoother UX on some browsers
+      // Use a tiny transparent image to hide the massive OS-level drag ghost
       if (e.dataTransfer.setDragImage) {
         const img = new Image();
-        img.src = cards[cardIndex]?.image_url || "";
-        img.width = 10; img.height = 10;
-        e.dataTransfer.setDragImage(img, 5, 5);
+        img.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+        e.dataTransfer.setDragImage(img, 0, 0);
       }
     } catch (err) {
       console.error("Error starting drag:", err);

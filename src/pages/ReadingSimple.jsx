@@ -414,7 +414,7 @@ export default function ReadingSimple() {
       cardData,
       x,
       y,
-      rotation,
+      rotation: readingMode === "spread" ? 0 : rotation,
       isFlipped: false,
       isReversed: Math.random() < 0.25
     };
@@ -451,7 +451,7 @@ export default function ReadingSimple() {
       cardData,
       x,
       y,
-      rotation,
+      rotation: readingMode === "spread" ? 0 : rotation,
       isFlipped: false,
       isReversed: Math.random() < 0.25
     };
