@@ -330,6 +330,7 @@ button:hover          { text-shadow: 0 0 6px var(--neon-accent-2); }
 /* ─── Touch / interaction hardening ─────────────────────────────────────── */
 button,
 [role="button"],
+img,
 .lucide,
 .shadcn-button,
 .ui-button,

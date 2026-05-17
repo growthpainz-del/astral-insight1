@@ -216,6 +216,17 @@ export default function ReadingSimple() {
   const [showCardModePicker, setShowCardModePicker] = useState(false);
   const [showSpreadModePicker, setShowSpreadModePicker] = useState(false);
 
+  // Prevent accidental OS-level image drops from opening full screen
+  useEffect(() => {
+    const preventDrop = (e) => e.preventDefault();
+    window.addEventListener('dragover', preventDrop);
+    window.addEventListener('drop', preventDrop);
+    return () => {
+      window.removeEventListener('dragover', preventDrop);
+      window.removeEventListener('drop', preventDrop);
+    };
+  }, []);
+
   const handleSaveSpread = async () => {
     if (!selectedSpread) return;
     setIsSavingSpread(true);
@@ -532,10 +543,6 @@ export default function ReadingSimple() {
     const newRevealed = new Set(revealedIndices);
     newRevealed.add(idx);
     setRevealedIndices(newRevealed);
-    
-    if (drawnCards[idx]) {
-      openInterpretation(drawnCards[idx], idx);
-    }
   };
 
   const openInterpretation = (cardWrapper, positionIndex = null) => {
@@ -586,9 +593,6 @@ export default function ReadingSimple() {
   const handleToggleFlip = (id) => {
     const newDrawn = drawnCards.map(c => {
       if (c.id === id) {
-        if (!c.isFlipped) { 
-          openInterpretation(c);
-        }
         return { ...c, isFlipped: !c.isFlipped };
       }
       return c;
@@ -791,7 +795,11 @@ export default function ReadingSimple() {
                   deck={deck}
                   revealedCards={revealedIndices}
                   onCardReveal={onCardReveal}
-                  onCardClick={(c, idx) => onCardReveal(idx)}
+                  onCardClick={(c, idx) => {
+                    if (drawnCards[idx]) {
+                      openInterpretation(drawnCards[idx], idx);
+                    }
+                  }}
                   enableExternalDrops={true}
                   onExternalDrop={handleExternalDrop}
                   allowReposition={isEditingSpread}
