@@ -17,7 +17,7 @@ export const SYSTEM_SPREADS = [
     cardSizeW: 40,
     bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/2f5109427_IMG_0153.jpg",
     positions: [
-      { name: "The Message", meaning: "What the universe wants you to know right now", cx: 50, cy: 50 }
+      { name: "The Message", meaning: "What the universe wants you to know right now", cx: 50, cy: 45 }
     ]
   },
   {
