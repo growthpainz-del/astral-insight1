@@ -349,8 +349,9 @@ export default function SpreadLayout({
           name: spread.name || "Custom Spread",
           positions: spread.positions,
           cardCount: spread.positions.length,
-          heightRatio: 1.5,
-          cardSizeW: 22,
+          heightRatio: spread.heightRatio || 1.5,
+          cardSizeW: spread.cardSizeW || 22,
+          bgImage: spread.bgImage || undefined,
         } : null);
 
   if (!spreadDef) {
