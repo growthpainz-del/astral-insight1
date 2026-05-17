@@ -783,9 +783,10 @@ export default function ReadingSimple() {
               </div>
             )}
             {selectedSpread ? (
-              <div className="w-full min-h-full flex items-center justify-center pb-8">
-                <SpreadLayout 
-                  spread={selectedSpread}
+              <div className="w-full min-h-full flex items-center justify-center pb-8 px-4 md:px-8">
+                <div className="w-full max-w-lg mx-auto flex items-center justify-center">
+                  <SpreadLayout 
+                    spread={selectedSpread}
                   positions={selectedSpread.positions}
                   cards={drawnCards.map(c => c ? c.cardData : null)}
                   deck={deck}
@@ -798,6 +799,7 @@ export default function ReadingSimple() {
                   onPositionUpdate={handlePositionUpdate}
                   sizeScale={spreadScale}
                 />
+                </div>
               </div>
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center text-center opacity-50">
@@ -861,7 +863,7 @@ export default function ReadingSimple() {
                   !showCardModePicker ? (
                     <button
                       onClick={() => setShowCardModePicker(true)}
-                      className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-purple-50 text-sm font-semibold transition-all shadow-[0_0_15px_rgba(147,51,234,0.3)]"
+                      className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-purple-50 text-sm font-semibold font-['Cinzel'] tracking-wider transition-all shadow-[0_0_20px_rgba(147,51,234,0.3)]"
                     >
                       <Sparkles className="w-4 h-4" /> CosMosis · Deepen
                     </button>
@@ -873,13 +875,15 @@ export default function ReadingSimple() {
                     />
                   )
                 ) : isAiLoading ? (
-                  <div className="flex items-center justify-center p-4">
-                    <Loader2 className="w-6 h-6 animate-spin text-purple-400" />
-                    <span className="ml-2 text-purple-300 text-sm">CosMosis is listening...</span>
+                  <div className="flex flex-col items-center justify-center py-6 gap-3">
+                    <div className="w-6 h-6 border-2 border-purple-500/30 border-t-purple-400 rounded-full animate-spin" />
+                    <span className="text-purple-300 text-sm font-['Cinzel'] tracking-wider">CosMosis is listening...</span>
                   </div>
                 ) : (
                   <div className="text-sm text-purple-50/90 bg-indigo-900/30 p-4 rounded-xl border border-indigo-500/30">
-                    <p className="font-semibold text-cyan-300 mb-2 flex items-center"><Sparkles className="w-4 h-4 mr-2" /> CosMosis:</p>
+                    <p className="font-semibold text-cyan-300 mb-2 flex items-center gap-2 font-['Cinzel'] tracking-wider text-xs uppercase">
+                      <Sparkles className="w-4 h-4" /> CosMosis
+                    </p>
                     <div className="whitespace-pre-wrap leading-relaxed">{aiInterpretation}</div>
                   </div>
                 )}

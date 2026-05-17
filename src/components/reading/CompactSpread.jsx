@@ -326,7 +326,7 @@ export default function SpreadLayout({
   const containerH = Math.round(containerW * (spreadDef.heightRatio || 1.5));
 
   return (
-    <div className="w-full flex flex-col items-center px-4">
+    <div className="w-full flex flex-col items-center px-2 md:px-0">
 
       {/* Spread title — only shown when no background image */}
       {!spreadDef.bgImage && (
@@ -341,7 +341,8 @@ export default function SpreadLayout({
         className="relative rounded-2xl overflow-hidden"
         style={{
           width:      "100%",
-          maxWidth:   380,
+          maxWidth:   460,
+          margin:     "0 auto",
           height:     containerH,
           background: spreadDef.bgImage
             ? "transparent"
@@ -439,7 +440,7 @@ export default function SpreadLayout({
               }}
             >
               {!card && (
-                <div className="absolute top-full mt-1 w-max left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none">
+                <div className="absolute top-full mt-1 w-max left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none" style={{ writingMode: "horizontal-tb", transform: "translate(-50%, -50%)" }}>
                   <p className="text-purple-200/80 text-[9px] font-semibold text-center leading-tight bg-black/60 px-1.5 py-0.5 rounded backdrop-blur-sm"
                      style={{ maxWidth: cardW + 24 }}>
                     {position.name}
@@ -447,7 +448,7 @@ export default function SpreadLayout({
                 </div>
               )}
               {card && !isRevealed && (
-                <div className="absolute top-full mt-1 w-max left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none">
+                <div className="absolute top-full mt-1 w-max left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none" style={{ writingMode: "horizontal-tb", transform: "translate(-50%, -50%)" }}>
                   <p className="text-purple-200/55 text-[8px] font-semibold text-center leading-tight bg-black/60 px-1.5 py-0.5 rounded backdrop-blur-sm"
                      style={{ maxWidth: cardW + 24 }}>
                     {position.name}
@@ -455,7 +456,7 @@ export default function SpreadLayout({
                 </div>
               )}
               {card && isRevealed && (
-                <div className="absolute top-full mt-1 w-max left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none" style={{ maxWidth: cardW + 24 }}>
+                <div className="absolute top-full mt-1 w-max left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none" style={{ maxWidth: cardW + 24, writingMode: "horizontal-tb", transform: "translate(-50%, -50%)" }}>
                   <p className="text-white/90 text-[8px] font-semibold leading-tight truncate bg-black/60 px-1.5 py-0.5 rounded backdrop-blur-sm mb-0.5">{card.name}</p>
                   <Badge className="bg-purple-600/90 text-white text-[7px] px-1.5 py-0 leading-tight border-purple-400/40">
                     {position.name}
