@@ -26,13 +26,13 @@ export const SYSTEM_SPREADS = [
     description: "The arc of your current situation",
     icon: "◈",
     cardCount: 3,
-    heightRatio: 1.777,
-    cardSizeW: 18,
+    heightRatio: 1.4,
+    cardSizeW: 26,
     bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/ff4d6e093_1BD939A4-820F-473E-97D3-A4D6E23BA11C.png",
     positions: [
-      { name: "Root",      meaning: "What has shaped this situation",    cx: 19, cy: 51 },
-      { name: "Now",       meaning: "The energy present in this moment", cx: 50, cy: 51 },
-      { name: "Emergence", meaning: "What is being called forward",      cx: 81, cy: 51 },
+      { name: "Root",      meaning: "What has shaped this situation",    cx: 19, cy: 58 },
+      { name: "Now",       meaning: "The energy present in this moment", cx: 50, cy: 58 },
+      { name: "Emergence", meaning: "What is being called forward",      cx: 81, cy: 58 },
     ]
   },
   {
