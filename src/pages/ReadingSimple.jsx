@@ -821,7 +821,7 @@ export default function ReadingSimple() {
         )}
         
         {/* Universal Bottom Carousel */}
-        <div className="w-full bg-black/60 backdrop-blur-md border-t border-purple-500/20 p-4 shrink-0 z-40">
+        <div className="w-full bg-black/60 backdrop-blur-md border-t border-purple-500/20 p-4 shrink-0 z-40 overflow-hidden">
           <BottomCardShelf 
             cards={deckRemaining.map(c => ({...c, image_url: deck?.back_image_url || null, name: "Hidden Card"}))} 
             onCardClick={(c, idx) => handleDrawSpecificCard(idx)} 
