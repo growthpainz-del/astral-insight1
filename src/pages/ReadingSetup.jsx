@@ -106,7 +106,7 @@ export default function ReadingSetup() {
   }
 
   return (
-    <div className="min-h-screen bg-[#07050f] flex flex-col p-4 md:p-8 text-white">
+    <div className="w-full flex flex-col p-4 md:p-8 text-white pb-32">
       <div className="max-w-2xl w-full mx-auto bg-[#0f0b1e]/90 backdrop-blur-md border border-purple-500/20 rounded-2xl p-6 md:p-8 mt-4 md:mt-12">
         <Link to={createPageUrl("ReadingRoom")}>
           <Button variant="ghost" className="text-purple-200 hover:text-white hover:bg-purple-500/20 mb-6 -ml-4">
