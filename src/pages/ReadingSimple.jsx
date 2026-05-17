@@ -913,14 +913,46 @@ export default function ReadingSimple() {
               <div className="p-6 overflow-y-auto custom-scrollbar flex-1 space-y-6">
                 {composedReading && (
                   <div className="space-y-4">
-                    {composedReading.synthesis.sections.map((sec, idx) => (
-                      <div key={idx} className={`p-4 rounded-xl border ${sec.isPersonal ? 'bg-indigo-900/30 border-indigo-500/40' : 'bg-purple-900/20 border-purple-500/30'}`}>
-                        <h4 className="text-purple-300 font-semibold mb-2 flex items-center gap-2">
-                          <span className="text-xl">{sec.icon}</span> {sec.label}
-                        </h4>
-                        <p className="text-purple-100 leading-relaxed">{sec.content}</p>
-                      </div>
-                    ))}
+                    {composedReading.synthesis.sections.map((sec, idx) => {
+                      const sectionStyles = {
+                        tone: "bg-purple-900/20 border-purple-500/20",
+                        themes: "bg-indigo-900/20 border-indigo-500/20",
+                        synthesis: "bg-slate-800/60 border-purple-400/30",
+                        resonances: "bg-teal-900/20 border-teal-500/20",
+                        tensions: "bg-rose-900/20 border-rose-500/20",
+                        ching: "bg-amber-900/20 border-amber-500/20",
+                        personal: "bg-indigo-900/30 border-indigo-400/40",
+                      };
+                      const labelStyles = {
+                        tone: "text-purple-300",
+                        themes: "text-indigo-300",
+                        synthesis: "text-purple-200",
+                        resonances: "text-teal-300",
+                        tensions: "text-rose-300",
+                        ching: "text-amber-300",
+                        personal: "text-indigo-300",
+                      };
+                      const cardStyle = sectionStyles[sec.type] || "bg-purple-900/20 border-purple-500/20";
+                      const labelStyle = labelStyles[sec.type] || "text-purple-300";
+                      return (
+                        <div key={idx} className={`p-4 rounded-xl border ${cardStyle}`}>
+                          <h4 className={`font-semibold mb-2 flex items-center gap-2 text-sm tracking-wide font-['Cinzel'] ${labelStyle}`}>
+                            <span className="text-base">{sec.icon}</span>
+                            {sec.label}
+                          </h4>
+                          <p className="text-purple-100/90 leading-relaxed text-sm">{sec.content}</p>
+                          {sec.tags && (
+                            <div className="flex flex-wrap gap-1.5 mt-2">
+                              {sec.tags.map((tag, i) => (
+                                <span key={i} className="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/20 font-['Cinzel'] tracking-wider">
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
                 
@@ -929,7 +961,7 @@ export default function ReadingSimple() {
                     !showSpreadModePicker ? (
                       <button
                         onClick={() => setShowSpreadModePicker(true)}
-                        className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-purple-50 text-sm font-semibold transition-all shadow-[0_0_15px_rgba(147,51,234,0.3)]"
+                        className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-purple-50 text-sm font-semibold font-['Cinzel'] tracking-wider transition-all shadow-[0_0_20px_rgba(147,51,234,0.3)]"
                       >
                         <Sparkles className="w-4 h-4" /> CosMosis · Full Reading
                       </button>
@@ -941,13 +973,15 @@ export default function ReadingSimple() {
                       />
                     )
                   ) : isSpreadAiLoading ? (
-                    <div className="flex flex-col items-center justify-center py-8">
-                      <Loader2 className="w-8 h-8 animate-spin text-purple-400 mb-4" />
-                      <p className="text-purple-300">CosMosis is weaving your reading...</p>
+                    <div className="flex flex-col items-center justify-center py-8 gap-3">
+                      <div className="w-8 h-8 border-2 border-purple-500/30 border-t-purple-400 rounded-full animate-spin" />
+                      <p className="text-purple-300 text-sm font-['Cinzel'] tracking-wider">CosMosis is weaving your reading...</p>
                     </div>
                   ) : (
-                    <div className="text-purple-100 whitespace-pre-wrap leading-relaxed text-lg bg-indigo-900/30 p-6 rounded-xl border border-indigo-500/30">
-                      <p className="font-semibold text-cyan-300 mb-4 flex items-center"><Sparkles className="w-5 h-5 mr-2" /> CosMosis:</p>
+                    <div className="text-purple-100 whitespace-pre-wrap leading-relaxed text-sm bg-indigo-900/30 p-5 rounded-xl border border-indigo-500/30">
+                      <p className="font-semibold text-cyan-300 mb-3 flex items-center gap-2 font-['Cinzel'] tracking-wider text-xs uppercase">
+                        <Sparkles className="w-4 h-4" /> CosMosis
+                      </p>
                       {spreadInterpretation}
                     </div>
                   )}
