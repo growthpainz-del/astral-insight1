@@ -28,7 +28,7 @@ export const SYSTEM_SPREADS = [
     cardCount: 3,
     heightRatio: 1.4,
     cardSizeW: 26,
-    bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/ff4d6e093_1BD939A4-820F-473E-97D3-A4D6E23BA11C.png",
+    bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/64bb11aae_openart-image_1779029227664_9c672728_1779029227704_6c0da5f4.png",
     positions: [
       { name: "Root",      meaning: "What has shaped this situation",    cx: 19, cy: 58 },
       { name: "Now",       meaning: "The energy present in this moment", cx: 50, cy: 58 },
