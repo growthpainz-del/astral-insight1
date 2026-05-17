@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 // entities imported via base44 client instead
-import { composeReading, composeCardQuick } from "@/utils/interpretationComposer";
+import { composeReading, composeCardQuick, buildCardPromptByMode, buildFullReadingPromptByMode } from "@/utils/interpretationComposer";
+import CosMosisModePicker from "@/components/cosmosis/CosMosisModePicker";
 import { Button } from "@/components/ui/button";
 import { Loader2, ChevronLeft, Hand, Shuffle, RotateCcw, Eye, Sparkles, Settings2, Save } from "lucide-react";
 import SpreadLayout, { SYSTEM_SPREADS } from "@/components/reading/CompactSpread";
@@ -212,6 +213,9 @@ export default function ReadingSimple() {
   const [isSpreadAiLoading, setIsSpreadAiLoading] = useState(false);
   const [showSpreadInterpretation, setShowSpreadInterpretation] = useState(false);
 
+  const [showCardModePicker, setShowCardModePicker] = useState(false);
+  const [showSpreadModePicker, setShowSpreadModePicker] = useState(false);
+
   const handleSaveSpread = async () => {
     if (!selectedSpread) return;
     setIsSavingSpread(true);
@@ -276,15 +280,21 @@ export default function ReadingSimple() {
     }
   };
 
-  const handleDeepenSpread = async () => {
+  const handleDeepenSpread = async (mode = "interpret") => {
     if (!composedReading || isSpreadAiLoading) return;
+    setShowSpreadModePicker(false);
     setIsSpreadAiLoading(true);
     try {
-      const prompt = composedReading.aiPrompts.fullReading;
+      const prompt = buildFullReadingPromptByMode(
+        composedReading._raw,
+        composedReading.patterns || {},
+        composedReading.question || "",
+        mode
+      );
       const res = await base44.integrations.Core.InvokeLLM({ prompt });
       setSpreadInterpretation(res);
     } catch (e) {
-      setSpreadInterpretation("The spirits are currently unreachable. Please try again later.");
+      setSpreadInterpretation("CosMosis is momentarily unreachable. Please try again.");
     } finally {
       setIsSpreadAiLoading(false);
     }
@@ -544,6 +554,7 @@ export default function ReadingSimple() {
         ...cardWrapper, 
         position, 
         composed,
+        _raw: output?._raw?.cardInterpretations?.[cardIndex] || composed?._raw,
         aiPrompt: aiPrompt || composed?.aiPrompt
       });
       setAiInterpretation(null);
@@ -552,15 +563,21 @@ export default function ReadingSimple() {
     }
   };
 
-  const getDeeperInsight = async () => {
+  const getDeeperInsight = async (mode = "interpret") => {
     if (!selectedCardForInterpretation || isAiLoading) return;
+    setShowCardModePicker(false);
     setIsAiLoading(true);
     try {
-      const prompt = selectedCardForInterpretation.aiPrompt;
+      const prompt = buildCardPromptByMode(
+        selectedCardForInterpretation._raw || selectedCardForInterpretation,
+        questionParam || "",
+        {},
+        mode
+      );
       const res = await base44.integrations.Core.InvokeLLM({ prompt });
       setAiInterpretation(res);
     } catch (e) {
-      setAiInterpretation("The spirits are currently unreachable. Please try again later.");
+      setAiInterpretation("CosMosis is momentarily unreachable. Please try again.");
     } finally {
       setIsAiLoading(false);
     }
@@ -841,12 +858,20 @@ export default function ReadingSimple() {
 
               <div className="pt-4 border-t border-purple-500/20">
                 {!aiInterpretation && !isAiLoading ? (
-                  <Button 
-                    onClick={getDeeperInsight} 
-                    className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-purple-50 shadow-[0_0_15px_rgba(147,51,234,0.3)]"
-                  >
-                    <Sparkles className="w-4 h-4 mr-2" /> CosMosis · Deepen
-                  </Button>
+                  !showCardModePicker ? (
+                    <button
+                      onClick={() => setShowCardModePicker(true)}
+                      className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-purple-50 text-sm font-semibold transition-all shadow-[0_0_15px_rgba(147,51,234,0.3)]"
+                    >
+                      <Sparkles className="w-4 h-4" /> CosMosis · Deepen
+                    </button>
+                  ) : (
+                    <CosMosisModePicker
+                      visible={showCardModePicker}
+                      onSelect={(mode) => getDeeperInsight(mode)}
+                      onCancel={() => setShowCardModePicker(false)}
+                    />
+                  )
                 ) : isAiLoading ? (
                   <div className="flex items-center justify-center p-4">
                     <Loader2 className="w-6 h-6 animate-spin text-purple-400" />
@@ -901,12 +926,20 @@ export default function ReadingSimple() {
                 
                 <div className="pt-6 border-t border-purple-500/30">
                   {!spreadInterpretation && !isSpreadAiLoading ? (
-                    <Button 
-                      onClick={handleDeepenSpread} 
-                      className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-purple-50 shadow-[0_0_15px_rgba(147,51,234,0.3)]"
-                    >
-                      <Sparkles className="w-4 h-4 mr-2" /> CosMosis · Full Reading
-                    </Button>
+                    !showSpreadModePicker ? (
+                      <button
+                        onClick={() => setShowSpreadModePicker(true)}
+                        className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-purple-50 text-sm font-semibold transition-all shadow-[0_0_15px_rgba(147,51,234,0.3)]"
+                      >
+                        <Sparkles className="w-4 h-4" /> CosMosis · Full Reading
+                      </button>
+                    ) : (
+                      <CosMosisModePicker
+                        visible={showSpreadModePicker}
+                        onSelect={(mode) => handleDeepenSpread(mode)}
+                        onCancel={() => setShowSpreadModePicker(false)}
+                      />
+                    )
                   ) : isSpreadAiLoading ? (
                     <div className="flex flex-col items-center justify-center py-8">
                       <Loader2 className="w-8 h-8 animate-spin text-purple-400 mb-4" />

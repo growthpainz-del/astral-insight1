@@ -439,9 +439,32 @@ export function composeCardQuick(cardData, position = null, isReversed = false, 
   
   return {
     ...composed,
+    _raw: interp,
     // Pre-built AI prompt for if user taps "Deeper Insight"
     aiPrompt: buildCardAiPrompt(interp, question, emptyPatterns),
   };
+}
+
+export function buildCardPromptByMode(interp, question, patterns, mode = "interpret") {
+  const base = buildCardAiPrompt(interp, question, patterns);
+  const modeInstructions = {
+    interpret: "Decode the deeper signal. Name what is sensed but not yet spoken. Speak in flowing, unhurried prose.",
+    expand: "Widen the frame dramatically. Place this card inside a larger archetypal or historical pattern the user may not have considered.",
+    mirror: "Crystallize exactly what this card is reflecting back. Be precise and compassionate. Help the user hear themselves more clearly.",
+    weave: "Connect this card to threads — patterns in the user's life, universal themes, unexpected resonances. Show how it fits the larger tapestry.",
+  };
+  return `${base}\n\nMODE: ${mode.toUpperCase()} — ${modeInstructions[mode] || modeInstructions.interpret}`;
+}
+
+export function buildFullReadingPromptByMode(reading, patterns, question, mode = "interpret") {
+  const base = buildFullReadingAiPrompt(reading, patterns, question);
+  const modeInstructions = {
+    interpret: "Synthesize all cards into one coherent narrative. Decode the overall signal of this spread.",
+    expand: "Place this entire reading inside a larger pattern — archetypal, cyclical, or historical. What bigger story is the user living?",
+    mirror: "Reflect the full spread back to the user as a precise, crystallized summary of where they actually are right now.",
+    weave: "Connect the threads across all cards. Find the hidden resonance running through the entire spread and name it clearly.",
+  };
+  return `${base}\n\nMODE: ${mode.toUpperCase()} — ${modeInstructions[mode] || modeInstructions.interpret}`;
 }
 
 export { buildCardAiPrompt, buildFullReadingAiPrompt };
