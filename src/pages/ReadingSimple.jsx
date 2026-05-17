@@ -182,7 +182,7 @@ import { base44 } from "@/api/base44Client";
 
 export default function ReadingSimple() {
   const [searchParams] = useSearchParams();
-  const deckIdFromUrl = searchParams.get("deckId");
+  const deckIdFromUrl = searchParams.get("deckId") || searchParams.get("deck_id");
   const spreadParam = searchParams.get("spread");
   const questionParam = searchParams.get("question");
 
@@ -783,9 +783,10 @@ export default function ReadingSimple() {
               </div>
             )}
             {selectedSpread ? (
-              <div className="w-full min-h-full flex items-center justify-center pb-8">
-                <SpreadLayout 
-                  spread={selectedSpread}
+              <div className="w-full min-h-full flex items-center justify-center pb-8 px-4 md:px-8">
+                <div className="w-full max-w-lg mx-auto flex items-center justify-center">
+                  <SpreadLayout 
+                    spread={selectedSpread}
                   positions={selectedSpread.positions}
                   cards={drawnCards.map(c => c ? c.cardData : null)}
                   deck={deck}
@@ -798,6 +799,7 @@ export default function ReadingSimple() {
                   onPositionUpdate={handlePositionUpdate}
                   sizeScale={spreadScale}
                 />
+                </div>
               </div>
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center text-center opacity-50">
