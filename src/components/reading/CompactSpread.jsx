@@ -12,7 +12,7 @@ export const SYSTEM_SPREADS = [
     cardCount: 1,
     heightRatio: 1.5,
     cardSizeW: 42,
-    bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/601920d9e_openart-image_1779030000153_98b5ff1d_1779030000591_e09e517a.png",
+    bgImage: null,
     positions: [
       { name: "The Message", meaning: "What the universe wants you to know right now", cx: 50, cy: 45 }
     ]
@@ -25,7 +25,7 @@ export const SYSTEM_SPREADS = [
     cardCount: 3,
     heightRatio: 1.4,
     cardSizeW: 26,
-    bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/64bb11aae_openart-image_1779029227664_9c672728_1779029227704_6c0da5f4.png",
+    bgImage: null,
     positions: [
       { name: "Root",      meaning: "What has shaped this situation",    cx: 19, cy: 58 },
       { name: "Now",       meaning: "The energy present in this moment", cx: 50, cy: 58 },
@@ -40,7 +40,7 @@ export const SYSTEM_SPREADS = [
     cardCount: 5,
     heightRatio: 1.5,
     cardSizeW: 22,
-    bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/b66b1e7a7_openart-image_1779030459698_364fbc70_1779030459757_4379968b.png",
+    bgImage: null,
     positions: [
       { name: "Foundation",  meaning: "What your business is built on", cx: 50, cy: 13 },
       { name: "Challenge",   meaning: "What is blocking growth",        cx: 16, cy: 50 },
@@ -57,7 +57,7 @@ export const SYSTEM_SPREADS = [
     cardCount: 7,
     heightRatio: 1.2,
     cardSizeW: 13,
-    bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/11083aeb0_openart-image_1779029498870_1b1fd626_1779029498962_85f9d30f.png",
+    bgImage: null,
     positions: [
       { name: "Where You Stand", meaning: "Your current position",              cx: 16, cy: 62 },
       { name: "What to Release", meaning: "What is holding you back",           cx: 33, cy: 28 },
@@ -76,7 +76,7 @@ export const SYSTEM_SPREADS = [
     cardCount: 6,
     heightRatio: 1.48,
     cardSizeW: 28,
-    bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/0a797f66c_openart-image_1779029763494_8e664340_1779029763558_79bd7942.png",
+    bgImage: null,
     positions: [
       { name: "Your Flame",  meaning: "Your current energy",              cx: 27, cy: 18 },
       { name: "Their Flame", meaning: "Their current energy",             cx: 73, cy: 18 },
@@ -94,7 +94,7 @@ export const SYSTEM_SPREADS = [
     cardCount: 7,
     heightRatio: 1.777,
     cardSizeW: 14.5,
-    bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/9d4bf3e3f_openart-image_1779028979511_53490d8d_1779028979979_f8b3b17b.png",
+    bgImage: null,
     positions: [
       { name: "The Heart",   meaning: "What you are growing toward",             cx: 50, cy: 12 },
       { name: "The Glow",    meaning: "Your emerging strength",                  cx: 78, cy: 25 },
@@ -113,7 +113,7 @@ export const SYSTEM_SPREADS = [
     cardCount: 7,
     heightRatio: 1.777,
     cardSizeW: 20,
-    bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/90d51e135_openart-image_1779031497197_94d87d34_1779031497399_eed67465.png",
+    bgImage: null,
     positions: [
       { name: "Alcyone", meaning: "The calm at the center — your core truth",      cx: 50, cy: 52 },
       { name: "Maia",    meaning: "The nurturer — what needs tending",             cx: 50, cy: 13 },
@@ -132,7 +132,7 @@ export const SYSTEM_SPREADS = [
     cardCount: 9,
     heightRatio: 1.48,
     cardSizeW: 16,
-    bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/4b0ea9276_openart-image_1779030473812_fe749b5c_1779030474083_cc672160.png",
+    bgImage: null,
     positions: [
       { name: "The Present",    meaning: "What surrounds you now",      cx: 39, cy: 50 },
       { name: "The Crown",      meaning: "What you aspire to",          cx: 39, cy: 25 },
