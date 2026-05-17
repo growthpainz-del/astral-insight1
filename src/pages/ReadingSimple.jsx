@@ -613,7 +613,7 @@ export default function ReadingSimple() {
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }} 
             exit={{ opacity: 0 }}
-            className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm"
           >
             <div className="relative w-32 h-48">
               {[0, 1, 2, 3].map((i) => (
