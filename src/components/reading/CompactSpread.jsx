@@ -164,7 +164,7 @@ function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, o
         marginTop:  -(cardH / 2),
         width:      cardW,
         height:     cardH,
-        zIndex:     10,
+        zIndex:     30,
       }}
       initial={animateIn ? { scale: 0, opacity: 0 } : false}
       animate={{ scale: 1, opacity: 1 }}
@@ -174,7 +174,7 @@ function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, o
         {!card && (
           <div
             className="absolute inset-0 flex items-center justify-center bg-transparent"
-            style={{ transform: `rotate(${rotation}deg)`, zIndex: 15 }}
+            style={{ transform: `rotate(${rotation}deg)`, zIndex: 25 }}
             onDragOver={enableExternalDrops ? (e) => { e.preventDefault(); e.dataTransfer.dropEffect = "copy"; } : undefined}
             onDrop={enableExternalDrops ? (e) => {
               e.preventDefault(); e.stopPropagation();
@@ -190,7 +190,7 @@ function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, o
         {card && !isRevealed && (
           <button type="button" onClick={() => onReveal(index)}
             className="absolute inset-0 rounded-xl overflow-hidden shadow-lg hover:scale-105 active:scale-95 transition-all"
-            style={{ transform: `rotate(${rotation}deg)`, zIndex: 15 }}
+            style={{ transform: `rotate(${rotation}deg)`, zIndex: 25 }}
           >
             {deck?.back_image_url
               ? <img src={deck.back_image_url} alt="Card back" className="w-full h-full object-cover" draggable={false} />
@@ -204,6 +204,7 @@ function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, o
             animate={{ rotateY: 0, opacity: 1, rotate: rotation }}
             transition={{ duration: 0.5, type: "spring" }}
             className="absolute inset-0 rounded-xl overflow-hidden shadow-xl hover:scale-105 active:scale-95 transition-all"
+            style={{ zIndex: 25 }}
           >
             {card.image_url
               ? <img src={card.image_url} alt={card.name} className={`w-full h-full object-cover ${card.is_reversed ? "rotate-180" : ""}`} draggable={false} />
