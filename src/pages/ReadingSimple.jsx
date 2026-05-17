@@ -845,16 +845,16 @@ export default function ReadingSimple() {
                     onClick={getDeeperInsight} 
                     className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-purple-50 shadow-[0_0_15px_rgba(147,51,234,0.3)]"
                   >
-                    <Sparkles className="w-4 h-4 mr-2" /> Deeper Insight (AI)
+                    <Sparkles className="w-4 h-4 mr-2" /> CosMosis · Deepen
                   </Button>
                 ) : isAiLoading ? (
                   <div className="flex items-center justify-center p-4">
                     <Loader2 className="w-6 h-6 animate-spin text-purple-400" />
-                    <span className="ml-2 text-purple-300 text-sm">Consulting the spirits...</span>
+                    <span className="ml-2 text-purple-300 text-sm">CosMosis is listening...</span>
                   </div>
                 ) : (
                   <div className="text-sm text-purple-50/90 bg-indigo-900/30 p-4 rounded-xl border border-indigo-500/30">
-                    <p className="font-semibold text-cyan-300 mb-2 flex items-center"><Sparkles className="w-4 h-4 mr-2" /> AI Insight:</p>
+                    <p className="font-semibold text-cyan-300 mb-2 flex items-center"><Sparkles className="w-4 h-4 mr-2" /> CosMosis:</p>
                     <div className="whitespace-pre-wrap leading-relaxed">{aiInterpretation}</div>
                   </div>
                 )}
@@ -905,16 +905,16 @@ export default function ReadingSimple() {
                       onClick={handleDeepenSpread} 
                       className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-purple-50 shadow-[0_0_15px_rgba(147,51,234,0.3)]"
                     >
-                      <Sparkles className="w-4 h-4 mr-2" /> Ask AI for Deeper Synthesis
+                      <Sparkles className="w-4 h-4 mr-2" /> CosMosis · Full Reading
                     </Button>
                   ) : isSpreadAiLoading ? (
                     <div className="flex flex-col items-center justify-center py-8">
                       <Loader2 className="w-8 h-8 animate-spin text-purple-400 mb-4" />
-                      <p className="text-purple-300">The spirits are synthesizing your reading...</p>
+                      <p className="text-purple-300">CosMosis is weaving your reading...</p>
                     </div>
                   ) : (
                     <div className="text-purple-100 whitespace-pre-wrap leading-relaxed text-lg bg-indigo-900/30 p-6 rounded-xl border border-indigo-500/30">
-                      <p className="font-semibold text-cyan-300 mb-4 flex items-center"><Sparkles className="w-5 h-5 mr-2" /> Deeper AI Insight:</p>
+                      <p className="font-semibold text-cyan-300 mb-4 flex items-center"><Sparkles className="w-5 h-5 mr-2" /> CosMosis:</p>
                       {spreadInterpretation}
                     </div>
                   )}
