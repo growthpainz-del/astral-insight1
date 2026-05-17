@@ -364,7 +364,7 @@ export default function SpreadLayout({
           />
         )}
 
-        {/* Cards — Layer 5 (above bg image, below frame overlay) */}
+        {/* Cards — Layer 10 (above bg image, below frame overlay) */}
         <AnimatePresence>
           {spreadDef.positions.map((position, idx) => (
             <CardSlot
