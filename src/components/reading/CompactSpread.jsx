@@ -171,14 +171,9 @@ function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, o
       transition={{ delay: animateIn ? index * 0.1 : 0, duration: 0.4, type: "spring", stiffness: 200, damping: 20 }}
     >
       <div className="relative flex flex-col items-center w-full h-full">
-
         {!card && (
           <div
-            className={`absolute inset-0 flex items-center justify-center ${
-              spread.bgImage
-                ? "bg-transparent"
-                : "rounded-xl border-2 border-dashed border-purple-400/40 bg-purple-900/20 backdrop-blur-sm"
-            }`}
+            className="absolute inset-0 flex items-center justify-center bg-transparent"
             style={{ transform: `rotate(${rotation}deg)` }}
             onDragOver={enableExternalDrops ? (e) => { e.preventDefault(); e.dataTransfer.dropEffect = "copy"; } : undefined}
             onDrop={enableExternalDrops ? (e) => {
@@ -190,52 +185,34 @@ function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, o
                 }
               } catch(err) { console.error(err); }
             } : undefined}
-          >
-            {!spread.bgImage && <span className="text-purple-300/60 text-[10px] font-bold">{index + 1}</span>}
-          </div>
+          />
         )}
-
         {card && !isRevealed && (
-          <button
-            type="button"
-            onClick={() => onReveal(index)}
+          <button type="button" onClick={() => onReveal(index)}
             className="absolute inset-0 rounded-xl overflow-hidden shadow-lg hover:scale-105 active:scale-95 transition-all"
             style={{ transform: `rotate(${rotation}deg)` }}
           >
-            {deck?.back_image_url ? (
-              <img src={deck.back_image_url} alt="Card back" className="w-full h-full object-cover" draggable={false} />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-800 to-indigo-900">
-                <Sparkles className="w-4 h-4 text-purple-300/40" />
-              </div>
-            )}
+            {deck?.back_image_url
+              ? <img src={deck.back_image_url} alt="Card back" className="w-full h-full object-cover" draggable={false} />
+              : <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-800 to-indigo-900"><Sparkles className="w-4 h-4 text-purple-300/40" /></div>
+            }
           </button>
         )}
-
         {card && isRevealed && (
-          <motion.button
-            type="button"
-            onClick={() => onCardClick?.(card, index)}
+          <motion.button type="button" onClick={() => onCardClick?.(card, index)}
             initial={{ rotateY: 180, opacity: 0, rotate: rotation }}
             animate={{ rotateY: 0, opacity: 1, rotate: rotation }}
             transition={{ duration: 0.5, type: "spring" }}
             className="absolute inset-0 rounded-xl overflow-hidden shadow-xl hover:scale-105 active:scale-95 transition-all"
           >
-            {card.image_url ? (
-              <img
-                src={card.image_url}
-                alt={card.name}
-                className={`w-full h-full object-cover ${card.is_reversed ? "rotate-180" : ""}`}
-                draggable={false}
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center p-1 bg-gradient-to-br from-purple-900/80 to-indigo-900/80">
-                <span className="text-white text-[8px] text-center font-semibold leading-tight">{card.name}</span>
-              </div>
-            )}
+            {card.image_url
+              ? <img src={card.image_url} alt={card.name} className={`w-full h-full object-cover ${card.is_reversed ? "rotate-180" : ""}`} draggable={false} />
+              : <div className="w-full h-full flex items-center justify-center p-1 bg-gradient-to-br from-purple-900/80 to-indigo-900/80">
+                  <span className="text-white text-[8px] text-center font-semibold leading-tight">{card.name}</span>
+                </div>
+            }
           </motion.button>
         )}
-
       </div>
     </motion.div>
   );
@@ -259,9 +236,7 @@ export default function SpreadLayout({
     const el = containerRef.current;
     if (!el) return;
     const ro = new ResizeObserver(entries => {
-      for (const e of entries) {
-        setContainerW(Math.min(Math.round(e.contentRect.width || el.clientWidth || 320), 460));
-      }
+      for (const e of entries) setContainerW(Math.min(Math.round(e.contentRect.width || el.clientWidth || 320), 460));
     });
     ro.observe(el);
     setContainerW(Math.min(Math.round(el.clientWidth || 320), 460));
@@ -272,89 +247,48 @@ export default function SpreadLayout({
     typeof spread === "string"
       ? SYSTEM_SPREADS.find(s => s.id === spread)
       : SYSTEM_SPREADS.find(s => s.id === spread?.id) ||
-        (spread?.positions ? {
-          id: spread.id || "custom",
-          name: spread.name || "Custom Spread",
-          positions: spread.positions,
-          cardCount: spread.positions.length,
-          heightRatio: 1.5,
-          cardSizeW: 22,
-        } : null);
+        (spread?.positions ? { id: spread.id || "custom", name: spread.name || "Custom Spread", positions: spread.positions, cardCount: spread.positions.length, heightRatio: 1.5, cardSizeW: 22 } : null);
 
-  if (!spreadDef) {
-    return (
-      <div className="w-full flex items-center justify-center p-8 text-center">
-        <Sparkles className="w-8 h-8 mx-auto mb-2 animate-pulse text-purple-400" />
-        <p className="text-sm font-['Cinzel'] text-purple-200">No spread selected</p>
-      </div>
-    );
-  }
+  if (!spreadDef) return (
+    <div className="w-full flex items-center justify-center p-8 text-center">
+      <Sparkles className="w-8 h-8 mx-auto mb-2 animate-pulse text-purple-400" />
+      <p className="text-sm font-['Cinzel'] text-purple-200">No spread selected</p>
+    </div>
+  );
 
   const containerH = Math.round(containerW * (spreadDef.heightRatio || 1.5));
 
   return (
     <div className="flex flex-col items-center justify-center w-full h-full">
       <div ref={containerRef} style={{ width: "100%", maxWidth: 460, margin: "0 auto", position: "relative" }}>
-
         {!spreadDef.bgImage && (
-          <p className="font-['Cinzel'] text-xs text-purple-300/60 tracking-widest uppercase mb-2 text-center">
-            {spreadDef.name}
-          </p>
+          <p className="font-['Cinzel'] text-xs text-purple-300/60 tracking-widest uppercase mb-2 text-center">{spreadDef.name}</p>
         )}
-
-        {/* Mat */}
         <div
           className="relative rounded-2xl overflow-hidden"
           style={{
             width:  "100%",
             height: containerH,
-            background: spreadDef.bgImage
-              ? "radial-gradient(ellipse at 50% 40%, rgba(30,10,60,1) 0%, rgba(4,2,12,1) 100%)"
-              : "radial-gradient(ellipse at 50% 40%, rgba(88,28,135,0.22) 0%, rgba(8,4,18,0.75) 100%)",
+            background: "radial-gradient(ellipse at 50% 40%, rgba(30,10,60,1) 0%, rgba(4,2,12,1) 100%)",
             border:    spreadDef.bgImage ? "none" : "1px solid rgba(168,85,247,0.3)",
             boxShadow: spreadDef.bgImage ? "none" : "0 0 40px rgba(100,50,200,0.15) inset",
           }}
         >
           <AnimatePresence>
             {spreadDef.positions.map((position, idx) => (
-              <CardSlot
-                key={idx}
-                index={idx}
-                spread={spreadDef}
-                position={position}
-                card={cards[idx] || null}
-                deck={deck}
-                isRevealed={revealedCards.has(idx)}
-                onReveal={onCardReveal}
-                onCardClick={onCardClick}
-                animateIn={animateSpread}
-                containerW={containerW}
-                containerH={containerH}
-                enableExternalDrops={enableExternalDrops}
-                onExternalDrop={onExternalDrop}
+              <CardSlot key={idx} index={idx} spread={spreadDef} position={position}
+                card={cards[idx] || null} deck={deck}
+                isRevealed={revealedCards.has(idx)} onReveal={onCardReveal} onCardClick={onCardClick}
+                animateIn={animateSpread} containerW={containerW} containerH={containerH}
+                enableExternalDrops={enableExternalDrops} onExternalDrop={onExternalDrop}
               />
             ))}
           </AnimatePresence>
 
           {spreadDef.bgImage && (
-            <img
-              src={spreadDef.bgImage}
-              alt=""
-              className="absolute inset-0 w-full h-full pointer-events-none"
-              style={{ objectFit: "fill", zIndex: 20 }}
-              draggable={false}
+            <img src={spreadDef.bgImage} alt="" className="absolute inset-0 w-full h-full pointer-events-none"
+              style={{ objectFit: "fill", zIndex: 20 }} draggable={false}
             />
-          )}
-
-          {!spreadDef.bgImage && (
-            <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ opacity: 0.06, zIndex: 10 }} preserveAspectRatio="xMidYMid slice">
-              <defs>
-                <pattern id="rg3" width="32" height="32" patternUnits="userSpaceOnUse">
-                  <path d="M 32 0 L 0 0 0 32" fill="none" stroke="rgba(200,150,255,1)" strokeWidth="0.5"/>
-                </pattern>
-              </defs>
-              <rect width="100%" height="100%" fill="url(#rg3)" />
-            </svg>
           )}
 
           {spreadDef.positions.map((position, idx) => {
@@ -370,16 +304,12 @@ export default function SpreadLayout({
               >
                 {!card && (
                   <div className="absolute top-full mt-1 w-max left-1/2 -translate-x-1/2 pointer-events-none">
-                    <p className="text-purple-200/80 text-[9px] font-semibold text-center leading-tight bg-black/60 px-1.5 py-0.5 rounded backdrop-blur-sm" style={{ maxWidth: cardW + 24 }}>
-                      {position.name}
-                    </p>
+                    <p className="text-purple-200/80 text-[9px] font-semibold text-center leading-tight bg-black/60 px-1.5 py-0.5 rounded backdrop-blur-sm" style={{ maxWidth: cardW + 24 }}>{position.name}</p>
                   </div>
                 )}
                 {card && !isRevealed && (
                   <div className="absolute top-full mt-1 w-max left-1/2 -translate-x-1/2 pointer-events-none">
-                    <p className="text-purple-200/55 text-[8px] font-semibold text-center leading-tight bg-black/60 px-1.5 py-0.5 rounded backdrop-blur-sm" style={{ maxWidth: cardW + 24 }}>
-                      {position.name}
-                    </p>
+                    <p className="text-purple-200/55 text-[8px] font-semibold text-center leading-tight bg-black/60 px-1.5 py-0.5 rounded backdrop-blur-sm" style={{ maxWidth: cardW + 24 }}>{position.name}</p>
                   </div>
                 )}
                 {card && isRevealed && (
@@ -391,9 +321,8 @@ export default function SpreadLayout({
               </div>
             );
           })}
-        </div>{/* End Mat */}
+        </div>
 
-        {/* Position guide */}
         <div className="w-full max-w-sm mt-3 space-y-1 px-1 relative z-30">
           {spreadDef.positions.map((pos, idx) => (
             <div key={idx} className="flex items-start gap-2">
@@ -403,7 +332,6 @@ export default function SpreadLayout({
             </div>
           ))}
         </div>
-
       </div>
     </div>
   );
@@ -415,11 +343,7 @@ export function SpreadSelector({ selectedId, onSelect, customSpreads = [] }) {
     <div className="grid grid-cols-2 gap-2.5">
       {allSpreads.map((spread) => (
         <button key={spread.id} type="button" onClick={() => onSelect(spread)}
-          className={`relative p-3 rounded-xl border text-left transition-all ${
-            selectedId === spread.id
-              ? "border-purple-400/80 bg-purple-600/20 shadow-[0_0_14px_rgba(147,51,234,0.25)]"
-              : "border-purple-500/20 bg-[#160f2a] hover:border-purple-500/40"
-          }`}
+          className={`relative p-3 rounded-xl border text-left transition-all ${selectedId === spread.id ? "border-purple-400/80 bg-purple-600/20 shadow-[0_0_14px_rgba(147,51,234,0.25)]" : "border-purple-500/20 bg-[#160f2a] hover:border-purple-500/40"}`}
         >
           <div className="text-xl mb-1 leading-none">{spread.icon}</div>
           <div className="font-['Cinzel'] text-[10px] text-white font-semibold leading-tight mb-1">{spread.name}</div>
