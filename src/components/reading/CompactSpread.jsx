@@ -130,23 +130,22 @@ export const SYSTEM_SPREADS = [
   {
     id: "celtic_cross",
     name: "Celtic Cross",
-    description: "The classic deep reading — ten windows into your situation",
+    description: "A 9-card overlap-free reading into your situation",
     icon: "✛",
-    cardCount: 10,
-    heightRatio: 1.777,
-    cardSizeW: 14,
-    bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/7b990a5da_20560908-71DC-4542-9A8A-4417D41E721A.png",
+    cardCount: 9,
+    heightRatio: 1.248,
+    cardSizeW: 16.5,
+    bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/fb015c683_7C456D9E-3F15-4B11-8FB6-A80E35DE29882.png",
     positions: [
-      { name: "The Present",    meaning: "What surrounds you now",         cx: 39, cy: 52.5 },
-      { name: "The Cross",      meaning: "What challenges or supports you", cx: 39, cy: 52.5, rotation: 90 },
-      { name: "The Crown",      meaning: "What you aspire to",             cx: 39, cy: 31 },
-      { name: "The Root",       meaning: "What grounds this situation",    cx: 39, cy: 74 },
-      { name: "The Past",       meaning: "What is passing away",           cx: 14.5, cy: 52.5 },
-      { name: "The Future",     meaning: "What is approaching",            cx: 63.5, cy: 52.5 },
-      { name: "Your Power",     meaning: "How you see yourself",           cx: 85, cy: 83.5 },
-      { name: "Outside Forces", meaning: "How others see you",             cx: 85, cy: 62.5 },
-      { name: "Hopes & Fears",  meaning: "What you hold inside",           cx: 85, cy: 42 },
-      { name: "The Outcome",    meaning: "Where this is heading",          cx: 85, cy: 21.5 },
+      { name: "The Present",    meaning: "What surrounds you now",         cx: 38.5, cy: 50.2 },
+      { name: "The Past",       meaning: "What is passing away",           cx: 14.5, cy: 50.2 },
+      { name: "The Future",     meaning: "What is approaching",            cx: 62.5, cy: 50.2 },
+      { name: "The Crown",      meaning: "What you aspire to",             cx: 38.5, cy: 24.5 },
+      { name: "The Root",       meaning: "What grounds this situation",    cx: 38.5, cy: 75.8 },
+      { name: "Your Power",     meaning: "How you see yourself",           cx: 85.5, cy: 84 },
+      { name: "Outside Forces", meaning: "How others see you",             cx: 85.5, cy: 61.5 },
+      { name: "Hopes & Fears",  meaning: "What you hold inside",           cx: 85.5, cy: 38.5 },
+      { name: "The Outcome",    meaning: "Where this is heading",          cx: 85.5, cy: 16.5 },
     ]
   },
 ];
@@ -170,7 +169,7 @@ function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, o
         y:         "-50%",
         width:     cardW,
         height:    cardH,
-        zIndex:    30,   // Cards sit ABOVE the frame overlay so they are visible (until transparent PNGs are used)
+        zIndex:    10,   // Cards sit BELOW the frame overlay
       }}
       initial={animateIn ? { scale: 0, opacity: 0 } : false}
       animate={{ scale: 1, opacity: 1 }}
