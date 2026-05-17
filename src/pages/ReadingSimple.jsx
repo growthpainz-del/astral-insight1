@@ -495,7 +495,7 @@ export default function ReadingSimple() {
               </div>
             )}
             {selectedSpread ? (
-             <div className="w-full min-h-full flex items-center justify-center pb-8" style={{width: "100%", maxWidth: "100%", overflow: "hidden"}}>
+                <div style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100%", paddingBottom: 32 }}>
 
                 <SpreadLayout
                   spread={selectedSpread}
