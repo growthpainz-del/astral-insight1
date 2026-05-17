@@ -165,8 +165,8 @@ function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, o
       style={{
         left:      `${leftPos}%`,
         top:       `${topPos}%`,
-        x:         "-50%",
-        y:         "-50%",
+        marginLeft: -(cardW / 2),
+        marginTop:  -(cardH / 2),
         width:     cardW,
         height:    cardH,
         zIndex:    10,   // Cards sit BELOW the frame overlay
