@@ -170,7 +170,7 @@ function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, o
         y:         "-50%",
         width:     cardW,
         height:    cardH,
-        zIndex:    10,   // Cards sit BELOW the frame overlay (zIndex 20)
+        zIndex:    30,   // Cards sit ABOVE the frame overlay so they are visible (until transparent PNGs are used)
       }}
       initial={animateIn ? { scale: 0, opacity: 0 } : false}
       animate={{ scale: 1, opacity: 1 }}
@@ -436,7 +436,7 @@ export default function SpreadLayout({
                 transform: "translate(-50%, -50%)",
                 width: cardW,
                 height: cardH,
-                zIndex: 25,
+                zIndex: 35,
               }}
             >
               {!card && (
