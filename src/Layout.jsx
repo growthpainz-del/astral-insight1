@@ -345,6 +345,7 @@ export default function Layout({ children, currentPageName }) {
       if (
         readingRelatedPages.has(currentPageName) &&
         currentPageName !== "Reading" &&
+        currentPageName !== "ReadingSimple" &&
         deckId
       ) {
         const query = new URLSearchParams();
@@ -403,6 +404,7 @@ export default function Layout({ children, currentPageName }) {
   const hideFloatingSaveOn = new Set([
     "DeckView",
     "Reading",
+    "ReadingSimple",
     "DeckGallery",
     "CreateDeck",
   ]);
@@ -474,7 +476,7 @@ export default function Layout({ children, currentPageName }) {
           {/* Sidebar removed */}
           <div className="flex-1 flex flex-col">
             {/* Global header */}
-            {currentPageName !== "Reading" && (
+            {currentPageName !== "Reading" && currentPageName !== "ReadingSimple" && (
               <header className="bg-slate-900/95 backdrop-blur-lg border-b border-purple-800/40 h-16 pt-[env(safe-area-inset-top)] flex items-center px-4 justify-between flex-shrink-0 sticky top-0 z-40">
                 <div className="w-10"></div>
                 <Link to={createPageUrl("DashboardHub")} className="flex items-center gap-2">
@@ -513,7 +515,7 @@ export default function Layout({ children, currentPageName }) {
             <main
               id="main-scroll-area"
               className={`flex-1 w-full ${
-                currentPageName === "Reading" ? "p-0" : "pb-[calc(env(safe-area-inset-bottom,0px)+24px)] pt-[calc(4rem+64px+env(safe-area-inset-top,0px))]"
+                (currentPageName === "Reading" || currentPageName === "ReadingSimple") ? "p-0" : "pb-[calc(env(safe-area-inset-bottom,0px)+24px)] pt-[calc(4rem+64px+env(safe-area-inset-top,0px))]"
               }`}
               style={{
                 overflowY: "auto",
@@ -538,7 +540,7 @@ export default function Layout({ children, currentPageName }) {
                       You don't have permission to view this area.
                     </p>
                   </motion.div>
-                ) : currentPageName === "Reading" ? (
+                ) : (currentPageName === "Reading" || currentPageName === "ReadingSimple") ? (
                   <div key={currentPageName} className="w-full h-full">
                     {children}
                   </div>
