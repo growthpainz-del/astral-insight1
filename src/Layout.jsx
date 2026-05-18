@@ -474,43 +474,47 @@ export default function Layout({ children, currentPageName }) {
           {/* Sidebar removed */}
           <div className="flex-1 flex flex-col">
             {/* Global header */}
-            <header className="bg-slate-900/95 backdrop-blur-lg border-b border-purple-800/40 h-16 pt-[env(safe-area-inset-top)] flex items-center px-4 justify-between flex-shrink-0 sticky top-0 z-40">
-              <div className="w-10"></div>
-              <Link to={createPageUrl("DashboardHub")} className="flex items-center gap-2">
-                <img
-                  src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/0fad39924_IMG_0076.png"
-                  alt="Logo"
-                  className="h-8 w-8"
-                />
-              </Link>
-              {["CosmicHub", "ReadingRoom", "Studio", "Journal", "DashboardHub"].includes(
-                currentPageName
-              ) ? (
-                <Link
-                  to={createPageUrl("DashboardHub")}
-                  className="text-purple-300 hover:text-purple-100 active:scale-95 transition-all p-2 -mr-2 touch-manipulation"
-                  style={{ WebkitTapHighlightColor: "transparent" }}
-                >
+            {currentPageName !== "Reading" && (
+              <header className="bg-slate-900/95 backdrop-blur-lg border-b border-purple-800/40 h-16 pt-[env(safe-area-inset-top)] flex items-center px-4 justify-between flex-shrink-0 sticky top-0 z-40">
+                <div className="w-10"></div>
+                <Link to={createPageUrl("DashboardHub")} className="flex items-center gap-2">
                   <img
                     src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/0fad39924_IMG_0076.png"
                     alt="Logo"
-                    className="h-6 w-6 rounded"
+                    className="h-8 w-8"
                   />
                 </Link>
-              ) : (
-                <button
-                  onClick={handleMobileBack}
-                  className="text-purple-300 hover:text-purple-100 active:scale-95 transition-all p-2 -mr-2 touch-manipulation"
-                  style={{ WebkitTapHighlightColor: "transparent" }}
-                >
-                  <ChevronLeft className="w-6 h-6" />
-                </button>
-              )}
-            </header>
+                {["CosmicHub", "ReadingRoom", "Studio", "Journal", "DashboardHub"].includes(
+                  currentPageName
+                ) ? (
+                  <Link
+                    to={createPageUrl("DashboardHub")}
+                    className="text-purple-300 hover:text-purple-100 active:scale-95 transition-all p-2 -mr-2 touch-manipulation"
+                    style={{ WebkitTapHighlightColor: "transparent" }}
+                  >
+                    <img
+                      src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/0fad39924_IMG_0076.png"
+                      alt="Logo"
+                      className="h-6 w-6 rounded"
+                    />
+                  </Link>
+                ) : (
+                  <button
+                    onClick={handleMobileBack}
+                    className="text-purple-300 hover:text-purple-100 active:scale-95 transition-all p-2 -mr-2 touch-manipulation"
+                    style={{ WebkitTapHighlightColor: "transparent" }}
+                  >
+                    <ChevronLeft className="w-6 h-6" />
+                  </button>
+                )}
+              </header>
+            )}
 
             <main
               id="main-scroll-area"
-              className="flex-1 w-full pb-[calc(env(safe-area-inset-bottom,0px)+24px)] pt-[calc(4rem+64px+env(safe-area-inset-top,0px))]"
+              className={`flex-1 w-full pb-[calc(env(safe-area-inset-bottom,0px)+24px)] ${
+                currentPageName === "Reading" ? "pt-0" : "pt-[calc(4rem+64px+env(safe-area-inset-top,0px))]"
+              }`}
               style={{
                 overflowY: "auto",
                 WebkitOverflowScrolling: "touch",
