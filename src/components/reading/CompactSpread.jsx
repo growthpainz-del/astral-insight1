@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles } from "lucide-react";
@@ -12,7 +12,6 @@ export const SYSTEM_SPREADS = [
     cardCount: 1,
     heightRatio: 1.5,
     cardSizeW: 42,
-    bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/a9ece224f_623DCCF0-DA44-412C-A859-1EF9BAB3AD0E.jpg",
     positions: [
       { name: "The Message", meaning: "What the universe wants you to know right now", cx: 50, cy: 45 }
     ]
@@ -25,7 +24,6 @@ export const SYSTEM_SPREADS = [
     cardCount: 3,
     heightRatio: 1.4,
     cardSizeW: 26,
-    bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/0b234efe2_BF77BAB2-9E19-43E0-B699-B646CC6CD6EB.jpg",
     positions: [
       { name: "Root",      meaning: "What has shaped this situation",    cx: 19, cy: 58 },
       { name: "Now",       meaning: "The energy present in this moment", cx: 50, cy: 58 },
@@ -40,7 +38,6 @@ export const SYSTEM_SPREADS = [
     cardCount: 5,
     heightRatio: 1.5,
     cardSizeW: 22,
-    bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/4cc2eb239_DFB9ECCF-D95C-40DE-A441-C8D5943DAC51.jpg",
     positions: [
       { name: "Foundation",  meaning: "What your business is built on", cx: 50, cy: 13 },
       { name: "Challenge",   meaning: "What is blocking growth",        cx: 16, cy: 50 },
@@ -57,7 +54,6 @@ export const SYSTEM_SPREADS = [
     cardCount: 7,
     heightRatio: 1.2,
     cardSizeW: 13,
-    bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/e12dab110_906DA0D9-0561-4501-B690-E108CBACB5EE.png",
     positions: [
       { name: "Where You Stand", meaning: "Your current position",              cx: 16, cy: 62 },
       { name: "What to Release", meaning: "What is holding you back",           cx: 33, cy: 28 },
@@ -76,7 +72,6 @@ export const SYSTEM_SPREADS = [
     cardCount: 6,
     heightRatio: 1.48,
     cardSizeW: 28,
-    bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/af9574097_B2AD8A1B-8329-453D-A25F-53D7967279A5.jpg",
     positions: [
       { name: "Your Flame",  meaning: "Your current energy",              cx: 27, cy: 18 },
       { name: "Their Flame", meaning: "Their current energy",             cx: 73, cy: 18 },
@@ -94,7 +89,6 @@ export const SYSTEM_SPREADS = [
     cardCount: 7,
     heightRatio: 1.777,
     cardSizeW: 14.5,
-    bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/184675102_337FE68D-283C-42EB-A683-AB6A864D02FE.png",
     positions: [
       { name: "The Heart",   meaning: "What you are growing toward",             cx: 50, cy: 12 },
       { name: "The Glow",    meaning: "Your emerging strength",                  cx: 78, cy: 25 },
@@ -113,7 +107,6 @@ export const SYSTEM_SPREADS = [
     cardCount: 7,
     heightRatio: 1.777,
     cardSizeW: 20,
-    bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/237f441ac_21FE48D5-73BB-466A-844F-73E5BACDF064.jpg",
     positions: [
       { name: "Alcyone", meaning: "The calm at the center — your core truth",      cx: 50, cy: 52 },
       { name: "Maia",    meaning: "The nurturer — what needs tending",             cx: 50, cy: 13 },
@@ -132,7 +125,6 @@ export const SYSTEM_SPREADS = [
     cardCount: 9,
     heightRatio: 1.48,
     cardSizeW: 16,
-    bgImage: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/e5c22926e_8234A815-C58C-479A-8C6A-F1E2D18D3909.png",
     positions: [
       { name: "The Present",    meaning: "What surrounds you now",      cx: 39, cy: 50 },
       { name: "The Crown",      meaning: "What you aspire to",          cx: 39, cy: 25 },
@@ -147,12 +139,34 @@ export const SYSTEM_SPREADS = [
   },
 ];
 
+const EMPTY_SLOT_STYLE = {
+  background: "radial-gradient(ellipse at center, #1a0a2e 0%, #0a0414 100%)",
+  border: "2px dashed rgba(201,168,76,0.3)",
+  boxShadow: "0 0 12px rgba(147,51,234,0.2), inset 0 0 12px rgba(100,50,200,0.15)",
+  borderRadius: 10,
+};
+
+const CARD_BACK_STYLE = {
+  background: "radial-gradient(ellipse at center, #1a0a2e 0%, #0a0414 100%)",
+  border: "2px solid rgba(201,168,76,0.7)",
+  boxShadow: "0 0 18px rgba(201,168,76,0.3), 0 0 30px rgba(147,51,234,0.3), inset 0 0 10px rgba(100,50,200,0.2)",
+  borderRadius: 10,
+  cursor: "pointer",
+};
+
+const CARD_REVEALED_STYLE = {
+  border: "2px solid rgba(201,168,76,0.9)",
+  boxShadow: "0 0 25px rgba(201,168,76,0.4), 0 0 40px rgba(147,51,234,0.4)",
+  borderRadius: 10,
+  cursor: "pointer",
+};
+
 function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, onCardClick, animateIn, containerW, containerH, enableExternalDrops, onExternalDrop }) {
-  const cardW    = Math.round(containerW * (spread.cardSizeW || 22) / 100);
-  const cardH    = Math.round(cardW * 1.58);
+  const cardW = Math.round(containerW * (spread.cardSizeW || 22) / 100);
+  const cardH = Math.round(cardW * 1.58);
   const rotation = position.rotation || 0;
-  const leftPos  = position.cx ?? position.x ?? 50;
-  const topPos   = position.cy ?? position.y ?? 50;
+  const leftPos = position.cx ?? position.x ?? 50;
+  const topPos  = position.cy ?? position.y ?? 50;
 
   return (
     <motion.div
@@ -164,55 +178,93 @@ function CardSlot({ spread, position, index, card, deck, isRevealed, onReveal, o
         marginTop:  -(cardH / 2),
         width:      cardW,
         height:     cardH,
-        zIndex:     30,
+        zIndex:     10,
+        transform:  `rotate(${rotation}deg)`,
       }}
       initial={animateIn ? { scale: 0, opacity: 0 } : false}
       animate={{ scale: 1, opacity: 1 }}
-      transition={{ delay: animateIn ? index * 0.1 : 0, duration: 0.4, type: "spring", stiffness: 200, damping: 20 }}
+      transition={{ delay: animateIn ? index * 0.12 : 0, duration: 0.4, type: "spring", stiffness: 200, damping: 20 }}
     >
-      <div className="relative flex flex-col items-center w-full h-full">
+      {/* Empty slot */}
+      {!card && (
+        <div
+          style={{ ...EMPTY_SLOT_STYLE, width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}
+          onDragOver={enableExternalDrops ? (e) => { e.preventDefault(); e.dataTransfer.dropEffect = "copy"; } : undefined}
+          onDrop={enableExternalDrops ? (e) => {
+            e.preventDefault(); e.stopPropagation();
+            try {
+              const payload = JSON.parse(e.dataTransfer.getData("application/json"));
+              if (payload?.source === "bottom-shelf" && typeof payload.cardIndex === "number") {
+                onExternalDrop({ targetIndex: index, cardIndex: payload.cardIndex });
+              }
+            } catch(err) {}
+          } : undefined}
+        >
+          <span style={{ color: "rgba(201,168,76,0.4)", fontSize: 11, fontWeight: "bold" }}>{index + 1}</span>
+        </div>
+      )}
+
+      {/* Card back — unreveal */}
+      {card && !isRevealed && (
+        <div
+          onClick={() => onReveal(index)}
+          style={{ ...CARD_BACK_STYLE, width: "100%", height: "100%", overflow: "hidden" }}
+        >
+          {deck?.back_image_url ? (
+            <img src={deck.back_image_url} alt="Card back" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 8 }} draggable={false} />
+          ) : (
+            <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "radial-gradient(ellipse at center, #2d1b69 0%, #0a0414 100%)" }}>
+              <Sparkles style={{ width: 20, height: 20, color: "rgba(201,168,76,0.6)" }} />
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Revealed card */}
+      {card && isRevealed && (
+        <motion.div
+          onClick={() => onCardClick?.(card, index)}
+          initial={{ rotateY: 90, opacity: 0 }}
+          animate={{ rotateY: 0, opacity: 1 }}
+          transition={{ duration: 0.4, type: "spring" }}
+          style={{ ...CARD_REVEALED_STYLE, width: "100%", height: "100%", overflow: "hidden" }}
+        >
+          {card.image_url ? (
+            <img
+              src={card.image_url}
+              alt={card.name}
+              style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 8, transform: card.is_reversed ? "rotate(180deg)" : "none" }}
+              draggable={false}
+            />
+          ) : (
+            <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", padding: 4, background: "radial-gradient(ellipse at center, #2d1b69 0%, #0a0414 100%)" }}>
+              <span style={{ color: "white", fontSize: 9, textAlign: "center", fontWeight: 600, lineHeight: 1.3 }}>{card.name}</span>
+            </div>
+          )}
+        </motion.div>
+      )}
+
+      {/* Position label */}
+      <div style={{ position: "absolute", top: "100%", left: "50%", transform: "translateX(-50%)", marginTop: 4, textAlign: "center", whiteSpace: "nowrap", pointerEvents: "none" }}>
         {!card && (
-          <div
-            className="absolute inset-0 flex items-center justify-center bg-transparent"
-            style={{ transform: `rotate(${rotation}deg)`, zIndex: 25 }}
-            onDragOver={enableExternalDrops ? (e) => { e.preventDefault(); e.dataTransfer.dropEffect = "copy"; } : undefined}
-            onDrop={enableExternalDrops ? (e) => {
-              e.preventDefault(); e.stopPropagation();
-              try {
-                const payload = JSON.parse(e.dataTransfer.getData("application/json"));
-                if (payload?.source === "bottom-shelf" && typeof payload.cardIndex === "number") {
-                  onExternalDrop({ targetIndex: index, cardIndex: payload.cardIndex });
-                }
-              } catch(err) { console.error(err); }
-            } : undefined}
-          />
+          <span style={{ fontSize: 9, fontWeight: 600, color: "rgba(201,168,76,0.7)", background: "rgba(0,0,0,0.6)", padding: "2px 6px", borderRadius: 4, backdropFilter: "blur(4px)" }}>
+            {position.name}
+          </span>
         )}
         {card && !isRevealed && (
-          <button type="button" onClick={() => onReveal(index)}
-            className="absolute inset-0 rounded-xl overflow-hidden shadow-lg hover:scale-105 active:scale-95 transition-all"
-            style={{ transform: `rotate(${rotation}deg)`, zIndex: 25 }}
-          >
-            {deck?.back_image_url
-              ? <img src={deck.back_image_url} alt="Card back" className="w-full h-full object-cover" draggable={false} />
-              : <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-800 to-indigo-900"><Sparkles className="w-4 h-4 text-purple-300/40" /></div>
-            }
-          </button>
+          <span style={{ fontSize: 8, color: "rgba(201,168,76,0.5)", background: "rgba(0,0,0,0.6)", padding: "2px 6px", borderRadius: 4, backdropFilter: "blur(4px)" }}>
+            {position.name}
+          </span>
         )}
         {card && isRevealed && (
-          <motion.button type="button" onClick={() => onCardClick?.(card, index)}
-            initial={{ rotateY: 180, opacity: 0, rotate: rotation }}
-            animate={{ rotateY: 0, opacity: 1, rotate: rotation }}
-            transition={{ duration: 0.5, type: "spring" }}
-            className="absolute inset-0 rounded-xl overflow-hidden shadow-xl hover:scale-105 active:scale-95 transition-all"
-            style={{ zIndex: 25 }}
-          >
-            {card.image_url
-              ? <img src={card.image_url} alt={card.name} className={`w-full h-full object-cover ${card.is_reversed ? "rotate-180" : ""}`} draggable={false} />
-              : <div className="w-full h-full flex items-center justify-center p-1 bg-gradient-to-br from-purple-900/80 to-indigo-900/80">
-                  <span className="text-white text-[8px] text-center font-semibold leading-tight">{card.name}</span>
-                </div>
-            }
-          </motion.button>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+            <span style={{ fontSize: 8, fontWeight: 600, color: "white", background: "rgba(0,0,0,0.7)", padding: "2px 6px", borderRadius: 4, maxWidth: cardW + 16, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              {card.name}
+            </span>
+            <span style={{ fontSize: 7, color: "rgba(201,168,76,0.8)", background: "rgba(88,28,135,0.8)", padding: "1px 5px", borderRadius: 3 }}>
+              {position.name}
+            </span>
+          </div>
         )}
       </div>
     </motion.div>
@@ -237,10 +289,10 @@ export default function SpreadLayout({
     const el = containerRef.current;
     if (!el) return;
     const ro = new ResizeObserver(entries => {
-      for (const e of entries) setContainerW(Math.min(Math.round(e.contentRect.width || el.clientWidth || 320), 460));
+      for (const e of entries) setContainerW(Math.min(Math.round(e.contentRect.width || el.clientWidth || 320), 520));
     });
     ro.observe(el);
-    setContainerW(Math.min(Math.round(el.clientWidth || 320), 460));
+    setContainerW(Math.min(Math.round(el.clientWidth || 320), 520));
     return () => ro.disconnect();
   }, []);
 
@@ -248,88 +300,97 @@ export default function SpreadLayout({
     typeof spread === "string"
       ? SYSTEM_SPREADS.find(s => s.id === spread)
       : SYSTEM_SPREADS.find(s => s.id === spread?.id) ||
-        (spread?.positions ? { id: spread.id || "custom", name: spread.name || "Custom Spread", positions: spread.positions, cardCount: spread.positions.length, heightRatio: 1.5, cardSizeW: 22 } : null);
+        (spread?.positions ? {
+          id: spread.id || "custom",
+          name: spread.name || "Custom Spread",
+          positions: spread.positions,
+          cardCount: spread.positions.length,
+          heightRatio: 1.5,
+          cardSizeW: 22,
+        } : null);
 
   if (!spreadDef) return (
-    <div className="w-full flex items-center justify-center p-8 text-center">
-      <Sparkles className="w-8 h-8 mx-auto mb-2 animate-pulse text-purple-400" />
-      <p className="text-sm font-['Cinzel'] text-purple-200">No spread selected</p>
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: 32, textAlign: "center" }}>
+      <div>
+        <Sparkles style={{ width: 32, height: 32, color: "#9333ea", margin: "0 auto 8px" }} />
+        <p style={{ fontSize: 14, color: "#d8b4fe", fontFamily: "Cinzel, serif" }}>No spread selected</p>
+      </div>
     </div>
   );
 
   const containerH = Math.round(containerW * (spreadDef.heightRatio || 1.5));
 
   return (
-    <div className="flex flex-col items-center justify-center w-full h-full">
-      <div ref={containerRef} style={{ width: "100%", maxWidth: 460, margin: "0 auto", position: "relative" }}>
-        {!spreadDef.bgImage && (
-          <p className="font-['Cinzel'] text-xs text-purple-300/60 tracking-widest uppercase mb-2 text-center">{spreadDef.name}</p>
-        )}
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: "100%", height: "100%" }}>
+      <div ref={containerRef} style={{ width: "100%", maxWidth: 520, margin: "0 auto", position: "relative" }}>
+
+        {/* Spread name */}
+        <p style={{ fontFamily: "Cinzel, serif", fontSize: 11, color: "rgba(201,168,76,0.6)", textAlign: "center", letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: 8 }}>
+          {spreadDef.name}
+        </p>
+
+        {/* Mat */}
         <div
-          className="relative rounded-2xl overflow-hidden"
           style={{
-            width:  "100%",
+            position: "relative",
+            width: "100%",
             height: containerH,
-            background: "radial-gradient(ellipse at 50% 40%, rgba(30,10,60,1) 0%, rgba(4,2,12,1) 100%)",
-            border:    spreadDef.bgImage ? "none" : "1px solid rgba(168,85,247,0.3)",
-            boxShadow: spreadDef.bgImage ? "none" : "0 0 40px rgba(100,50,200,0.15) inset",
+            background: "radial-gradient(ellipse at 50% 40%, rgba(30,10,60,0.95) 0%, rgba(4,2,12,1) 100%)",
+            borderRadius: 16,
+            border: "1px solid rgba(201,168,76,0.2)",
+            boxShadow: "0 0 60px rgba(147,51,234,0.15) inset, 0 0 30px rgba(201,168,76,0.05) inset",
+            overflow: "visible",
           }}
         >
+          {/* Connecting lines SVG */}
+          <svg
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 1 }}
+            viewBox={`0 0 ${containerW} ${containerH}`}
+            preserveAspectRatio="none"
+          >
+            {spreadDef.positions.length > 1 && spreadDef.positions.map((pos, idx) => {
+              if (idx === 0) return null;
+              const x1 = (spreadDef.positions[0].cx / 100) * containerW;
+              const y1 = (spreadDef.positions[0].cy / 100) * containerH;
+              const x2 = (pos.cx / 100) * containerW;
+              const y2 = (pos.cy / 100) * containerH;
+              return (
+                <line key={idx} x1={x1} y1={y1} x2={x2} y2={y2}
+                  stroke="rgba(201,168,76,0.15)" strokeWidth="1" strokeDasharray="4 4"
+                />
+              );
+            })}
+          </svg>
+
           <AnimatePresence>
             {spreadDef.positions.map((position, idx) => (
-              <CardSlot key={idx} index={idx} spread={spreadDef} position={position}
-                card={cards[idx] || null} deck={deck}
-                isRevealed={revealedCards.has(idx)} onReveal={onCardReveal} onCardClick={onCardClick}
-                animateIn={animateSpread} containerW={containerW} containerH={containerH}
-                enableExternalDrops={enableExternalDrops} onExternalDrop={onExternalDrop}
+              <CardSlot
+                key={idx}
+                index={idx}
+                spread={spreadDef}
+                position={position}
+                card={cards[idx] || null}
+                deck={deck}
+                isRevealed={revealedCards.has(idx)}
+                onReveal={onCardReveal}
+                onCardClick={onCardClick}
+                animateIn={animateSpread}
+                containerW={containerW}
+                containerH={containerH}
+                enableExternalDrops={enableExternalDrops}
+                onExternalDrop={onExternalDrop}
               />
             ))}
           </AnimatePresence>
-
-          {spreadDef.bgImage && (
-            <img src={spreadDef.bgImage} alt="" className="absolute inset-0 w-full h-full pointer-events-none"
-              style={{ objectFit: "fill", zIndex: 20 }} draggable={false}
-            />
-          )}
-
-          {spreadDef.positions.map((position, idx) => {
-            const card = cards[idx] || null;
-            const isRevealed = revealedCards.has(idx);
-            const leftPos = position.cx ?? position.x ?? 50;
-            const topPos  = position.cy ?? position.y ?? 50;
-            const cardW   = Math.round(containerW * (spreadDef.cardSizeW || 22) / 100);
-            const cardH   = Math.round(cardW * 1.58);
-            return (
-              <div key={`badge-${idx}`} className="absolute pointer-events-none"
-                style={{ left: `${leftPos}%`, top: `${topPos}%`, transform: "translate(-50%, -50%)", width: cardW, height: cardH, zIndex: 35 }}
-              >
-                {!card && (
-                  <div className="absolute top-full mt-1 w-max left-1/2 -translate-x-1/2 pointer-events-none">
-                    <p className="text-purple-200/80 text-[9px] font-semibold text-center leading-tight bg-black/60 px-1.5 py-0.5 rounded backdrop-blur-sm" style={{ maxWidth: cardW + 24 }}>{position.name}</p>
-                  </div>
-                )}
-                {card && !isRevealed && (
-                  <div className="absolute top-full mt-1 w-max left-1/2 -translate-x-1/2 pointer-events-none">
-                    <p className="text-purple-200/55 text-[8px] font-semibold text-center leading-tight bg-black/60 px-1.5 py-0.5 rounded backdrop-blur-sm" style={{ maxWidth: cardW + 24 }}>{position.name}</p>
-                  </div>
-                )}
-                {card && isRevealed && (
-                  <div className="absolute top-full mt-1 w-max left-1/2 -translate-x-1/2 pointer-events-none" style={{ maxWidth: cardW + 24 }}>
-                    <p className="text-white/90 text-[8px] font-semibold leading-tight truncate bg-black/60 px-1.5 py-0.5 rounded backdrop-blur-sm mb-0.5">{card.name}</p>
-                    <Badge className="bg-purple-600/90 text-white text-[7px] px-1.5 py-0 leading-tight border-purple-400/40">{position.name}</Badge>
-                  </div>
-                )}
-              </div>
-            );
-          })}
         </div>
 
-        <div className="w-full max-w-sm mt-3 space-y-1 px-1 relative z-30">
+        {/* Position guide */}
+        <div style={{ width: "100%", maxWidth: 380, margin: "12px auto 0", padding: "0 4px" }}>
           {spreadDef.positions.map((pos, idx) => (
-            <div key={idx} className="flex items-start gap-2">
-              <span className="text-purple-400/60 text-[10px] font-bold shrink-0 w-4 text-right pt-px">{idx + 1}</span>
-              <span className="text-purple-100/80 text-[10px] font-semibold shrink-0">{pos.name}</span>
-              <span className="text-purple-400/45 text-[10px] leading-tight">— {pos.meaning}</span>
+            <div key={idx} style={{ display: "flex", alignItems: "flex-start", gap: 8, marginBottom: 3 }}>
+              <span style={{ color: "rgba(201,168,76,0.5)", fontSize: 10, fontWeight: "bold", minWidth: 16, textAlign: "right", paddingTop: 1 }}>{idx + 1}</span>
+              <span style={{ color: "rgba(216,180,254,0.85)", fontSize: 10, fontWeight: 600, whiteSpace: "nowrap" }}>{pos.name}</span>
+              <span style={{ color: "rgba(147,51,234,0.5)", fontSize: 10, lineHeight: 1.4 }}>— {pos.meaning}</span>
             </div>
           ))}
         </div>
@@ -341,15 +402,25 @@ export default function SpreadLayout({
 export function SpreadSelector({ selectedId, onSelect, customSpreads = [] }) {
   const allSpreads = [...SYSTEM_SPREADS, ...customSpreads];
   return (
-    <div className="grid grid-cols-2 gap-2.5">
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
       {allSpreads.map((spread) => (
         <button key={spread.id} type="button" onClick={() => onSelect(spread)}
-          className={`relative p-3 rounded-xl border text-left transition-all ${selectedId === spread.id ? "border-purple-400/80 bg-purple-600/20 shadow-[0_0_14px_rgba(147,51,234,0.25)]" : "border-purple-500/20 bg-[#160f2a] hover:border-purple-500/40"}`}
+          style={{
+            position: "relative",
+            padding: 12,
+            borderRadius: 12,
+            border: selectedId === spread.id ? "1px solid rgba(201,168,76,0.8)" : "1px solid rgba(147,51,234,0.2)",
+            background: selectedId === spread.id ? "rgba(147,51,234,0.2)" : "#160f2a",
+            textAlign: "left",
+            cursor: "pointer",
+            boxShadow: selectedId === spread.id ? "0 0 14px rgba(201,168,76,0.2)" : "none",
+            transition: "all 0.2s",
+          }}
         >
-          <div className="text-xl mb-1 leading-none">{spread.icon}</div>
-          <div className="font-['Cinzel'] text-[10px] text-white font-semibold leading-tight mb-1">{spread.name}</div>
-          <div className="text-purple-300/55 text-[9px]">{spread.cardCount} {spread.cardCount === 1 ? "card" : "cards"}</div>
-          {selectedId === spread.id && <div className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-purple-400" />}
+          <div style={{ fontSize: 20, marginBottom: 4 }}>{spread.icon}</div>
+          <div style={{ fontFamily: "Cinzel, serif", fontSize: 10, color: "white", fontWeight: 600, marginBottom: 4, lineHeight: 1.3 }}>{spread.name}</div>
+          <div style={{ fontSize: 9, color: "rgba(201,168,76,0.6)" }}>{spread.cardCount} {spread.cardCount === 1 ? "card" : "cards"}</div>
+          {selectedId === spread.id && <div style={{ position: "absolute", top: 8, right: 8, width: 6, height: 6, borderRadius: "50%", background: "rgba(201,168,76,0.9)" }} />}
         </button>
       ))}
     </div>
