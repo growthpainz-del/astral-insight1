@@ -330,7 +330,7 @@ export default function ReadingSimple() {
   );
 
   return (
-    <div style={{ position: "relative", width: "100%", height: "100vh", overflow: "hidden", background: "radial-gradient(ellipse at 30% 20%, #1e1b4b 0%, #0a0414 60%, #000 100%)", display: "flex", flexDirection: "column" }}>
+    <div style={{ position: "fixed", inset: 0, zIndex: 99, width: "100%", height: "100vh", overflow: "hidden", background: "radial-gradient(ellipse at 30% 20%, #1e1b4b 0%, #0a0414 60%, #000 100%)", display: "flex", flexDirection: "column" }}>
 
       {/* Shuffling Overlay */}
       <AnimatePresence>
