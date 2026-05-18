@@ -182,7 +182,25 @@ function Portal({ to, icon, label, sub, accent, delay }) {
   );
 }
 
+import { base44 } from "@/api/base44Client";
+
 export default function CosmicHub() {
+  const [loading, setLoading] = useState(true);
+  const [me, setMe] = useState(null);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        setLoading(true);
+        setMe(await base44.auth.me());
+      } catch {
+        setMe(null);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
   return (
     <>
       <link
