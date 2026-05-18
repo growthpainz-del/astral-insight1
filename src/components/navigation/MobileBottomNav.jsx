@@ -78,6 +78,8 @@ export default function MobileBottomNav() {
   };
   // replaced by tabs above
 
+  if (location.pathname.startsWith("/Reading")) return null;
+
   return (
     <nav 
       className="fixed left-0 w-full bg-[#07050f]/95 border-b border-[#a078ff]/15 backdrop-blur-[16px] z-[100]" 
