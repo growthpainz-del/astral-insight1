@@ -9,10 +9,11 @@ import { deleteAccount } from "@/functions/deleteAccount";
 import { toast } from "sonner";
 
 export default function Account() {
-  const navigate = useNavigate();
   const [me, setMe] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     (async () => {
@@ -20,6 +21,8 @@ export default function Account() {
         setMe(await base44.auth.me());
       } catch {
         setMe(null);
+      } finally {
+        setLoading(false);
       }
     })();
   }, []);
@@ -28,12 +31,10 @@ export default function Account() {
     setDeleting(true);
     try {
       await deleteAccount({});
+      toast.success("Account deleted");
       navigate(createPageUrl("Home"));
     } catch (e) {
-      toast.error(
-        "Failed to delete account: " +
-          (e?.response?.data?.error || e.message)
-      );
+      toast.error("Failed to delete account: " + (e?.response?.data?.error || e.message));
     } finally {
       setDeleting(false);
       setConfirmOpen(false);
@@ -54,27 +55,29 @@ export default function Account() {
           <div className="w-10" />
         </div>
 
-        <div className="bg-white/5 border border-white/10 rounded-lg p-4">
-          {me ? (
+        <div className="bg-white/5 border border-white/10 rounded-lg p-6">
+          {loading ? (
+            <div className="flex items-center gap-2 text-white/60">
+              <Loader2 className="w-4 h-4 animate-spin" /> Loading account...
+            </div>
+          ) : me ? (
             <>
               <div className="text-white/80">Signed in as</div>
-              <div className="font-semibold">{me.full_name || me.email}</div>
+              <div className="font-semibold text-lg">{me.full_name || me.email}</div>
               <div className="mt-4">
                 <Link to={createPageUrl("History")}>
-                  <Button
-                    variant="outline"
-                    className="border-white/20 text-white hover:bg-white/10"
-                  >
+                  <Button variant="outline" className="border-white/20 text-white hover:bg-white/10">
                     View Reading History
                   </Button>
                 </Link>
               </div>
             </>
           ) : (
-            <div className="text-white/60 text-sm">Not signed in</div>
+            <div className="text-white/60">Not signed in</div>
           )}
         </div>
 
+        {/* Danger Zone stays exactly the same */}
         <div className="bg-red-900/20 border border-red-500/40 rounded-lg p-4">
           <h2 className="text-lg font-bold text-red-300 mb-2">Danger Zone</h2>
           <p className="text-white/80 mb-4">
@@ -96,7 +99,7 @@ export default function Account() {
             <DialogTitle>Confirm Account Deletion</DialogTitle>
           </DialogHeader>
           <p className="text-white/80 mb-4">
-            This will permanently delete your account and all associated data.
+            This will permanently delete your account and all associated data.<br />
             Type <span className="font-mono font-bold text-red-300">DELETE</span> to confirm.
           </p>
           <ConfirmBox onConfirm={handleDelete} loading={deleting} />
@@ -106,6 +109,7 @@ export default function Account() {
   );
 }
 
+// ConfirmBox stays the same, just add autoFocus:
 function ConfirmBox({ onConfirm, loading }) {
   const [text, setText] = useState("");
   return (
@@ -114,6 +118,7 @@ function ConfirmBox({ onConfirm, loading }) {
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Type DELETE"
+        autoFocus
         className="flex-1 bg-black/40 border border-white/20 rounded px-3 py-2 text-white"
       />
       <Button
