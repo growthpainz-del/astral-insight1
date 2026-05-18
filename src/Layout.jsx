@@ -512,8 +512,8 @@ export default function Layout({ children, currentPageName }) {
 
             <main
               id="main-scroll-area"
-              className={`flex-1 w-full pb-[calc(env(safe-area-inset-bottom,0px)+24px)] ${
-                currentPageName === "Reading" ? "pt-0" : "pt-[calc(4rem+64px+env(safe-area-inset-top,0px))]"
+              className={`flex-1 w-full ${
+                currentPageName === "Reading" ? "p-0" : "pb-[calc(env(safe-area-inset-bottom,0px)+24px)] pt-[calc(4rem+64px+env(safe-area-inset-top,0px))]"
               }`}
               style={{
                 overflowY: "auto",
@@ -538,6 +538,10 @@ export default function Layout({ children, currentPageName }) {
                       You don't have permission to view this area.
                     </p>
                   </motion.div>
+                ) : currentPageName === "Reading" ? (
+                  <div key={currentPageName} className="w-full h-full">
+                    {children}
+                  </div>
                 ) : (
                   <motion.div
                     key={currentPageName}
