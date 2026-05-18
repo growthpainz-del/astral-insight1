@@ -157,14 +157,14 @@ export default function SpreadEditor({ spread, decks, user, onSave, onCancel }) 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[60] p-4 pt-[calc(env(safe-area-inset-top)+1rem)] pb-[calc(env(safe-area-inset-bottom)+1rem)]"
       onClick={onCancel}
     >
       <motion.div
         initial={{ y: 50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 50, opacity: 0 }}
-        className="bg-gradient-to-br from-gray-900 to-slate-900 rounded-2xl border border-white/20 w-full max-w-7xl h-[95vh] flex flex-col overflow-hidden"
+        className="bg-gradient-to-br from-gray-900 to-slate-900 rounded-2xl border border-white/20 w-full max-w-7xl h-[90dvh] max-h-full flex flex-col overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between p-6 border-b border-white/10">
@@ -186,9 +186,9 @@ export default function SpreadEditor({ spread, decks, user, onSave, onCancel }) 
           </div>
         </div>
 
-        <div className="flex-1 flex overflow-hidden">
+        <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
           {/* Left Panel - Form */}
-          <div className="w-1/3 p-6 overflow-y-auto min-h-0 border-r border-white/10" style={{ WebkitOverflowScrolling: 'touch' }}>
+          <div className="w-full md:w-1/3 p-4 md:p-6 overflow-y-auto min-h-0 border-b md:border-b-0 md:border-r border-white/10 flex-shrink-0 md:max-h-full max-h-[50%]" style={{ WebkitOverflowScrolling: 'touch' }}>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-purple-200 mb-2">
@@ -320,7 +320,7 @@ export default function SpreadEditor({ spread, decks, user, onSave, onCancel }) 
           </div>
 
           {/* Right Panel - Visual Layout Designer */}
-          <div className="flex-1 p-6 overflow-y-auto min-h-0" style={{ WebkitOverflowScrolling: 'touch' }}>
+          <div className="flex-1 p-4 md:p-6 overflow-hidden min-h-[300px]" style={{ WebkitOverflowScrolling: 'touch' }}>
             <div className="h-full flex flex-col">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold text-white">Visual Layout</h3>
@@ -405,7 +405,7 @@ export default function SpreadEditor({ spread, decks, user, onSave, onCancel }) 
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end gap-3 p-6 border-t border-white/10">
+        <div className="flex justify-end gap-3 p-4 md:p-6 border-t border-white/10 bg-slate-900/80 backdrop-blur-md">
           <Button variant="outline" onClick={onCancel} disabled={isSaving}>
             Cancel
           </Button>
