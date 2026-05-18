@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Spread } from '@/entities/Spread';
+import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -139,9 +139,9 @@ export default function SpreadEditor({ spread, decks, user, onSave, onCancel }) 
     setIsSaving(true);
     try {
       if (spread) {
-        await Spread.update(spread.id, formData);
+        await base44.entities.Spread.update(spread.id, formData);
       } else {
-        await Spread.create(formData);
+        await base44.entities.Spread.create(formData);
       }
       onSave();
     } catch (error) {

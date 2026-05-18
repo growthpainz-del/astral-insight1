@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Spread, Deck, User } from '@/entities/all';
+import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -126,9 +126,9 @@ export default function SpreadManager() {
     setIsLoading(true);
     try {
       const [userSpreads, userDecks, currentUser] = await Promise.all([
-        Spread.list(),
-        Deck.list(),
-        User.me().catch(() => null),
+        base44.entities.Spread.list(),
+        base44.entities.Deck.list(),
+        base44.auth.me().catch(() => null),
       ]);
       setUser(currentUser);
       setSpreads(userSpreads || []);
@@ -150,7 +150,7 @@ export default function SpreadManager() {
     if (!spreadToDelete) return;
     setIsDeleting(true);
     try {
-      await Spread.delete(spreadToDelete.id);
+      await base44.entities.Spread.delete(spreadToDelete.id);
       toast.success(`"${spreadToDelete.name}" deleted.`);
       setSpreadToDelete(null);
       loadData();

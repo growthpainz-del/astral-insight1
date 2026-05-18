@@ -17,6 +17,7 @@ import CardMaker from './pages/CardMaker'
 import CardLibrary from './pages/CardLibrary'
 import Studio from './pages/Studio'
 import SpreadManager from './pages/SpreadManager'
+import SpreadDesigner from './pages/SpreadDesigner'
 import DashboardHub from './pages/DashboardHub'
 import ReadingSetup from './pages/ReadingSetup'
 import ReadingSimple from './pages/ReadingSimple'
@@ -192,6 +193,12 @@ const AuthenticatedApp = () => {
         path="/SpreadManager"
         element={
           <AdminRoute Page={SpreadManager} pageName="SpreadManager" user={user} />
+        }
+      />
+      <Route
+        path="/SpreadDesigner"
+        element={
+          <AdminRoute Page={SpreadDesigner} pageName="SpreadDesigner" user={user} />
         }
       />
       <Route
