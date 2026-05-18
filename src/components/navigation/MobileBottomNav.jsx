@@ -59,7 +59,7 @@ export default function MobileBottomNav() {
     navigate(lastUrls[tab.key] || tab.root);
   };
 
-  // Hide completely on Reading page
+  // Hide completely on Reading page — no spacer, no nav, nothing
   if (location.pathname.startsWith("/Reading")) return null;
 
   return (
@@ -145,7 +145,6 @@ export default function MobileBottomNav() {
             );
           })}
         </div>
-        <style>{`.fixed-nav-scroll::-webkit-scrollbar { display: none; }`}</style>
       </nav>
     </>
   );
