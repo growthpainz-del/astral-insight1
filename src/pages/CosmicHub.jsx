@@ -183,6 +183,7 @@ function Portal({ to, icon, label, sub, accent, delay }) {
 }
 
 import { base44 } from "@/api/base44Client";
+import { Loader2 } from "lucide-react";
 
 export default function CosmicHub() {
   const [loading, setLoading] = useState(true);
@@ -366,9 +367,19 @@ export default function CosmicHub() {
               display: "flex", justifyContent: "space-around", alignItems: "flex-end",
               padding: "0 2%",
             }}>
-              <Portal to={createPageUrl("ReadingRoom")} icon={<img src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/de13d8a83_18C49029-1342-43EE-AB28-D1115D803D65.png" alt="Reading Room" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', display: 'block' }} />} label="Reading Room" sub="Read the cards" accent="#a78bfa" delay={0.7} />
-              <Portal to={createPageUrl("DashboardHub")} icon={<img src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/fba391e00_630F615F-A531-4AB9-BBCF-E051FCCA8F9C.png" alt="Hub" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', display: 'block' }} />} label="Dashboard Hub" sub="All app features" accent="#67e8f9" delay={1.1} />
-              <Portal to={createPageUrl("Studio")} icon={<img src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/5e7a2baa6_45107DE4-4C2E-4165-9143-3E21DD4BCF3E.png" alt="Studio" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', display: 'block' }} />} label="Creators Studio" sub="Build oracle decks" accent="#f472b6" delay={0.9} />
+              {loading ? (
+                <div className="flex items-center gap-2 text-white/60">
+                  <Loader2 className="w-4 h-4 animate-spin" /> Loading...
+                </div>
+              ) : me ? (
+                <>
+                  <Portal to={createPageUrl("ReadingRoom")} icon={<img src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/de13d8a83_18C49029-1342-43EE-AB28-D1115D803D65.png" alt="Reading Room" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', display: 'block' }} />} label="Reading Room" sub="Read the cards" accent="#a78bfa" delay={0.7} />
+                  <Portal to={createPageUrl("DashboardHub")} icon={<img src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/fba391e00_630F615F-A531-4AB9-BBCF-E051FCCA8F9C.png" alt="Hub" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', display: 'block' }} />} label="Dashboard Hub" sub="All app features" accent="#67e8f9" delay={1.1} />
+                  <Portal to={createPageUrl("Studio")} icon={<img src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/5e7a2baa6_45107DE4-4C2E-4165-9143-3E21DD4BCF3E.png" alt="Studio" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', display: 'block' }} />} label="Creators Studio" sub="Build oracle decks" accent="#f472b6" delay={0.9} />
+                </>
+              ) : (
+                <div className="text-white/60 text-sm">Not signed in</div>
+              )}
             </div>
           </div>
         </div>
