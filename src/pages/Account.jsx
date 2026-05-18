@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { createPageUrl } from "@/utils";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Trash2, ChevronLeft, Loader2 } from "lucide-react";
 import { deleteAccount } from "@/functions/deleteAccount";
 import { toast } from "sonner";
 
 export default function Account() {
+  const navigate = useNavigate();
   const [me, setMe] = useState(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -27,7 +28,7 @@ export default function Account() {
     setDeleting(true);
     try {
       await deleteAccount({});
-      window.location.href = createPageUrl("Home");
+      navigate(createPageUrl("Home"));
     } catch (e) {
       toast.error(
         "Failed to delete account: " +
