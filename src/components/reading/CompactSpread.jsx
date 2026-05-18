@@ -322,7 +322,7 @@ export default function SpreadLayout({
 
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: "100%", height: "100%" }}>
-      <div ref={containerRef} style={{ width: "100%", maxWidth: 520, margin: "0 auto", position: "relative" }}>
+      <div ref={containerRef} style={{ width: "100%", minWidth: "280px", maxWidth: 520, margin: "0 auto", position: "relative" }}>
 
         {/* Spread name */}
         <p style={{ fontFamily: "Cinzel, serif", fontSize: 11, color: "rgba(201,168,76,0.6)", textAlign: "center", letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: 8 }}>

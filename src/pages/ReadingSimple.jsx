@@ -440,12 +440,12 @@ export default function ReadingSimple() {
               </AnimatePresence>
             </div>
           ) : (
-            <div style={{ flex: 1, overflow: "auto", display: "flex", alignItems: "center", justifyContent: "center" }} ref={canvasRef}
+            <div style={{ flex: 1, overflow: "auto", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: "100%" }} ref={canvasRef}
               onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; }}
               onDrop={(e) => { e.preventDefault(); try { const p = JSON.parse(e.dataTransfer.getData('application/json')); if (p?.source === 'bottom-shelf') handleDrawSpecificCard(p.cardIndex); } catch(err) {} }}
             >
               {selectedSpread ? (
-                <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+                <div style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 16 }}>
                   <SpreadLayout
                     spread={selectedSpread}
                     cards={drawnCards.map(c => c ? c.cardData : null)}
