@@ -19,22 +19,11 @@ const FreeformCard = ({ card, canvasRef, toggleFlip, deck, openInterpretation })
   const controls = useAnimation();
 
   useEffect(() => {
-    controls.start({
-      opacity: 1,
-      scale: scale,
-      x: card.x,
-      y: card.y,
-      rotate: rotation + (card.isReversed ? 180 : 0),
-      transition: { type: "spring", stiffness: 200, damping: 20 }
-    });
+    controls.start({ opacity: 1, scale, x: card.x, y: card.y, rotate: rotation + (card.isReversed ? 180 : 0), transition: { type: "spring", stiffness: 200, damping: 20 } });
   }, []);
 
   useEffect(() => {
-    controls.start({
-      scale: scale,
-      rotate: rotation + (card.isReversed ? 180 : 0),
-      transition: { type: "spring", stiffness: 300, damping: 30 }
-    });
+    controls.start({ scale, rotate: rotation + (card.isReversed ? 180 : 0), transition: { type: "spring", stiffness: 300, damping: 30 } });
   }, [scale, rotation, card.isReversed, controls]);
 
   const handleTouchStart = (e) => {
@@ -47,8 +36,7 @@ const FreeformCard = ({ card, canvasRef, toggleFlip, deck, openInterpretation })
 
   const handleTouchMove = (e) => {
     if (e.touches.length === 2 && initialPinch.current) {
-      e.preventDefault();
-      e.stopPropagation();
+      e.preventDefault(); e.stopPropagation();
       const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
       setScale(Math.min(Math.max(0.4, initialPinch.current.scale * (dist / initialPinch.current.dist)), 3));
       const angle = Math.atan2(e.touches[1].clientY - e.touches[0].clientY, e.touches[1].clientX - e.touches[0].clientX) * (180 / Math.PI);
@@ -63,10 +51,7 @@ const FreeformCard = ({ card, canvasRef, toggleFlip, deck, openInterpretation })
 
   return (
     <motion.div
-      drag
-      dragConstraints={canvasRef}
-      dragMomentum={false}
-      dragElastic={0.1}
+      drag dragConstraints={canvasRef} dragMomentum={false} dragElastic={0.1}
       initial={{ opacity: 0, scale: 0.5, x: card.x, y: card.y + 300 }}
       animate={controls}
       exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.2 } }}
@@ -74,48 +59,28 @@ const FreeformCard = ({ card, canvasRef, toggleFlip, deck, openInterpretation })
       whileDrag={{ scale: scale * 1.1, zIndex: 100, boxShadow: "0 20px 40px rgba(0,0,0,0.5)" }}
       onDoubleClick={() => toggleFlip(card.id)}
       onWheel={(e) => { e.stopPropagation(); setScale(s => Math.min(Math.max(0.4, s + (-e.deltaY * 0.002)), 3)); }}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-      onTouchCancel={handleTouchEnd}
+      onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} onTouchCancel={handleTouchEnd}
       className="absolute left-1/2 top-1/2 -ml-[60px] -mt-[95px] cursor-grab active:cursor-grabbing touch-none"
       style={{ zIndex: card.zIndex || 10 }}
     >
-      <div className="relative w-[120px] h-[190px] rounded-xl transition-all duration-500"
-        style={{ transformStyle: "preserve-3d", transform: card.isFlipped ? "rotateY(0deg)" : "rotateY(180deg)" }}
-      >
-        <div className="absolute inset-0 rounded-xl overflow-hidden shadow-2xl border border-white/20 bg-slate-900"
-          style={{ backfaceVisibility: "hidden" }}
-        >
-          {card.cardData.image_url ? (
-            <img src={card.cardData.image_url} alt={card.cardData.name} className="w-full h-full object-cover pointer-events-none" draggable="false" />
-          ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center p-4 bg-gradient-to-br from-indigo-900 to-purple-900">
-              <p className="text-purple-50 text-center font-bold pointer-events-none">{card.cardData.name}</p>
-            </div>
-          )}
+      <div className="relative w-[120px] h-[190px] rounded-xl" style={{ transformStyle: "preserve-3d", transform: card.isFlipped ? "rotateY(0deg)" : "rotateY(180deg)" }}>
+        <div className="absolute inset-0 rounded-xl overflow-hidden shadow-2xl border border-white/20 bg-slate-900" style={{ backfaceVisibility: "hidden" }}>
+          {card.cardData.image_url
+            ? <img src={card.cardData.image_url} alt={card.cardData.name} className="w-full h-full object-cover pointer-events-none" draggable="false" />
+            : <div className="w-full h-full flex flex-col items-center justify-center p-4 bg-gradient-to-br from-indigo-900 to-purple-900"><p className="text-purple-50 text-center font-bold pointer-events-none">{card.cardData.name}</p></div>
+          }
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
-          <div className="absolute bottom-3 left-0 right-0 px-3 pointer-events-none">
-            <p className="text-purple-50 text-sm font-semibold text-center drop-shadow-md truncate">{card.cardData.name}</p>
-          </div>
-          <button type="button"
-            className="absolute top-2 right-2 p-2 bg-black/60 rounded-full backdrop-blur-sm pointer-events-auto hover:bg-purple-600 transition-colors shadow-lg border border-purple-500/40"
-            onPointerDown={(e) => e.stopPropagation()}
-            onClick={(e) => { e.stopPropagation(); if (openInterpretation) openInterpretation(card); }}
-          >
+          <button type="button" className="absolute top-2 right-2 p-2 bg-black/60 rounded-full backdrop-blur-sm pointer-events-auto hover:bg-purple-600 transition-colors shadow-lg border border-purple-500/40"
+            onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); if (openInterpretation) openInterpretation(card); }}>
             <Sparkles className="w-4 h-4 text-purple-300" />
           </button>
         </div>
         <div className="absolute inset-0 rounded-xl overflow-hidden shadow-2xl border-2 border-purple-500/30 pointer-events-none"
-          style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)", background: "radial-gradient(circle at center, #4c1d95 0%, #1e1b4b 100%)" }}
-        >
-          {deck?.back_image_url ? (
-            <img src={deck.back_image_url} alt="Card Back" className="w-full h-full object-cover opacity-80 pointer-events-none" draggable="false" />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center opacity-50">
-              <Sparkles className="w-8 h-8 text-purple-400" />
-            </div>
-          )}
+          style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)", background: "radial-gradient(circle at center, #4c1d95 0%, #1e1b4b 100%)" }}>
+          {deck?.back_image_url
+            ? <img src={deck.back_image_url} alt="Card Back" className="w-full h-full object-cover opacity-80 pointer-events-none" draggable="false" />
+            : <div className="w-full h-full flex items-center justify-center opacity-50"><Sparkles className="w-8 h-8 text-purple-400" /></div>
+          }
         </div>
       </div>
     </motion.div>
@@ -143,9 +108,7 @@ export default function ReadingSimple() {
   const [revealedIndices, setRevealedIndices] = useState(new Set());
   const [isShuffling, setIsShuffling] = useState(false);
   const [isEditingSpread, setIsEditingSpread] = useState(false);
-  const [spreadScale] = useState(1);
   const [isSavingSpread, setIsSavingSpread] = useState(false);
-
   const [selectedCardForInterpretation, setSelectedCardForInterpretation] = useState(null);
   const [aiInterpretation, setAiInterpretation] = useState(null);
   const [isAiLoading, setIsAiLoading] = useState(false);
@@ -166,9 +129,8 @@ export default function ReadingSimple() {
     if (!selectedSpread) return;
     setIsSavingSpread(true);
     try {
-      if (selectedSpread.id && !SYSTEM_SPREADS.find(s => s.id === selectedSpread.id)) {
+      if (selectedSpread.id && !SYSTEM_SPREADS.find(s => s.id === selectedSpread.id))
         await base44.entities.Spread.update(selectedSpread.id, { positions: selectedSpread.positions });
-      }
       setIsEditingSpread(false);
     } catch (e) { console.error(e); } finally { setIsSavingSpread(false); }
   };
@@ -180,10 +142,7 @@ export default function ReadingSimple() {
   const getComposedReading = () => {
     const validCards = [], validPositions = [];
     drawnCards.forEach((c, i) => {
-      if (c) {
-        validCards.push(c);
-        if (selectedSpread?.positions[i]) validPositions.push(selectedSpread.positions[i]);
-      }
+      if (c) { validCards.push(c); if (selectedSpread?.positions[i]) validPositions.push(selectedSpread.positions[i]); }
     });
     return composeReading(validCards, selectedSpread ? { ...selectedSpread, positions: validPositions } : null, questionParam || "", readingHistory, deckIdFromUrl);
   };
@@ -196,9 +155,7 @@ export default function ReadingSimple() {
     setComposedReading(output);
     setSpreadInterpretation(null);
     setShowSpreadInterpretation(true);
-    if (output.saveData) {
-      try { await base44.entities.Reading.create(output.saveData); } catch(e) { console.error(e); }
-    }
+    if (output.saveData) { try { await base44.entities.Reading.create(output.saveData); } catch(e) { console.error(e); } }
   };
 
   const handleDeepenSpread = async (mode = "interpret") => {
@@ -215,7 +172,7 @@ export default function ReadingSimple() {
   useEffect(() => {
     if (!deckIdFromUrl) { setError("No deck selected"); setLoading(false); return; }
     let cancelled = false;
-    const timeout = setTimeout(() => { if (!cancelled) { setLoading(false); setError("Loading timeout. Please try again."); } }, 20000);
+    const timeout = setTimeout(() => { if (!cancelled) { setLoading(false); setError("Loading timeout."); } }, 20000);
     const loadDeck = async () => {
       try {
         const [loadedDeck, loadedCards, loadedSpreads, history] = await Promise.all([
@@ -226,7 +183,6 @@ export default function ReadingSimple() {
         ]);
         if (cancelled) return;
         setDeck(loadedDeck);
-        
         const fixedCards = loadedCards.map(c => {
           let updated = { ...c };
           if (updated.image_url && updated.image_url.includes('base44.app/api/apps/')) {
@@ -234,7 +190,6 @@ export default function ReadingSimple() {
           }
           return updated;
         });
-
         setCards(fixedCards);
         setReadingHistory(history || []);
         if (spreadParam && spreadParam !== "freeform") {
@@ -249,7 +204,7 @@ export default function ReadingSimple() {
         setError("");
       } catch (err) {
         if (cancelled) return;
-        if (isNetworkError(err)) setError("Network error. Check your connection.");
+        if (isNetworkError(err)) setError("Network error.");
         else if (err.response?.status === 404) setError("Deck not found.");
         else setError("Failed to load deck.");
       } finally { if (!cancelled) { clearTimeout(timeout); setLoading(false); } }
@@ -259,21 +214,21 @@ export default function ReadingSimple() {
   }, [deckIdFromUrl]);
 
   if (loading) return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-950 to-purple-950 flex items-center justify-center">
-      <div className="text-center">
-        <Loader2 className="w-8 h-8 animate-spin text-purple-400 mx-auto mb-4" />
-        <p className="text-purple-200">Loading deck...</p>
+    <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #1e1b4b, #4c1d95)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ textAlign: "center" }}>
+        <Loader2 style={{ width: 32, height: 32, color: "#c084fc", margin: "0 auto 16px", animation: "spin 1s linear infinite" }} />
+        <p style={{ color: "#e9d5ff" }}>Loading deck...</p>
       </div>
     </div>
   );
 
   if (error) return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-950 to-purple-950 flex items-center justify-center p-6">
-      <div className="bg-red-900/20 border border-red-500/50 rounded-lg p-6 max-w-md text-center">
-        <p className="text-red-200 mb-4">{error}</p>
+    <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #1e1b4b, #4c1d95)", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+      <div style={{ background: "rgba(127,29,29,0.2)", border: "1px solid rgba(239,68,68,0.5)", borderRadius: 12, padding: 24, maxWidth: 400, textAlign: "center" }}>
+        <p style={{ color: "#fca5a5", marginBottom: 16 }}>{error}</p>
         <Link to={createPageUrl("DashboardHub")}>
-          <Button variant="outline" className="text-red-200 border-red-500/50 hover:bg-red-500/20 hover:text-red-100">
-            <ChevronLeft className="w-4 h-4 mr-2" />Back to Dashboard
+          <Button variant="outline" className="text-red-200 border-red-500/50">
+            <ChevronLeft className="w-4 h-4 mr-2" />Back
           </Button>
         </Link>
       </div>
@@ -285,15 +240,7 @@ export default function ReadingSimple() {
     if (readingMode === "spread" && selectedSpread && drawnCards.filter(Boolean).length >= selectedSpread.positions.length) return;
     const newRemaining = [...deckRemaining];
     const cardData = newRemaining.pop();
-    const newCard = {
-      id: Date.now().toString() + Math.random(),
-      cardData,
-      x: Math.floor(Math.random() * 60) - 30,
-      y: Math.floor(Math.random() * 60) - 30,
-      rotation: readingMode === "spread" ? 0 : Math.floor(Math.random() * 10) - 5,
-      isFlipped: false,
-      isReversed: Math.random() < 0.25
-    };
+    const newCard = { id: Date.now().toString() + Math.random(), cardData, x: Math.floor(Math.random() * 60) - 30, y: Math.floor(Math.random() * 60) - 30, rotation: readingMode === "spread" ? 0 : Math.floor(Math.random() * 10) - 5, isFlipped: false, isReversed: Math.random() < 0.25 };
     const newDrawnCards = [...drawnCards];
     if (readingMode === "spread" && selectedSpread) {
       const firstEmpty = newDrawnCards.findIndex(c => !c);
@@ -308,15 +255,7 @@ export default function ReadingSimple() {
     if (readingMode === "spread" && selectedSpread && drawnCards.filter(Boolean).length >= selectedSpread.positions.length) return;
     const newRemaining = [...deckRemaining];
     const cardData = newRemaining.splice(cardIndex, 1)[0];
-    const newCard = {
-      id: Date.now().toString() + Math.random(),
-      cardData,
-      x: Math.floor(Math.random() * 60) - 30,
-      y: Math.floor(Math.random() * 60) - 30,
-      rotation: readingMode === "spread" ? 0 : Math.floor(Math.random() * 10) - 5,
-      isFlipped: false,
-      isReversed: Math.random() < 0.25
-    };
+    const newCard = { id: Date.now().toString() + Math.random(), cardData, x: Math.floor(Math.random() * 60) - 30, y: Math.floor(Math.random() * 60) - 30, rotation: readingMode === "spread" ? 0 : Math.floor(Math.random() * 10) - 5, isFlipped: false, isReversed: Math.random() < 0.25 };
     const newDrawnCards = [...drawnCards];
     if (readingMode === "spread" && selectedSpread) {
       const firstEmpty = newDrawnCards.findIndex(c => !c);
@@ -340,12 +279,7 @@ export default function ReadingSimple() {
 
   const handleShuffle = () => {
     setIsShuffling(true);
-    setTimeout(() => {
-      setDeckRemaining([...cards].sort(() => Math.random() - 0.5));
-      setDrawnCards([]);
-      setRevealedIndices(new Set());
-      setIsShuffling(false);
-    }, 1200);
+    setTimeout(() => { setDeckRemaining([...cards].sort(() => Math.random() - 0.5)); setDrawnCards([]); setRevealedIndices(new Set()); setIsShuffling(false); }, 1200);
   };
 
   const revealAll = () => {
@@ -353,23 +287,18 @@ export default function ReadingSimple() {
     else setRevealedIndices(new Set(drawnCards.map((_, i) => i)));
   };
 
-  const onCardReveal = (idx) => {
-    const newRevealed = new Set(revealedIndices);
-    newRevealed.add(idx);
-    setRevealedIndices(newRevealed);
-  };
+  const onCardReveal = (idx) => { const s = new Set(revealedIndices); s.add(idx); setRevealedIndices(s); };
 
   const openInterpretation = (cardWrapper, positionIndex = null) => {
     try {
       const output = getComposedReading();
       const validCards = drawnCards.filter(Boolean);
       const cardIndex = validCards.findIndex(c => c.id === cardWrapper.id);
-      const cardOutput = output?.cards[cardIndex];
       const position = selectedSpread && positionIndex !== null ? selectedSpread.positions[positionIndex] : null;
-      const composed = cardOutput || composeCardQuick(cardWrapper.cardData, position, cardWrapper.isReversed, questionParam || "");
+      const composed = output?.cards[cardIndex] || composeCardQuick(cardWrapper.cardData, position, cardWrapper.isReversed, questionParam || "");
       setSelectedCardForInterpretation({ ...cardWrapper, position, composed, _raw: output?._raw?.cardInterpretations?.[cardIndex] || composed?._raw, aiPrompt: output?.aiPrompts?.perCard[cardIndex] || composed?.aiPrompt });
       setAiInterpretation(null);
-    } catch (e) { console.error("openInterpretation error", e); }
+    } catch (e) { console.error(e); }
   };
 
   const getDeeperInsight = async (mode = "interpret") => {
@@ -379,205 +308,214 @@ export default function ReadingSimple() {
     try {
       const prompt = buildCardPromptByMode(selectedCardForInterpretation._raw || selectedCardForInterpretation, questionParam || "", {}, mode);
       setAiInterpretation(await base44.integrations.Core.InvokeLLM({ prompt }));
-    } catch (e) { setAiInterpretation("CosMosis is momentarily unreachable. Please try again."); }
+    } catch (e) { setAiInterpretation("CosMosis is momentarily unreachable."); }
     finally { setIsAiLoading(false); }
   };
 
   const handleToggleFlip = (id) => setDrawnCards(drawnCards.map(c => c.id === id ? { ...c, isFlipped: !c.isFlipped } : c));
 
+  const SidebarBtn = ({ onClick, disabled, icon, label, primary }) => (
+    <button onClick={onClick} disabled={disabled} style={{
+      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4,
+      padding: "10px 6px", borderRadius: 12, border: primary ? "none" : "1px solid rgba(201,168,76,0.3)",
+      background: primary ? "linear-gradient(135deg, #7c3aed, #4f46e5)" : "rgba(0,0,0,0.3)",
+      color: disabled ? "rgba(255,255,255,0.3)" : primary ? "white" : "rgba(201,168,76,0.9)",
+      cursor: disabled ? "not-allowed" : "pointer", width: "100%",
+      boxShadow: primary && !disabled ? "0 0 15px rgba(124,58,237,0.4)" : "none",
+      transition: "all 0.2s",
+    }}>
+      {icon}
+      <span style={{ fontSize: 8, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", lineHeight: 1 }}>{label}</span>
+    </button>
+  );
+
   return (
-    <div className="bg-gradient-to-br from-indigo-950 via-slate-900 to-black flex flex-col"
-      style={{ position: "relative", width: "100%", height: "100vh", overflow: "hidden" }}
-    >
+    <div style={{ position: "relative", width: "100%", height: "100vh", overflow: "hidden", background: "radial-gradient(ellipse at 30% 20%, #1e1b4b 0%, #0a0414 60%, #000 100%)", display: "flex", flexDirection: "column" }}>
+
       {/* Shuffling Overlay */}
       <AnimatePresence>
         {isShuffling && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            style={{ position: "fixed", inset: 0, zIndex: 50 }}
-            className="flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm"
-          >
-            <div className="relative w-32 h-48">
-              {[0,1,2,3].map((i) => (
+            style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ position: "relative", width: 120, height: 180 }}>
+              {[0,1,2,3].map(i => (
                 <motion.div key={i}
                   animate={{ x: [0, i%2===0?80:-80, 0], y: [0, (i%2===0?1:-1)*20, 0], rotate: [0, i%2===0?15:-15, 0] }}
                   transition={{ duration: 0.6, repeat: Infinity, repeatType: "reverse", delay: i*0.1 }}
-                  className="absolute inset-0 rounded-xl border-2 border-purple-500/50 shadow-2xl"
-                  style={{ background: "radial-gradient(circle at center, #4c1d95 0%, #1e1b4b 100%)" }}
+                  style={{ position: "absolute", inset: 0, borderRadius: 12, border: "2px solid rgba(201,168,76,0.5)", overflow: "hidden" }}
                 >
                   {deck?.back_image_url
-                    ? <img src={deck.back_image_url} alt="Card Back" className="w-full h-full object-cover rounded-xl opacity-80" />
-                    : <div className="w-full h-full flex items-center justify-center"><Sparkles className="w-8 h-8 text-purple-400" /></div>
+                    ? <img src={deck.back_image_url} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    : <div style={{ width: "100%", height: "100%", background: "radial-gradient(circle, #4c1d95, #1e1b4b)", display: "flex", alignItems: "center", justifyContent: "center" }}><Sparkles style={{ width: 32, height: 32, color: "#c084fc" }} /></div>
                   }
                 </motion.div>
               ))}
             </div>
-            <p className="absolute mt-72 text-purple-300 font-['Cinzel'] text-xl tracking-widest animate-pulse">Shuffling Deck...</p>
+            <p style={{ marginTop: 80, color: "#c084fc", fontFamily: "Cinzel, serif", fontSize: 18, letterSpacing: "0.2em", animation: "pulse 2s infinite" }}>Shuffling Deck...</p>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Top Bar */}
-      <div className="bg-black/40 backdrop-blur-md border-b border-purple-500/20 p-2 md:p-4 flex flex-col md:flex-row items-start md:items-center justify-between z-10 gap-2 shrink-0">
-        <div className="flex items-center gap-4 shrink-0 px-2 w-full md:w-auto justify-between md:justify-start">
-          <Link to={createPageUrl("ReadingRoom")}>
-            <Button variant="ghost" className="text-purple-200 hover:text-purple-100 hover:bg-purple-500/20 h-8 px-2 md:h-10 md:px-4">
-              <ChevronLeft className="w-4 h-4 mr-1" /><span className="text-sm">Room</span>
-            </Button>
+      {/* Main Layout */}
+      <div style={{ display: "flex", flex: 1, minHeight: 0, overflow: "hidden" }}>
+
+        {/* LEFT SIDEBAR */}
+        <div style={{
+          width: 64, flexShrink: 0, display: "flex", flexDirection: "column",
+          background: "rgba(0,0,0,0.5)", backdropFilter: "blur(12px)",
+          borderRight: "1px solid rgba(201,168,76,0.15)", padding: "8px 6px", gap: 6, zIndex: 10,
+        }}>
+          {/* Back */}
+          <Link to={createPageUrl("ReadingRoom")} style={{ textDecoration: "none" }}>
+            <button style={{ width: "100%", padding: "8px 4px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.1)", background: "transparent", color: "rgba(255,255,255,0.5)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <ChevronLeft style={{ width: 16, height: 16 }} />
+            </button>
           </Link>
-          <div className="hidden md:block">
-            <h1 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-cyan-300">
-              {deck?.name} <span className="text-sm font-normal text-purple-300/70 ml-2">({readingMode === "freeform" ? "Freeform" : selectedSpread?.name})</span>
-            </h1>
-            <p className="text-xs text-purple-300/70">{deckRemaining.length} cards remaining</p>
+
+          <div style={{ width: "100%", height: 1, background: "rgba(201,168,76,0.15)", margin: "2px 0" }} />
+
+          {/* Deck name */}
+          <div style={{ textAlign: "center", padding: "4px 2px" }}>
+            <div style={{ fontSize: 8, color: "rgba(201,168,76,0.7)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", lineHeight: 1.3, wordBreak: "break-word" }}>
+              {deck?.name?.slice(0, 12)}{deck?.name?.length > 12 ? "…" : ""}
+            </div>
+            <div style={{ fontSize: 7, color: "rgba(255,255,255,0.3)", marginTop: 2 }}>{deckRemaining.length} left</div>
           </div>
-          <div className="md:hidden text-right">
-            <div className="text-xs font-bold text-purple-300 truncate max-w-[150px]">{deck?.name}</div>
-            <div className="text-[10px] text-purple-400/70">{deckRemaining.length} cards</div>
-          </div>
-        </div>
-        <div className="flex items-center gap-2 pb-2 md:pb-0 px-2 flex-wrap w-full justify-start md:justify-end">
-          {readingMode === "spread" && selectedSpread && (
-            isEditingSpread
-              ? <Button size="sm" onClick={handleSaveSpread} disabled={isSavingSpread} variant="outline" className="shrink-0 border-purple-500/40 text-purple-200 hover:bg-purple-500/20">
-                  {isSavingSpread ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Save className="w-4 h-4 mr-1" />} Save Labels
-                </Button>
-              : <Button size="sm" onClick={() => setIsEditingSpread(true)} variant="outline" className="shrink-0 border-purple-500/40 text-purple-200 hover:bg-purple-500/20">
-                  <Settings2 className="w-4 h-4 mr-1" /> Edit Labels
-                </Button>
-          )}
-          <Button size="sm" onClick={handleDrawCard}
+
+          <div style={{ width: "100%", height: 1, background: "rgba(201,168,76,0.15)", margin: "2px 0" }} />
+
+          {/* Action buttons */}
+          <SidebarBtn
+            onClick={handleDrawCard}
             disabled={deckRemaining.length === 0 || (readingMode === "spread" && selectedSpread && drawnCards.length >= selectedSpread.positions.length)}
-            className="shrink-0 bg-purple-600 hover:bg-purple-700 text-purple-50 shadow-[0_0_15px_rgba(147,51,234,0.3)]"
-          >
-            <Hand className="w-4 h-4 mr-1" />Draw
-          </Button>
-          <Button size="sm" onClick={revealAll} variant="outline" disabled={drawnCards.length === 0} className="shrink-0 border-purple-500/40 text-purple-200 hover:bg-purple-500/20">
-            <Eye className="w-4 h-4 mr-1" />Reveal All
-          </Button>
-          <Button size="sm" onClick={getSpreadInsight} variant="outline" disabled={drawnCards.length === 0} className="shrink-0 border-purple-500/40 text-purple-200 hover:bg-purple-500/20">
-            <Sparkles className="w-4 h-4 mr-1" />Interpret
-          </Button>
-          <Button size="sm" onClick={handleShuffle} variant="outline" className="shrink-0 border-purple-500/40 text-purple-200 hover:bg-purple-500/20">
-            <Shuffle className="w-4 h-4 mr-1" />Reshuffle
-          </Button>
-        </div>
-      </div>
-
-      {/* Canvas */}
-      <div className="flex-1 relative flex flex-col" style={{ minHeight: 0, overflow: "hidden" }}>
-        {readingMode === "freeform" ? (
-          <div className="flex-1 relative p-4" style={{ overflow: "hidden" }} ref={canvasRef}
-            onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; }}
-            onDrop={(e) => { e.preventDefault(); try { const payload = JSON.parse(e.dataTransfer.getData('application/json')); if (payload?.source === 'bottom-shelf' && typeof payload.cardIndex === 'number') handleDrawSpecificCard(payload.cardIndex); } catch(err) {} }}
-          >
-            {drawnCards.length === 0 && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none opacity-50">
-                <Sparkles className="w-12 h-12 text-purple-400 mb-4 animate-pulse" />
-                <p className="text-purple-200 text-lg font-['Cinzel'] tracking-wider">Draw a card to begin</p>
-                <p className="text-purple-300/60 text-sm mt-2">Drag to arrange · Double-click to reveal</p>
-              </div>
-            )}
-            <AnimatePresence>
-              {drawnCards.map((drawnCard, index) => (
-                <FreeformCard key={drawnCard.id} card={{...drawnCard, zIndex: index + 10}} canvasRef={canvasRef} toggleFlip={handleToggleFlip} deck={deck} openInterpretation={openInterpretation} />
-              ))}
-            </AnimatePresence>
-          </div>
-        ) : (
-          <div className="flex-1 relative flex flex-col overflow-auto" ref={canvasRef}
-            onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; }}
-            onDrop={(e) => { e.preventDefault(); try { const payload = JSON.parse(e.dataTransfer.getData('application/json')); if (payload?.source === 'bottom-shelf' && typeof payload.cardIndex === 'number') handleDrawSpecificCard(payload.cardIndex); } catch(err) {} }}
-          >
-            {isEditingSpread && (
-              <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-black/80 backdrop-blur-md p-3 rounded-xl border border-purple-500/40 flex items-center gap-3">
-                <span className="text-xs text-purple-200 whitespace-nowrap font-semibold">Edit Position Labels</span>
-                <Button variant="ghost" size="sm" onClick={() => setIsEditingSpread(false)} className="text-red-400 hover:text-red-300 hover:bg-red-500/20 h-6 px-2 text-xs">Cancel</Button>
-              </div>
-            )}
-            {selectedSpread ? (
-                <div style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100%", paddingBottom: 32 }}>
-
-                <SpreadLayout
-                  spread={selectedSpread}
-                  positions={selectedSpread.positions}
-                  cards={drawnCards.map(c => c ? c.cardData : null)}
-                  deck={deck}
-                  revealedCards={revealedIndices}
-                  onCardReveal={onCardReveal}
-                  onCardClick={(c, idx) => { if (drawnCards[idx]) openInterpretation(drawnCards[idx], idx); }}
-                  enableExternalDrops={true}
-                  onExternalDrop={handleExternalDrop}
-                  allowReposition={isEditingSpread}
-                  onPositionUpdate={handlePositionUpdate}
-                  sizeScale={spreadScale}
-                />
-              </div>
-            ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center text-center opacity-50">
-                <Sparkles className="w-12 h-12 text-purple-400 mb-4 mx-auto animate-pulse" />
-                <p className="text-purple-200 text-lg font-['Cinzel'] tracking-wider">No Spreads Available</p>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Bottom Shelf */}
-        <div className="bg-black/60 backdrop-blur-md border-t border-purple-500/20 shrink-0 z-40"
-          style={{ width: "100%", overflow: "hidden", padding: "12px 16px" }}
-        >
-          <BottomCardShelf
-            cards={deckRemaining.map(c => ({...c, image_url: deck?.back_image_url || null, name: "Hidden Card"}))}
-            onCardClick={(c, idx) => handleDrawSpecificCard(idx)}
+            icon={<Hand style={{ width: 18, height: 18 }} />}
+            label="Draw"
+            primary
           />
+          <SidebarBtn
+            onClick={revealAll}
+            disabled={drawnCards.length === 0}
+            icon={<Eye style={{ width: 16, height: 16 }} />}
+            label="Reveal"
+          />
+          <SidebarBtn
+            onClick={getSpreadInsight}
+            disabled={drawnCards.length === 0}
+            icon={<Sparkles style={{ width: 16, height: 16 }} />}
+            label="Read"
+          />
+          <SidebarBtn
+            onClick={handleShuffle}
+            icon={<Shuffle style={{ width: 16, height: 16 }} />}
+            label="Shuffle"
+          />
+
+          {readingMode === "spread" && selectedSpread && (
+            <SidebarBtn
+              onClick={isEditingSpread ? handleSaveSpread : () => setIsEditingSpread(true)}
+              icon={isEditingSpread ? <Save style={{ width: 16, height: 16 }} /> : <Settings2 style={{ width: 16, height: 16 }} />}
+              label={isEditingSpread ? "Save" : "Edit"}
+            />
+          )}
+        </div>
+
+        {/* CENTER — Spread Canvas */}
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0, overflow: "hidden" }}>
+          {readingMode === "freeform" ? (
+            <div style={{ flex: 1, position: "relative", overflow: "hidden" }} ref={canvasRef}
+              onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; }}
+              onDrop={(e) => { e.preventDefault(); try { const p = JSON.parse(e.dataTransfer.getData('application/json')); if (p?.source === 'bottom-shelf') handleDrawSpecificCard(p.cardIndex); } catch(err) {} }}
+            >
+              {drawnCards.length === 0 && (
+                <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", pointerEvents: "none", opacity: 0.4 }}>
+                  <Sparkles style={{ width: 48, height: 48, color: "#c084fc", marginBottom: 16 }} />
+                  <p style={{ color: "#e9d5ff", fontSize: 18, fontFamily: "Cinzel, serif", letterSpacing: "0.1em" }}>Draw a card to begin</p>
+                  <p style={{ color: "rgba(192,132,252,0.6)", fontSize: 13, marginTop: 8 }}>Drag to arrange · Double-click to reveal</p>
+                </div>
+              )}
+              <AnimatePresence>
+                {drawnCards.map((drawnCard, index) => (
+                  <FreeformCard key={drawnCard.id} card={{...drawnCard, zIndex: index + 10}} canvasRef={canvasRef} toggleFlip={handleToggleFlip} deck={deck} openInterpretation={openInterpretation} />
+                ))}
+              </AnimatePresence>
+            </div>
+          ) : (
+            <div style={{ flex: 1, overflow: "auto", display: "flex", alignItems: "center", justifyContent: "center" }} ref={canvasRef}
+              onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; }}
+              onDrop={(e) => { e.preventDefault(); try { const p = JSON.parse(e.dataTransfer.getData('application/json')); if (p?.source === 'bottom-shelf') handleDrawSpecificCard(p.cardIndex); } catch(err) {} }}
+            >
+              {selectedSpread ? (
+                <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+                  <SpreadLayout
+                    spread={selectedSpread}
+                    cards={drawnCards.map(c => c ? c.cardData : null)}
+                    deck={deck}
+                    revealedCards={revealedIndices}
+                    onCardReveal={onCardReveal}
+                    onCardClick={(c, idx) => { if (drawnCards[idx]) openInterpretation(drawnCards[idx], idx); }}
+                    enableExternalDrops={true}
+                    onExternalDrop={handleExternalDrop}
+                    allowReposition={isEditingSpread}
+                    onPositionUpdate={handlePositionUpdate}
+                  />
+                </div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", opacity: 0.4 }}>
+                  <Sparkles style={{ width: 48, height: 48, color: "#c084fc", marginBottom: 16 }} />
+                  <p style={{ color: "#e9d5ff", fontFamily: "Cinzel, serif" }}>No Spreads Available</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Bottom Card Shelf */}
+          <div style={{ flexShrink: 0, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(12px)", borderTop: "1px solid rgba(201,168,76,0.15)", padding: "10px 14px", overflow: "hidden" }}>
+            <BottomCardShelf
+              cards={deckRemaining.map(c => ({...c, image_url: deck?.back_image_url || null, name: "Hidden Card"}))}
+              onCardClick={(c, idx) => handleDrawSpecificCard(idx)}
+            />
+          </div>
         </div>
       </div>
 
       {/* Card Interpretation Panel */}
       <AnimatePresence>
         {selectedCardForInterpretation && (
-          <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }}
-            className="fixed bottom-4 right-4 left-4 md:left-auto md:w-96 bg-black/80 backdrop-blur-xl border border-purple-500/50 rounded-2xl shadow-2xl overflow-hidden z-50 flex flex-col max-h-[80vh]"
-          >
-            <div className="p-4 border-b border-purple-500/30 flex justify-between items-center bg-purple-900/20">
+          <motion.div initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 50 }}
+            style={{ position: "fixed", top: 16, right: 16, bottom: 16, width: 340, background: "rgba(0,0,0,0.85)", backdropFilter: "blur(20px)", border: "1px solid rgba(201,168,76,0.4)", borderRadius: 20, boxShadow: "0 0 40px rgba(147,51,234,0.3)", overflow: "hidden", zIndex: 50, display: "flex", flexDirection: "column" }}>
+            <div style={{ padding: "16px", borderBottom: "1px solid rgba(201,168,76,0.2)", display: "flex", justifyContent: "space-between", alignItems: "flex-start", background: "rgba(88,28,135,0.2)" }}>
               <div>
-                <h3 className="text-lg font-bold text-purple-50 font-['Cinzel']">{selectedCardForInterpretation.composed?.cardName || selectedCardForInterpretation.cardData.name}</h3>
-                {selectedCardForInterpretation.composed?.subtitle
-                  ? <p className="text-xs text-purple-300">{selectedCardForInterpretation.composed.subtitle}</p>
-                  : selectedCardForInterpretation.position && <p className="text-xs text-purple-300">Position: {selectedCardForInterpretation.position.name}</p>
-                }
+                <h3 style={{ fontSize: 16, fontWeight: 700, color: "white", fontFamily: "Cinzel, serif", margin: 0 }}>{selectedCardForInterpretation.composed?.cardName || selectedCardForInterpretation.cardData.name}</h3>
+                {selectedCardForInterpretation.position && <p style={{ fontSize: 11, color: "rgba(201,168,76,0.8)", margin: "4px 0 0" }}>Position: {selectedCardForInterpretation.position.name}</p>}
               </div>
-              <Button variant="ghost" size="sm" onClick={() => setSelectedCardForInterpretation(null)} className="text-purple-50 hover:bg-purple-500/20 rounded-full h-8 w-8 p-0">✕</Button>
+              <button onClick={() => setSelectedCardForInterpretation(null)} style={{ background: "transparent", border: "none", color: "rgba(255,255,255,0.6)", cursor: "pointer", fontSize: 18, padding: 4 }}>✕</button>
             </div>
-            <div className="p-4 overflow-y-auto flex-1 space-y-4">
+            <div style={{ flex: 1, overflowY: "auto", padding: 16, display: "flex", flexDirection: "column", gap: 12 }}>
               {selectedCardForInterpretation.composed?.sections
                 ? selectedCardForInterpretation.composed.sections.map((sec, idx) => (
-                    <div key={idx} className={`text-sm ${sec.isPersonal ? 'bg-indigo-900/30 p-3 rounded-xl border border-indigo-500/30' : ''}`}>
-                      <p className="font-semibold text-purple-300 mb-1 flex items-center gap-1.5"><span>{sec.icon}</span> {sec.label}</p>
-                      <p className="text-purple-100 leading-relaxed">{sec.content}</p>
-                      {sec.meta && <p className="text-xs text-purple-400 mt-1 opacity-80">{sec.meta}</p>}
+                    <div key={idx} style={{ fontSize: 13, ...(sec.isPersonal ? { background: "rgba(49,46,129,0.3)", padding: 12, borderRadius: 12, border: "1px solid rgba(99,102,241,0.3)" } : {}) }}>
+                      <p style={{ fontWeight: 600, color: "rgba(192,132,252,0.9)", marginBottom: 4, display: "flex", alignItems: "center", gap: 6 }}><span>{sec.icon}</span>{sec.label}</p>
+                      <p style={{ color: "rgba(233,213,255,0.9)", lineHeight: 1.6, margin: 0 }}>{sec.content}</p>
                     </div>
                   ))
-                : <div className="text-sm text-purple-100">
-                    <p className="font-semibold text-purple-300 mb-1">Basic Interpretation:</p>
-                    <p>{selectedCardForInterpretation.composed?.summary || selectedCardForInterpretation.cardData.overall_meaning || "A mysterious force is at play."}</p>
-                  </div>
+                : <p style={{ color: "rgba(233,213,255,0.9)", fontSize: 13 }}>{selectedCardForInterpretation.composed?.summary || selectedCardForInterpretation.cardData?.overall_meaning || "A mysterious force is at play."}</p>
               }
-              <div className="pt-4 border-t border-purple-500/20">
+              <div style={{ paddingTop: 12, borderTop: "1px solid rgba(201,168,76,0.2)" }}>
                 {!aiInterpretation && !isAiLoading ? (
                   !showCardModePicker
-                    ? <button onClick={() => setShowCardModePicker(true)} className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-purple-50 text-sm font-semibold font-['Cinzel'] tracking-wider transition-all">
-                        <Sparkles className="w-4 h-4" /> CosMosis · Deepen
+                    ? <button onClick={() => setShowCardModePicker(true)} style={{ width: "100%", padding: "10px 16px", borderRadius: 12, border: "none", background: "linear-gradient(135deg, #4f46e5, #7c3aed)", color: "white", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "Cinzel, serif", letterSpacing: "0.05em", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                        <Sparkles style={{ width: 14, height: 14 }} /> CosMosis · Deepen
                       </button>
                     : <CosMosisModePicker visible={showCardModePicker} onSelect={(mode) => getDeeperInsight(mode)} onCancel={() => setShowCardModePicker(false)} />
                 ) : isAiLoading ? (
-                  <div className="flex flex-col items-center justify-center py-6 gap-3">
-                    <div className="w-6 h-6 border-2 border-purple-500/30 border-t-purple-400 rounded-full animate-spin" />
-                    <span className="text-purple-300 text-sm font-['Cinzel'] tracking-wider">CosMosis is listening...</span>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "24px 0", gap: 12 }}>
+                    <div style={{ width: 24, height: 24, border: "2px solid rgba(147,51,234,0.3)", borderTop: "2px solid #c084fc", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
+                    <span style={{ color: "#c084fc", fontSize: 13, fontFamily: "Cinzel, serif" }}>CosMosis is listening...</span>
                   </div>
                 ) : (
-                  <div className="text-sm text-purple-50/90 bg-indigo-900/30 p-4 rounded-xl border border-indigo-500/30">
-                    <p className="font-semibold text-cyan-300 mb-2 flex items-center gap-2 font-['Cinzel'] tracking-wider text-xs uppercase"><Sparkles className="w-4 h-4" /> CosMosis</p>
-                    <div className="whitespace-pre-wrap leading-relaxed">{aiInterpretation}</div>
+                  <div style={{ fontSize: 13, color: "rgba(233,213,255,0.9)", background: "rgba(49,46,129,0.3)", padding: 16, borderRadius: 12, border: "1px solid rgba(99,102,241,0.3)" }}>
+                    <p style={{ fontWeight: 600, color: "#67e8f9", marginBottom: 8, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", display: "flex", alignItems: "center", gap: 8 }}><Sparkles style={{ width: 14, height: 14 }} />CosMosis</p>
+                    <div style={{ whiteSpace: "pre-wrap", lineHeight: 1.6 }}>{aiInterpretation}</div>
                   </div>
                 )}
               </div>
@@ -590,54 +528,46 @@ export default function ReadingSimple() {
       <AnimatePresence>
         {showSpreadInterpretation && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4"
-          >
+            style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", backdropFilter: "blur(8px)", zIndex: 60, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
             <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }}
-              className="bg-slate-900 border border-purple-500/50 rounded-2xl shadow-2xl overflow-hidden w-full max-w-2xl max-h-[85vh] flex flex-col"
-            >
-              <div className="p-4 border-b border-purple-500/30 flex justify-between items-center bg-purple-900/40">
-                <h3 className="text-xl font-bold text-purple-50 font-['Cinzel'] flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-purple-400" />Reading Interpretation
+              style={{ background: "#0f0a1e", border: "1px solid rgba(201,168,76,0.3)", borderRadius: 20, boxShadow: "0 0 60px rgba(147,51,234,0.3)", overflow: "hidden", width: "100%", maxWidth: 600, maxHeight: "85vh", display: "flex", flexDirection: "column" }}>
+              <div style={{ padding: 16, borderBottom: "1px solid rgba(201,168,76,0.2)", display: "flex", justifyContent: "space-between", alignItems: "center", background: "rgba(88,28,135,0.3)" }}>
+                <h3 style={{ fontSize: 18, fontWeight: 700, color: "white", fontFamily: "Cinzel, serif", display: "flex", alignItems: "center", gap: 8, margin: 0 }}>
+                  <Sparkles style={{ width: 20, height: 20, color: "#c084fc" }} />Reading Interpretation
                 </h3>
-                <Button variant="ghost" size="sm" onClick={() => setShowSpreadInterpretation(false)} className="text-purple-50 hover:bg-purple-500/20 rounded-full h-8 w-8 p-0">✕</Button>
+                <button onClick={() => setShowSpreadInterpretation(false)} style={{ background: "transparent", border: "none", color: "rgba(255,255,255,0.6)", cursor: "pointer", fontSize: 18 }}>✕</button>
               </div>
-              <div className="p-6 overflow-y-auto flex-1 space-y-6">
-                {composedReading && (
-                  <div className="space-y-4">
-                    {composedReading.synthesis.sections.map((sec, idx) => {
-                      const styles = { tone: "bg-purple-900/20 border-purple-500/20", themes: "bg-indigo-900/20 border-indigo-500/20", synthesis: "bg-slate-800/60 border-purple-400/30", resonances: "bg-teal-900/20 border-teal-500/20", tensions: "bg-rose-900/20 border-rose-500/20", ching: "bg-amber-900/20 border-amber-500/20", personal: "bg-indigo-900/30 border-indigo-400/40" };
-                      const labels = { tone: "text-purple-300", themes: "text-indigo-300", synthesis: "text-purple-200", resonances: "text-teal-300", tensions: "text-rose-300", ching: "text-amber-300", personal: "text-indigo-300" };
-                      return (
-                        <div key={idx} className={`p-4 rounded-xl border ${styles[sec.type] || "bg-purple-900/20 border-purple-500/20"}`}>
-                          <h4 className={`font-semibold mb-2 flex items-center gap-2 text-sm tracking-wide font-['Cinzel'] ${labels[sec.type] || "text-purple-300"}`}>
-                            <span className="text-base">{sec.icon}</span>{sec.label}
-                          </h4>
-                          <p className="text-purple-100/90 leading-relaxed text-sm">{sec.content}</p>
-                          {sec.tags && (
-                            <div className="flex flex-wrap gap-1.5 mt-2">
-                              {sec.tags.map((tag, i) => <span key={i} className="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/20 font-['Cinzel'] tracking-wider">{tag}</span>)}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-                <div className="pt-6 border-t border-purple-500/30">
+              <div style={{ flex: 1, overflowY: "auto", padding: 24, display: "flex", flexDirection: "column", gap: 16 }}>
+                {composedReading && composedReading.synthesis.sections.map((sec, idx) => {
+                  const bgMap = { tone: "rgba(88,28,135,0.2)", themes: "rgba(49,46,129,0.2)", synthesis: "rgba(30,27,75,0.6)", resonances: "rgba(19,78,74,0.2)", tensions: "rgba(127,29,29,0.2)", ching: "rgba(120,53,15,0.2)", personal: "rgba(49,46,129,0.3)" };
+                  const colorMap = { tone: "#c084fc", themes: "#818cf8", synthesis: "#e9d5ff", resonances: "#5eead4", tensions: "#fca5a5", ching: "#fcd34d", personal: "#818cf8" };
+                  return (
+                    <div key={idx} style={{ padding: 16, borderRadius: 12, background: bgMap[sec.type] || "rgba(88,28,135,0.2)", border: `1px solid ${colorMap[sec.type] || "#c084fc"}33` }}>
+                      <h4 style={{ fontWeight: 600, marginBottom: 8, display: "flex", alignItems: "center", gap: 8, fontSize: 13, fontFamily: "Cinzel, serif", color: colorMap[sec.type] || "#c084fc" }}>
+                        <span style={{ fontSize: 16 }}>{sec.icon}</span>{sec.label}
+                      </h4>
+                      <p style={{ color: "rgba(233,213,255,0.9)", lineHeight: 1.6, fontSize: 13, margin: 0 }}>{sec.content}</p>
+                      {sec.tags && <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8 }}>
+                        {sec.tags.map((tag, i) => <span key={i} style={{ fontSize: 10, padding: "2px 8px", borderRadius: 20, background: "rgba(88,28,135,0.4)", color: "#c084fc", border: "1px solid rgba(192,132,252,0.3)", fontFamily: "Cinzel, serif" }}>{tag}</span>)}
+                      </div>}
+                    </div>
+                  );
+                })}
+                <div style={{ paddingTop: 16, borderTop: "1px solid rgba(201,168,76,0.2)" }}>
                   {!spreadInterpretation && !isSpreadAiLoading ? (
                     !showSpreadModePicker
-                      ? <button onClick={() => setShowSpreadModePicker(true)} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-purple-50 text-sm font-semibold font-['Cinzel'] tracking-wider transition-all">
-                          <Sparkles className="w-4 h-4" /> CosMosis · Full Reading
+                      ? <button onClick={() => setShowSpreadModePicker(true)} style={{ width: "100%", padding: "12px 16px", borderRadius: 12, border: "none", background: "linear-gradient(135deg, #4f46e5, #7c3aed)", color: "white", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "Cinzel, serif", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                          <Sparkles style={{ width: 16, height: 16 }} /> CosMosis · Full Reading
                         </button>
                       : <CosMosisModePicker visible={showSpreadModePicker} onSelect={(mode) => handleDeepenSpread(mode)} onCancel={() => setShowSpreadModePicker(false)} />
                   ) : isSpreadAiLoading ? (
-                    <div className="flex flex-col items-center justify-center py-8 gap-3">
-                      <div className="w-8 h-8 border-2 border-purple-500/30 border-t-purple-400 rounded-full animate-spin" />
-                      <p className="text-purple-300 text-sm font-['Cinzel'] tracking-wider">CosMosis is weaving your reading...</p>
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "32px 0", gap: 12 }}>
+                      <div style={{ width: 32, height: 32, border: "2px solid rgba(147,51,234,0.3)", borderTop: "2px solid #c084fc", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
+                      <p style={{ color: "#c084fc", fontFamily: "Cinzel, serif", letterSpacing: "0.1em" }}>CosMosis is weaving your reading...</p>
                     </div>
                   ) : (
-                    <div className="text-purple-100 whitespace-pre-wrap leading-relaxed text-sm bg-indigo-900/30 p-5 rounded-xl border border-indigo-500/30">
-                      <p className="font-semibold text-cyan-300 mb-3 flex items-center gap-2 font-['Cinzel'] tracking-wider text-xs uppercase"><Sparkles className="w-4 h-4" /> CosMosis</p>
+                    <div style={{ color: "rgba(233,213,255,0.9)", whiteSpace: "pre-wrap", lineHeight: 1.7, fontSize: 13, background: "rgba(49,46,129,0.3)", padding: 20, borderRadius: 12, border: "1px solid rgba(99,102,241,0.3)" }}>
+                      <p style={{ fontWeight: 600, color: "#67e8f9", marginBottom: 12, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", display: "flex", alignItems: "center", gap: 8 }}><Sparkles style={{ width: 14, height: 14 }} />CosMosis</p>
                       {spreadInterpretation}
                     </div>
                   )}
