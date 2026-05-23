@@ -440,12 +440,12 @@ export default function ReadingSimple() {
               </AnimatePresence>
             </div>
           ) : (
-            <div style={{ flex: 1, overflow: "auto", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: "100%" }} ref={canvasRef}
+            <div style={{ flex: 1, overflow: "auto", display: "flex", flexDirection: "column", alignItems: "center", width: "100%" }} ref={canvasRef}
               onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; }}
               onDrop={(e) => { e.preventDefault(); try { const p = JSON.parse(e.dataTransfer.getData('application/json')); if (p?.source === 'bottom-shelf') handleDrawSpecificCard(p.cardIndex); } catch(err) {} }}
             >
               {selectedSpread ? (
-                <div style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 16 }}>
+                <div style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center", margin: "auto", padding: 16 }}>
                   <SpreadLayout
                     spread={selectedSpread}
                     cards={drawnCards.map(c => c ? c.cardData : null)}
@@ -538,6 +538,33 @@ export default function ReadingSimple() {
                 <button onClick={() => setShowSpreadInterpretation(false)} style={{ background: "transparent", border: "none", color: "rgba(255,255,255,0.6)", cursor: "pointer", fontSize: 18 }}>✕</button>
               </div>
               <div style={{ flex: 1, overflowY: "auto", padding: 24, display: "flex", flexDirection: "column", gap: 16 }}>
+                {/* Individual Cards Interpretation */}
+                {composedReading && composedReading.cards && composedReading.cards.length > 0 && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 8 }}>
+                    <h4 style={{ fontWeight: 700, color: "white", fontFamily: "Cinzel, serif", fontSize: 15, borderBottom: "1px solid rgba(201,168,76,0.3)", paddingBottom: 8, margin: 0, display: "flex", alignItems: "center", gap: 8 }}>
+                      <Sparkles style={{ width: 16, height: 16, color: "#c084fc" }} /> The Cards
+                    </h4>
+                    {composedReading.cards.map((card, idx) => {
+                      const positionText = card.sections?.find(s => s.type === "position")?.content;
+                      return (
+                        <div key={idx} style={{ padding: 16, borderRadius: 12, background: "rgba(0,0,0,0.4)", border: "1px solid rgba(201,168,76,0.2)" }}>
+                          <h5 style={{ color: "#e9d5ff", fontSize: 14, fontWeight: 600, fontFamily: "Cinzel, serif", margin: "0 0 4px 0" }}>
+                            {idx + 1}. {card.cardName} {card.isReversed && "↩"}
+                          </h5>
+                          {positionText && (
+                            <p style={{ color: "rgba(201,168,76,0.8)", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.05em", margin: "0 0 8px 0" }}>
+                              {positionText}
+                            </p>
+                          )}
+                          <p style={{ color: "rgba(233,213,255,0.9)", fontSize: 13, lineHeight: 1.6, margin: 0 }}>
+                            {card.summary || card.sections?.find(s => s.type === "meaning")?.content}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
                 {composedReading && composedReading.synthesis.sections.map((sec, idx) => {
                   const bgMap = { tone: "rgba(88,28,135,0.2)", themes: "rgba(49,46,129,0.2)", synthesis: "rgba(30,27,75,0.6)", resonances: "rgba(19,78,74,0.2)", tensions: "rgba(127,29,29,0.2)", ching: "rgba(120,53,15,0.2)", personal: "rgba(49,46,129,0.3)" };
                   const colorMap = { tone: "#c084fc", themes: "#818cf8", synthesis: "#e9d5ff", resonances: "#5eead4", tensions: "#fca5a5", ching: "#fcd34d", personal: "#818cf8" };
