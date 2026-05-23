@@ -197,6 +197,20 @@ function composeCardOutput(interp, patterns, drawnCard) {
     });
   }
 
+  // 7.5 Custom Fields
+  if (interp.customFields) {
+    Object.values(interp.customFields).forEach(field => {
+      if (field && field.value) {
+        sections.push({
+          type: "custom_field",
+          icon: "✧",
+          label: field.label || "Note",
+          content: field.value,
+        });
+      }
+    });
+  }
+
   // 8. Personal pattern note (from learning layer)
   if (recurringData) {
     sections.push({

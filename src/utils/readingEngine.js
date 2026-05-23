@@ -212,6 +212,7 @@ export function interpretCard(card, position = null, isReversed = false, questio
     facedownMeaning: card.facedown_meaning || null,
     musicianQuote:   card.musician_quote   || null,
     subtitle:        card.subtitle         || null,
+    customFields:    card.custom_fields    || null,
   };
 }
 

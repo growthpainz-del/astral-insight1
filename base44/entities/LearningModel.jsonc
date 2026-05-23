@@ -1,0 +1,48 @@
+{
+  "name": "LearningModel",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name of the learning model"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description of the model's purpose"
+    },
+    "theme_weights": {
+      "type": "object",
+      "description": "Weights assigned to different themes for interpretation",
+      "additionalProperties": {
+        "type": "number"
+      }
+    },
+    "synergy_rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "themes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "multiplier": {
+            "type": "number"
+          },
+          "synthesis_override": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "name"
+  ]
+}
