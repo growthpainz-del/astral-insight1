@@ -488,6 +488,7 @@ export default function ReadingSimple() {
               <div>
                 <h3 style={{ fontSize: 16, fontWeight: 700, color: "white", fontFamily: "Cinzel, serif", margin: 0 }}>{selectedCardForInterpretation.composed?.cardName || selectedCardForInterpretation.cardData.name}</h3>
                 {selectedCardForInterpretation.position && <p style={{ fontSize: 11, color: "rgba(201,168,76,0.8)", margin: "4px 0 0" }}>Position: {selectedCardForInterpretation.position.name}</p>}
+                {questionParam && <p style={{ fontSize: 11, color: "rgba(201,168,76,0.8)", margin: "4px 0 0", fontStyle: "italic" }}>"{questionParam}"</p>}
               </div>
               <button onClick={() => setSelectedCardForInterpretation(null)} style={{ background: "transparent", border: "none", color: "rgba(255,255,255,0.6)", cursor: "pointer", fontSize: 18, padding: 4 }}>✕</button>
             </div>
@@ -539,6 +540,12 @@ export default function ReadingSimple() {
                 <button onClick={() => setShowSpreadInterpretation(false)} style={{ background: "transparent", border: "none", color: "rgba(255,255,255,0.6)", cursor: "pointer", fontSize: 18 }}>✕</button>
               </div>
               <div style={{ flex: 1, overflowY: "auto", padding: 24, display: "flex", flexDirection: "column", gap: 16 }}>
+                {questionParam && (
+                  <div style={{ padding: 16, borderRadius: 12, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", marginBottom: 8 }}>
+                    <p style={{ color: "rgba(255,255,255,0.6)", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 4px 0" }}>Your Question</p>
+                    <p style={{ color: "white", fontSize: 15, fontFamily: "Cinzel, serif", margin: 0 }}>{questionParam}</p>
+                  </div>
+                )}
                 {/* Individual Cards Interpretation */}
                 {composedReading && composedReading.cards && composedReading.cards.length > 0 && (
                   <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 8 }}>

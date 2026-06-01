@@ -353,7 +353,9 @@ function buildSynthesisNote(dominantThemes, tone, convergentWisdom, question) {
 
   const toneNote = toneDescriptions[tone] || "";
 
-  return [toneNote, themeNote, wisdomNote].filter(Boolean).join(" ");
+  const questionNote = question ? `Regarding your question "${question}", consider how these themes intersect with your current path.` : "";
+
+  return [questionNote, toneNote, themeNote, wisdomNote].filter(Boolean).join(" ");
 }
 
 // ─── Utility Exports ──────────────────────────────────────────────────────────
