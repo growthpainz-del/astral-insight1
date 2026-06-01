@@ -20,6 +20,8 @@ export default function BottomCardShelf({ cards = [], onCardClick = () => {} }) 
             width: "100%",
             msOverflowStyle: "none",
             scrollbarWidth: "none",
+            WebkitOverflowScrolling: "touch",
+            touchAction: "pan-x",
           }}
           className="shelf-scroll"
         >
