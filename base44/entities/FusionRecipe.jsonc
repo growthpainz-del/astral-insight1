@@ -1,0 +1,98 @@
+{
+  "name": "FusionRecipe",
+  "type": "object",
+  "properties": {
+    "deck_pairing_name": {
+      "type": "string",
+      "description": "A name for this deck pairing, e.g., 'Shady Business + Badi Boom'"
+    },
+    "deck_id_1": {
+      "type": "string",
+      "description": "ID of the first deck in the pairing"
+    },
+    "deck_id_2": {
+      "type": "string",
+      "description": "ID of the second deck in the pairing"
+    },
+    "recipe_content": {
+      "type": "string",
+      "description": "The cosmic recipe/instructions for this fusion. Store as JSON string if structured."
+    },
+    "spread_id": {
+      "type": "string",
+      "description": "Optional: ID of a Spread entity to use with this recipe"
+    },
+    "custom_spread": {
+      "type": "object",
+      "description": "Optional: embedded spread for this recipe if not saving a separate Spread entity",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "positions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "meaning": {
+                "type": "string"
+              },
+              "x": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "y": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              }
+            },
+            "required": [
+              "name",
+              "meaning",
+              "x",
+              "y"
+            ]
+          }
+        }
+      }
+    },
+    "is_public": {
+      "type": "boolean",
+      "default": false,
+      "description": "If true and both decks are public, others may discover/use this recipe."
+    },
+    "uses_public_decks_only": {
+      "type": "boolean",
+      "default": false,
+      "description": "True when both paired decks are public. Required for publishing."
+    },
+    "pair_key": {
+      "type": "string",
+      "description": "Canonical pair key '<minDeckId>|<maxDeckId>' for quick filtering."
+    },
+    "owner_email": {
+      "type": "string",
+      "description": "Cached owner email (also available as created_by); helpful for discovery."
+    },
+    "notes": {
+      "type": "string",
+      "description": "Private notes about this fusion."
+    }
+  },
+  "required": [
+    "deck_pairing_name",
+    "deck_id_1",
+    "deck_id_2"
+  ]
+}

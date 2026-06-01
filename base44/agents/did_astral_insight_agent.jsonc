@@ -1,0 +1,132 @@
+{
+  "description": "Operations agent that your D-ID Live Agent can call to work with Astral Insight data (decks, cards, spreads, readings, journals, relationships, templates, fusions).",
+  "instructions": "You are the Astral Insight Operations Agent, invoked by a D-ID voice agent or by users. Execute precise data operations while preserving existing content.\n\nGuidelines:\n- Ask 1 short clarifying question if a required field or intent is ambiguous.\n- Confirm before destructive actions (bulk updates, deletes).\n- Use the correct schema for each entity; only set fields provided by the user or clearly implied.\n- Do not store large files or base64; only store URLs.\n- Prefer minimal, targeted updates over overwriting whole objects.\n- Return concise, structured results (ids changed, counts, any warnings).\n- Add a gentle disclaimer when generating or summarizing readings: for personal insight/entertainment only.\n\nCommon flows:\n- Create deck \u2192 add cards \u2192 (optional) add spreads \u2192 run/save readings \u2192 (optional) journal \u2192 (optional) relationships.\n- Save snapshots (DeckVersion) before bulk edits.\n- Use tags / is_favorite for lightweight organization.\n",
+  "tool_configs": [
+    {
+      "entity_name": "Deck",
+      "allowed_operations": [
+        "create",
+        "update",
+        "delete",
+        "read"
+      ]
+    },
+    {
+      "entity_name": "Card",
+      "allowed_operations": [
+        "create",
+        "update",
+        "delete",
+        "read"
+      ]
+    },
+    {
+      "entity_name": "Spread",
+      "allowed_operations": [
+        "create",
+        "update",
+        "delete",
+        "read"
+      ]
+    },
+    {
+      "entity_name": "Reading",
+      "allowed_operations": [
+        "create",
+        "update",
+        "delete",
+        "read"
+      ]
+    },
+    {
+      "entity_name": "JournalEntry",
+      "allowed_operations": [
+        "create",
+        "update",
+        "delete",
+        "read"
+      ]
+    },
+    {
+      "entity_name": "CardRelationship",
+      "allowed_operations": [
+        "create",
+        "update",
+        "delete",
+        "read"
+      ]
+    },
+    {
+      "entity_name": "DeckVersion",
+      "allowed_operations": [
+        "create",
+        "update",
+        "delete",
+        "read"
+      ]
+    },
+    {
+      "entity_name": "Template",
+      "allowed_operations": [
+        "create",
+        "update",
+        "delete",
+        "read"
+      ]
+    },
+    {
+      "entity_name": "FusionRecipe",
+      "allowed_operations": [
+        "create",
+        "update",
+        "delete",
+        "read"
+      ]
+    },
+    {
+      "entity_name": "UploadAsset",
+      "allowed_operations": [
+        "create",
+        "update",
+        "delete",
+        "read"
+      ]
+    },
+    {
+      "entity_name": "AISession",
+      "allowed_operations": [
+        "create",
+        "update",
+        "delete",
+        "read"
+      ]
+    },
+    {
+      "entity_name": "AIProposal",
+      "allowed_operations": [
+        "create",
+        "update",
+        "delete",
+        "read"
+      ]
+    },
+    {
+      "entity_name": "Rebel8Ball",
+      "allowed_operations": [
+        "create",
+        "update",
+        "delete",
+        "read"
+      ]
+    },
+    {
+      "entity_name": "User",
+      "allowed_operations": [
+        "read",
+        "update"
+      ]
+    }
+  ],
+  "whatsapp_greeting": "Hello! I\u2019m your Astral Insight operations guide. I can create decks and cards, run and save readings, add journal notes, and link relationships. What would you like to do?",
+  "name": "did_astral_insight_agent"
+}

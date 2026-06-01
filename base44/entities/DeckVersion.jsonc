@@ -1,0 +1,44 @@
+{
+  "name": "DeckVersion",
+  "type": "object",
+  "properties": {
+    "deck_id": {
+      "type": "string",
+      "description": "ID of the original deck this version belongs to"
+    },
+    "version_name": {
+      "type": "string",
+      "description": "User-friendly name for this version"
+    },
+    "version_number": {
+      "type": "number",
+      "description": "Sequential version number"
+    },
+    "deck_snapshot": {
+      "type": "object",
+      "description": "Complete snapshot of the deck metadata at this point"
+    },
+    "cards_snapshot": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Complete snapshot of all cards at this point"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description of what this version contains or why it was saved"
+    },
+    "auto_saved": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this was automatically saved before an operation"
+    }
+  },
+  "required": [
+    "deck_id",
+    "version_name",
+    "deck_snapshot",
+    "cards_snapshot"
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "role": {
+      "type": "string",
+      "enum": [
+        "user",
+        "admin"
+      ],
+      "default": "user"
+    },
+    "vibrational_profile": {
+      "type": "object",
+      "description": "User's persistent energetic signature and frequency history",
+      "properties": {
+        "current_frequency": {
+          "type": "number",
+          "description": "Float value of current sync frequency"
+        },
+        "entropy_history": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "description": "Historical entropy values"
+        },
+        "last_reading_sync": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "dominance_pattern": {
+          "type": "string"
+        }
+      }
+    },
+    "token_balance": {
+      "type": "number",
+      "default": 10,
+      "description": "AI generation credits"
+    },
+    "lifetime_tokens_used": {
+      "type": "number",
+      "default": 0,
+      "description": "Total tokens consumed"
+    },
+    "reading_persona": {
+      "type": "object",
+      "description": "Custom AI persona settings for readings",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "tone": {
+          "type": "string"
+        },
+        "complexity": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "required": [
+    "vibrational_profile",
+    "reading_persona"
+  ]
+}

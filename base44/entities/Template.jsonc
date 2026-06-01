@@ -1,0 +1,68 @@
+{
+  "name": "Template",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Template title"
+    },
+    "description": {
+      "type": "string",
+      "description": "What this template contains and how to use it"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "persona",
+        "spreads",
+        "cards",
+        "deck",
+        "bundle",
+        "other"
+      ],
+      "default": "bundle",
+      "description": "Type of template"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Searchable tags"
+    },
+    "template_json": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Arbitrary JSON payload (persona/cards/spreads/deck)"
+    },
+    "is_public": {
+      "type": "boolean",
+      "default": false,
+      "description": "If true, everyone can discover this template"
+    },
+    "author_name": {
+      "type": "string",
+      "description": "Display name of the template author"
+    },
+    "author_email": {
+      "type": "string",
+      "description": "Email of the template author"
+    },
+    "version": {
+      "type": "string",
+      "description": "Template version label"
+    },
+    "preview_image": {
+      "type": "string",
+      "description": "Optional preview image URL"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Extra notes or import instructions"
+    }
+  },
+  "required": [
+    "name",
+    "template_json"
+  ]
+}

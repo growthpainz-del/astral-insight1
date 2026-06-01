@@ -1,0 +1,87 @@
+{
+  "name": "Spread",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name of the custom spread"
+    },
+    "description": {
+      "type": "string",
+      "description": "A brief description of the spread's purpose or focus"
+    },
+    "category": {
+      "type": "string",
+      "default": "General",
+      "description": "Category for the spread, e.g., General, Relationship, Career, Runes"
+    },
+    "positions": {
+      "type": "array",
+      "description": "The card positions in the spread with visual coordinates",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name of the position (e.g., 'The Challenge')"
+          },
+          "meaning": {
+            "type": "string",
+            "description": "The meaning or question associated with this position"
+          },
+          "x": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "X coordinate as percentage of container width (0-100)"
+          },
+          "y": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Y coordinate as percentage of container height (0-100)"
+          },
+          "rotation": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 360,
+            "default": 0,
+            "description": "Rotation in degrees (0-360) for tilt angle"
+          }
+        },
+        "required": [
+          "name",
+          "meaning",
+          "x",
+          "y"
+        ]
+      }
+    },
+    "is_public": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this spread is publicly available to all users"
+    },
+    "is_system_spread": {
+      "type": "boolean",
+      "default": false,
+      "description": "Marks this as a built-in system spread (Past/Present/Future, etc.). System spreads are always available and can be edited by admins."
+    },
+    "deck_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "The ID of the deck this spread is associated with. Null if it's a common spread."
+    },
+    "requires_positions": {
+      "type": "boolean",
+      "default": true,
+      "description": "If false, position labels/descriptions are hidden during readings"
+    }
+  },
+  "required": [
+    "name",
+    "positions"
+  ]
+}

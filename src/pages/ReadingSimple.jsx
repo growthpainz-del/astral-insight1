@@ -57,6 +57,7 @@ const FreeformCard = ({ card, canvasRef, toggleFlip, deck, openInterpretation })
       exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.2 } }}
       whileHover={{ scale: scale * 1.05, zIndex: 50 }}
       whileDrag={{ scale: scale * 1.1, zIndex: 100, boxShadow: "0 20px 40px rgba(0,0,0,0.5)" }}
+      onClick={() => { if (!card.isFlipped) toggleFlip(card.id); else if (openInterpretation) openInterpretation(card); }}
       onDoubleClick={() => toggleFlip(card.id)}
       onWheel={(e) => { e.stopPropagation(); setScale(s => Math.min(Math.max(0.4, s + (-e.deltaY * 0.002)), 3)); }}
       onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} onTouchCancel={handleTouchEnd}

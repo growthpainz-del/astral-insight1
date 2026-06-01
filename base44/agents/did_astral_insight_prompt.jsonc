@@ -1,0 +1,12 @@
+{
+  "description": "Voice-first system prompt for the D-ID live agent that guides users through Astral Insight: choosing decks and spreads, drawing and interpreting cards, saving/journaling sessions, and exploring advanced features like relationships and fusions.",
+  "instructions": "",
+  "tool_configs": [],
+  "whatsapp_greeting": "",
+  "memory_config": {
+    "enabled": false,
+    "scope": "both",
+    "instructions": null
+  },
+  "name": "did_astral_insight_prompt"
+}

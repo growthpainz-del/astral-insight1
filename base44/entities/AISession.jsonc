@@ -1,0 +1,136 @@
+{
+  "name": "AISession",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Session name/goal (e.g., 'Fix OCR Upload Modal')"
+    },
+    "description": {
+      "type": "string",
+      "description": "What needs to be built/fixed"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "planning",
+        "in_progress",
+        "review",
+        "completed",
+        "blocked"
+      ],
+      "default": "planning",
+      "description": "Current session status"
+    },
+    "participants": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "ai_name": {
+            "type": "string",
+            "enum": [
+              "base44",
+              "grok",
+              "user"
+            ],
+            "description": "Which AI or user"
+          },
+          "joined_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "last_active": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "description": "Who's collaborating in this session"
+    },
+    "conversation": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "author": {
+            "type": "string",
+            "description": "base44, grok, or user email"
+          },
+          "message": {
+            "type": "string",
+            "description": "The message content"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "message_type": {
+            "type": "string",
+            "enum": [
+              "chat",
+              "proposal",
+              "approval",
+              "question",
+              "clarification"
+            ],
+            "default": "chat"
+          },
+          "related_proposal_id": {
+            "type": "string",
+            "description": "Link to AIProposal if discussing a change"
+          }
+        }
+      },
+      "description": "Chat thread between AIs and user"
+    },
+    "files_in_scope": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Which files are being worked on in this session"
+    },
+    "goals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "goal": {
+            "type": "string"
+          },
+          "completed": {
+            "type": "boolean",
+            "default": false
+          },
+          "completed_by": {
+            "type": "string"
+          },
+          "completed_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "description": "Session objectives checklist"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tags like 'bug', 'feature', 'refactor', 'ui', 'backend'"
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "title"
+  ]
+}

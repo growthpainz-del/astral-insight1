@@ -1,0 +1,127 @@
+{
+  "name": "AIProposal",
+  "type": "object",
+  "properties": {
+    "session_id": {
+      "type": "string",
+      "description": "Link to AISession"
+    },
+    "proposed_by": {
+      "type": "string",
+      "enum": [
+        "base44",
+        "grok"
+      ],
+      "description": "Which AI proposed this change"
+    },
+    "proposal_type": {
+      "type": "string",
+      "enum": [
+        "new_file",
+        "edit_file",
+        "delete_file",
+        "refactor",
+        "fix_bug"
+      ],
+      "description": "Type of change"
+    },
+    "file_path": {
+      "type": "string",
+      "description": "Path to the file being changed"
+    },
+    "description": {
+      "type": "string",
+      "description": "What this change does and why"
+    },
+    "original_code": {
+      "type": "string",
+      "description": "Current file content (for diffs)"
+    },
+    "proposed_code": {
+      "type": "string",
+      "description": "Proposed new file content"
+    },
+    "reasoning": {
+      "type": "string",
+      "description": "Why this change is needed"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected",
+        "needs_revision",
+        "applied"
+      ],
+      "default": "pending",
+      "description": "Review status"
+    },
+    "reviewed_by": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "reviewer": {
+            "type": "string",
+            "description": "base44, grok, or user email"
+          },
+          "verdict": {
+            "type": "string",
+            "enum": [
+              "approve",
+              "reject",
+              "request_changes"
+            ]
+          },
+          "feedback": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "description": "Review history"
+    },
+    "applied_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the change was committed"
+    },
+    "related_proposals": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "IDs of related proposals that should be reviewed together"
+    },
+    "conflicts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "conflict_type": {
+            "type": "string",
+            "description": "e.g., 'both_editing_same_file', 'dependency_missing'"
+          },
+          "description": {
+            "type": "string"
+          },
+          "resolved": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "description": "Merge conflicts or dependency issues"
+    }
+  },
+  "required": [
+    "session_id",
+    "proposed_by",
+    "file_path",
+    "proposed_code"
+  ]
+}
