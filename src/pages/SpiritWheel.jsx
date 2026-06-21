@@ -139,6 +139,25 @@ export default function SpiritWheel() {
 
   const [customWheels, setCustomWheels] = useState([]);
   const [selectedWheelId, setSelectedWheelId] = useState(initialWheelId || "default");
+  const [deckCards, setDeckCards] = useState({});
+  const [defaultWheelJson, setDefaultWheelJson] = useState(null);
+
+  useEffect(() => {
+    fetch("https://media.base44.com/files/public/68d2a300021f94d0f312c039/730076266_all-wheel-configs.json")
+      .then(res => res.json())
+      .then(data => {
+        let rootedConfig = data.find(w => 
+            w.outer_ring && w.outer_ring.some(r => r.label && r.label.toUpperCase().includes('ROOTED JOURNEY'))
+        );
+        if (!rootedConfig && data.length > 0) {
+            rootedConfig = data[0];
+        }
+        if (rootedConfig) {
+          setDefaultWheelJson(rootedConfig);
+        }
+      })
+      .catch(err => console.error("Error loading default wheel json", err));
+  }, []);
 
   const [themeId, setThemeId] = useState("wood");
   const [customTheme, setCustomTheme] = useState({
@@ -157,30 +176,62 @@ export default function SpiritWheel() {
   const activeTheme = themeId === 'custom' ? customTheme : WHEEL_THEMES[themeId];
 
   const wheelData = React.useMemo(() => {
+    let w = null;
+    
     if (selectedWheelId !== "default") {
-      const w = customWheels.find(cw => cw.id === selectedWheelId);
-      if (w) {
-        const outerAll = (w.outer_ring || []).map((r, i) => ({ id: r.icon || String(i + 1), name: r.label, general: `${r.label}: ${r.meaning}` }));
-        
-        let outer1 = [];
-        let outer2 = [];
-        if (w.outer2_ring && w.outer2_ring.length > 0) {
-          outer1 = outerAll;
-          outer2 = w.outer2_ring.map((r, i) => ({ id: r.icon || String(i + 1), name: r.label, general: `${r.label}: ${r.meaning}` }));
-        } else {
-          const half = Math.ceil(outerAll.length / 2);
-          outer1 = outerAll.slice(0, half);
-          outer2 = outerAll.slice(half);
-        }
+      w = customWheels.find(cw => cw.id === selectedWheelId);
+    } else if (defaultWheelJson) {
+      w = defaultWheelJson;
+    }
 
-        return {
-          outer1,
-          outer2,
-          middle: (w.middle_ring || []).map((r, i) => ({ id: r.icon || String(i + 1), name: r.label, meaning: r.meaning, general: `${r.label}: ${r.meaning}` })),
-          inner: (w.inner_ring || []).map((r, i) => ({ id: r.icon || String(i + 1), name: r.label, meaning: r.meaning, general: `${r.label}: ${r.meaning}` })),
-          rune: (w.rune_ring || []).map((r, i) => ({ id: r.icon || String(i + 1), name: r.label, meaning: r.meaning, general: `${r.label}: ${r.meaning}` }))
-        };
+    if (w) {
+      const cards = w.deck_id ? (deckCards[w.deck_id] || []) : [];
+      const getIcon = (r) => {
+        if (r.type === 'card' && r.card_id) {
+          const c = cards.find(card => card.id === r.card_id);
+          if (c) {
+            const customSym = Object.values(c.custom_fields || {}).find(cf => cf.label?.toLowerCase() === 'symbol' || cf.label?.toLowerCase() === 'icon');
+            return c.spirit_wheel_icon_url || c.image_url || customSym?.value || r.icon;
+          }
+        }
+        return r.icon;
+      };
+
+      const outerAll = (w.outer_ring || []).map((r, i) => {
+        const icon = getIcon(r);
+        return { id: icon || String(i + 1), name: r.label, general: `${r.label}: ${r.meaning}` };
+      });
+      
+      let outer1 = [];
+      let outer2 = [];
+      if (w.outer2_ring && w.outer2_ring.length > 0) {
+        outer1 = outerAll;
+        outer2 = w.outer2_ring.map((r, i) => {
+          const icon = getIcon(r);
+          return { id: icon || String(i + 1), name: r.label, general: `${r.label}: ${r.meaning}` };
+        });
+      } else {
+        const half = Math.ceil(outerAll.length / 2);
+        outer1 = outerAll.slice(0, half);
+        outer2 = outerAll.slice(half);
       }
+
+      return {
+        outer1,
+        outer2,
+        middle: (w.middle_ring || []).map((r, i) => {
+          const icon = getIcon(r);
+          return { id: icon || String(i + 1), name: r.label, meaning: r.meaning, general: `${r.label}: ${r.meaning}` };
+        }),
+        inner: (w.inner_ring || []).map((r, i) => {
+          const icon = getIcon(r);
+          return { id: icon || String(i + 1), name: r.label, meaning: r.meaning, general: `${r.label}: ${r.meaning}` };
+        }),
+        rune: (w.rune_ring || []).map((r, i) => {
+          const icon = getIcon(r);
+          return { id: icon || String(i + 1), name: r.label, meaning: r.meaning, general: `${r.label}: ${r.meaning}` };
+        })
+      };
     }
 
     const allOuter = ROOTED_CARDS_DATA.map(c => ({
@@ -197,7 +248,7 @@ export default function SpiritWheel() {
       inner: WHEEL_INNER,
       rune: []
     };
-  }, [selectedWheelId, customWheels]);
+  }, [selectedWheelId, customWheels, deckCards, defaultWheelJson]);
 
   useEffect(() => {
     const fetchDecks = async () => {
@@ -224,14 +275,28 @@ export default function SpiritWheel() {
   }, []);
 
   useEffect(() => {
+    let w = null;
     if (selectedWheelId !== "default") {
-      const w = customWheels.find(cw => cw.id === selectedWheelId);
+      w = customWheels.find(cw => cw.id === selectedWheelId);
       if (w?.theme_id) setThemeId(w.theme_id);
       if (w?.custom_theme) {
         setCustomTheme(w.custom_theme);
       }
+    } else if (defaultWheelJson) {
+      w = defaultWheelJson;
+      // We don't overwrite user's theme if they selected "default" after picking something else,
+      // but let's set it if they just loaded.
+      if (w?.theme_id) setThemeId(w.theme_id);
+      if (w?.custom_theme) setCustomTheme(w.custom_theme);
     }
-  }, [selectedWheelId, customWheels]);
+
+    if (w?.deck_id && !deckCards[w.deck_id]) {
+      // Fetch up to 200 cards to cover large decks
+      base44.entities.Card.filter({ deck_id: w.deck_id }, '-created_date', 200).then(cards => {
+        setDeckCards(prev => ({ ...prev, [w.deck_id]: cards || [] }));
+      }).catch(e => console.error("Failed to load cards for wheel", e));
+    }
+  }, [selectedWheelId, customWheels, deckCards, defaultWheelJson]);
 
   const spinWheel = () => {
     if (spinState !== "idle") return;

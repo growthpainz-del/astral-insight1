@@ -792,7 +792,7 @@ export default function SpiritWheelDesigner() {
             setMiddleRing(config.middle_ring || []);
             setInnerRing(config.inner_ring || []);
             if (config.deck_id) {
-              const cards = await base44.entities.Card.filter({ deck_id: config.deck_id });
+              const cards = await base44.entities.Card.filter({ deck_id: config.deck_id }, '-created_date', 200);
               setDeckCards(cards || []);
             }
           }
@@ -830,7 +830,7 @@ export default function SpiritWheelDesigner() {
 
   useEffect(() => {
     if (!deckId || deckId === "none") { setDeckCards([]); return; }
-    base44.entities.Card.filter({ deck_id: deckId }).then(cards => setDeckCards(cards || []));
+    base44.entities.Card.filter({ deck_id: deckId }, '-created_date', 200).then(cards => setDeckCards(cards || []));
   }, [deckId]);
 
   const handleDelete = async () => {

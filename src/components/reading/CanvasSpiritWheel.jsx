@@ -117,10 +117,11 @@ export default function CanvasSpiritWheel({
             img = new Image();
             img.crossOrigin = "anonymous";
             img.onload = () => forceUpdate(n => n + 1);
+            img.onerror = () => { img.failed = true; forceUpdate(n => n + 1); };
             img.src = item.id;
             imageCache.current[item.id] = img;
           }
-          if (img.complete && img.naturalWidth > 0) {
+          if (img.complete && img.naturalWidth > 0 && !img.failed) {
             const size = (rOut - rIn) * 0.6;
             if (showLabels && (item.label || item.name)) {
               ctx.drawImage(img, -size / 2, -size / 2 - 8, size, size);
@@ -130,6 +131,37 @@ export default function CanvasSpiritWheel({
               ctx.fillText(txt, 0, size / 2 + 6);
             } else {
               ctx.drawImage(img, -size / 2, -size / 2, size, size);
+            }
+          } else if (img.failed) {
+            // Fallback to text if image fails to load
+            let txt = item.label || item.name || 'Error';
+            if (txt.length <= 3) {
+              ctx.fillText(txt, 0, 0);
+            } else {
+              ctx.restore();
+              ctx.save();
+              ctx.rotate(textAngle);
+              ctx.translate(rIn + 8, 0);
+              ctx.fillStyle = config.text || '#FFF';
+              ctx.font = `bold ${Math.max(8, (config.fontSize || 14) - 2)}px ${activeTheme?.fontFamily || 'sans-serif'}`;
+              ctx.textAlign = 'left';
+              ctx.textBaseline = 'middle';
+              const availWidth = rOut - rIn - 16;
+              let finalTxt = txt;
+              if (ctx.measureText(finalTxt).width > availWidth) {
+                while (finalTxt.length > 3 && ctx.measureText(finalTxt + '..').width > availWidth) {
+                  finalTxt = finalTxt.slice(0, -1);
+                }
+                finalTxt += '..';
+              }
+              let absoluteAngle = (textAngle + (rotDeg * Math.PI) / 180) % (2 * Math.PI);
+              if (absoluteAngle < 0) absoluteAngle += 2 * Math.PI;
+              if (absoluteAngle > Math.PI / 2 && absoluteAngle < (3 * Math.PI) / 2) {
+                ctx.translate(availWidth, 0);
+                ctx.rotate(Math.PI);
+                ctx.textAlign = 'right';
+              }
+              ctx.fillText(finalTxt, 0, 0);
             }
           }
         } else {
