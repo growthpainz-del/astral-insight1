@@ -18,6 +18,7 @@ import CardLibrary from './pages/CardLibrary'
 import Studio from './pages/Studio'
 import SpreadManager from './pages/SpreadManager'
 import SpreadDesigner from './pages/SpreadDesigner'
+import SpiritWheelDesigner from './pages/SpiritWheelDesigner'
 import DashboardHub from './pages/DashboardHub'
 import ReadingSetup from './pages/ReadingSetup'
 import ReadingSimple from './pages/ReadingSimple'
@@ -34,6 +35,7 @@ const ADMIN_ONLY_PAGES = new Set([
   'AdminTokenGrant',
   'SpreadManager',
   'SpreadDesigner',
+  'SpiritWheelDesigner',
 ])
 
 const LayoutWrapper = ({ children, currentPageName }) =>
@@ -199,6 +201,12 @@ const AuthenticatedApp = () => {
         path="/SpreadDesigner"
         element={
           <AdminRoute Page={SpreadDesigner} pageName="SpreadDesigner" user={user} />
+        }
+      />
+      <Route
+        path="/SpiritWheelDesigner"
+        element={
+          <AdminRoute Page={SpiritWheelDesigner} pageName="SpiritWheelDesigner" user={user} />
         }
       />
       <Route
