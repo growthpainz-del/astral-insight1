@@ -36,7 +36,7 @@ export default function SpiritWheel() {
   const [isRevealed, setIsRevealed] = useState(false);
   const [spinState, setSpinState] = useState("idle"); // idle, spinning
   const [spinSpeed, setSpinSpeed] = useState(1);
-  const [rotations, setRotations] = useState({ outer1: 0, outer2: 0, middle: 0, inner: 0, rune: 0, marble: 0 });
+  const [rotations, setRotations] = useState({ outer1: 0, outer2: 0, middle: 0, inner: 0, rune: 0, marble1: -90, marble2: 30, marble3: 150 });
   const [selectedIndices, setSelectedIndices] = useState({
     past: { outer1: 0, outer2: 0, middle: 0, inner: 0, rune: 0 },
     present: { outer1: 0, outer2: 0, middle: 0, inner: 0, rune: 0 },
@@ -253,23 +253,21 @@ export default function SpiritWheel() {
 
     // 3. Calculate target angles
     const baseSpins = 4 * spinSpeed;
-    const marbleStopOffset = Math.floor(seededRandom(seed + 10) * 360);
-    const targetMarbleRot = (rotations.marble || 0) - 360 * (baseSpins + 12) - marbleStopOffset;
-    const shiftAngle = targetMarbleRot % 360;
 
-    const baseRotOuter1 = calculateTargetAngle(rotations.outer1, baseSpins + 1, outer1Winner, wheelData.outer1.length);
-    const baseRotOuter2 = -calculateTargetAngle(Math.abs(rotations.outer2), baseSpins + 3, outer2Winner, wheelData.outer2.length);
-    const baseRotMiddle = calculateTargetAngle(rotations.middle, baseSpins + 5, middleWinner, wheelData.middle.length);
-    const baseRotInner = -calculateTargetAngle(Math.abs(rotations.inner), baseSpins + 7, innerWinner, wheelData.inner.length);
-    const baseRotRune = calculateTargetAngle(rotations.rune || 0, baseSpins + 9, runeWinner, wheelData.rune?.length || 0);
+    const targetMarble1Rot = (rotations.marble1 !== undefined ? rotations.marble1 : -90) - 360 * (baseSpins + 10) - Math.floor(seededRandom(seed + 10) * 360);
+    const targetMarble2Rot = (rotations.marble2 !== undefined ? rotations.marble2 : 30) - 360 * (baseSpins + 11) - Math.floor(seededRandom(seed + 11) * 360);
+    const targetMarble3Rot = (rotations.marble3 !== undefined ? rotations.marble3 : 150) - 360 * (baseSpins + 12) - Math.floor(seededRandom(seed + 12) * 360);
 
+    // Using random target rotations that are seeded, so they are deterministic
     const targetRotations = {
-      outer1: baseRotOuter1 + shiftAngle,
-      outer2: baseRotOuter2 + shiftAngle,
-      middle: baseRotMiddle + shiftAngle,
-      inner: baseRotInner + shiftAngle,
-      rune: baseRotRune + shiftAngle,
-      marble: targetMarbleRot
+      outer1: (rotations.outer1 || 0) + 360 * (baseSpins + 1) + Math.floor(seededRandom(seed + 1) * 360),
+      outer2: (rotations.outer2 || 0) - 360 * (baseSpins + 3) - Math.floor(seededRandom(seed + 2) * 360),
+      middle: (rotations.middle || 0) + 360 * (baseSpins + 5) + Math.floor(seededRandom(seed + 3) * 360),
+      inner:  (rotations.inner || 0) - 360 * (baseSpins + 7) - Math.floor(seededRandom(seed + 4) * 360),
+      rune:   (rotations.rune || 0) + 360 * (baseSpins + 9) + Math.floor(seededRandom(seed + 5) * 360),
+      marble1: targetMarble1Rot,
+      marble2: targetMarble2Rot,
+      marble3: targetMarble3Rot
     };
 
     const getIndexAtAngle = (R, N, A) => {
@@ -279,9 +277,9 @@ export default function SpiritWheel() {
       return i;
     };
 
-    const pastAngle = -90 + targetMarbleRot;
-    const presentAngle = 30 + targetMarbleRot;
-    const futureAngle = 150 + targetMarbleRot;
+    const pastAngle = targetRotations.marble1;
+    const presentAngle = targetRotations.marble2;
+    const futureAngle = targetRotations.marble3;
 
     setSelectedIndices({
       past: {
@@ -318,12 +316,14 @@ export default function SpiritWheel() {
       middle: { duration: 5600, ease: (t) => { const c1 = 0.5; return 1 + (c1 + 1) * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); } },
       inner:  { duration: 6400, ease: (t) => { const c1 = 0.8; return 1 + (c1 + 1) * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); } },
       rune:   { duration: 7200, ease: (t) => 1 - Math.pow(1 - t, 5) },
-      marble: { duration: 8000, ease: (t) => 1 - Math.pow(1 - t, 3) }
+      marble1: { duration: 7500, ease: (t) => 1 - Math.pow(1 - t, 3) },
+      marble2: { duration: 8000, ease: (t) => 1 - Math.pow(1 - t, 3) },
+      marble3: { duration: 8500, ease: (t) => 1 - Math.pow(1 - t, 3) }
     };
 
     const startRots = { ...rotations };
     const startTime = performance.now();
-    let lastTicks = { outer1: 0, outer2: 0, middle: 0, inner: 0, rune: 0, marble: 0 };
+    let lastTicks = { outer1: 0, outer2: 0, middle: 0, inner: 0, rune: 0, marble1: 0, marble2: 0, marble3: 0 };
 
     const animate = (time) => {
       let isDone = true;
@@ -345,7 +345,7 @@ export default function SpiritWheel() {
         currentRots[key] = currentRot;
 
         // Collision/tick effect
-        const segmentsCount = wheelData[key]?.length || (key === 'marble' ? 36 : 1);
+        const segmentsCount = wheelData[key]?.length || (key.startsWith('marble') ? 36 : 1);
         const tickVal = Math.floor(Math.abs(currentRot) / (360 / Math.max(1, segmentsCount)));
         if (tickVal !== lastTicks[key] && progress > 0.05 && progress < 0.99) {
            lastTicks[key] = tickVal;

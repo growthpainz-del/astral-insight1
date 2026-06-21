@@ -38,7 +38,7 @@ export default function CanvasSpiritWheel({
     
     const cx = width / 2;
     const cy = height / 2;
-    const maxRadius = Math.max(0.1, Math.min(cx, cy) - 40);
+    const maxRadius = Math.max(0.1, Math.min(cx, cy) - 85);
 
     ctx.clearRect(0, 0, width, height);
 
@@ -207,43 +207,44 @@ export default function CanvasSpiritWheel({
     ctx.fillText(t.hubIcon || '👁️', 0, 0);
     ctx.restore();
 
-    // 5. Roulette Track and Marble
+    // 5. Roulette Tracks and Marbles (on their own individual rings)
     ctx.save();
     ctx.translate(cx, cy);
     
-    // Draw subtle outer track for marble
-    ctx.beginPath();
-    ctx.arc(0, 0, maxRadius + 14, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(201, 168, 76, 0.15)';
-    ctx.lineWidth = 16;
-    ctx.stroke();
-    
     const marblePositions = [
-      { label: "PAST", angle: -90, color: "#94A3B8" }, // Silver
-      { label: "PRESENT", angle: 30, color: "#D4AF37" }, // Gold
-      { label: "FUTURE", angle: 150, color: "#8B5CF6" } // Purple
+      { label: "PAST", id: "marble1", initialAngle: -90, color: "#94A3B8", distance: maxRadius + 14 }, // Silver
+      { label: "PRESENT", id: "marble2", initialAngle: 30, color: "#D4AF37", distance: maxRadius + 38 }, // Gold
+      { label: "FUTURE", id: "marble3", initialAngle: 150, color: "#8B5CF6", distance: maxRadius + 62 } // Purple
     ];
     
-    const marbleRot = rotations.marble || 0;
-
     marblePositions.forEach(pos => {
-      const currentAngle = marbleRot + pos.angle;
+      // Draw individual subtle track for this marble
+      ctx.beginPath();
+      ctx.arc(0, 0, pos.distance, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(201, 168, 76, 0.1)';
+      ctx.lineWidth = 14;
+      ctx.stroke();
+      
+      // We read specific marble rotations if they exist, fallback to general marbleRot + offset
+      const specificRot = rotations[pos.id];
+      const marbleRot = specificRot !== undefined ? specificRot : (rotations.marble || 0);
+      const currentAngle = specificRot !== undefined ? marbleRot : marbleRot + pos.initialAngle;
       
       ctx.save();
       ctx.rotate(currentAngle * Math.PI / 180);
 
-      // Draw indicator on the outside
+      // Draw indicator pointing inwards (tip closer to center than base)
       ctx.beginPath();
-      ctx.moveTo(maxRadius + 26, 0);
-      ctx.lineTo(maxRadius + 38, -8);
-      ctx.lineTo(maxRadius + 38, 8);
+      ctx.moveTo(pos.distance - 12, 0);
+      ctx.lineTo(pos.distance - 4, -6);
+      ctx.lineTo(pos.distance - 4, 6);
       ctx.closePath();
       ctx.fillStyle = pos.color;
       ctx.fill();
 
-      // Draw marble on the track
+      // Draw marble on its individual track
       ctx.beginPath();
-      ctx.arc(maxRadius + 14, 0, 8, 0, Math.PI * 2);
+      ctx.arc(pos.distance, 0, 8, 0, Math.PI * 2);
       ctx.fillStyle = pos.color; 
       ctx.fill();
       ctx.strokeStyle = '#FFFFFF';
@@ -252,12 +253,12 @@ export default function CanvasSpiritWheel({
       
       // Highlight / reflection
       ctx.beginPath();
-      ctx.arc(maxRadius + 12, -2, 2.5, 0, Math.PI * 2);
+      ctx.arc(pos.distance - 2, -2, 2.5, 0, Math.PI * 2);
       ctx.fillStyle = 'rgba(255,255,255,0.8)';
       ctx.fill();
       
-      // Draw label
-      ctx.translate(maxRadius + 45, 0);
+      // Draw label outside the track
+      ctx.translate(pos.distance + 14, 0);
       const normalized = ((currentAngle % 360) + 360) % 360;
       if (normalized > 90 && normalized < 270) {
         ctx.rotate(Math.PI);
