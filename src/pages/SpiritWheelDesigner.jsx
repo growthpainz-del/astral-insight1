@@ -379,7 +379,7 @@ function RingEditor({ ringKey, segments, setSegments, deckCards, onOpenGallery }
       label: card.name || "",
       meaning: card.overall_meaning || card.upright_meaning || (card.keywords ? card.keywords.join(", ") : "") || card.name || "",
       type: "card",
-      icon: card.spirit_wheel_icon_url || "",
+      icon: card.spirit_wheel_icon_url || card.image_url || "",
       card_id: card.id
     }));
     setSegments([...segments, ...newSegments]);

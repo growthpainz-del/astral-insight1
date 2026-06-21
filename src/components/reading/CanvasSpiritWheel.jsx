@@ -136,8 +136,41 @@ export default function CanvasSpiritWheel({
           // If id is just a generic fallback number string (e.g. "1"), prefer the name/label
           const isFallbackId = /^\d+$/.test(item.id);
           let txt = (isFallbackId ? (item.label || item.name) : item.id) || item.label || item.name || '';
-          if (txt.length > 12) txt = txt.substring(0, 10) + '..';
-          ctx.fillText(txt, 0, 0);
+          
+          if (txt.length <= 3) {
+            ctx.fillText(txt, 0, 0);
+          } else {
+            // Draw longer text radially to avoid overlap
+            ctx.restore();
+            ctx.save();
+            ctx.rotate(textAngle);
+            ctx.translate(rIn + 8, 0);
+            
+            ctx.fillStyle = config.text || '#FFF';
+            ctx.font = `bold ${Math.max(8, (config.fontSize || 14) - 2)}px ${activeTheme?.fontFamily || 'sans-serif'}`;
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+            
+            const availWidth = rOut - rIn - 16;
+            let finalTxt = txt;
+            if (ctx.measureText(finalTxt).width > availWidth) {
+              while (finalTxt.length > 3 && ctx.measureText(finalTxt + '..').width > availWidth) {
+                finalTxt = finalTxt.slice(0, -1);
+              }
+              finalTxt += '..';
+            }
+            
+            // Flip text on the left half so it remains readable
+            let absoluteAngle = (textAngle + (rotDeg * Math.PI) / 180) % (2 * Math.PI);
+            if (absoluteAngle < 0) absoluteAngle += 2 * Math.PI;
+            if (absoluteAngle > Math.PI / 2 && absoluteAngle < (3 * Math.PI) / 2) {
+              ctx.translate(availWidth, 0);
+              ctx.rotate(Math.PI);
+              ctx.textAlign = 'right';
+            }
+            
+            ctx.fillText(finalTxt, 0, 0);
+          }
         }
         
         ctx.restore();
