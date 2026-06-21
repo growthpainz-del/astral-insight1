@@ -47,8 +47,40 @@
           }
         },
         "required": [
-          "label",
-          "meaning"
+          "label"
+        ]
+      }
+    },
+    "outer2_ring": {
+      "type": "array",
+      "description": "Segments for the secondary outer ring",
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "meaning": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "card",
+              "symbol",
+              "custom"
+            ],
+            "default": "symbol"
+          },
+          "card_id": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "label"
         ]
       }
     },
@@ -81,8 +113,7 @@
           }
         },
         "required": [
-          "label",
-          "meaning"
+          "label"
         ]
       }
     },
@@ -115,10 +146,69 @@
           }
         },
         "required": [
-          "label",
-          "meaning"
+          "label"
         ]
       }
+    },
+    "rune_ring": {
+      "type": "array",
+      "description": "Segments for the innermost rune ring",
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "meaning": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "card",
+              "symbol",
+              "custom"
+            ],
+            "default": "symbol"
+          },
+          "card_id": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "label"
+        ]
+      }
+    },
+    "texture_layers": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "center": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "ring_borders": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "synergy_rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "reading_engine": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "theme": {
+      "type": "object",
+      "additionalProperties": true
     },
     "is_public": {
       "type": "boolean",
@@ -147,8 +237,6 @@
   },
   "required": [
     "name",
-    "outer_ring",
-    "middle_ring",
-    "inner_ring"
+    "outer_ring"
   ]
 }

@@ -161,10 +161,21 @@ export default function SpiritWheel() {
       const w = customWheels.find(cw => cw.id === selectedWheelId);
       if (w) {
         const outerAll = (w.outer_ring || []).map((r, i) => ({ id: r.icon || String(i + 1), name: r.label, general: `${r.label}: ${r.meaning}` }));
-        const half = Math.ceil(outerAll.length / 2);
+        
+        let outer1 = [];
+        let outer2 = [];
+        if (w.outer2_ring && w.outer2_ring.length > 0) {
+          outer1 = outerAll;
+          outer2 = w.outer2_ring.map((r, i) => ({ id: r.icon || String(i + 1), name: r.label, general: `${r.label}: ${r.meaning}` }));
+        } else {
+          const half = Math.ceil(outerAll.length / 2);
+          outer1 = outerAll.slice(0, half);
+          outer2 = outerAll.slice(half);
+        }
+
         return {
-          outer1: outerAll.slice(0, half),
-          outer2: outerAll.slice(half),
+          outer1,
+          outer2,
           middle: (w.middle_ring || []).map((r, i) => ({ id: r.icon || String(i + 1), name: r.label, meaning: r.meaning, general: `${r.label}: ${r.meaning}` })),
           inner: (w.inner_ring || []).map((r, i) => ({ id: r.icon || String(i + 1), name: r.label, meaning: r.meaning, general: `${r.label}: ${r.meaning}` })),
           rune: (w.rune_ring || []).map((r, i) => ({ id: r.icon || String(i + 1), name: r.label, meaning: r.meaning, general: `${r.label}: ${r.meaning}` }))
