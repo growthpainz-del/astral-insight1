@@ -185,35 +185,54 @@ export default function CanvasSpiritWheel({
     ctx.lineWidth = 16;
     ctx.stroke();
     
-    // Draw marble
-    ctx.save();
+    const marblePositions = [
+      { label: "PAST", angle: -90, color: "#94A3B8" }, // Silver
+      { label: "PRESENT", angle: 30, color: "#D4AF37" }, // Gold
+      { label: "FUTURE", angle: 150, color: "#8B5CF6" } // Purple
+    ];
+    
     const marbleRot = rotations.marble || 0;
-    ctx.rotate((marbleRot - 90) * Math.PI / 180);
-    
-    // Marble body
-    ctx.beginPath();
-    ctx.arc(maxRadius + 14, 0, 8, 0, Math.PI * 2);
-    ctx.fillStyle = '#E2E8F0'; // silver marble base
-    ctx.fill();
-    ctx.strokeStyle = '#64748B';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-    
-    // Highlight / reflection
-    ctx.beginPath();
-    ctx.arc(maxRadius + 12, -2, 2.5, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(255,255,255,0.9)';
-    ctx.fill();
-    ctx.restore();
-    
-    // Keep a subtle indicator at the top to mark the "reading point"
-    ctx.beginPath();
-    ctx.moveTo(0, -maxRadius - 26);
-    ctx.lineTo(-8, -maxRadius - 38);
-    ctx.lineTo(8, -maxRadius - 38);
-    ctx.closePath();
-    ctx.fillStyle = '#D4AF37';
-    ctx.fill();
+
+    marblePositions.forEach(pos => {
+      // Draw indicator on the outside
+      ctx.save();
+      ctx.rotate(pos.angle * Math.PI / 180);
+      ctx.beginPath();
+      ctx.moveTo(maxRadius + 26, 0);
+      ctx.lineTo(maxRadius + 38, -8);
+      ctx.lineTo(maxRadius + 38, 8);
+      ctx.closePath();
+      ctx.fillStyle = pos.color;
+      ctx.fill();
+      
+      // Draw label
+      ctx.fillStyle = pos.color;
+      ctx.font = 'bold 10px sans-serif';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(pos.label, maxRadius + 45, 0);
+      ctx.restore();
+
+      // Draw marble on the track
+      ctx.save();
+      ctx.rotate((marbleRot + pos.angle) * Math.PI / 180);
+      
+      // Marble body
+      ctx.beginPath();
+      ctx.arc(maxRadius + 14, 0, 8, 0, Math.PI * 2);
+      ctx.fillStyle = pos.color; 
+      ctx.fill();
+      ctx.strokeStyle = '#FFFFFF';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      
+      // Highlight / reflection
+      ctx.beginPath();
+      ctx.arc(maxRadius + 12, -2, 2.5, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255,255,255,0.8)';
+      ctx.fill();
+      ctx.restore();
+    });
 
     ctx.restore();
 

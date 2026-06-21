@@ -37,7 +37,11 @@ export default function SpiritWheel() {
   const [spinState, setSpinState] = useState("idle"); // idle, spinning
   const [spinSpeed, setSpinSpeed] = useState(1);
   const [rotations, setRotations] = useState({ outer1: 0, outer2: 0, middle: 0, inner: 0, rune: 0, marble: 0 });
-  const [selectedIndices, setSelectedIndices] = useState({ outer1: 0, outer2: 0, middle: 0, inner: 0, rune: 0 });
+  const [selectedIndices, setSelectedIndices] = useState({
+    past: { outer1: 0, outer2: 0, middle: 0, inner: 0, rune: 0 },
+    present: { outer1: 0, outer2: 0, middle: 0, inner: 0, rune: 0 },
+    future: { outer1: 0, outer2: 0, middle: 0, inner: 0, rune: 0 }
+  });
   const [intentionPhrase, setIntentionPhrase] = useState("");
   const [metatronResult, setMetatronResult] = useState(null);
 
@@ -236,14 +240,6 @@ export default function SpiritWheel() {
     const innerWinner = pickWeighted(wheelData.inner, seededRandom(seed + 4));
     const runeWinner = pickWeighted(wheelData.rune || [], seededRandom(seed + 5));
 
-    setSelectedIndices({
-      outer1: outer1Winner,
-      outer2: outer2Winner,
-      middle: middleWinner,
-      inner: innerWinner,
-      rune: runeWinner
-    });
-
     // 3. Calculate target angles
     const baseSpins = 4 * spinSpeed;
     const targetRotations = {
@@ -254,6 +250,37 @@ export default function SpiritWheel() {
       rune: calculateTargetAngle(rotations.rune || 0, baseSpins + 9, runeWinner, wheelData.rune?.length || 0),
       marble: (rotations.marble || 0) - 360 * (baseSpins + 12) // Spins in opposite direction like roulette
     };
+
+    const getIndexAtAngle = (R, N, A) => {
+      if (!N || N === 0) return 0;
+      let i = Math.round( (A + 90 - R) * N / 360 ) % N;
+      while (i < 0) i += N;
+      return i;
+    };
+
+    setSelectedIndices({
+      past: {
+        outer1: getIndexAtAngle(targetRotations.outer1, wheelData.outer1.length, -90),
+        outer2: getIndexAtAngle(targetRotations.outer2, wheelData.outer2.length, -90),
+        middle: getIndexAtAngle(targetRotations.middle, wheelData.middle.length, -90),
+        inner: getIndexAtAngle(targetRotations.inner, wheelData.inner.length, -90),
+        rune: getIndexAtAngle(targetRotations.rune, wheelData.rune?.length || 0, -90),
+      },
+      present: {
+        outer1: getIndexAtAngle(targetRotations.outer1, wheelData.outer1.length, 30),
+        outer2: getIndexAtAngle(targetRotations.outer2, wheelData.outer2.length, 30),
+        middle: getIndexAtAngle(targetRotations.middle, wheelData.middle.length, 30),
+        inner: getIndexAtAngle(targetRotations.inner, wheelData.inner.length, 30),
+        rune: getIndexAtAngle(targetRotations.rune, wheelData.rune?.length || 0, 30),
+      },
+      future: {
+        outer1: getIndexAtAngle(targetRotations.outer1, wheelData.outer1.length, 150),
+        outer2: getIndexAtAngle(targetRotations.outer2, wheelData.outer2.length, 150),
+        middle: getIndexAtAngle(targetRotations.middle, wheelData.middle.length, 150),
+        inner: getIndexAtAngle(targetRotations.inner, wheelData.inner.length, 150),
+        rune: getIndexAtAngle(targetRotations.rune, wheelData.rune?.length || 0, 150),
+      }
+    });
 
     // Calculate Metatron zone based on outer1 target angle
     const finalOuter1Angle = targetRotations.outer1 % 360;
@@ -329,49 +356,53 @@ export default function SpiritWheel() {
   const getInterpretation = async () => {
     setIsAiLoading(true);
     try {
-      const outerItem1 = wheelData.outer1[selectedIndices.outer1] || {};
-      const outerItem2 = wheelData.outer2[selectedIndices.outer2] || {};
-      const middleItem = wheelData.middle[selectedIndices.middle] || {};
-      const innerItem = wheelData.inner[selectedIndices.inner] || {};
-      const runeItem = wheelData.rune?.[selectedIndices.rune] || null;
-
-      // Database-driven reading based on combinations (Bypasses AI)
-      const coreTheme1 = outerItem1.general ? outerItem1.general.split(":")[0] : (outerItem1.name || "Unknown theme");
-      const coreTheme2 = outerItem2.general ? outerItem2.general.split(":")[0] : (outerItem2.name || "Unknown theme");
-      
-      const timingModifier = middleItem.meaning || middleItem.general || "Unknown modifier";
-      const actionGuidance = innerItem.meaning || innerItem.general || "Unknown guidance";
-      const runeGuidance = runeItem ? (runeItem.meaning || runeItem.general || "Unknown ancient wisdom") : null;
-      
       const categoryName = selectedWheelId === "default" ? category : customWheels.find(w => w.id === selectedWheelId)?.name || "Custom Reading";
       
-      let staticReading = `Your reading focuses on ${categoryName}. The core themes are ${coreTheme1} and ${coreTheme2}. `;
-      
-      const relationshipInsight = await getCardRelationship(outerItem1, outerItem2);
-      
-      if (outerItem1.meaning || outerItem1.general?.includes(":")) {
-        staticReading += `\n(${outerItem1.meaning || outerItem1.general.split(":")[1]?.trim()}) \n`;
-      }
-      if (outerItem2.meaning || outerItem2.general?.includes(":")) {
-        staticReading += `\n(${outerItem2.meaning || outerItem2.general.split(":")[1]?.trim()}) \n\n`;
-      }
-      
-      if (relationshipInsight) {
-        staticReading += `✨ Cosmic Synergy: ${relationshipInsight}\n\n`;
+      let staticReading = `Your reading focuses on ${categoryName}.\n\n`;
+
+      for (const [positionName, indices] of Object.entries(selectedIndices)) {
+        const outerItem1 = wheelData.outer1[indices.outer1] || {};
+        const outerItem2 = wheelData.outer2[indices.outer2] || {};
+        const middleItem = wheelData.middle[indices.middle] || {};
+        const innerItem = wheelData.inner[indices.inner] || {};
+        const runeItem = wheelData.rune?.[indices.rune] || null;
+
+        const coreTheme1 = outerItem1.general ? outerItem1.general.split(":")[0] : (outerItem1.name || "Unknown theme");
+        const coreTheme2 = outerItem2.general ? outerItem2.general.split(":")[0] : (outerItem2.name || "Unknown theme");
+        
+        const timingModifier = middleItem.meaning || middleItem.general || "Unknown modifier";
+        const actionGuidance = innerItem.meaning || innerItem.general || "Unknown guidance";
+        const runeGuidance = runeItem ? (runeItem.meaning || runeItem.general || "Unknown ancient wisdom") : null;
+        
+        staticReading += `--- ${positionName.toUpperCase()} ---\n`;
+        staticReading += `Core themes: ${coreTheme1} & ${coreTheme2}.\n`;
+        
+        const relationshipInsight = await getCardRelationship(outerItem1, outerItem2);
+        
+        if (outerItem1.meaning || outerItem1.general?.includes(":")) {
+          staticReading += `• ${outerItem1.meaning || outerItem1.general.split(":")[1]?.trim()}\n`;
+        }
+        if (outerItem2.meaning || outerItem2.general?.includes(":")) {
+          staticReading += `• ${outerItem2.meaning || outerItem2.general.split(":")[1]?.trim()}\n`;
+        }
+        
+        if (relationshipInsight) {
+          staticReading += `✨ Cosmic Synergy: ${relationshipInsight}\n`;
+        }
+
+        staticReading += `Modifier: "${timingModifier}"\n`;
+        staticReading += `Action: "${actionGuidance}"\n`;
+        
+        if (runeGuidance) {
+          staticReading += `Rune whisper: "${runeGuidance}"\n`;
+        }
+        
+        staticReading += `\n`;
       }
 
       if (metatronResult && activeTheme.metatron?.enabled) {
-        staticReading += `🔮 Sacred Geometry Alignment: The pointer landed in the ${metatronResult.zone} zone (${Math.round(metatronResult.sectorAngle)}°). ${metatronResult.description}.\n\n`;
+        staticReading += `🔮 Sacred Geometry Alignment (Past Position): The pointer landed in the ${metatronResult.zone} zone (${Math.round(metatronResult.sectorAngle)}°). ${metatronResult.description}.\n\n`;
       }
-      
-      staticReading += `Your modifier indicates "${timingModifier}", suggesting the context of your situation. `;
-      staticReading += `Your action guidance is "${actionGuidance}". `;
-      
-      if (runeGuidance) {
-        staticReading += `\nThe ancient runes whisper: "${runeGuidance}". `;
-      }
-      
-      staticReading += `\n\nReflect on how ${actionGuidance.toLowerCase()} can be integrated with ${coreTheme1} and ${coreTheme2}.`;
       
       // Wait a short moment to simulate fetching
       await new Promise(resolve => setTimeout(resolve, 800));

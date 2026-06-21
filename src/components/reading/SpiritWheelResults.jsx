@@ -28,6 +28,131 @@ export default function SpiritWheelResults({
     return "";
   };
 
+  const renderPositionResult = (positionName, indices, delayOffset) => {
+    if (!indices) return null;
+    return (
+      <div key={positionName} className="mb-[24px]">
+        <h4 className="text-[12px] tracking-[0.15em] text-[#c9a84c] uppercase mb-[8px]" style={{ fontFamily: "'Cinzel', serif" }}>
+          {positionName} Position
+        </h4>
+        <div className="space-y-[9px] animate-in fade-in slide-in-from-left-4 duration-400">
+          {wheelData.outer1.length > 0 && (
+            <div 
+              className="flex items-center justify-between p-[13px] px-[14px] rounded-[13px] border border-[rgba(201,168,76,0.2)] bg-gradient-to-br from-[rgba(61,32,8,0.9)] to-[rgba(30,14,5,0.95)] transition-colors duration-200"
+              style={{ animation: "resultReveal 0.4s ease both", animationDelay: `${delayOffset + 0.1}s` }}
+              onMouseOver={(e) => e.currentTarget.style.borderColor = "rgba(201,168,76,0.4)"}
+              onMouseOut={(e) => e.currentTarget.style.borderColor = "rgba(201,168,76,0.2)"}
+            >
+              <div>
+                <div className="text-[8px] tracking-[0.2em] uppercase text-[#c9a84c] mb-[5px] opacity-80" style={{ fontFamily: "'Cinzel', serif" }}>Outer Ring 1</div>
+                <div className="text-[13px] tracking-[0.08em] uppercase text-[rgba(240,225,190,0.95)]" style={{ fontFamily: "'Cinzel', serif" }}>
+                  {getSegmentText('outer1', indices.outer1)}
+                </div>
+              </div>
+              <div className="text-[22px] opacity-75 shrink-0 ml-[12px]">
+                {isImageSymbol(wheelData.outer1[indices.outer1]?.id) ? (
+                  <img src={getThumbnailUrl(getImageUrl(wheelData.outer1[indices.outer1]?.id), 100)} alt="" className="w-[30px] h-[30px] object-contain rounded-full" />
+                ) : (
+                  wheelData.outer1[indices.outer1]?.id || '✦'
+                )}
+              </div>
+            </div>
+          )}
+
+          {wheelData.outer2.length > 0 && (
+            <div 
+              className="flex items-center justify-between p-[13px] px-[14px] rounded-[13px] border border-[rgba(201,168,76,0.2)] bg-gradient-to-br from-[rgba(61,32,8,0.9)] to-[rgba(30,14,5,0.95)] transition-colors duration-200"
+              style={{ animation: "resultReveal 0.4s ease both", animationDelay: `${delayOffset + 0.2}s` }}
+              onMouseOver={(e) => e.currentTarget.style.borderColor = "rgba(201,168,76,0.4)"}
+              onMouseOut={(e) => e.currentTarget.style.borderColor = "rgba(201,168,76,0.2)"}
+            >
+              <div>
+                <div className="text-[8px] tracking-[0.2em] uppercase text-[#c9a84c] mb-[5px] opacity-80" style={{ fontFamily: "'Cinzel', serif" }}>Outer Ring 2</div>
+                <div className="text-[13px] tracking-[0.08em] uppercase text-[rgba(240,225,190,0.95)]" style={{ fontFamily: "'Cinzel', serif" }}>
+                  {getSegmentText('outer2', indices.outer2)}
+                </div>
+              </div>
+              <div className="text-[22px] opacity-75 shrink-0 ml-[12px]">
+                {isImageSymbol(wheelData.outer2[indices.outer2]?.id) ? (
+                  <img src={getThumbnailUrl(getImageUrl(wheelData.outer2[indices.outer2]?.id), 100)} alt="" className="w-[30px] h-[30px] object-contain rounded-full" />
+                ) : (
+                  wheelData.outer2[indices.outer2]?.id || '✦'
+                )}
+              </div>
+            </div>
+          )}
+          
+          {wheelData.middle.length > 0 && (
+            <div 
+              className="flex items-center justify-between p-[13px] px-[14px] rounded-[13px] border border-[rgba(201,168,76,0.2)] bg-gradient-to-br from-[rgba(61,32,8,0.9)] to-[rgba(30,14,5,0.95)] transition-colors duration-200"
+              style={{ animation: "resultReveal 0.4s ease both", animationDelay: `${delayOffset + 0.3}s` }}
+              onMouseOver={(e) => e.currentTarget.style.borderColor = "rgba(201,168,76,0.4)"}
+              onMouseOut={(e) => e.currentTarget.style.borderColor = "rgba(201,168,76,0.2)"}
+            >
+              <div>
+                <div className="text-[8px] tracking-[0.2em] uppercase text-[#c9a84c] mb-[5px] opacity-80" style={{ fontFamily: "'Cinzel', serif" }}>Middle Ring</div>
+                <div className="text-[14px] italic text-[rgba(180,160,130,0.8)]" style={{ fontFamily: "'IM Fell English', serif" }}>
+                  {getSegmentText('middle', indices.middle)}
+                </div>
+              </div>
+              <div className="text-[22px] opacity-40 shrink-0 ml-[12px]">
+                {isImageSymbol(wheelData.middle[indices.middle]?.id) ? (
+                  <img src={getThumbnailUrl(getImageUrl(wheelData.middle[indices.middle]?.id), 100)} alt="" className="w-[30px] h-[30px] object-contain rounded-full" />
+                ) : (
+                  wheelData.middle[indices.middle]?.id || '◈'
+                )}
+              </div>
+            </div>
+          )}
+          
+          {wheelData.inner.length > 0 && (
+            <div 
+              className="flex items-center justify-between p-[13px] px-[14px] rounded-[13px] border border-[rgba(201,168,76,0.2)] bg-gradient-to-br from-[rgba(61,32,8,0.9)] to-[rgba(30,14,5,0.95)] transition-colors duration-200"
+              style={{ animation: "resultReveal 0.4s ease both", animationDelay: `${delayOffset + 0.4}s` }}
+              onMouseOver={(e) => e.currentTarget.style.borderColor = "rgba(201,168,76,0.4)"}
+              onMouseOut={(e) => e.currentTarget.style.borderColor = "rgba(201,168,76,0.2)"}
+            >
+              <div>
+                <div className="text-[8px] tracking-[0.2em] uppercase text-[#c9a84c] mb-[5px] opacity-80" style={{ fontFamily: "'Cinzel', serif" }}>Inner Ring</div>
+                <div className="text-[14px] italic text-[rgba(180,160,130,0.8)]" style={{ fontFamily: "'IM Fell English', serif" }}>
+                  {getSegmentText('inner', indices.inner)}
+                </div>
+              </div>
+              <div className="text-[22px] opacity-40 shrink-0 ml-[12px]">
+                {isImageSymbol(wheelData.inner[indices.inner]?.id) ? (
+                  <img src={getThumbnailUrl(getImageUrl(wheelData.inner[indices.inner]?.id), 100)} alt="" className="w-[30px] h-[30px] object-contain rounded-full" />
+                ) : (
+                  wheelData.inner[indices.inner]?.id || '◎'
+                )}
+              </div>
+            </div>
+          )}
+          
+          {wheelData.rune && wheelData.rune.length > 0 && (
+            <div 
+              className="flex items-center justify-between p-[13px] px-[14px] rounded-[13px] border border-[rgba(234,88,12,0.3)] bg-gradient-to-br from-[rgba(61,32,8,0.9)] to-[rgba(30,14,5,0.95)] transition-colors duration-200"
+              style={{ animation: "resultReveal 0.4s ease both", animationDelay: `${delayOffset + 0.5}s` }}
+            >
+              <div>
+                <div className="text-[8px] tracking-[0.2em] uppercase text-[#f97316] mb-[5px] opacity-80" style={{ fontFamily: "'Cinzel', serif" }}>Rune Ring</div>
+                <div className="text-[13px] tracking-[0.08em] uppercase text-[rgba(240,225,190,0.95)]" style={{ fontFamily: "'Cinzel', serif" }}>
+                  {getSegmentText('rune', indices.rune)}
+                </div>
+              </div>
+              <div className="text-[22px] opacity-75 shrink-0 ml-[12px]">
+                {isImageSymbol(wheelData.rune[indices.rune]?.id) ? (
+                  <img src={getThumbnailUrl(getImageUrl(wheelData.rune[indices.rune]?.id), 100)} alt="" className="w-[30px] h-[30px] object-contain rounded-full" />
+                ) : (
+                  wheelData.rune[indices.rune]?.id || 'ᛉ'
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="w-full flex flex-col pt-[16px] min-h-[250px]">
       <div className="px-[18px]">
@@ -60,127 +185,18 @@ export default function SpiritWheelResults({
         </div>
       ) : isRevealed ? (
         <div className="px-[18px] pb-[16px]">
-          <div className="space-y-[9px] animate-in fade-in slide-in-from-left-4 duration-400">
-            {wheelData.outer1.length > 0 && (
-              <div 
-                className="flex items-center justify-between p-[13px] px-[14px] rounded-[13px] border border-[rgba(201,168,76,0.2)] bg-gradient-to-br from-[rgba(61,32,8,0.9)] to-[rgba(30,14,5,0.95)] transition-colors duration-200"
-                style={{ animation: "resultReveal 0.4s ease both", animationDelay: "0.1s" }}
-                onMouseOver={(e) => e.currentTarget.style.borderColor = "rgba(201,168,76,0.4)"}
-                onMouseOut={(e) => e.currentTarget.style.borderColor = "rgba(201,168,76,0.2)"}
-              >
-                <div>
-                  <div className="text-[8px] tracking-[0.2em] uppercase text-[#c9a84c] mb-[5px] opacity-80" style={{ fontFamily: "'Cinzel', serif" }}>Outer Ring 1</div>
-                  <div className="text-[13px] tracking-[0.08em] uppercase text-[rgba(240,225,190,0.95)]" style={{ fontFamily: "'Cinzel', serif" }}>
-                    {getSegmentText('outer1', selectedIndices.outer1)}
-                  </div>
-                </div>
-                <div className="text-[22px] opacity-75 shrink-0 ml-[12px]">
-                  {isImageSymbol(wheelData.outer1[selectedIndices.outer1]?.id) ? (
-                    <img src={getThumbnailUrl(getImageUrl(wheelData.outer1[selectedIndices.outer1]?.id), 100)} alt="" className="w-[30px] h-[30px] object-contain rounded-full" />
-                  ) : (
-                    wheelData.outer1[selectedIndices.outer1]?.id || '✦'
-                  )}
-                </div>
-              </div>
-            )}
-
-            {wheelData.outer2.length > 0 && (
-              <div 
-                className="flex items-center justify-between p-[13px] px-[14px] rounded-[13px] border border-[rgba(201,168,76,0.2)] bg-gradient-to-br from-[rgba(61,32,8,0.9)] to-[rgba(30,14,5,0.95)] transition-colors duration-200"
-                style={{ animation: "resultReveal 0.4s ease both", animationDelay: "0.2s" }}
-                onMouseOver={(e) => e.currentTarget.style.borderColor = "rgba(201,168,76,0.4)"}
-                onMouseOut={(e) => e.currentTarget.style.borderColor = "rgba(201,168,76,0.2)"}
-              >
-                <div>
-                  <div className="text-[8px] tracking-[0.2em] uppercase text-[#c9a84c] mb-[5px] opacity-80" style={{ fontFamily: "'Cinzel', serif" }}>Outer Ring 2</div>
-                  <div className="text-[13px] tracking-[0.08em] uppercase text-[rgba(240,225,190,0.95)]" style={{ fontFamily: "'Cinzel', serif" }}>
-                    {getSegmentText('outer2', selectedIndices.outer2)}
-                  </div>
-                </div>
-                <div className="text-[22px] opacity-75 shrink-0 ml-[12px]">
-                  {isImageSymbol(wheelData.outer2[selectedIndices.outer2]?.id) ? (
-                    <img src={getThumbnailUrl(getImageUrl(wheelData.outer2[selectedIndices.outer2]?.id), 100)} alt="" className="w-[30px] h-[30px] object-contain rounded-full" />
-                  ) : (
-                    wheelData.outer2[selectedIndices.outer2]?.id || '✦'
-                  )}
-                </div>
-              </div>
-            )}
-            
-            {wheelData.middle.length > 0 && (
-              <div 
-                className="flex items-center justify-between p-[13px] px-[14px] rounded-[13px] border border-[rgba(201,168,76,0.2)] bg-gradient-to-br from-[rgba(61,32,8,0.9)] to-[rgba(30,14,5,0.95)] transition-colors duration-200"
-                style={{ animation: "resultReveal 0.4s ease both", animationDelay: "0.3s" }}
-                onMouseOver={(e) => e.currentTarget.style.borderColor = "rgba(201,168,76,0.4)"}
-                onMouseOut={(e) => e.currentTarget.style.borderColor = "rgba(201,168,76,0.2)"}
-              >
-                <div>
-                  <div className="text-[8px] tracking-[0.2em] uppercase text-[#c9a84c] mb-[5px] opacity-80" style={{ fontFamily: "'Cinzel', serif" }}>Middle Ring</div>
-                  <div className="text-[14px] italic text-[rgba(180,160,130,0.8)]" style={{ fontFamily: "'IM Fell English', serif" }}>
-                    {getSegmentText('middle', selectedIndices.middle)}
-                  </div>
-                </div>
-                <div className="text-[22px] opacity-40 shrink-0 ml-[12px]">
-                  {isImageSymbol(wheelData.middle[selectedIndices.middle]?.id) ? (
-                    <img src={getThumbnailUrl(getImageUrl(wheelData.middle[selectedIndices.middle]?.id), 100)} alt="" className="w-[30px] h-[30px] object-contain rounded-full" />
-                  ) : (
-                    wheelData.middle[selectedIndices.middle]?.id || '◈'
-                  )}
-                </div>
-              </div>
-            )}
-            
-            {wheelData.inner.length > 0 && (
-              <div 
-                className="flex items-center justify-between p-[13px] px-[14px] rounded-[13px] border border-[rgba(201,168,76,0.2)] bg-gradient-to-br from-[rgba(61,32,8,0.9)] to-[rgba(30,14,5,0.95)] transition-colors duration-200"
-                style={{ animation: "resultReveal 0.4s ease both", animationDelay: "0.4s" }}
-                onMouseOver={(e) => e.currentTarget.style.borderColor = "rgba(201,168,76,0.4)"}
-                onMouseOut={(e) => e.currentTarget.style.borderColor = "rgba(201,168,76,0.2)"}
-              >
-                <div>
-                  <div className="text-[8px] tracking-[0.2em] uppercase text-[#c9a84c] mb-[5px] opacity-80" style={{ fontFamily: "'Cinzel', serif" }}>Inner Ring</div>
-                  <div className="text-[14px] italic text-[rgba(180,160,130,0.8)]" style={{ fontFamily: "'IM Fell English', serif" }}>
-                    {getSegmentText('inner', selectedIndices.inner)}
-                  </div>
-                </div>
-                <div className="text-[22px] opacity-40 shrink-0 ml-[12px]">
-                  {isImageSymbol(wheelData.inner[selectedIndices.inner]?.id) ? (
-                    <img src={getThumbnailUrl(getImageUrl(wheelData.inner[selectedIndices.inner]?.id), 100)} alt="" className="w-[30px] h-[30px] object-contain rounded-full" />
-                  ) : (
-                    wheelData.inner[selectedIndices.inner]?.id || '◎'
-                  )}
-                </div>
-              </div>
-            )}
-            
-            {wheelData.rune && wheelData.rune.length > 0 && (
-              <div 
-                className="flex items-center justify-between p-[13px] px-[14px] rounded-[13px] border border-[rgba(234,88,12,0.3)] bg-gradient-to-br from-[rgba(61,32,8,0.9)] to-[rgba(30,14,5,0.95)] transition-colors duration-200"
-                style={{ animation: "resultReveal 0.4s ease both", animationDelay: "0.5s" }}
-              >
-                <div>
-                  <div className="text-[8px] tracking-[0.2em] uppercase text-[#f97316] mb-[5px] opacity-80" style={{ fontFamily: "'Cinzel', serif" }}>Rune Ring</div>
-                  <div className="text-[13px] tracking-[0.08em] uppercase text-[rgba(240,225,190,0.95)]" style={{ fontFamily: "'Cinzel', serif" }}>
-                    {getSegmentText('rune', selectedIndices.rune)}
-                  </div>
-                </div>
-                <div className="text-[22px] opacity-75 shrink-0 ml-[12px]">
-                  {isImageSymbol(wheelData.rune[selectedIndices.rune]?.id) ? (
-                    <img src={getThumbnailUrl(getImageUrl(wheelData.rune[selectedIndices.rune]?.id), 100)} alt="" className="w-[30px] h-[30px] object-contain rounded-full" />
-                  ) : (
-                    wheelData.rune[selectedIndices.rune]?.id || 'ᛉ'
-                  )}
-                </div>
-              </div>
-            )}
+          <div className="animate-in fade-in slide-in-from-left-4 duration-400">
+            {renderPositionResult('Past', selectedIndices.past, 0)}
+            {renderPositionResult('Present', selectedIndices.present, 0.4)}
+            {renderPositionResult('Future', selectedIndices.future, 0.8)}
 
             {metatronResult && activeTheme.metatron?.enabled && (
               <div 
                 className="p-[13px] px-[14px] rounded-[13px] border border-[#d4af37] bg-gradient-to-r from-[#1c0f05] to-[#2d1b0d] shadow-[0_0_15px_rgba(212,175,55,0.2)] mt-[9px]"
-                style={{ animation: "resultReveal 0.4s ease both", animationDelay: "0.6s" }}
+                style={{ animation: "resultReveal 0.4s ease both", animationDelay: "1.2s" }}
               >
                 <div className="text-[8px] tracking-[0.2em] uppercase text-[#d4af37] mb-[8px] opacity-80 flex items-center gap-[6px]" style={{ fontFamily: "'Cinzel', serif" }}>
-                  <Sparkles className="w-[10px] h-[10px]" /> Sacred Geometry Alignment
+                  <Sparkles className="w-[10px] h-[10px]" /> Sacred Geometry Alignment (Past)
                 </div>
                 <div className="text-[14px] text-[rgba(240,225,190,0.95)] font-bold">
                   Zone: <span className="text-[#d4af37]">{metatronResult.zone}</span> 
