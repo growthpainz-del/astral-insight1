@@ -161,12 +161,24 @@ export default function ReadingSimple() {
 
   const handleDeepenSpread = async (mode = "interpret") => {
     if (!composedReading || isSpreadAiLoading) return;
+
+    try {
+      const user = await base44.auth.me();
+      if (!user) {
+        setSpreadInterpretation("CosMosis requires you to be logged in. Please log in using the button in the top right.");
+        return;
+      }
+    } catch (e) {
+      setSpreadInterpretation("CosMosis requires you to be logged in. Please log in using the button in the top right.");
+      return;
+    }
+
     setShowSpreadModePicker(false);
     setIsSpreadAiLoading(true);
     try {
       const prompt = buildFullReadingPromptByMode(composedReading._raw, composedReading.patterns || {}, composedReading.question || "", mode);
       setSpreadInterpretation(await base44.integrations.Core.InvokeLLM({ prompt }));
-    } catch (e) { setSpreadInterpretation("CosMosis is momentarily unreachable. Please try again."); }
+    } catch (e) { setSpreadInterpretation(`CosMosis is momentarily unreachable (${e.message || "Unknown error"}). Please try again.`); }
     finally { setIsSpreadAiLoading(false); }
   };
 
@@ -304,12 +316,24 @@ export default function ReadingSimple() {
 
   const getDeeperInsight = async (mode = "interpret") => {
     if (!selectedCardForInterpretation || isAiLoading) return;
+
+    try {
+      const user = await base44.auth.me();
+      if (!user) {
+        setAiInterpretation("CosMosis requires you to be logged in. Please log in using the button in the top right.");
+        return;
+      }
+    } catch (e) {
+      setAiInterpretation("CosMosis requires you to be logged in. Please log in using the button in the top right.");
+      return;
+    }
+
     setShowCardModePicker(false);
     setIsAiLoading(true);
     try {
       const prompt = buildCardPromptByMode(selectedCardForInterpretation._raw || selectedCardForInterpretation, questionParam || "", {}, mode);
       setAiInterpretation(await base44.integrations.Core.InvokeLLM({ prompt }));
-    } catch (e) { setAiInterpretation("CosMosis is momentarily unreachable."); }
+    } catch (e) { setAiInterpretation(`CosMosis is momentarily unreachable (${e.message || "Unknown error"}).`); }
     finally { setIsAiLoading(false); }
   };
 
