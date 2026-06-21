@@ -194,9 +194,12 @@ export default function CanvasSpiritWheel({
     const marbleRot = rotations.marble || 0;
 
     marblePositions.forEach(pos => {
-      // Draw indicator on the outside
+      const currentAngle = marbleRot + pos.angle;
+      
       ctx.save();
-      ctx.rotate(pos.angle * Math.PI / 180);
+      ctx.rotate(currentAngle * Math.PI / 180);
+
+      // Draw indicator on the outside
       ctx.beginPath();
       ctx.moveTo(maxRadius + 26, 0);
       ctx.lineTo(maxRadius + 38, -8);
@@ -204,20 +207,8 @@ export default function CanvasSpiritWheel({
       ctx.closePath();
       ctx.fillStyle = pos.color;
       ctx.fill();
-      
-      // Draw label
-      ctx.fillStyle = pos.color;
-      ctx.font = 'bold 10px sans-serif';
-      ctx.textAlign = 'left';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(pos.label, maxRadius + 45, 0);
-      ctx.restore();
 
       // Draw marble on the track
-      ctx.save();
-      ctx.rotate((marbleRot + pos.angle) * Math.PI / 180);
-      
-      // Marble body
       ctx.beginPath();
       ctx.arc(maxRadius + 14, 0, 8, 0, Math.PI * 2);
       ctx.fillStyle = pos.color; 
@@ -231,6 +222,21 @@ export default function CanvasSpiritWheel({
       ctx.arc(maxRadius + 12, -2, 2.5, 0, Math.PI * 2);
       ctx.fillStyle = 'rgba(255,255,255,0.8)';
       ctx.fill();
+      
+      // Draw label
+      ctx.translate(maxRadius + 45, 0);
+      const normalized = ((currentAngle % 360) + 360) % 360;
+      if (normalized > 90 && normalized < 270) {
+        ctx.rotate(Math.PI);
+        ctx.textAlign = 'right';
+      } else {
+        ctx.textAlign = 'left';
+      }
+      ctx.fillStyle = pos.color;
+      ctx.font = 'bold 10px sans-serif';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(pos.label, 0, 0);
+
       ctx.restore();
     });
 

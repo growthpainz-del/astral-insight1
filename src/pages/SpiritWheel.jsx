@@ -253,13 +253,23 @@ export default function SpiritWheel() {
 
     // 3. Calculate target angles
     const baseSpins = 4 * spinSpeed;
+    const marbleStopOffset = Math.floor(seededRandom(seed + 10) * 360);
+    const targetMarbleRot = (rotations.marble || 0) - 360 * (baseSpins + 12) - marbleStopOffset;
+    const shiftAngle = targetMarbleRot % 360;
+
+    const baseRotOuter1 = calculateTargetAngle(rotations.outer1, baseSpins + 1, outer1Winner, wheelData.outer1.length);
+    const baseRotOuter2 = -calculateTargetAngle(Math.abs(rotations.outer2), baseSpins + 3, outer2Winner, wheelData.outer2.length);
+    const baseRotMiddle = calculateTargetAngle(rotations.middle, baseSpins + 5, middleWinner, wheelData.middle.length);
+    const baseRotInner = -calculateTargetAngle(Math.abs(rotations.inner), baseSpins + 7, innerWinner, wheelData.inner.length);
+    const baseRotRune = calculateTargetAngle(rotations.rune || 0, baseSpins + 9, runeWinner, wheelData.rune?.length || 0);
+
     const targetRotations = {
-      outer1: calculateTargetAngle(rotations.outer1, baseSpins + 1, outer1Winner, wheelData.outer1.length),
-      outer2: -calculateTargetAngle(Math.abs(rotations.outer2), baseSpins + 3, outer2Winner, wheelData.outer2.length), 
-      middle: calculateTargetAngle(rotations.middle, baseSpins + 5, middleWinner, wheelData.middle.length),
-      inner: -calculateTargetAngle(Math.abs(rotations.inner), baseSpins + 7, innerWinner, wheelData.inner.length),
-      rune: calculateTargetAngle(rotations.rune || 0, baseSpins + 9, runeWinner, wheelData.rune?.length || 0),
-      marble: (rotations.marble || 0) - 360 * (baseSpins + 12) // Spins in opposite direction like roulette
+      outer1: baseRotOuter1 + shiftAngle,
+      outer2: baseRotOuter2 + shiftAngle,
+      middle: baseRotMiddle + shiftAngle,
+      inner: baseRotInner + shiftAngle,
+      rune: baseRotRune + shiftAngle,
+      marble: targetMarbleRot
     };
 
     const getIndexAtAngle = (R, N, A) => {
@@ -269,27 +279,31 @@ export default function SpiritWheel() {
       return i;
     };
 
+    const pastAngle = -90 + targetMarbleRot;
+    const presentAngle = 30 + targetMarbleRot;
+    const futureAngle = 150 + targetMarbleRot;
+
     setSelectedIndices({
       past: {
-        outer1: getIndexAtAngle(targetRotations.outer1, wheelData.outer1.length, -90),
-        outer2: getIndexAtAngle(targetRotations.outer2, wheelData.outer2.length, -90),
-        middle: getIndexAtAngle(targetRotations.middle, wheelData.middle.length, -90),
-        inner: getIndexAtAngle(targetRotations.inner, wheelData.inner.length, -90),
-        rune: getIndexAtAngle(targetRotations.rune, wheelData.rune?.length || 0, -90),
+        outer1: getIndexAtAngle(targetRotations.outer1, wheelData.outer1.length, pastAngle),
+        outer2: getIndexAtAngle(targetRotations.outer2, wheelData.outer2.length, pastAngle),
+        middle: getIndexAtAngle(targetRotations.middle, wheelData.middle.length, pastAngle),
+        inner: getIndexAtAngle(targetRotations.inner, wheelData.inner.length, pastAngle),
+        rune: getIndexAtAngle(targetRotations.rune, wheelData.rune?.length || 0, pastAngle),
       },
       present: {
-        outer1: getIndexAtAngle(targetRotations.outer1, wheelData.outer1.length, 30),
-        outer2: getIndexAtAngle(targetRotations.outer2, wheelData.outer2.length, 30),
-        middle: getIndexAtAngle(targetRotations.middle, wheelData.middle.length, 30),
-        inner: getIndexAtAngle(targetRotations.inner, wheelData.inner.length, 30),
-        rune: getIndexAtAngle(targetRotations.rune, wheelData.rune?.length || 0, 30),
+        outer1: getIndexAtAngle(targetRotations.outer1, wheelData.outer1.length, presentAngle),
+        outer2: getIndexAtAngle(targetRotations.outer2, wheelData.outer2.length, presentAngle),
+        middle: getIndexAtAngle(targetRotations.middle, wheelData.middle.length, presentAngle),
+        inner: getIndexAtAngle(targetRotations.inner, wheelData.inner.length, presentAngle),
+        rune: getIndexAtAngle(targetRotations.rune, wheelData.rune?.length || 0, presentAngle),
       },
       future: {
-        outer1: getIndexAtAngle(targetRotations.outer1, wheelData.outer1.length, 150),
-        outer2: getIndexAtAngle(targetRotations.outer2, wheelData.outer2.length, 150),
-        middle: getIndexAtAngle(targetRotations.middle, wheelData.middle.length, 150),
-        inner: getIndexAtAngle(targetRotations.inner, wheelData.inner.length, 150),
-        rune: getIndexAtAngle(targetRotations.rune, wheelData.rune?.length || 0, 150),
+        outer1: getIndexAtAngle(targetRotations.outer1, wheelData.outer1.length, futureAngle),
+        outer2: getIndexAtAngle(targetRotations.outer2, wheelData.outer2.length, futureAngle),
+        middle: getIndexAtAngle(targetRotations.middle, wheelData.middle.length, futureAngle),
+        inner: getIndexAtAngle(targetRotations.inner, wheelData.inner.length, futureAngle),
+        rune: getIndexAtAngle(targetRotations.rune, wheelData.rune?.length || 0, futureAngle),
       }
     });
 
