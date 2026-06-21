@@ -140,7 +140,8 @@ function WheelThemePreview({ activeTheme }) {
 }
 
 const RING_LABELS = {
-  outer_ring: { label: "Outer Ring", color: "amber", hint: "Cards, archetypes, core energies — the largest ring" },
+  outer_ring: { label: "Outer Ring 1", color: "amber", hint: "Cards, archetypes, core energies — the largest ring" },
+  outer2_ring: { label: "Outer Ring 2", color: "amber", hint: "Optional second outer ring for complex spreads (splits outer if not provided)" },
   middle_ring: { label: "Middle Ring", color: "orange", hint: "Modifiers, context, timing symbols" },
   inner_ring: { label: "Inner Ring", color: "yellow", hint: "Action guidance, yes/no, directional symbols" },
 };
@@ -581,7 +582,7 @@ function RingEditor({ ringKey, segments, setSegments, deckCards, onOpenGallery }
           const i = seg.originalIndex;
           return (
           <motion.div
-            key={seg.originalIndex}
+            key={seg.originalIndex + "-" + seg.label}
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             className="bg-black/30 rounded-[8px] p-[10px] space-y-[8px] border border-white/5"
@@ -745,6 +746,7 @@ export default function SpiritWheelDesigner() {
   const [isPublic, setIsPublic] = useState(false);
   const [publishStatus, setPublishStatus] = useState("published");
   const [outerRing, setOuterRing] = useState([]);
+  const [outer2Ring, setOuter2Ring] = useState([]);
   const [middleRing, setMiddleRing] = useState([]);
   const [innerRing, setInnerRing] = useState([]);
   const [decks, setDecks] = useState([]);
@@ -779,7 +781,14 @@ export default function SpiritWheelDesigner() {
             if (config.custom_theme) setCustomTheme(config.custom_theme);
             setIsPublic(config.is_public || false);
             setPublishStatus(config.publish_status || "published");
+            // Support both outer_ring and outer2_ring, but combine them into outerRing state since the designer
+            // currently manages outer ring as a single list, and the split happens during rendering based on size.
+            // If we want to strictly support outer2_ring separately, we should add a separate ring editor.
+            // For now, let's keep them separated in state if they exist, or merged.
+            // Actually, the Spirit Wheel logic splits them if outer2_ring is not defined.
+            // Let's add support for outer2_ring state.
             setOuterRing(config.outer_ring || []);
+            setOuter2Ring(config.outer2_ring || []);
             setMiddleRing(config.middle_ring || []);
             setInnerRing(config.inner_ring || []);
             if (config.deck_id) {
@@ -863,6 +872,7 @@ export default function SpiritWheelDesigner() {
         is_public: isPublic,
         publish_status: statusToSave,
         outer_ring: cleanSegments(outerRing),
+        outer2_ring: cleanSegments(outer2Ring),
         middle_ring: cleanSegments(middleRing),
         inner_ring: cleanSegments(innerRing),
       };
@@ -892,10 +902,10 @@ export default function SpiritWheelDesigner() {
       handleSave("draft", true);
     }, 2000);
     return () => clearTimeout(timeoutId);
-  }, [name, description, deckId, themeId, customTheme, isPublic, outerRing, middleRing, innerRing, editingMode]);
+  }, [name, description, deckId, themeId, customTheme, isPublic, outerRing, outer2Ring, middleRing, innerRing, editingMode]);
 
   const handleExportJson = () => {
-    const config = { name, description, deck_id: deckId !== "none" ? deckId : null, theme_id: themeId, custom_theme: customTheme, is_public: isPublic, outer_ring: outerRing, middle_ring: middleRing, inner_ring: innerRing };
+    const config = { name, description, deck_id: deckId !== "none" ? deckId : null, theme_id: themeId, custom_theme: customTheme, is_public: isPublic, outer_ring: outerRing, outer2_ring: outer2Ring, middle_ring: middleRing, inner_ring: innerRing };
     const blob = new Blob([JSON.stringify(config, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -916,6 +926,7 @@ export default function SpiritWheelDesigner() {
       if (parsed.custom_theme) setCustomTheme(parsed.custom_theme);
       if (parsed.publish_status) setPublishStatus(parsed.publish_status);
       if (parsed.outer_ring) setOuterRing(parsed.outer_ring);
+      if (parsed.outer2_ring) setOuter2Ring(parsed.outer2_ring);
       if (parsed.middle_ring) setMiddleRing(parsed.middle_ring);
       if (parsed.inner_ring) setInnerRing(parsed.inner_ring);
       setShowJsonPanel(false);
@@ -926,7 +937,7 @@ export default function SpiritWheelDesigner() {
   };
 
   const handleCopyJson = () => {
-    const config = { name, description, theme_id: themeId, custom_theme: customTheme, outer_ring: outerRing, middle_ring: middleRing, inner_ring: innerRing };
+    const config = { name, description, theme_id: themeId, custom_theme: customTheme, outer_ring: outerRing, outer2_ring: outer2Ring, middle_ring: middleRing, inner_ring: innerRing };
     navigator.clipboard.writeText(JSON.stringify(config, null, 2));
     alert("JSON copied to clipboard!");
   };
@@ -1441,6 +1452,7 @@ export default function SpiritWheelDesigner() {
         <div className="px-[18px] md:px-0 space-y-[12px]">
         {/* Ring Editors */}
         <RingEditor ringKey="outer_ring" segments={outerRing} setSegments={setOuterRing} deckCards={deckCards} onOpenGallery={(idx, field = 'icon') => setLibraryTargetField({ring: 'outer_ring', index: idx, field})} />
+        <RingEditor ringKey="outer2_ring" segments={outer2Ring} setSegments={setOuter2Ring} deckCards={deckCards} onOpenGallery={(idx, field = 'icon') => setLibraryTargetField({ring: 'outer2_ring', index: idx, field})} />
         <RingEditor ringKey="middle_ring" segments={middleRing} setSegments={setMiddleRing} deckCards={deckCards} onOpenGallery={(idx, field = 'icon') => setLibraryTargetField({ring: 'middle_ring', index: idx, field})} />
         <RingEditor ringKey="inner_ring" segments={innerRing} setSegments={setInnerRing} deckCards={deckCards} onOpenGallery={(idx, field = 'icon') => setLibraryTargetField({ring: 'inner_ring', index: idx, field})} />
 
@@ -1497,6 +1509,10 @@ export default function SpiritWheelDesigner() {
               const updated = [...outerRing];
               updated[libraryTargetField.index][fieldName] = url;
               setOuterRing(updated);
+            } else if (libraryTargetField.ring === 'outer2_ring') {
+              const updated = [...outer2Ring];
+              updated[libraryTargetField.index][fieldName] = url;
+              setOuter2Ring(updated);
             } else if (libraryTargetField.ring === 'middle_ring') {
               const updated = [...middleRing];
               updated[libraryTargetField.index][fieldName] = url;
