@@ -211,13 +211,28 @@ export default function CanvasSpiritWheel({
     };
 
     const t = activeTheme || {};
-    drawRing(wheelData.outer1, maxRadius, maxRadius * 0.85, rotations.outer1, { bg: t.outerBg, border: t.outerBorder, text: t.textOuter, thickness: t.borderThickness });
-    drawRing(wheelData.outer2, maxRadius * 0.85, maxRadius * 0.70, rotations.outer2, { bg: t.outerBg, border: t.outerBorder, text: t.textOuter, thickness: t.borderThickness });
-    drawRing(wheelData.middle, maxRadius * 0.70, maxRadius * 0.50, rotations.middle, { bg: t.middleBg, border: t.middleBorder, text: t.textMiddle, thickness: t.borderThickness });
-    drawRing(wheelData.inner, maxRadius * 0.50, maxRadius * 0.30, rotations.inner, { bg: t.innerBg, border: t.innerBorder, text: t.textInner, thickness: t.borderThickness });
+    
+    const activeRings = [];
+    if (wheelData.outer1 && wheelData.outer1.length > 0) activeRings.push({ data: wheelData.outer1, rot: rotations.outer1, bg: t.outerBg, border: t.outerBorder, text: t.textOuter });
+    if (wheelData.outer2 && wheelData.outer2.length > 0) activeRings.push({ data: wheelData.outer2, rot: rotations.outer2, bg: t.outerBg, border: t.outerBorder, text: t.textOuter });
+    if (wheelData.middle && wheelData.middle.length > 0) activeRings.push({ data: wheelData.middle, rot: rotations.middle, bg: t.middleBg, border: t.middleBorder, text: t.textMiddle });
+    if (wheelData.inner && wheelData.inner.length > 0) activeRings.push({ data: wheelData.inner, rot: rotations.inner, bg: t.innerBg, border: t.innerBorder, text: t.textInner });
+
+    const hasRune = wheelData.rune && wheelData.rune.length > 0;
+    const innerBoundary = hasRune ? maxRadius * 0.30 : maxRadius * 0.15;
+    const totalSpace = maxRadius - innerBoundary;
+    const numRings = Math.max(1, activeRings.length);
+    const ringWidth = totalSpace / numRings;
+
+    let currentOut = maxRadius;
+    activeRings.forEach(ring => {
+      const currentIn = currentOut - ringWidth;
+      drawRing(ring.data, currentOut, currentIn, ring.rot, { bg: ring.bg, border: ring.border, text: ring.text, thickness: t.borderThickness });
+      currentOut = currentIn;
+    });
     
     // 5th ring: Rune
-    if (wheelData.rune && wheelData.rune.length > 0) {
+    if (hasRune) {
       drawRing(wheelData.rune, maxRadius * 0.30, maxRadius * 0.15, rotations.rune || 0, { bg: '#F97316', border: '#ea580c', text: '#fff', thickness: 2 });
     }
 
