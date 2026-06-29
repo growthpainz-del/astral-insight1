@@ -108,6 +108,7 @@ export function composeReading(
 
     // Raw data for debugging / extension
     _raw: reading,
+    _rawPatterns: patterns,
   };
 }
 
@@ -362,7 +363,7 @@ function composeSynthesisOutput(reading, patterns, personalInsights) {
 function buildCardAiPrompt(interp, question, patterns) {
   if (!interp) return "";
 
-  const recurringData = patterns.recurringCards?.find(r => r.cardId === interp.cardId);
+  const recurringData = patterns?.recurringCards?.find(r => r.cardId === interp.cardId);
 
   const personalContext = recurringData
     ? `\nPERSONAL CONTEXT: This card has appeared ${recurringData.appearances} times in this user's readings (${recurringData.reversalRate}% reversed). It carries a recurring message for them.`
@@ -396,7 +397,7 @@ Provide a deep, insightful interpretation (2-3 paragraphs) that:
  * Pass this directly to base44.integrations.Core.InvokeLLM({ prompt })
  */
 function buildFullReadingAiPrompt(reading, patterns, question) {
-  const cardsContext = reading.cardInterpretations.map((interp, idx) => {
+  const cardsContext = reading?.cardInterpretations?.map((interp, idx) => {
     const pos = interp.positionLens ? ` · ${interp.positionLens}` : "";
     const ching = interp.ancientThread
       ? ` · I Ching: ${interp.ancientThread.name} (${interp.ancientThread.symbolism})`
@@ -405,15 +406,15 @@ function buildFullReadingAiPrompt(reading, patterns, question) {
    Reading: ${interp.primaryMeaning}`;
   }).join("\n\n");
 
-  const patternContext = !patterns.isEmpty && patterns.dominantThemes.length
+  const patternContext = !patterns?.isEmpty && patterns?.dominantThemes?.length
     ? `\nUSER'S PATTERN CONTEXT: This user's recurring themes across their readings are: ${patterns.dominantThemes.slice(0, 3).map(t => t.theme).join(", ")}. Their reversal tendency is ${patterns.reversalPattern?.tendency || "unknown"}.`
     : "";
 
-  const resonanceContext = reading.resonances.length
+  const resonanceContext = reading.resonances?.length
     ? `\nCARD RESONANCES: ${reading.resonances.map(r => r.note).join(" ")}`
     : "";
 
-  const tensionContext = reading.tensions.length
+  const tensionContext = reading.tensions?.length
     ? `\nCARD TENSIONS: ${reading.tensions.map(t => t.note).join(" ")}`
     : "";
 

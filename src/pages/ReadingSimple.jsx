@@ -176,7 +176,7 @@ export default function ReadingSimple() {
     setShowSpreadModePicker(false);
     setIsSpreadAiLoading(true);
     try {
-      const prompt = buildFullReadingPromptByMode(composedReading._raw, composedReading.patterns || {}, composedReading.question || "", mode);
+      const prompt = buildFullReadingPromptByMode(composedReading._raw, composedReading._rawPatterns || {}, composedReading.question || "", mode);
       setSpreadInterpretation(await base44.integrations.Core.InvokeLLM({ prompt }));
     } catch (e) { setSpreadInterpretation(`CosMosis is momentarily unreachable (${e.message || "Unknown error"}). Please try again.`); }
     finally { setIsSpreadAiLoading(false); }
@@ -309,7 +309,7 @@ export default function ReadingSimple() {
       const cardIndex = validCards.findIndex(c => c.id === cardWrapper.id);
       const position = selectedSpread && positionIndex !== null ? selectedSpread.positions[positionIndex] : null;
       const composed = output?.cards[cardIndex] || composeCardQuick(cardWrapper.cardData, position, cardWrapper.isReversed, questionParam || "");
-      setSelectedCardForInterpretation({ ...cardWrapper, position, composed, _raw: output?._raw?.cardInterpretations?.[cardIndex] || composed?._raw, aiPrompt: output?.aiPrompts?.perCard[cardIndex] || composed?.aiPrompt });
+      setSelectedCardForInterpretation({ ...cardWrapper, position, composed, _raw: output?._raw?.cardInterpretations?.[cardIndex] || composed?._raw, aiPrompt: output?.aiPrompts?.perCard[cardIndex] || composed?.aiPrompt, _rawPatterns: output?._rawPatterns || {} });
       setAiInterpretation(null);
     } catch (e) { console.error(e); }
   };
@@ -331,7 +331,7 @@ export default function ReadingSimple() {
     setShowCardModePicker(false);
     setIsAiLoading(true);
     try {
-      const prompt = buildCardPromptByMode(selectedCardForInterpretation._raw || selectedCardForInterpretation, questionParam || "", {}, mode);
+      const prompt = buildCardPromptByMode(selectedCardForInterpretation._raw || selectedCardForInterpretation, questionParam || "", selectedCardForInterpretation._rawPatterns || {}, mode);
       setAiInterpretation(await base44.integrations.Core.InvokeLLM({ prompt }));
     } catch (e) { setAiInterpretation(`CosMosis is momentarily unreachable (${e.message || "Unknown error"}).`); }
     finally { setIsAiLoading(false); }
