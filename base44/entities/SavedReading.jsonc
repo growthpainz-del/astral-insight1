@@ -2,42 +2,38 @@
   "name": "SavedReading",
   "type": "object",
   "properties": {
-    "wheel_id": {
+    "wheel_name": {
       "type": "string"
     },
-    "results": {
-      "type": "array",
-      "items": {
-        "type": "object"
-      }
+    "seed_phrase": {
+      "type": "string"
     },
-    "shadow_card": {
+    "outer_result": {
       "type": "object"
     },
-    "synthesis_text": {
+    "middle_result": {
+      "type": "object"
+    },
+    "inner_result": {
+      "type": "object"
+    },
+    "shadow_result": {
+      "type": "object"
+    },
+    "synergy_message": {
       "type": "string"
     },
-    "zone": {
+    "synthesis": {
       "type": "string"
     },
-    "stop_angle": {
-      "type": "number"
-    },
-    "metatron_rotation": {
-      "type": "number"
-    },
-    "date": {
-      "type": "string",
-      "format": "date-time"
-    },
-    "user_intent": {
+    "notes": {
       "type": "string"
     },
-    "seed": {
+    "image_url": {
       "type": "string"
     }
   },
   "required": [
-    "wheel_id"
+    "wheel_name"
   ]
 }

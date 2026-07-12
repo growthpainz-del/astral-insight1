@@ -1,159 +1,97 @@
-// 50 Cards of the Rooted Crescent Oracle Deck
-export const ROOTED_CARDS_DATA = [
-  { id: "1", name: "The Rooted Journey", symbol: "Minimalist tree root curling into a tight spiral circle.", meaning: "Grounded wisdom balances intuition and strength for growth." },
-  { id: "2", name: "The Endless Storm", symbol: "Stylized swirling storm lines inside a sturdy circle.", meaning: "Resilience shines through challenges, finding wisdom in scars." },
-  { id: "3", name: "Guardian of the Desert", symbol: "Simple saguaro cactus with three balanced arms.", meaning: "Thrive in adversity, balancing protection and nurturing." },
-  { id: "4", name: "Petals of Resilience", symbol: "Single open flower with five strong petals and solid center.", meaning: "Blend strength and softness to grow through challenges." },
-  { id: "5", name: "Emergence from Chaos", symbol: "Cracked circle with a butterfly breaking free.", meaning: "Clarity transforms struggles into opportunities." },
-  { id: "6", name: "The Jaws of Time", symbol: "Open jaws formed by clock hands around a small circle.", meaning: "Cherish the present to align with your purpose." },
-  { id: "7", name: "The Seer's Gaze", symbol: "Open eye with three concentric circles in the pupil.", meaning: "Intuition reveals hidden truths for spiritual growth." },
-  { id: "8", name: "The Guardian of Reflection", symbol: "Still pond circle with three gentle ripple lines.", meaning: "Deep reflection uncovers transformative wisdom." },
-  { id: "9", name: "The Silent Observer", symbol: "Closed eye with soft arched brow above.", meaning: "Silence fosters empathy and profound insight." },
-  { id: "10", name: "Between the Folds", symbol: "Simple folded layers unfolding into a smooth curve.", meaning: "Patience reveals hidden truths and clarity." },
-  { id: "11", name: "The Veil of Solitude", symbol: "Teardrop-shaped veil or curtain with soft folds.", meaning: "Solitude heals and transforms pain into wisdom." },
-  { id: "12", name: "Shielding Embrace", symbol: "Two curved arms forming a protective circle.", meaning: "Quiet support offers comfort without control." },
-  { id: "13", name: "The Wild Embrace", symbol: "Stylized flame inside a leaf-shaped heart.", meaning: "Unleash passion and instincts for authentic connection." },
-  { id: "14", name: "Ghostly Patrons", symbol: "Two faint overlapping ethereal figures in a circle.", meaning: "Past connections offer strength and wisdom." },
-  { id: "15", name: "In-Tan-Demoiselles", symbol: "Two figures back-to-back holding hands in a circle.", meaning: "Shared joy uplifts through collaboration." },
-  { id: "16", name: "The Alchemist's Cauldron", symbol: "Small cauldron with three flames underneath.", meaning: "Transform talents into new possibilities." },
-  { id: "17", name: "The Muse's Morning Star", symbol: "Bright star rising above a simple horizon line.", meaning: "Inspiration guides dreams to reality." },
-  { id: "18", name: "Starweaver's Embrace", symbol: "Two interlocking crescents forming a star.", meaning: "Weave cosmic inspiration for bold creation." },
-  { id: "19", name: "Visionary Journey", symbol: "Winding path leading toward an open horizon.", meaning: "Expand consciousness through exploration." },
-  { id: "20", name: "Illuminating Insight", symbol: "Bright star with radiating light beams.", meaning: "Brilliance lights new creative paths." },
-  { id: "21", name: "Luna Duala", symbol: "Two overlapping crescents (one light, one dark).", meaning: "Harmonize opposites for wholeness." },
-  { id: "22", name: "The Comfort Paradox", symbol: "Soft cushion shape merging into sharp upward arrow.", meaning: "Balance comfort with growth for progress." },
-  { id: "23", name: "The 4 Shadows", symbol: "Four small triangles arranged in a diamond.", meaning: "Embrace shadows for freedom and unity." },
-  { id: "24", name: "The Eye of Siren", symbol: "Stylized eye merged with a simple star or wave.", meaning: "Discern truth from illusion in relationships." },
-  { id: "25", name: "The Cosmic Vision", symbol: "Swirling cosmic circle with tiny stars inside.", meaning: "Universal truths bring inner peace." },
-  { id: "26", name: "The Weaver of Truth", symbol: "Simple loom or interwoven threads forming a web.", meaning: "Gently embrace truth for acceptance." },
-  { id: "27", name: "The Deflected", symbol: "Shield shape with arrows bouncing off.", meaning: "Reflect on defenses to embrace vulnerability." },
-  { id: "28", name: "The Day Moon's Grip", symbol: "Crescent moon gently holding a small sun disk.", meaning: "Forgiveness releases burdens for harmony." },
-  { id: "29", name: "Echoes of the Mind", symbol: "Concentric sound waves or ripples from a center point.", meaning: "Inner guidance offers protection and clarity." },
-  { id: "30", name: "The Heart Full Foundress", symbol: "Sturdy heart shape with roots at the base.", meaning: "Nurture with love and strength for growth." },
-  { id: "31", name: "Guardian of In-Essence", symbol: "Small glowing inner flame or child-like spark.", meaning: "Protect your inner joy and essence." },
-  { id: "32", name: "The Sureline of Purpose", symbol: "Straight arrow piercing a solid circle.", meaning: "Stand firm in purpose through introspection." },
-  { id: "33", name: "Nis Puk's Whisper", symbol: "Playful small creature silhouette with speech swirl.", meaning: "Playful wisdom guides subtly." },
-  { id: "34", name: "The Patient Feminine", symbol: "Gentle curved feminine figure in seated pose.", meaning: "Patience and grounded strength lead to growth." },
-  { id: "35", name: "The Garden Portal", symbol: "Simple arch or gate with upward flowing lines.", meaning: "Courage opens gateways to new dimensions." },
-  { id: "36", name: "With Chains Unbound", symbol: "Broken chain links forming an open circle.", meaning: "Break free from patterns for new paths." },
-  { id: "37", name: "Nature's Whisper", symbol: "Leaf or tree branch with subtle wind lines.", meaning: "Nature’s cycles guide wisdom and vitality." },
-  { id: "38", name: "Back Road Whispers", symbol: "Winding road path disappearing into distance.", meaning: "Winding paths lead to wisdom through exploration." },
-  { id: "39", name: "Veins of the Void", symbol: "Cracked dark circle with light veins flowing in.", meaning: "Emerge from shadows to claim your true self." },
-  { id: "40", name: "The Triad of Synergy", symbol: "Three interlocking circles or triangles.", meaning: "Harmonize mind, body, spirit for strength." },
-  { id: "41", name: "The Fun Gus In Us", symbol: "Mushroom with connected mycelium threads at base.", meaning: "Community and reciprocity foster joy." },
-  { id: "42", name: "The Voyage of Shadows", symbol: "Small boat on stylized wavy lines.", meaning: "Navigate inner darkness for growth." },
-  { id: "43", name: "Fringe Fusions", symbol: "Two different shapes (circle + triangle) merging.", meaning: "Blend unconventional ideas for growth." },
-  { id: "44", name: "Cascading Illumination", symbol: "Waterfall of light dots or lines flowing down.", meaning: "Insights flow to light new paths." },
-  { id: "45", name: "In-Tan-Demoiselles II", symbol: "Two figures back-to-back holding hands in circle.", meaning: "Shared joy uplifts through collaboration." },
-  { id: "46", name: "Blabbergaster", symbol: "Explosive speech bubble with chaotic energy lines.", meaning: "Embrace chaos for bold expression." },
-  { id: "47", name: "The Mountain's Keeper", symbol: "Triangular mountain peak with strong flat base.", meaning: "Ascend with clear vision and strength." },
-  { id: "48", name: "Harmonic Gates of Ascension", symbol: "Simple arch or gate with upward flowing lines.", meaning: "Align with cosmic flow for transformation." },
-  { id: "49", name: "The Humble Huntress", symbol: "Small bow and arrow pointing upward.", meaning: "Pursue goals with quiet determination." },
-  { id: "50", name: "The Jealous-Eye", symbol: "Eye with a small heart or trust symbol inside.", meaning: "Acknowledge jealousy to build trust." },
-  { id: "51", name: "The Odd Pair", symbol: "Circle and triangle.", meaning: "Unlikely combinations yield surprising strength." },
-  { id: "52", name: "The Crescent Moon", symbol: "Plain crescent.", meaning: "Embrace cycles of waxing and waning energy." },
-  { id: "53", name: "The Rooted Tree", symbol: "Tree with roots.", meaning: "Grounded wisdom balances intuition and strength for growth." },
-  { id: "54", name: "The Final Knot", symbol: "Celtic knot.", meaning: "Endings bring closure and tie loose threads." }
-];
+export const CATEGORIES = ["General", "Love", "Career", "Spiritual", "Astrology"];
+export const ROOTED_CARDS_DATA = [];
+export const WHEEL_MIDDLE = [];
+export const WHEEL_INNER = [];
 
-export const WHEEL_MIDDLE = [
-  { id: "🍷", meaning: "Drink" },
-  { id: "✈️", meaning: "Travel" },
-  { id: "♂️", meaning: "Male" },
-  { id: "♀️", meaning: "Female" },
-  { id: "☹️", meaning: "Unhappy" },
-  { id: "😊", meaning: "Happy" },
-  { id: "😠", meaning: "Mad" },
-  { id: "👂", meaning: "Listen" },
-  { id: "⏪", meaning: "Look to the past" },
-  { id: "⏩", meaning: "Look to the future" },
-  { id: "⚖️", meaning: "Law" },
-  { id: "⏳", meaning: "Time" },
-  { id: "🔬", meaning: "Microscope (zoom in / examine)" },
-  { id: "🔭", meaning: "Telescope (big picture / far vision)" },
-  { id: "💨", meaning: "Smoke" },
-  { id: "🤝", meaning: "Together" },
-  { id: "Black", meaning: "Hidden / unconscious mind" },
-  { id: "White", meaning: "Purity / truth" },
-  { id: "Blue", meaning: "Water / communication / inspiration / peace" },
-  { id: "Yellow", meaning: "Air / mental activity" },
-  { id: "Green", meaning: "Nature / fertility / growth" },
-  { id: "Brown", meaning: "Earth / soil" },
-  { id: "Red", meaning: "Fire / passion / sex" },
-  { id: "Grey", meaning: "Stability / neutral" },
-  { id: "Orange", meaning: "Attraction / friendship" },
-  { id: "Purple", meaning: "Intuition / psychic / spirit contact" }
-];
+// 5.1 Deterministic Selection
+export function hashSeed(phrase) {
+  if (!phrase) return Math.random();
+  let h = 0;
+  for (let i = 0; i < phrase.length; i++) {
+    h = Math.imul(31, h) + phrase.charCodeAt(i) | 0;
+  }
+  return Math.abs(h) / 2147483648; // map to 0-1
+}
 
-export const WHEEL_INNER = [
-  { id: "🚪", meaning: "Option closed / path shut for now" },
-  { id: "🔓", meaning: "Option open / path is clear" },
-  { id: "❤️", meaning: "Love / heart connection" },
-  { id: "💰", meaning: "Money / financial flow" },
-  { id: "♫", meaning: "Music / creative harmony" },
-  { id: "⚠️", meaning: "Bad / warning / evil" },
-  { id: "✅", meaning: "Yes" },
-  { id: "❌", meaning: "No" },
-  { id: "⏹", meaning: "Stop" },
-  { id: "▶", meaning: "Go" },
-  { id: "❓", meaning: "What? / Clarify" },
-  { id: "👋", meaning: "Hi!!! I’m here / positive presence" },
-  { id: "✌️", meaning: "Bye... until next time" },
-  { id: "📖", meaning: "Knowledge" },
-  { id: "💍", meaning: "Marriage" },
-  { id: "🔥", meaning: "Nothing" },
-  { id: "⬆️", meaning: "North / that way" },
-  { id: "➡️", meaning: "East / that way" },
-  { id: "⬇️", meaning: "South / that way" },
-  { id: "⬅️", meaning: "West / that way" }
-];
+export function seededRandom(seed) {
+  return function() {
+    seed = (seed * 9301 + 49297) % 233280;
+    return seed / 233280;
+  };
+}
 
-export const SEVEN_SISTERS_MODIFIERS = [
-  { id: "🌱", label: "Maia's Root", meaning: "Quiet care grounds wild growth. Nurture the seed; steady support arrives. Keywords: nurture, foundation, patience, care." },
-  { id: "⚡", label: "Electra's Spark", meaning: "Sudden brilliance demands action. Flash of insight — move fast and true. Keywords: brilliance, leadership, speed, clarity." },
-  { id: "🕊️", label: "Alcyone's Calm", meaning: "Tranquility after the storm. Rest in the eye of change; peace restores. Keywords: peace, reflection, restoration, balance." },
-  { id: "🏃‍♀️", label: "Taygete's Chase", meaning: "Pursuit with grace and speed. Chase the goal lightly; momentum is yours. Keywords: pursuit, freedom, momentum, grace." },
-  { id: "🌫️", label: "Celaeno's Veil", meaning: "What is hidden holds power. Embrace the unknown; mystery teaches. Keywords: shadow, mystery, hidden truth, depth." },
-  { id: "🔥", label: "Sterope's Flame", meaning: "Inspiration strikes like starfire. Creative lightning — capture it now. Keywords: inspiration, creativity, fire, suddenness." },
-  { id: "🗣️", label: "Merope's Echo", meaning: "The missing voice still whispers wisdom. Listen for the subtle return; integration awaits. Keywords: return, integration, quiet wisdom, wholeness." }
-];
+export function pickWeighted(segments, rng) {
+  if (!segments || segments.length === 0) return null;
+  const totalWeight = segments.reduce((sum, seg) => sum + (seg.weight || 10), 0);
+  let rand = rng() * totalWeight;
+  for (let i = 0; i < segments.length; i++) {
+    rand -= (segments[i].weight || 10);
+    if (rand <= 0) return segments[i];
+  }
+  return segments[segments.length - 1];
+}
 
-export const SPIRITUAL_EMOTICONS_MODIFIERS = [
-  { id: "🌙", label: "Grounded Moon", meaning: "Instant grounding and presence." },
-  { id: "👁️", label: "Inner Eye", meaning: "Trust intuition and inner sight." },
-  { id: "💨", label: "Shadow Release", meaning: "Let go of what no longer serves." },
-  { id: "💖", label: "Heart Root", meaning: "Love anchored in self." },
-  { id: "🌊", label: "Flow Crescent", meaning: "Move with natural cycles." },
-  { id: "🌱", label: "Spark Seed", meaning: "Creative or spiritual ignition." },
-  { id: "✨", label: "Veil Lift", meaning: "Gentle revelation and clarity." },
-  { id: "🦋", label: "Balance Wings", meaning: "Harmony between light and shadow." },
-  { id: "🦉", label: "Wisdom Echo", meaning: "Listen to inner or ancestral guidance." },
-  { id: "🔥", label: "Ascension Flame", meaning: "Spiritual growth and elevation." }
-];
+// 5.2 Rotation Math
+export function computeTargetAngle(numSegments, targetIndex, currentAngle, extraSpins, direction) {
+  if (!numSegments || numSegments === 0) return currentAngle;
+  const segAngle = (Math.PI * 2) / numSegments;
+  const segCenter = targetIndex * segAngle + segAngle / 2;
+  
+  // Target rotation: -PI/2 - segCenter, normalized for direction
+  let target = -Math.PI / 2 - segCenter;
+  
+  // Convert to degrees for Canvas rotation ease
+  let targetDeg = target * (180 / Math.PI);
+  targetDeg += (extraSpins * 360 * direction);
+  return targetDeg;
+}
 
-export const MOON_EMBLEMS_MODIFIERS = [
-  { id: "🌸", label: "Moon & Bloom", meaning: "Deep reconnection with nature's cycles and living wisdom." },
-  { id: "⚛️", label: "Moon Chakra", meaning: "Energy alignment and chakra activation." },
-  { id: "👁️", label: "Moon & Third Eye", meaning: "Intuition, spiritual vision, and inner sight." },
-  { id: "⚖️", label: "Moon & Balance", meaning: "Harmony between opposites and inner equilibrium." },
-  { id: "🔥", label: "Moon & Flame", meaning: "Passionate intuition and creative spiritual fire." },
-  { id: "🪶", label: "Moon & Feather", meaning: "Lightness, spiritual messages, and surrender." },
-  { id: "🌀", label: "Moon & Spiral", meaning: "Inner journey, cycles, and unfolding wisdom." },
-  { id: "🪷", label: "Moon & Lotus", meaning: "Spiritual awakening and rising above challenges." },
-  { id: "🤲", label: "Moon & Hand", meaning: "Divine support, receiving, and surrender." },
-  { id: "🦋", label: "Moon & Butterfly", meaning: "Transformation and soul evolution." },
-  { id: "🗝️", label: "Moon & Key", meaning: "Unlocking hidden knowledge or soul purpose." },
-  { id: "🦌", label: "Moon & Antlers", meaning: "Wild instinct, protection, and natural power." },
-  { id: "💧", label: "Moon & Drop", meaning: "Emotional release, cleansing, or divine tears." }
-];
+// 5.4 Synergy Detection
+export function checkSynergy(selectedIds, rules) {
+  if (!rules || !Array.isArray(rules)) return null;
+  for (const rule of rules) {
+    if (rule.trigger_ids && rule.trigger_ids.every(id => selectedIds.includes(id))) {
+      return rule;
+    }
+  }
+  return null;
+}
 
-export const ANIMAL_SPIRITS_MODIFIERS = [
-  { id: "🐻", label: "Bear", meaning: "strength, courage, healing" },
-  { id: "🐺", label: "Wolf", meaning: "loyalty, community, wisdom" },
-  { id: "🦅", label: "Eagle", meaning: "vision, spiritual messenger, freedom" },
-  { id: "🦬", label: "Buffalo", meaning: "abundance, gratitude, sacred life" },
-  { id: "🦉", label: "Owl", meaning: "wisdom, intuition, seeing the unseen" },
-  { id: "🦌", label: "Deer", meaning: "gentleness, grace, renewal" }
-];
+// 5.5 Synthesis Generation
+export function buildSynthesis(picks, ringKeys, shadowSeg, synergy, engineConfig) {
+  const style = engineConfig?.synthesis_style || 'classic';
+  let reading = engineConfig?.reading_intro ? `${engineConfig.reading_intro}\n\n` : '';
 
-export const CATEGORIES = ["General", "Relationships", "Numbers", "Age", "Body Parts", "Colors", "Lost Items", "Height", "Time", "Astrology", "Emotions", "Profiler", "Seasons and Shapes", "Traveling", "Zapped", "X-Rated"];
+  if (style === 'poetic') {
+    reading += `Core Energy breathes through ${picks.outer1?.label || 'the void'} - ${picks.outer1?.meaning || ''}\n`;
+    if (picks.outer2) reading += `Echoing alongside ${picks.outer2.label} - ${picks.outer2.meaning}\n`;
+    reading += `Context weaves through ${picks.middle?.label} - ${picks.middle?.meaning}\n`;
+    reading += `Guidance illuminates ${picks.inner?.label} - ${picks.inner?.meaning}\n`;
+  } else if (style === 'direct') {
+    reading += `Core Energy I: ${picks.outer1?.label}. ${picks.outer1?.meaning}\n`;
+    if (picks.outer2) reading += `Core Energy II: ${picks.outer2.label}. ${picks.outer2.meaning}\n`;
+    reading += `Context: ${picks.middle?.label}. ${picks.middle?.meaning}\n`;
+    reading += `Action: ${picks.inner?.label}. ${picks.inner?.meaning}\n`;
+  } else if (style === 'question') {
+    reading += `Core Energy I - ${picks.outer1?.label}: How might ${picks.outer1?.meaning}?\n`;
+    reading += `Context - ${picks.middle?.label}: Consider ${picks.middle?.meaning}\n`;
+  } else {
+    // classic
+    reading += `Your Core Energy is ${picks.outer1?.label}: ${picks.outer1?.meaning}\n`;
+    if (picks.outer2) reading += `Secondary Energy: ${picks.outer2.label}: ${picks.outer2.meaning}\n`;
+    reading += `The Context: ${picks.middle?.label}: ${picks.middle?.meaning}\n`;
+    reading += `Suggested Action: ${picks.inner?.label}: ${picks.inner?.meaning}\n`;
+  }
+
+  if (picks.rune) {
+    reading += `\nRune whisper: ${picks.rune.label} - ${picks.rune.meaning}\n`;
+  }
+  if (shadowSeg) {
+    reading += `\nShadow Aspect: ${shadowSeg.label} - ${shadowSeg.meaning}\n`;
+  }
+  if (synergy) {
+    reading += `\n✨ Cosmic Synergy: ${synergy.combined_meaning || 'Energies align in harmony.'}\n`;
+  }
+
+  return reading;
+}

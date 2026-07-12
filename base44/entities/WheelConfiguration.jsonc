@@ -4,62 +4,82 @@
   "properties": {
     "name": {
       "type": "string",
-      "description": "Name of the wheel"
+      "description": "Display name"
     },
     "description": {
-      "type": "string"
+      "type": "string",
+      "description": "Purpose description"
+    },
+    "is_public": {
+      "type": "boolean",
+      "default": false,
+      "description": "Shown in PublicGallery"
     },
     "outer_ring": {
       "type": "array",
       "items": {
         "type": "object"
-      }
+      },
+      "description": "Core Energy I segments"
+    },
+    "outer2_ring": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Core Energy II segments"
     },
     "middle_ring": {
       "type": "array",
       "items": {
         "type": "object"
-      }
+      },
+      "description": "Context segments"
     },
     "inner_ring": {
       "type": "array",
       "items": {
         "type": "object"
-      }
+      },
+      "description": "Action Guidance segments"
     },
     "rune_ring": {
       "type": "array",
       "items": {
         "type": "object"
-      }
+      },
+      "description": "Elder Futhark runes"
     },
     "synergy_rules": {
       "type": "array",
       "items": {
         "type": "object"
-      }
+      },
+      "description": "Trigger combos with combined meanings"
     },
-    "reading_engine": {
-      "type": "object"
+    "theme": {
+      "type": "object",
+      "description": "primary_color, accent_color"
     },
     "center": {
-      "type": "object"
-    },
-    "metatron": {
-      "type": "object"
+      "type": "object",
+      "description": "Medallion: symbol, image_url, colors, glow"
     },
     "ring_borders": {
-      "type": "object"
+      "type": "object",
+      "description": "Per-ring border overrides"
     },
     "texture_layers": {
-      "type": "object"
+      "type": "object",
+      "description": "Per-ring texture arrays"
     },
-    "theme_id": {
-      "type": "string"
+    "reading_engine": {
+      "type": "object",
+      "description": "Ring roles, active rings, shadow mode, synthesis style"
     },
-    "is_public": {
-      "type": "boolean",
-      "default": false
+    "reference_data": {
+      "type": "object",
+      "description": "Book category index, age/Spirit Form mappings"
     }
   },
   "required": [
