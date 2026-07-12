@@ -307,7 +307,7 @@ export default function CosmicHub() {
           position: "relative", zIndex: 10,
           display: "flex", flexDirection: "column", alignItems: "center", gap: 0,
         }}>
-          <div style={{ textAlign: "center", marginBottom: "clamp(40px, 8vh, 80px)", marginTop: "-20vh" }}>
+          <div style={{ textAlign: "center", marginBottom: "clamp(80px, 15vh, 140px)", marginTop: "-12vh" }}>
             <h1 style={{
               fontFamily: "'Cinzel', serif", fontWeight: 700,
               fontSize: "clamp(28px, 5vw, 52px)", letterSpacing: "0.22em",
