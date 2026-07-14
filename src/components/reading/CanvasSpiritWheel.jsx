@@ -219,10 +219,9 @@ export default function CanvasSpiritWheel({
     if (wheelData.inner && wheelData.inner.length > 0) activeRings.push({ data: wheelData.inner, rot: rotations.inner, bg: t.innerBg, border: t.innerBorder, text: t.textInner });
     if (wheelData.rune && wheelData.rune.length > 0) activeRings.push({ data: wheelData.rune, rot: rotations.rune, bg: '#F97316', border: '#ea580c', text: '#fff' });
 
-    const innerBoundary = maxRadius * 0.15; // Fixed small hub boundary
-    const totalSpace = maxRadius - innerBoundary;
     const numRings = Math.max(1, activeRings.length);
-    const ringWidth = totalSpace / numRings;
+    const ringWidth = Math.min(maxRadius * 0.2, maxRadius / (numRings + 1)); // Fix ring width so fewer rings leave a larger center
+    const innerBoundary = maxRadius - (numRings * ringWidth); // Center space leftover
 
     let currentOut = maxRadius;
     activeRings.forEach(ring => {
@@ -232,21 +231,44 @@ export default function CanvasSpiritWheel({
     });
 
     // 4. Center Hub
+    const hubRadius = innerBoundary; // Use the dynamically calculated inner boundary as hub radius
     ctx.save();
     ctx.translate(cx, cy);
     ctx.beginPath();
-    ctx.arc(0, 0, maxRadius * 0.15, 0, Math.PI * 2);
+    ctx.arc(0, 0, hubRadius, 0, Math.PI * 2);
     ctx.fillStyle = t.hubBg || '#000';
     ctx.fill();
+
+    // Draw center image if provided
+    const centerImgUrl = t.centerImage || wheelData.center?.image_url;
+    if (centerImgUrl) {
+      let img = imageCache.current[centerImgUrl];
+      if (!img) {
+        img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => forceUpdate(n => n + 1);
+        img.src = centerImgUrl;
+        imageCache.current[centerImgUrl] = img;
+      }
+      if (img.complete && img.naturalWidth > 0) {
+        ctx.save();
+        ctx.clip(); // clip to the hub circle
+        ctx.drawImage(img, -hubRadius, -hubRadius, hubRadius * 2, hubRadius * 2);
+        ctx.restore();
+      }
+    }
+
     ctx.strokeStyle = t.hubBorder || '#FFF';
     ctx.lineWidth = 4;
     ctx.stroke();
     
-    ctx.fillStyle = '#FFF';
-    ctx.font = '24px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(t.hubIcon || '👁️', 0, 0);
+    if (!centerImgUrl) {
+      ctx.fillStyle = '#FFF';
+      ctx.font = `${Math.max(12, hubRadius * 0.3)}px sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(t.hubIcon || '👁️', 0, 0);
+    }
     ctx.restore();
 
     // 5. Roulette Tracks and Marbles (on their own individual rings)

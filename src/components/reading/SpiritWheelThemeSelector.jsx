@@ -204,6 +204,17 @@ export default function SpiritWheelThemeSelector({ themeId, setThemeId, customTh
           </div>
 
           <div>
+             <div className="text-[9px] tracking-[0.18em] uppercase text-[rgba(180,160,220,0.42)] mb-[4px]" style={{ fontFamily: "'Cinzel', serif" }}>Center Hub Graphic URL</div>
+             <input 
+               value={customTheme.centerImage || ""} 
+               onChange={e => setCustomTheme({...customTheme, centerImage: e.target.value})} 
+               placeholder="https://..." 
+               className="w-full bg-[#160f2a] border border-[rgba(160,120,255,0.16)] rounded-[7px] px-[8px] py-[6px] text-[12px] text-[rgba(180,160,220,0.42)] outline-none"
+               style={{ fontFamily: "'Crimson Text', serif" }}
+             />
+          </div>
+
+          <div>
              <div className="text-[9px] tracking-[0.18em] uppercase text-[rgba(180,160,220,0.42)] mb-[4px]" style={{ fontFamily: "'Cinzel', serif" }}>Page Background Image URL</div>
              <input 
                value={customTheme.pageBgImage || ""} 
