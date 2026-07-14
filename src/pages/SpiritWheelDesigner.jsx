@@ -928,12 +928,29 @@ export default function SpiritWheelDesigner() {
     if (Array.isArray(parsed)) {
       newOuter = parsed;
       newName = newName === "Imported Wheel" ? "Imported Segments Wheel" : newName;
+    } else if (Array.isArray(parsed.segments)) {
+      newOuter = parsed.segments; // Support ThemePacks
+    } else if (Array.isArray(parsed.cards)) {
+      newOuter = parsed.cards.map(c => ({
+        label: c.name || "Untitled",
+        meaning: c.overall_meaning || c.upright_meaning || (c.keywords ? c.keywords.join(", ") : "") || c.name || "No meaning provided",
+        icon: c.spirit_wheel_icon_url || c.image_url || "",
+        type: "card",
+        card_id: c.id || ""
+      }));
+    } else if (Array.isArray(parsed.positions)) {
+      newOuter = parsed.positions.map(p => ({
+        label: p.name || "Untitled",
+        meaning: p.meaning || "No meaning provided",
+        icon: "",
+        type: "custom"
+      }));
     }
 
     const newDesc = parsed.description !== undefined ? parsed.description : description;
     const newDeckId = parsed.deck_id || (deckId !== "none" ? deckId : "none");
     const newThemeId = parsed.theme_id || themeId;
-    const newCustomTheme = parsed.custom_theme ? { ...customTheme, ...parsed.custom_theme } : customTheme;
+    const newCustomTheme = parsed.custom_theme && typeof parsed.custom_theme === 'object' ? { ...customTheme, ...parsed.custom_theme } : customTheme;
     const newPubStatus = parsed.publish_status || publishStatus;
     const newIsPublic = parsed.is_public !== undefined ? parsed.is_public : isPublic;
     
@@ -993,7 +1010,9 @@ export default function SpiritWheelDesigner() {
   const handleImportJson = async () => {
     setJsonError("");
     try {
-      const text = jsonImportText.trim().replace(/[\u201C\u201D]/g, '"').replace(/[\u2018\u2019]/g, "'");
+      let text = jsonImportText.trim();
+      text = text.replace(/^```(?:json)?\s*/i, '').replace(/```$/s, '').trim();
+      text = text.replace(/[\u201C\u201D]/g, '"').replace(/[\u2018\u2019]/g, "'");
       if (!text) throw new Error("JSON cannot be empty");
       const parsed = JSON.parse(text);
       await applyImportedJson(parsed);
@@ -1008,7 +1027,9 @@ export default function SpiritWheelDesigner() {
     const reader = new FileReader();
     reader.onload = async (event) => {
       try {
-        const text = event.target.result.trim().replace(/[\u201C\u201D]/g, '"').replace(/[\u2018\u2019]/g, "'");
+        let text = event.target.result.trim();
+        text = text.replace(/^```(?:json)?\s*/i, '').replace(/```$/s, '').trim();
+        text = text.replace(/[\u201C\u201D]/g, '"').replace(/[\u2018\u2019]/g, "'");
         const parsed = JSON.parse(text);
         await applyImportedJson(parsed);
       } catch (err) {
