@@ -7,7 +7,7 @@ import { isImageSymbol, getImageUrl } from '@/lib/spiritWheelLogic';
 import { getThumbnailUrl } from "@/lib/utils";
 
 export default function SpiritWheelResults({ 
-  isSpinning, blankMode, isRevealed, rotations, handleReveal, 
+  isSpinning, blankMode, isRevealed, hasSpun, rotations, handleReveal, 
   wheelData, selectedIndices, metatronResult, activeTheme, 
   getInterpretation, isAiLoading, aiInterpretation, 
   setShowShareModal, handleSaveReading, isSaving, setShowReportDialog 
@@ -168,7 +168,7 @@ export default function SpiritWheelResults({
         <div className="flex items-center justify-center h-[160px] text-[rgba(201,168,76,0.5)] animate-pulse text-[16px] italic px-[18px]" style={{ fontFamily: "'IM Fell English', serif" }}>
           The wheel turns, seeking answers...
         </div>
-      ) : blankMode && !isRevealed && !isSpinning && (rotations.outer1 > 0) ? (
+      ) : blankMode && !isRevealed && !isSpinning && hasSpun ? (
         <div className="text-center space-y-[24px] py-[40px] px-[18px]">
           <p className="text-[rgba(240,225,190,0.95)] italic text-[16px]" style={{ fontFamily: "'IM Fell English', serif" }}>
             Focus on the shapes and letters.<br/>Take 3 seconds to imagine the meaning...

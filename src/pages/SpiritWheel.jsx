@@ -58,6 +58,15 @@ export default function SpiritWheel() {
 
   const [panPos, setPanPos] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
+  const hasSpun = useRef(false);
+
+  useEffect(() => {
+    if (blankMode) {
+      setIsRevealed(false);
+    } else if (spinState === "idle" && hasSpun.current) {
+      setIsRevealed(true);
+    }
+  }, [blankMode, spinState]);
   const dragStart = useRef({ x: 0, y: 0 });
   const lastPan = useRef({ x: 0, y: 0 });
   const hasDragged = useRef(false);
@@ -301,6 +310,7 @@ export default function SpiritWheel() {
   const spinWheel = () => {
     if (spinState !== "idle") return;
     setSpinState("spinning");
+    hasSpun.current = true;
     setIsRevealed(false);
     setAiInterpretation("");
     setMetatronResult(null);
@@ -670,6 +680,7 @@ export default function SpiritWheel() {
                   }}
                   zoomLevel={1}
                   isSpinning={isSpinning}
+                  showLabels={showLabels}
                 />
               </div>
             </div>
@@ -693,6 +704,7 @@ export default function SpiritWheel() {
             isSpinning={isSpinning}
             blankMode={blankMode}
             isRevealed={isRevealed}
+            hasSpun={hasSpun.current}
             rotations={rotations}
             handleReveal={handleReveal}
             wheelData={wheelData}
