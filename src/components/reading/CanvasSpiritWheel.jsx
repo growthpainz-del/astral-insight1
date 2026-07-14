@@ -38,7 +38,8 @@ export default function CanvasSpiritWheel({
     
     const cx = width / 2;
     const cy = height / 2;
-    const maxRadius = Math.max(0.1, Math.min(cx, cy) - 60);
+    // Increase wheel max size to fill more space, leaving just enough room for marbles
+    const maxRadius = Math.max(0.1, Math.min(cx, cy) - 20);
 
     ctx.clearRect(0, 0, width, height);
 
@@ -220,8 +221,9 @@ export default function CanvasSpiritWheel({
     if (wheelData.rune && wheelData.rune.length > 0) activeRings.push({ data: wheelData.rune, rot: rotations.rune, bg: '#F97316', border: '#ea580c', text: '#fff' });
 
     const numRings = Math.max(1, activeRings.length);
-    const ringWidth = Math.min(maxRadius * 0.2, maxRadius / (numRings + 1)); // Fix ring width so fewer rings leave a larger center
-    const innerBoundary = maxRadius - (numRings * ringWidth); // Center space leftover
+    const innerBoundaryRatio = 0.35; // Make the center hub 35% of the maxRadius
+    const innerBoundary = maxRadius * innerBoundaryRatio; 
+    const ringWidth = (maxRadius - innerBoundary) / numRings;
 
     let currentOut = maxRadius;
     activeRings.forEach(ring => {
@@ -271,24 +273,24 @@ export default function CanvasSpiritWheel({
     }
     ctx.restore();
 
-    // 5. Roulette Tracks and Marbles (on their own individual rings)
+    // 5. Roulette Tracks and Marbles
     ctx.save();
     ctx.translate(cx, cy);
     
     const marblePositions = [
-      { label: "PAST", id: "marble1", initialAngle: -90, color: "#94A3B8", distance: maxRadius + 12 }, // Silver
-      { label: "PRESENT", id: "marble2", initialAngle: 30, color: "#D4AF37", distance: maxRadius + 28 }, // Gold
-      { label: "FUTURE", id: "marble3", initialAngle: 150, color: "#8B5CF6", distance: maxRadius + 44 } // Purple
+      { label: "PAST", id: "marble1", initialAngle: -90, color: "#94A3B8", distance: maxRadius + 6 }, // Silver
+      { label: "PRESENT", id: "marble2", initialAngle: 30, color: "#D4AF37", distance: maxRadius + 6 }, // Gold
+      { label: "FUTURE", id: "marble3", initialAngle: 150, color: "#8B5CF6", distance: maxRadius + 6 } // Purple
     ];
     
+    // Optional: Draw one very subtle outer track for all marbles if desired
+    ctx.beginPath();
+    ctx.arc(0, 0, maxRadius + 6, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(201, 168, 76, 0.05)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
     marblePositions.forEach(pos => {
-      // Draw individual subtle track for this marble
-      ctx.beginPath();
-      ctx.arc(0, 0, pos.distance, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(201, 168, 76, 0.1)';
-      ctx.lineWidth = 12;
-      ctx.stroke();
-      
       // We read specific marble rotations if they exist, fallback to general marbleRot + offset
       const specificRot = rotations[pos.id];
       const marbleRot = specificRot !== undefined ? specificRot : (rotations.marble || 0);
@@ -322,7 +324,7 @@ export default function CanvasSpiritWheel({
       ctx.fill();
       
       // Draw label outside the track
-      ctx.translate(pos.distance + 12, 0);
+      ctx.translate(pos.distance + 11, 0);
       const normalized = ((currentAngle % 360) + 360) % 360;
       if (normalized > 90 && normalized < 270) {
         ctx.rotate(Math.PI);
@@ -330,10 +332,12 @@ export default function CanvasSpiritWheel({
       } else {
         ctx.textAlign = 'left';
       }
-      ctx.fillStyle = pos.color;
+      ctx.fillStyle = '#FFF';
+      ctx.globalAlpha = 0.8;
       ctx.font = 'bold 10px sans-serif';
       ctx.textBaseline = 'middle';
       ctx.fillText(pos.label, 0, 0);
+      ctx.globalAlpha = 1.0;
 
       ctx.restore();
     });
