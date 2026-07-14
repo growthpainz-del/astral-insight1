@@ -1,0 +1,48 @@
+{
+  "name": "UploadAsset",
+  "type": "object",
+  "properties": {
+    "file_url": {
+      "type": "string"
+    },
+    "thumbnail_url": {
+      "type": "string"
+    },
+    "file_name": {
+      "type": "string"
+    },
+    "mime_type": {
+      "type": "string"
+    },
+    "size": {
+      "type": "number"
+    },
+    "width": {
+      "type": "number"
+    },
+    "height": {
+      "type": "number"
+    },
+    "linked_deck_id": {
+      "type": "string"
+    },
+    "card_number": {
+      "type": "number"
+    },
+    "card_name": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "created_by": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "file_url"
+  ]
+}
