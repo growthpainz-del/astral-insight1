@@ -38,7 +38,7 @@ export default function CanvasSpiritWheel({
     
     const cx = width / 2;
     const cy = height / 2;
-    const maxRadius = Math.max(0.1, Math.min(cx, cy) - 85);
+    const maxRadius = Math.max(0.1, Math.min(cx, cy) - 60);
 
     ctx.clearRect(0, 0, width, height);
 
@@ -217,9 +217,9 @@ export default function CanvasSpiritWheel({
     if (wheelData.outer2 && wheelData.outer2.length > 0) activeRings.push({ data: wheelData.outer2, rot: rotations.outer2, bg: t.outerBg, border: t.outerBorder, text: t.textOuter });
     if (wheelData.middle && wheelData.middle.length > 0) activeRings.push({ data: wheelData.middle, rot: rotations.middle, bg: t.middleBg, border: t.middleBorder, text: t.textMiddle });
     if (wheelData.inner && wheelData.inner.length > 0) activeRings.push({ data: wheelData.inner, rot: rotations.inner, bg: t.innerBg, border: t.innerBorder, text: t.textInner });
+    if (wheelData.rune && wheelData.rune.length > 0) activeRings.push({ data: wheelData.rune, rot: rotations.rune, bg: '#F97316', border: '#ea580c', text: '#fff' });
 
-    const hasRune = wheelData.rune && wheelData.rune.length > 0;
-    const innerBoundary = hasRune ? maxRadius * 0.30 : maxRadius * 0.15;
+    const innerBoundary = maxRadius * 0.15; // Fixed small hub boundary
     const totalSpace = maxRadius - innerBoundary;
     const numRings = Math.max(1, activeRings.length);
     const ringWidth = totalSpace / numRings;
@@ -227,14 +227,9 @@ export default function CanvasSpiritWheel({
     let currentOut = maxRadius;
     activeRings.forEach(ring => {
       const currentIn = currentOut - ringWidth;
-      drawRing(ring.data, currentOut, currentIn, ring.rot, { bg: ring.bg, border: ring.border, text: ring.text, thickness: t.borderThickness });
+      drawRing(ring.data, currentOut, currentIn, ring.rot, { bg: ring.bg, border: ring.border, text: ring.text, thickness: t.borderThickness || (ring.bg === '#F97316' ? 2 : undefined) });
       currentOut = currentIn;
     });
-    
-    // 5th ring: Rune
-    if (hasRune) {
-      drawRing(wheelData.rune, maxRadius * 0.30, maxRadius * 0.15, rotations.rune || 0, { bg: '#F97316', border: '#ea580c', text: '#fff', thickness: 2 });
-    }
 
     // 4. Center Hub
     ctx.save();
@@ -259,9 +254,9 @@ export default function CanvasSpiritWheel({
     ctx.translate(cx, cy);
     
     const marblePositions = [
-      { label: "PAST", id: "marble1", initialAngle: -90, color: "#94A3B8", distance: maxRadius + 14 }, // Silver
-      { label: "PRESENT", id: "marble2", initialAngle: 30, color: "#D4AF37", distance: maxRadius + 38 }, // Gold
-      { label: "FUTURE", id: "marble3", initialAngle: 150, color: "#8B5CF6", distance: maxRadius + 62 } // Purple
+      { label: "PAST", id: "marble1", initialAngle: -90, color: "#94A3B8", distance: maxRadius + 12 }, // Silver
+      { label: "PRESENT", id: "marble2", initialAngle: 30, color: "#D4AF37", distance: maxRadius + 28 }, // Gold
+      { label: "FUTURE", id: "marble3", initialAngle: 150, color: "#8B5CF6", distance: maxRadius + 44 } // Purple
     ];
     
     marblePositions.forEach(pos => {
@@ -269,7 +264,7 @@ export default function CanvasSpiritWheel({
       ctx.beginPath();
       ctx.arc(0, 0, pos.distance, 0, Math.PI * 2);
       ctx.strokeStyle = 'rgba(201, 168, 76, 0.1)';
-      ctx.lineWidth = 14;
+      ctx.lineWidth = 12;
       ctx.stroke();
       
       // We read specific marble rotations if they exist, fallback to general marbleRot + offset
@@ -282,16 +277,16 @@ export default function CanvasSpiritWheel({
 
       // Draw indicator pointing inwards (tip closer to center than base)
       ctx.beginPath();
-      ctx.moveTo(pos.distance - 12, 0);
-      ctx.lineTo(pos.distance - 4, -6);
-      ctx.lineTo(pos.distance - 4, 6);
+      ctx.moveTo(pos.distance - 10, 0);
+      ctx.lineTo(pos.distance - 4, -5);
+      ctx.lineTo(pos.distance - 4, 5);
       ctx.closePath();
       ctx.fillStyle = pos.color;
       ctx.fill();
 
       // Draw marble on its individual track
       ctx.beginPath();
-      ctx.arc(pos.distance, 0, 8, 0, Math.PI * 2);
+      ctx.arc(pos.distance, 0, 7, 0, Math.PI * 2);
       ctx.fillStyle = pos.color; 
       ctx.fill();
       ctx.strokeStyle = '#FFFFFF';
@@ -300,12 +295,12 @@ export default function CanvasSpiritWheel({
       
       // Highlight / reflection
       ctx.beginPath();
-      ctx.arc(pos.distance - 2, -2, 2.5, 0, Math.PI * 2);
+      ctx.arc(pos.distance - 2, -2, 2, 0, Math.PI * 2);
       ctx.fillStyle = 'rgba(255,255,255,0.8)';
       ctx.fill();
       
       // Draw label outside the track
-      ctx.translate(pos.distance + 14, 0);
+      ctx.translate(pos.distance + 12, 0);
       const normalized = ((currentAngle % 360) + 360) % 360;
       if (normalized > 90 && normalized < 270) {
         ctx.rotate(Math.PI);
