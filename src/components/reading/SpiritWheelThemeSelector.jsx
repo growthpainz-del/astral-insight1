@@ -2,7 +2,7 @@ import React from 'react';
 
 // Helper to ensure colors from JSON (which might be rgb/rgba) don't crash the color picker
 const safeHex = (colorString) => {
-  if (!colorString) return '#000000';
+  if (!colorString || typeof colorString !== 'string') return '#000000';
   if (colorString.startsWith('#')) {
     // Return standard 6-char hex, ignoring alpha channel for the picker if it's 8-char
     return colorString.length > 7 ? colorString.substring(0, 7) : colorString;

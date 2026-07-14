@@ -46,7 +46,19 @@ export default function CanvasSpiritWheel({
     // 1. Draw Background Glow / Ambient
     const bgGlow = ctx.createRadialGradient(cx, cy, maxRadius * 0.5, cx, cy, maxRadius);
     bgGlow.addColorStop(0, 'rgba(0,0,0,0)');
-    bgGlow.addColorStop(1, activeTheme?.outerBorder ? `${activeTheme.outerBorder}40` : 'rgba(120,0,255,0.2)');
+    
+    let outerGlow = 'rgba(120,0,255,0.2)';
+    if (activeTheme?.outerBorder) {
+      const ob = activeTheme.outerBorder.trim();
+      outerGlow = /^#[0-9a-fA-F]{6}$/.test(ob) ? ob + '40' : ob;
+    }
+    
+    try {
+      bgGlow.addColorStop(1, outerGlow);
+    } catch(e) {
+      bgGlow.addColorStop(1, 'rgba(120,0,255,0.2)');
+    }
+    
     ctx.fillStyle = bgGlow;
     ctx.fillRect(0, 0, width, height);
 
