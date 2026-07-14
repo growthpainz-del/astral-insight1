@@ -720,6 +720,23 @@ import { WHEEL_THEMES } from "@/lib/spiritWheelThemes";
 
 
 
+const safeHex = (color) => {
+  if (!color || typeof color !== 'string') return '#000000';
+  const c = color.trim();
+  if (/^#([0-9a-fA-F]{3}){1,2}$/.test(c)) return c;
+  if (/^#([0-9a-fA-F]{4}){1,2}$/.test(c)) return c.substring(0, 7);
+  if (c.toLowerCase().startsWith('rgb')) {
+    const match = c.match(/\d+/g);
+    if (match && match.length >= 3) {
+      const r = parseInt(match[0], 10).toString(16).padStart(2, '0');
+      const g = parseInt(match[1], 10).toString(16).padStart(2, '0');
+      const b = parseInt(match[2], 10).toString(16).padStart(2, '0');
+      return `#${r}${g}${b}`;
+    }
+  }
+  return '#000000';
+};
+
 export default function SpiritWheelDesigner() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -861,21 +878,24 @@ export default function SpiritWheelDesigner() {
     
     if (!silent) setIsSaving(true);
 
-    const cleanSegments = (ring) => ring.map(s => ({
-      ...s,
-      label: s.label || "Untitled",
-      meaning: s.meaning || "No meaning provided"
-    }));
+    const cleanSegments = (ring) => {
+      if (!Array.isArray(ring)) return [];
+      return ring.map(s => ({
+        ...s,
+        label: s.label || "Untitled",
+        meaning: s.meaning || "No meaning provided"
+      }));
+    };
 
     try {
       const data = {
-        name,
-        description,
+        name: name || "Untitled Wheel",
+        description: description || "",
         deck_id: deckId !== "none" ? deckId : null,
-        theme_id: themeId,
-        custom_theme: customTheme,
-        is_public: isPublic,
-        publish_status: statusToSave,
+        theme_id: themeId || "wood",
+        custom_theme: customTheme || {},
+        is_public: !!isPublic,
+        publish_status: statusToSave || "draft",
         outer_ring: cleanSegments(outerRing),
         outer2_ring: cleanSegments(outer2Ring),
         middle_ring: cleanSegments(middleRing),
@@ -922,7 +942,7 @@ export default function SpiritWheelDesigner() {
 
   const applyImportedJson = async (parsed) => {
     let newName = parsed.name !== undefined ? parsed.name : (name || "Imported Wheel");
-    let newOuter = Array.isArray(parsed.outer_ring) ? parsed.outer_ring : outerRing;
+    let newOuter = Array.isArray(parsed.outer_ring) ? parsed.outer_ring : (Array.isArray(outerRing) ? outerRing : []);
     
     // If user pasted just an array of segments instead of a full wheel config
     if (Array.isArray(parsed)) {
@@ -989,9 +1009,9 @@ export default function SpiritWheelDesigner() {
     const newPubStatus = parsed.publish_status || publishStatus;
     const newIsPublic = parsed.is_public !== undefined ? parsed.is_public : isPublic;
     
-    const newOuter2 = Array.isArray(parsed.outer2_ring) ? parsed.outer2_ring : outer2Ring;
-    const newMiddle = Array.isArray(parsed.middle_ring) ? parsed.middle_ring : middleRing;
-    const newInner = Array.isArray(parsed.inner_ring) ? parsed.inner_ring : innerRing;
+    const newOuter2 = Array.isArray(parsed.outer2_ring) ? parsed.outer2_ring : (Array.isArray(outer2Ring) ? outer2Ring : []);
+    const newMiddle = Array.isArray(parsed.middle_ring) ? parsed.middle_ring : (Array.isArray(middleRing) ? middleRing : []);
+    const newInner = Array.isArray(parsed.inner_ring) ? parsed.inner_ring : (Array.isArray(innerRing) ? innerRing : []);
 
     setName(newName);
     setDescription(newDesc);
@@ -1005,20 +1025,23 @@ export default function SpiritWheelDesigner() {
     setMiddleRing(newMiddle);
     setInnerRing(newInner);
 
-    const cleanSegments = (ring) => ring.map(s => ({
-      ...s,
-      label: s.label || "Untitled",
-      meaning: s.meaning || "No meaning provided"
-    }));
+    const cleanSegments = (ring) => {
+      if (!Array.isArray(ring)) return [];
+      return ring.map(s => ({
+        ...s,
+        label: s.label || "Untitled",
+        meaning: s.meaning || "No meaning provided"
+      }));
+    };
 
     const dataToSave = {
       name: newName || "Untitled Wheel",
-      description: newDesc,
+      description: newDesc || "",
       deck_id: newDeckId !== "none" ? newDeckId : null,
-      theme_id: newThemeId,
-      custom_theme: newCustomTheme,
-      is_public: newIsPublic,
-      publish_status: newPubStatus,
+      theme_id: newThemeId || "wood",
+      custom_theme: newCustomTheme || {},
+      is_public: !!newIsPublic,
+      publish_status: newPubStatus || "draft",
       outer_ring: cleanSegments(newOuter),
       outer2_ring: cleanSegments(newOuter2),
       middle_ring: cleanSegments(newMiddle),
@@ -1355,10 +1378,10 @@ export default function SpiritWheelDesigner() {
                   <div className="text-[8.5px] tracking-[0.14em] uppercase text-[rgba(180,160,220,0.42)] mb-[6px]" style={{ fontFamily: "'Cinzel', serif" }}>Outer Ring</div>
                   <div className="flex gap-[6px] mb-[6px]">
                     <div className="w-[30px] h-[30px] rounded-[7px] cursor-pointer border-[2px] border-[rgba(255,255,255,0.15)] transition-transform duration-200 hover:scale-110 overflow-hidden relative" style={{ background: customTheme.outerBg }}>
-                      <input type="color" value={customTheme.outerBg} onChange={e => handleCustomThemeChange({ outerBg: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Background" />
+                      <input type="color" value={safeHex(customTheme.outerBg)} onChange={e => handleCustomThemeChange({ outerBg: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Background" />
                     </div>
                     <div className="w-[30px] h-[30px] rounded-[7px] cursor-pointer border-[2px] border-[rgba(255,255,255,0.15)] transition-transform duration-200 hover:scale-110 overflow-hidden relative" style={{ background: customTheme.outerGrad }}>
-                      <input type="color" value={customTheme.outerGrad} onChange={e => handleCustomThemeChange({ outerGrad: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Gradient" />
+                      <input type="color" value={safeHex(customTheme.outerGrad)} onChange={e => handleCustomThemeChange({ outerGrad: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Gradient" />
                     </div>
                   </div>
                   <div className="flex w-full items-center gap-[6px]">
@@ -1378,10 +1401,10 @@ export default function SpiritWheelDesigner() {
                   <div className="text-[8.5px] tracking-[0.14em] uppercase text-[rgba(180,160,220,0.42)] mb-[6px]" style={{ fontFamily: "'Cinzel', serif" }}>Middle Ring</div>
                   <div className="flex gap-[6px] mb-[6px]">
                     <div className="w-[30px] h-[30px] rounded-[7px] cursor-pointer border-[2px] border-[rgba(255,255,255,0.15)] transition-transform duration-200 hover:scale-110 overflow-hidden relative" style={{ background: customTheme.middleBg }}>
-                      <input type="color" value={customTheme.middleBg} onChange={e => handleCustomThemeChange({ middleBg: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" />
+                      <input type="color" value={safeHex(customTheme.middleBg)} onChange={e => handleCustomThemeChange({ middleBg: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" />
                     </div>
                     <div className="w-[30px] h-[30px] rounded-[7px] cursor-pointer border-[2px] border-[rgba(255,255,255,0.15)] transition-transform duration-200 hover:scale-110 overflow-hidden relative" style={{ background: customTheme.middleGrad }}>
-                      <input type="color" value={customTheme.middleGrad} onChange={e => handleCustomThemeChange({ middleGrad: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" />
+                      <input type="color" value={safeHex(customTheme.middleGrad)} onChange={e => handleCustomThemeChange({ middleGrad: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" />
                     </div>
                   </div>
                   <div className="flex w-full items-center gap-[6px]">
@@ -1401,10 +1424,10 @@ export default function SpiritWheelDesigner() {
                   <div className="text-[8.5px] tracking-[0.14em] uppercase text-[rgba(180,160,220,0.42)] mb-[6px]" style={{ fontFamily: "'Cinzel', serif" }}>Inner Ring</div>
                   <div className="flex gap-[6px] mb-[6px]">
                     <div className="w-[30px] h-[30px] rounded-[7px] cursor-pointer border-[2px] border-[rgba(255,255,255,0.15)] transition-transform duration-200 hover:scale-110 overflow-hidden relative" style={{ background: customTheme.innerBg }}>
-                      <input type="color" value={customTheme.innerBg} onChange={e => handleCustomThemeChange({ innerBg: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" />
+                      <input type="color" value={safeHex(customTheme.innerBg)} onChange={e => handleCustomThemeChange({ innerBg: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" />
                     </div>
                     <div className="w-[30px] h-[30px] rounded-[7px] cursor-pointer border-[2px] border-[rgba(255,255,255,0.15)] transition-transform duration-200 hover:scale-110 overflow-hidden relative" style={{ background: customTheme.innerGrad }}>
-                      <input type="color" value={customTheme.innerGrad} onChange={e => handleCustomThemeChange({ innerGrad: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" />
+                      <input type="color" value={safeHex(customTheme.innerGrad)} onChange={e => handleCustomThemeChange({ innerGrad: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" />
                     </div>
                   </div>
                   <div className="flex w-full items-center gap-[6px]">
@@ -1424,10 +1447,10 @@ export default function SpiritWheelDesigner() {
                   <div className="text-[8.5px] tracking-[0.14em] uppercase text-[rgba(180,160,220,0.42)] mb-[6px]" style={{ fontFamily: "'Cinzel', serif" }}>Text & Dots</div>
                   <div className="flex gap-[6px] mb-[6px]">
                     <div className="w-[30px] h-[30px] rounded-[7px] cursor-pointer border-[2px] border-[rgba(255,255,255,0.15)] transition-transform duration-200 hover:scale-110 overflow-hidden relative" style={{ background: customTheme.textOuter || "#2a1505" }}>
-                      <input type="color" value={customTheme.textOuter || "#2a1505"} onChange={e => handleCustomThemeChange({ textOuter: e.target.value, textMiddle: e.target.value, textInner: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Text Color" />
+                      <input type="color" value={safeHex(customTheme.textOuter || "#2a1505")} onChange={e => handleCustomThemeChange({ textOuter: e.target.value, textMiddle: e.target.value, textInner: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Text Color" />
                     </div>
                     <div className="w-[30px] h-[30px] rounded-[7px] cursor-pointer border-[2px] border-[rgba(255,255,255,0.15)] transition-transform duration-200 hover:scale-110 overflow-hidden relative" style={{ background: customTheme.pin || "#f5f5f5" }}>
-                      <input type="color" value={customTheme.pin || "#f5f5f5"} onChange={e => handleCustomThemeChange({ pin: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Pin Color" />
+                      <input type="color" value={safeHex(customTheme.pin || "#f5f5f5")} onChange={e => handleCustomThemeChange({ pin: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Pin Color" />
                     </div>
                   </div>
                 </div>
@@ -1438,7 +1461,7 @@ export default function SpiritWheelDesigner() {
                 <div className="text-[9px] tracking-[0.18em] uppercase text-[rgba(180,160,220,0.42)] mb-[6px]" style={{ fontFamily: "'Cinzel', serif" }}>Borders</div>
                 <div className="flex gap-[8px] items-center">
                   <div className="w-[32px] h-[32px] rounded-[7px] cursor-pointer border-[2px] border-[rgba(201,168,76,0.2)] overflow-hidden relative" style={{ background: customTheme.outerBorder || "#2a1505" }}>
-                    <input type="color" value={customTheme.outerBorder || "#2a1505"} onChange={e => handleCustomThemeChange({ outerBorder: e.target.value, middleBorder: e.target.value, innerBorder: e.target.value, hubBorder: e.target.value, divider: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Border Color" />
+                    <input type="color" value={safeHex(customTheme.outerBorder || "#2a1505")} onChange={e => handleCustomThemeChange({ outerBorder: e.target.value, middleBorder: e.target.value, innerBorder: e.target.value, hubBorder: e.target.value, divider: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Border Color" />
                   </div>
                   <input 
                     type="number" min="0" max="20" 
@@ -1468,7 +1491,7 @@ export default function SpiritWheelDesigner() {
                   <div>
                     <div className="text-[9px] tracking-[0.18em] uppercase text-[rgba(180,160,220,0.42)] mb-[4px]" style={{ fontFamily: "'Cinzel', serif" }}>Page Bg</div>
                     <div className="w-[32px] h-[32px] rounded-[7px] cursor-pointer border-[2px] border-[rgba(255,255,255,0.15)] overflow-hidden relative" style={{ background: customTheme.pageBg || "#0d0e1a" }}>
-                      <input type="color" value={customTheme.pageBg || "#0f172a"} onChange={e => handleCustomThemeChange({ pageBg: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Page Background Color" />
+                      <input type="color" value={safeHex(customTheme.pageBg || "#0f172a")} onChange={e => handleCustomThemeChange({ pageBg: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Page Background Color" />
                     </div>
                   </div>
                 </div>
