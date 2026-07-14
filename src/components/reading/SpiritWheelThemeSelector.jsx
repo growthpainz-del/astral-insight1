@@ -1,5 +1,26 @@
 import React from 'react';
 
+// Helper to ensure colors from JSON (which might be rgb/rgba) don't crash the color picker
+const safeHex = (colorString) => {
+  if (!colorString) return '#000000';
+  if (colorString.startsWith('#')) {
+    // Return standard 6-char hex, ignoring alpha channel for the picker if it's 8-char
+    return colorString.length > 7 ? colorString.substring(0, 7) : colorString;
+  }
+  
+  // Basic rgb/rgba to hex converter
+  const rgbMatch = colorString.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
+  if (rgbMatch) {
+    const r = parseInt(rgbMatch[1], 10).toString(16).padStart(2, '0');
+    const g = parseInt(rgbMatch[2], 10).toString(16).padStart(2, '0');
+    const b = parseInt(rgbMatch[3], 10).toString(16).padStart(2, '0');
+    return `#${r}${g}${b}`;
+  }
+  
+  // Fallback
+  return '#000000';
+};
+
 export default function SpiritWheelThemeSelector({ themeId, setThemeId, customTheme, setCustomTheme }) {
   const handleCustomThemeChange = (updates) => {
     setCustomTheme(prev => ({ ...prev, ...updates }));
@@ -49,10 +70,10 @@ export default function SpiritWheelThemeSelector({ themeId, setThemeId, customTh
               <div className="text-[8.5px] tracking-[0.14em] uppercase text-[rgba(180,160,220,0.42)] mb-[6px]" style={{ fontFamily: "'Cinzel', serif" }}>Outer Ring</div>
               <div className="flex gap-[6px] mb-[6px]">
                 <div className="w-[30px] h-[30px] rounded-[7px] cursor-pointer border-[2px] border-[rgba(255,255,255,0.15)] transition-transform duration-200 hover:scale-110 overflow-hidden relative" style={{ background: customTheme.outerBg }}>
-                  <input type="color" value={customTheme.outerBg} onChange={e => handleCustomThemeChange({ outerBg: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Background" />
+                  <input type="color" value={safeHex(customTheme.outerBg)} onChange={e => handleCustomThemeChange({ outerBg: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Background" />
                 </div>
                 <div className="w-[30px] h-[30px] rounded-[7px] cursor-pointer border-[2px] border-[rgba(255,255,255,0.15)] transition-transform duration-200 hover:scale-110 overflow-hidden relative" style={{ background: customTheme.outerGrad }}>
-                  <input type="color" value={customTheme.outerGrad} onChange={e => handleCustomThemeChange({ outerGrad: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Gradient" />
+                  <input type="color" value={safeHex(customTheme.outerGrad)} onChange={e => handleCustomThemeChange({ outerGrad: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Gradient" />
                 </div>
               </div>
               <input 
@@ -67,10 +88,10 @@ export default function SpiritWheelThemeSelector({ themeId, setThemeId, customTh
               <div className="text-[8.5px] tracking-[0.14em] uppercase text-[rgba(180,160,220,0.42)] mb-[6px]" style={{ fontFamily: "'Cinzel', serif" }}>Middle Ring</div>
               <div className="flex gap-[6px] mb-[6px]">
                 <div className="w-[30px] h-[30px] rounded-[7px] cursor-pointer border-[2px] border-[rgba(255,255,255,0.15)] transition-transform duration-200 hover:scale-110 overflow-hidden relative" style={{ background: customTheme.middleBg }}>
-                  <input type="color" value={customTheme.middleBg} onChange={e => handleCustomThemeChange({ middleBg: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Background" />
+                  <input type="color" value={safeHex(customTheme.middleBg)} onChange={e => handleCustomThemeChange({ middleBg: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Background" />
                 </div>
                 <div className="w-[30px] h-[30px] rounded-[7px] cursor-pointer border-[2px] border-[rgba(255,255,255,0.15)] transition-transform duration-200 hover:scale-110 overflow-hidden relative" style={{ background: customTheme.middleGrad }}>
-                  <input type="color" value={customTheme.middleGrad} onChange={e => handleCustomThemeChange({ middleGrad: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Gradient" />
+                  <input type="color" value={safeHex(customTheme.middleGrad)} onChange={e => handleCustomThemeChange({ middleGrad: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Gradient" />
                 </div>
               </div>
               <input 
@@ -85,10 +106,10 @@ export default function SpiritWheelThemeSelector({ themeId, setThemeId, customTh
               <div className="text-[8.5px] tracking-[0.14em] uppercase text-[rgba(180,160,220,0.42)] mb-[6px]" style={{ fontFamily: "'Cinzel', serif" }}>Inner Ring</div>
               <div className="flex gap-[6px] mb-[6px]">
                 <div className="w-[30px] h-[30px] rounded-[7px] cursor-pointer border-[2px] border-[rgba(255,255,255,0.15)] transition-transform duration-200 hover:scale-110 overflow-hidden relative" style={{ background: customTheme.innerBg }}>
-                  <input type="color" value={customTheme.innerBg} onChange={e => handleCustomThemeChange({ innerBg: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Background" />
+                  <input type="color" value={safeHex(customTheme.innerBg)} onChange={e => handleCustomThemeChange({ innerBg: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Background" />
                 </div>
                 <div className="w-[30px] h-[30px] rounded-[7px] cursor-pointer border-[2px] border-[rgba(255,255,255,0.15)] transition-transform duration-200 hover:scale-110 overflow-hidden relative" style={{ background: customTheme.innerGrad }}>
-                  <input type="color" value={customTheme.innerGrad} onChange={e => handleCustomThemeChange({ innerGrad: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Gradient" />
+                  <input type="color" value={safeHex(customTheme.innerGrad)} onChange={e => handleCustomThemeChange({ innerGrad: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Gradient" />
                 </div>
               </div>
               <input 
@@ -103,10 +124,10 @@ export default function SpiritWheelThemeSelector({ themeId, setThemeId, customTh
               <div className="text-[8.5px] tracking-[0.14em] uppercase text-[rgba(180,160,220,0.42)] mb-[6px]" style={{ fontFamily: "'Cinzel', serif" }}>Text & Dots</div>
               <div className="flex gap-[6px] mb-[6px]">
                 <div className="w-[30px] h-[30px] rounded-[7px] cursor-pointer border-[2px] border-[rgba(255,255,255,0.15)] transition-transform duration-200 hover:scale-110 overflow-hidden relative" style={{ background: customTheme.textOuter || "#2a1505" }}>
-                  <input type="color" value={customTheme.textOuter || "#2a1505"} onChange={e => handleCustomThemeChange({ textOuter: e.target.value, textMiddle: e.target.value, textInner: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Text Color" />
+                  <input type="color" value={safeHex(customTheme.textOuter || "#2a1505")} onChange={e => handleCustomThemeChange({ textOuter: e.target.value, textMiddle: e.target.value, textInner: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Text Color" />
                 </div>
                 <div className="w-[30px] h-[30px] rounded-[7px] cursor-pointer border-[2px] border-[rgba(255,255,255,0.15)] transition-transform duration-200 hover:scale-110 overflow-hidden relative" style={{ background: customTheme.pin || "#f5f5f5" }}>
-                  <input type="color" value={customTheme.pin || "#f5f5f5"} onChange={e => handleCustomThemeChange({ pin: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Pin Color" />
+                  <input type="color" value={safeHex(customTheme.pin || "#f5f5f5")} onChange={e => handleCustomThemeChange({ pin: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Pin Color" />
                 </div>
               </div>
             </div>
@@ -114,7 +135,7 @@ export default function SpiritWheelThemeSelector({ themeId, setThemeId, customTh
 
           <div className="flex items-center gap-[8px] mt-[4px]">
              <div className="w-[32px] h-[32px] rounded-[7px] cursor-pointer bg-[#2a1505] border-[2px] border-[rgba(201,168,76,0.2)] overflow-hidden relative" style={{ background: customTheme.outerBorder || "#2a1505" }}>
-                <input type="color" value={customTheme.outerBorder || "#2a1505"} onChange={e => handleCustomThemeChange({ outerBorder: e.target.value, middleBorder: e.target.value, innerBorder: e.target.value, hubBorder: e.target.value, divider: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Border Color" />
+                <input type="color" value={safeHex(customTheme.outerBorder || "#2a1505")} onChange={e => handleCustomThemeChange({ outerBorder: e.target.value, middleBorder: e.target.value, innerBorder: e.target.value, hubBorder: e.target.value, divider: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Border Color" />
              </div>
              <input 
                type="number" min="0" max="20" 
@@ -138,7 +159,7 @@ export default function SpiritWheelThemeSelector({ themeId, setThemeId, customTh
              <div>
                 <div className="text-[9px] tracking-[0.18em] uppercase text-[rgba(180,160,220,0.42)] mb-[4px]" style={{ fontFamily: "'Cinzel', serif" }}>Page Bg</div>
                 <div className="w-[32px] h-[32px] rounded-[7px] cursor-pointer border-[2px] border-[rgba(255,255,255,0.15)] overflow-hidden relative" style={{ background: customTheme.pageBg || "#0d0e1a" }}>
-                  <input type="color" value={customTheme.pageBg || "#0f172a"} onChange={e => handleCustomThemeChange({ pageBg: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Page Background Color" />
+                  <input type="color" value={safeHex(customTheme.pageBg || "#0f172a")} onChange={e => handleCustomThemeChange({ pageBg: e.target.value})} className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer" title="Page Background Color" />
                 </div>
              </div>
           </div>
