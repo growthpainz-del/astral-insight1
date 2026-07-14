@@ -949,8 +949,43 @@ export default function SpiritWheelDesigner() {
 
     const newDesc = parsed.description !== undefined ? parsed.description : description;
     const newDeckId = parsed.deck_id || (deckId !== "none" ? deckId : "none");
-    const newThemeId = parsed.theme_id || themeId;
-    const newCustomTheme = parsed.custom_theme && typeof parsed.custom_theme === 'object' ? { ...customTheme, ...parsed.custom_theme } : customTheme;
+    
+    // Extract visual theme elements
+    let incomingCustom = {};
+    if (parsed.custom_theme && typeof parsed.custom_theme === 'object') Object.assign(incomingCustom, parsed.custom_theme);
+    if (parsed.theme && typeof parsed.theme === 'object') Object.assign(incomingCustom, parsed.theme);
+    if (parsed.colors && typeof parsed.colors === 'object') Object.assign(incomingCustom, parsed.colors);
+    if (parsed.textures && typeof parsed.textures === 'object') Object.assign(incomingCustom, parsed.textures);
+    if (parsed.lines && typeof parsed.lines === 'object') Object.assign(incomingCustom, parsed.lines);
+    
+    // Map common AI-guessed schema fields
+    if (parsed.ring_borders) {
+       if (parsed.ring_borders.color) incomingCustom.outerBorder = parsed.ring_borders.color;
+       if (parsed.ring_borders.thickness) incomingCustom.borderThickness = parsed.ring_borders.thickness;
+    }
+    if (parsed.texture_layers) {
+       if (parsed.texture_layers.outer) incomingCustom.outerTextureUrl = parsed.texture_layers.outer;
+       if (parsed.texture_layers.middle) incomingCustom.middleTextureUrl = parsed.texture_layers.middle;
+       if (parsed.texture_layers.inner) incomingCustom.innerTextureUrl = parsed.texture_layers.inner;
+    }
+    if (parsed.center && parsed.center.image_url) {
+       incomingCustom.centerImage = parsed.center.image_url;
+    }
+    
+    // Catch top-level customTheme fields
+    const possibleKeys = ["outerBg", "outerGrad", "outerTextureUrl", "middleBg", "middleGrad", "middleTextureUrl", "innerBg", "innerGrad", "innerTextureUrl", "borderThickness", "borderColor", "borderStyle", "outerBorder", "textColor", "fontFamily", "pageBg", "pageBgImage", "centerImage", "blendMode"];
+    for (const k of possibleKeys) {
+      if (parsed[k] !== undefined) incomingCustom[k] = parsed[k];
+    }
+    
+    const newCustomTheme = Object.keys(incomingCustom).length > 0 ? { ...customTheme, ...incomingCustom } : customTheme;
+    
+    // Automatically switch to custom theme mode if custom styling is detected
+    let newThemeId = parsed.theme_id || themeId;
+    if (Object.keys(incomingCustom).length > 0 && (!parsed.theme_id || parsed.theme_id === "wood")) {
+      newThemeId = "custom";
+    }
+
     const newPubStatus = parsed.publish_status || publishStatus;
     const newIsPublic = parsed.is_public !== undefined ? parsed.is_public : isPublic;
     
