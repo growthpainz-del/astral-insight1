@@ -920,33 +920,83 @@ export default function SpiritWheelDesigner() {
     URL.revokeObjectURL(url);
   };
 
-  const applyImportedJson = (parsed) => {
-    if (parsed.name !== undefined) setName(parsed.name);
-    if (parsed.description !== undefined) setDescription(parsed.description);
-    setDeckId(parsed.deck_id || "none");
-    if (parsed.theme_id) setThemeId(parsed.theme_id);
-    if (parsed.custom_theme) {
-      setCustomTheme(prev => ({ ...prev, ...parsed.custom_theme }));
+  const applyImportedJson = async (parsed) => {
+    let newName = parsed.name !== undefined ? parsed.name : (name || "Imported Wheel");
+    let newOuter = Array.isArray(parsed.outer_ring) ? parsed.outer_ring : outerRing;
+    
+    // If user pasted just an array of segments instead of a full wheel config
+    if (Array.isArray(parsed)) {
+      newOuter = parsed;
+      newName = newName === "Imported Wheel" ? "Imported Segments Wheel" : newName;
     }
-    if (parsed.publish_status) setPublishStatus(parsed.publish_status);
-    if (parsed.is_public !== undefined) setIsPublic(parsed.is_public);
 
-    if (Array.isArray(parsed.outer_ring)) setOuterRing(parsed.outer_ring);
-    if (Array.isArray(parsed.outer2_ring)) setOuter2Ring(parsed.outer2_ring);
-    if (Array.isArray(parsed.middle_ring)) setMiddleRing(parsed.middle_ring);
-    if (Array.isArray(parsed.inner_ring)) setInnerRing(parsed.inner_ring);
+    const newDesc = parsed.description !== undefined ? parsed.description : description;
+    const newDeckId = parsed.deck_id || (deckId !== "none" ? deckId : "none");
+    const newThemeId = parsed.theme_id || themeId;
+    const newCustomTheme = parsed.custom_theme ? { ...customTheme, ...parsed.custom_theme } : customTheme;
+    const newPubStatus = parsed.publish_status || publishStatus;
+    const newIsPublic = parsed.is_public !== undefined ? parsed.is_public : isPublic;
+    
+    const newOuter2 = Array.isArray(parsed.outer2_ring) ? parsed.outer2_ring : outer2Ring;
+    const newMiddle = Array.isArray(parsed.middle_ring) ? parsed.middle_ring : middleRing;
+    const newInner = Array.isArray(parsed.inner_ring) ? parsed.inner_ring : innerRing;
 
-    setShowJsonPanel(false);
-    setJsonImportText("");
+    setName(newName);
+    setDescription(newDesc);
+    setDeckId(newDeckId);
+    setThemeId(newThemeId);
+    setCustomTheme(newCustomTheme);
+    setPublishStatus(newPubStatus);
+    setIsPublic(newIsPublic);
+    setOuterRing(newOuter);
+    setOuter2Ring(newOuter2);
+    setMiddleRing(newMiddle);
+    setInnerRing(newInner);
+
+    const cleanSegments = (ring) => ring.map(s => ({
+      ...s,
+      label: s.label || "Untitled",
+      meaning: s.meaning || "No meaning provided"
+    }));
+
+    const dataToSave = {
+      name: newName || "Untitled Wheel",
+      description: newDesc,
+      deck_id: newDeckId !== "none" ? newDeckId : null,
+      theme_id: newThemeId,
+      custom_theme: newCustomTheme,
+      is_public: newIsPublic,
+      publish_status: newPubStatus,
+      outer_ring: cleanSegments(newOuter),
+      outer2_ring: cleanSegments(newOuter2),
+      middle_ring: cleanSegments(newMiddle),
+      inner_ring: cleanSegments(newInner),
+    };
+
+    try {
+      setIsSaving(true);
+      if (editId) {
+        await base44.entities.SpiritWheelConfiguration.update(editId, dataToSave);
+      } else {
+        const created = await base44.entities.SpiritWheelConfiguration.create(dataToSave);
+        navigate(`${createPageUrl("SpiritWheelDesigner")}?id=${created.id}`, { replace: true });
+      }
+      setShowJsonPanel(false);
+      setJsonImportText("");
+    } catch (err) {
+      setJsonError("Imported to fields, but auto-save failed: " + err.message);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleImportJson = () => {
+  const handleImportJson = async () => {
     setJsonError("");
     try {
       const text = jsonImportText.trim().replace(/[\u201C\u201D]/g, '"').replace(/[\u2018\u2019]/g, "'");
       if (!text) throw new Error("JSON cannot be empty");
       const parsed = JSON.parse(text);
-      applyImportedJson(parsed);
+      await applyImportedJson(parsed);
     } catch (e) {
       setJsonError("Invalid JSON: " + e.message);
     }
@@ -956,11 +1006,11 @@ export default function SpiritWheelDesigner() {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (event) => {
+    reader.onload = async (event) => {
       try {
         const text = event.target.result.trim().replace(/[\u201C\u201D]/g, '"').replace(/[\u2018\u2019]/g, "'");
         const parsed = JSON.parse(text);
-        applyImportedJson(parsed);
+        await applyImportedJson(parsed);
       } catch (err) {
         alert("Invalid JSON file: " + err.message);
       }
