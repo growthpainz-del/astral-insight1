@@ -211,6 +211,12 @@ const AuthenticatedApp = () => {
         }
       />
       <Route
+        path="/SpiritWheelDesigner/*"
+        element={
+          <AdminRoute Page={SpiritWheelDesigner} pageName="SpiritWheelDesigner" user={user} />
+        }
+      />
+      <Route
         path="/ReadingSetup"
         element={
           <LayoutWrapper currentPageName="ReadingSetup">
