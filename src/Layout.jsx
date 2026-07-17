@@ -183,13 +183,17 @@ export default function Layout({ children, currentPageName }) {
       pathname === "/login" ||
       pathname.startsWith("/login") ||
       pathname.includes("/auth");
+    
+    // Exempt the landing page and reading room from the hard login redirect
+    const isPublicRoute = pathname === "/" || pathname === "" || pathname === "/readingroom" || pathname === "/reading";
 
     if (
       !inBuilderPreview &&
       !isLoading &&
       !user &&
       !redirectingToLogin &&
-      !isLoginRoute
+      !isLoginRoute &&
+      !isPublicRoute
     ) {
       setRedirectingToLogin(true);
       try {
@@ -294,20 +298,7 @@ export default function Layout({ children, currentPageName }) {
     applyTheme(newT);
   };
 
-  // Redirect "/" to CosmicHub
-  useEffect(() => {
-    try {
-      if (
-        window.location.pathname === "/" ||
-        window.location.pathname === ""
-      ) {
-        navigate({
-          pathname: createPageUrl("CosmicHub"),
-          search: window.location.search
-        }, { replace: true });
-      }
-    } catch (_) {}
-  }, [navigate]);
+  // Removed automatic "/" to CosmicHub redirect to allow the public Landing page to display
 
   // Redirect non-admins away from AIWorkspace
   useEffect(() => {
@@ -426,7 +417,7 @@ export default function Layout({ children, currentPageName }) {
     );
   }
 
-  if (currentPageName === "CosmicHub") {
+  if (currentPageName === "Landing" || currentPageName === "CosmicHub") {
     return (
       <div className="bg-gray-900 text-white min-h-screen">
         <NetworkBanner />

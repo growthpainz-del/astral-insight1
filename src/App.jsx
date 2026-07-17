@@ -22,6 +22,7 @@ import SpiritWheelDesigner from './pages/SpiritWheelDesigner'
 import DashboardHub from './pages/DashboardHub'
 import ReadingSetup from './pages/ReadingSetup'
 import ReadingSimple from './pages/ReadingSimple'
+import Landing from './pages/Landing'
 
 const { Pages, Layout, mainPage } = pagesConfig
 
@@ -107,8 +108,8 @@ const AuthenticatedApp = () => {
       <Route
         path="/"
         element={
-          <LayoutWrapper currentPageName={mainPageKey}>
-            {MainPage && <MainPage />}
+          <LayoutWrapper currentPageName="Landing">
+            <Landing />
           </LayoutWrapper>
         }
       />
