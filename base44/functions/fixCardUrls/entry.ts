@@ -5,6 +5,15 @@ function delay(ms) { return new Promise(res => setTimeout(res, ms)); }
 Deno.serve(async (req) => {
     try {
         const base44 = createClientFromRequest(req);
+        
+        const user = await base44.auth.me();
+        if (!user) {
+            return Response.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+        if (user.role !== 'admin') {
+            return Response.json({ error: 'Forbidden: Admins only' }, { status: 403 });
+        }
+        
         let cardUpdatedCount = 0;
         
         // fetch all decks to get all their cards

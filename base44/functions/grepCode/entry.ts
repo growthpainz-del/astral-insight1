@@ -4,6 +4,15 @@ import { walk } from "https://deno.land/std@0.188.0/fs/walk.ts";
 
 Deno.serve(async (req) => {
     try {
+        const base44 = createClientFromRequest(req);
+        const user = await base44.auth.me();
+        if (!user) {
+            return Response.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+        if (user.role !== 'admin') {
+            return Response.json({ error: 'Forbidden: Admins only' }, { status: 403 });
+        }
+        
         const results = [];
         for await (const entry of walk(".", { exts: [".js", ".jsx", ".ts", ".tsx"], skip: [/node_modules/] })) {
             if (entry.isFile) {
