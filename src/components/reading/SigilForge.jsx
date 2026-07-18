@@ -38,7 +38,8 @@ export default function SigilForge() {
   const [symmetry, setSymmetry] = useState(2); // 1, 2, 4, 8
   const [brushOpacity, setBrushOpacity] = useState(100);
 
-  const [strokes, setStrokes] = useState([]);
+  const [strokesState, setStrokesState] = useState([]);
+  const strokesRef = useRef([]);
   const currentStrokeRef = useRef(null);
 
   const [isForging, setIsForging] = useState(false);
@@ -122,8 +123,8 @@ export default function SigilForge() {
       ctx.restore();
     };
 
-    if (Array.isArray(strokes)) {
-      strokes.forEach(s => {
+    if (Array.isArray(strokesRef.current)) {
+      strokesRef.current.forEach(s => {
         drawStroke(dctx, s);
         drawSymmetries(mctx, s);
       });
@@ -139,7 +140,7 @@ export default function SigilForge() {
 
   useEffect(() => {
     redrawAll();
-  }, [strokes, symmetry, paletteId, stoneTexture, texMirror]);
+  }, [strokesState, symmetry, paletteId, stoneTexture, texMirror]);
 
   useEffect(() => {
     const W = 160, H = 180;
@@ -185,8 +186,8 @@ export default function SigilForge() {
       return `<path d="${d}" stroke="${stroke.color}" stroke-width="${stroke.size}" opacity="${stroke.opacity}" />`;
     };
 
-    if (Array.isArray(strokes)) {
-      strokes.forEach(stroke => {
+    if (Array.isArray(strokesRef.current)) {
+      strokesRef.current.forEach(stroke => {
         svg += renderStroke(stroke);
         if (symmetry >= 2) {
           svg += `<g transform="translate(${W}, 0) scale(-1, 1)">${renderStroke(stroke)}</g>`;
@@ -238,19 +239,23 @@ export default function SigilForge() {
     if (!isDrawingRef.current) return;
     isDrawingRef.current = false;
     if (currentStrokeRef.current && currentStrokeRef.current.points.length > 0) {
-      setStrokes(prev => [...prev, currentStrokeRef.current]);
-    } else {
-      redrawAll();
+      const next = [...strokesRef.current, currentStrokeRef.current];
+      strokesRef.current = next;
+      setStrokesState(next);
     }
     currentStrokeRef.current = null;
+    redrawAll();
   };
 
   const undoLast = () => {
-    setStrokes(prev => prev.slice(0, -1));
+    const next = strokesRef.current.slice(0, -1);
+    strokesRef.current = next;
+    setStrokesState(next);
   };
 
   const clearCanvas = () => {
-    setStrokes([]);
+    strokesRef.current = [];
+    setStrokesState([]);
     setSymbolName("");
     setOracleReading("");
     setErrorMsg("");
@@ -545,7 +550,7 @@ CRITICAL RULES FOR VARIETY:
             <button className={`v-btn ${symmetry === 4 ? 'active' : ''}`} onClick={() => setSymmetry(4)}>Quad</button>
             <button className={`v-btn ${symmetry === 8 ? 'active' : ''}`} onClick={() => setSymmetry(8)}>Mandala</button>
             <div className="flex-1"></div>
-            <button className="v-btn" onClick={undoLast} disabled={strokes.length === 0}>Undo</button>
+            <button className="v-btn" onClick={undoLast} disabled={strokesState.length === 0}>Undo</button>
             <button className="v-btn" onClick={clearCanvas}>Clear</button>
           </div>
         </div>
