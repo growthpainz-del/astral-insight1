@@ -58,6 +58,7 @@ export default function SpiritWheelThemeSelector({ themeId, setThemeId, customTh
           <option value="stone_led" style={{ background: "#160f2a" }}>Stone + LED</option>
           <option value="metatron" style={{ background: "#160f2a" }}>Sacred Geometry</option>
           <option value="runic_large" style={{ background: "#160f2a" }}>Runic (Large Symbols)</option>
+          <option value="floating_symbols" style={{ background: "#160f2a" }}>Floating Symbols</option>
           <option value="custom" style={{ background: "#160f2a" }}>Custom Build...</option>
         </select>
       </div>

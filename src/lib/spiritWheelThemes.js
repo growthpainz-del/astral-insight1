@@ -86,6 +86,18 @@ export const WHEEL_THEMES = {
     fontFamily: 'serif',
     symbolScale: 0.8
   },
+  floating_symbols: {
+    name: "Floating Symbols",
+    outerBg: "rgba(0,0,0,0)", outerGrad: "rgba(0,0,0,0)", outerBorder: "rgba(0,0,0,0)",
+    middleBg: "rgba(0,0,0,0)", middleGrad: "rgba(0,0,0,0)", middleBorder: "rgba(0,0,0,0)",
+    innerBg: "rgba(0,0,0,0)", innerGrad: "rgba(0,0,0,0)", innerBorder: "rgba(0,0,0,0)",
+    hubBorder: "rgba(0,0,0,0)", hubBg: "rgba(0,0,0,0)",
+    textOuter: "#c9a84c", textMiddle: "#c9a84c", textInner: "#c9a84c",
+    divider: "rgba(0,0,0,0)", pin: "#c9a84c",
+    textureUrl: "",
+    fontFamily: 'serif',
+    symbolScale: 0.85
+  },
   custom: {
     name: "Custom Build"
   }
