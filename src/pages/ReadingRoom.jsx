@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
-import { Sparkles, AlertCircle, RotateCcw } from "lucide-react";
+import { Sparkles, AlertCircle, RotateCcw, X, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { queueApiCall } from "@/components/utils/apiQueue";
 import PullToRefresh from "@/components/common/PullToRefresh";
@@ -16,6 +16,25 @@ export default function ReadingRoom() {
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState(null);
   const [error, setError] = useState("");
+  const [connectingReader, setConnectingReader] = useState(null);
+  const [liveSessionUrl, setLiveSessionUrl] = useState(null);
+
+  const handleConnectLive = async (reader) => {
+    if (reader.status !== 'Online') return;
+    try {
+      setConnectingReader(reader.name);
+      const res = await base44.functions.invoke('createLiveRoom', {});
+      if (res.data?.roomUrl) {
+        setLiveSessionUrl(res.data.roomUrl);
+      } else {
+        alert('Failed to connect: ' + JSON.stringify(res.data || res.error || res));
+      }
+    } catch (e) {
+      alert('Error starting live session: ' + e.message);
+    } finally {
+      setConnectingReader(null);
+    }
+  };
 
   const loadData = async () => {
     try {
@@ -154,16 +173,39 @@ export default function ReadingRoom() {
                 <span className="text-sm font-medium text-purple-200">{reader.price}</span>
                 <Button 
                   size="sm" 
-                  disabled={reader.status === 'Offline'}
+                  disabled={reader.status === 'Offline' || connectingReader === reader.name}
+                  onClick={() => handleConnectLive(reader)}
                   className={`rounded-full px-5 text-xs tracking-wider uppercase font-semibold ${reader.status === 'Online' ? 'bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 text-white border-0' : 'bg-white/5 text-white/40'}`}
                 >
-                  {reader.status === 'Online' ? 'Connect Live' : reader.status === 'Busy' ? 'Join Queue' : 'Offline'}
+                  {connectingReader === reader.name ? 'Connecting...' : reader.status === 'Online' ? 'Connect Live' : reader.status === 'Busy' ? 'Join Queue' : 'Offline'}
                 </Button>
               </div>
             </div>
           ))}
         </div>
       </div>
+
+      {/* Live Video Session Overlay */}
+      {liveSessionUrl && (
+        <div className="fixed inset-0 z-[200] bg-[#07050f] flex flex-col animate-in fade-in duration-300">
+          <div className="flex items-center justify-between p-4 border-b border-[#a078ff]/15 bg-[#1a0f35]/80 backdrop-blur-md">
+            <div className="flex items-center gap-3">
+              <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.6)]"></div>
+              <span className="font-bold tracking-widest uppercase text-sm text-purple-100" style={{ fontFamily: "'Cinzel', serif" }}>
+                Live Reading in Progress
+              </span>
+            </div>
+            <Button variant="ghost" className="text-purple-300 hover:text-white hover:bg-red-900/50 rounded-full" onClick={() => setLiveSessionUrl(null)}>
+              <X className="w-5 h-5 mr-2" /> End Session
+            </Button>
+          </div>
+          <iframe 
+            src={liveSessionUrl} 
+            allow="camera; microphone; fullscreen; speaker; display-capture" 
+            className="flex-1 w-full border-0 bg-black"
+          />
+        </div>
+      )}
 
           </div>
           </PullToRefresh>
