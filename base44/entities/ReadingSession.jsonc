@@ -18,6 +18,14 @@
       "type": "string",
       "description": "e.g. 'celtic_cross', 'spirit_wheel_3ring'"
     },
+    "room_url": {
+      "type": "string",
+      "description": "Whereby room URL for the client"
+    },
+    "host_room_url": {
+      "type": "string",
+      "description": "Whereby room URL for the host"
+    },
     "status": {
       "type": "string",
       "enum": [

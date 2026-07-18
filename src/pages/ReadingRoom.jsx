@@ -18,19 +18,47 @@ export default function ReadingRoom() {
   const [error, setError] = useState("");
   const [connectingReader, setConnectingReader] = useState(null);
   const [liveSessionUrl, setLiveSessionUrl] = useState(null);
+  const [joinInput, setJoinInput] = useState("");
+  const [hostedToken, setHostedToken] = useState("");
 
-  const handleConnectLive = async (reader) => {
-    if (reader.status !== 'Online') return;
+  const createHostSession = async () => {
+    setConnectingReader('creating');
     try {
-      setConnectingReader(reader.name);
       const res = await base44.functions.invoke('createLiveRoom', {});
       if (res.data?.roomUrl) {
-        setLiveSessionUrl(res.data.roomUrl);
+        const token = Math.random().toString(36).substring(2, 8).toUpperCase();
+        await base44.entities.ReadingSession.create({
+          reader_id: currentUser?.id || "guest",
+          invite_token: token,
+          spread_type: 'live_video',
+          status: 'active',
+          room_url: res.data.roomUrl,
+          host_room_url: res.data.hostRoomUrl
+        });
+        setHostedToken(token);
+        setLiveSessionUrl(res.data.hostRoomUrl);
       } else {
-        alert('Failed to connect: ' + JSON.stringify(res.data || res.error || res));
+        alert('Failed to create room: ' + JSON.stringify(res.data || res.error || res));
       }
     } catch (e) {
-      alert('Error starting live session: ' + e.message);
+      alert('Error creating live session: ' + e.message);
+    } finally {
+      setConnectingReader(null);
+    }
+  };
+
+  const joinSession = async () => {
+    if (!joinInput.trim()) return;
+    setConnectingReader('joining');
+    try {
+      const sessions = await base44.entities.ReadingSession.filter({ invite_token: joinInput.trim().toUpperCase() });
+      if (sessions && sessions.length > 0) {
+        setLiveSessionUrl(sessions[0].room_url);
+      } else {
+        alert("Invalid invite code. Please check and try again.");
+      }
+    } catch(e) {
+       alert("Error joining session: " + e.message);
     } finally {
       setConnectingReader(null);
     }
@@ -135,53 +163,78 @@ export default function ReadingRoom() {
         }} 
       />
 
-      {/* Live Professional Reads (Supposed Integration) */}
+      {/* Live Video Readings Section */}
       <div className="max-w-6xl mx-auto px-[18px] py-12 border-t border-[#a078ff]/15 mt-8">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h2 className="text-xl font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-cyan-300 mb-2" style={{ fontFamily: "'Cinzel', serif" }}>
-              Live Professional Readers
-            </h2>
-            <p className="text-sm text-purple-200/60">Connect with experienced oracles for a 1-on-1 live session.</p>
-          </div>
-          <Button variant="outline" className="border-purple-500/30 text-purple-300 hover:bg-purple-900/40 rounded-full text-xs tracking-wider uppercase">
-            View All
-          </Button>
+        <div className="text-center mb-8">
+          <h2 className="text-2xl font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-cyan-300 mb-2" style={{ fontFamily: "'Cinzel', serif" }}>
+            Live 1-on-1 Readings
+          </h2>
+          <p className="text-sm text-purple-200/60 max-w-xl mx-auto">Connect directly in a private live video space. Host a reading for a client, or join an existing session using an invite code.</p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {[
-            { name: "Sister Solstice", specialty: "Astrology & Tarot", status: "Online", rating: "4.9 (120)", price: "$2.99/min", img: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/c2f7036a0_GuardianofIn_Essence.JPEG" },
-            { name: "Orion The Seer", specialty: "Spirit Wheel & Runes", status: "Busy", rating: "5.0 (84)", price: "$3.50/min", img: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/267d3a013_TheSilentObserver.JPEG" },
-            { name: "Lyra Moon", specialty: "Shadow Work & Dreams", status: "Offline", rating: "4.8 (215)", price: "$2.50/min", img: "https://media.base44.com/images/public/68d2a300021f94d0f312c039/8470a7550_LunaDuala.JPEG" },
-          ].map((reader, idx) => (
-            <div key={idx} className="bg-gradient-to-b from-[#1a0f35]/80 to-[#0a0618]/80 border border-[#a078ff]/20 rounded-2xl p-5 hover:border-cyan-400/40 transition-colors group">
-              <div className="flex gap-4 items-start mb-4">
-                <div className="relative">
-                  <img src={reader.img} alt={reader.name} className="w-16 h-16 rounded-full object-cover border-2 border-purple-500/30" />
-                  <div className={`absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-[#0a0618] ${reader.status === 'Online' ? 'bg-green-500' : reader.status === 'Busy' ? 'bg-amber-500' : 'bg-gray-500'}`}></div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          {/* Join Session Card */}
+          <div className="bg-gradient-to-b from-[#1a0f35]/80 to-[#0a0618]/80 border border-[#a078ff]/30 rounded-2xl p-6 md:p-8 hover:border-cyan-400/50 transition-all flex flex-col justify-between">
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-3 rounded-full bg-cyan-500/20 text-cyan-300">
+                  <Video className="w-6 h-6" />
                 </div>
-                <div>
-                  <h3 className="font-semibold text-purple-100 tracking-wide" style={{ fontFamily: "'Cinzel', serif" }}>{reader.name}</h3>
-                  <p className="text-xs text-cyan-300/80 mb-1">{reader.specialty}</p>
-                  <div className="flex items-center gap-1 text-xs text-amber-200/80">
-                    <Sparkles className="w-3 h-3" /> {reader.rating}
-                  </div>
-                </div>
+                <h3 className="text-xl font-bold text-white font-['Cinzel'] tracking-wide">Join a Session</h3>
               </div>
-              <div className="flex items-center justify-between mt-4 pt-4 border-t border-purple-800/20">
-                <span className="text-sm font-medium text-purple-200">{reader.price}</span>
-                <Button 
-                  size="sm" 
-                  disabled={reader.status === 'Offline' || connectingReader === reader.name}
-                  onClick={() => handleConnectLive(reader)}
-                  className={`rounded-full px-5 text-xs tracking-wider uppercase font-semibold ${reader.status === 'Online' ? 'bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 text-white border-0' : 'bg-white/5 text-white/40'}`}
-                >
-                  {connectingReader === reader.name ? 'Connecting...' : reader.status === 'Online' ? 'Connect Live' : reader.status === 'Busy' ? 'Join Queue' : 'Offline'}
-                </Button>
-              </div>
+              <p className="text-sm text-purple-200/70 mb-6 leading-relaxed">
+                Have an invite code from your reader? Enter it below to join your private video reading immediately.
+              </p>
             </div>
-          ))}
+            
+            <div className="space-y-4">
+              <input 
+                type="text" 
+                placeholder="Enter Invite Code (e.g. AB12CD)" 
+                value={joinInput}
+                onChange={(e) => setJoinInput(e.target.value.toUpperCase())}
+                className="w-full bg-[#07050f] border border-purple-500/40 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-cyan-400 text-center tracking-widest font-mono"
+              />
+              <Button 
+                onClick={joinSession} 
+                disabled={!joinInput.trim() || connectingReader === 'joining'}
+                className="w-full rounded-xl bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white font-bold tracking-wider uppercase py-6"
+              >
+                {connectingReader === 'joining' ? 'Joining...' : 'Join Reading'}
+              </Button>
+            </div>
+          </div>
+
+          {/* Host Session Card */}
+          <div className="bg-gradient-to-b from-[#1a0f35]/80 to-[#0a0618]/80 border border-[#a078ff]/30 rounded-2xl p-6 md:p-8 hover:border-purple-400/50 transition-all flex flex-col justify-between">
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-3 rounded-full bg-purple-500/20 text-purple-300">
+                  <Sparkles className="w-6 h-6" />
+                </div>
+                <h3 className="text-xl font-bold text-white font-['Cinzel'] tracking-wide">Host a Session</h3>
+              </div>
+              <p className="text-sm text-purple-200/70 mb-6 leading-relaxed">
+                Are you an oracle or reader? Generate an instant live session room and share the invite code with your client.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              {hostedToken && (
+                <div className="bg-purple-900/40 border border-purple-500/50 rounded-xl p-4 text-center">
+                  <p className="text-xs text-purple-200 uppercase tracking-widest mb-2">Your Invite Code</p>
+                  <p className="text-2xl font-bold text-white tracking-widest font-mono select-all">{hostedToken}</p>
+                </div>
+              )}
+              <Button 
+                onClick={createHostSession} 
+                disabled={connectingReader === 'creating'}
+                className="w-full rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold tracking-wider uppercase py-6"
+              >
+                {connectingReader === 'creating' ? 'Creating Room...' : hostedToken ? 'Re-open Room' : 'Start Hosting'}
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
 
