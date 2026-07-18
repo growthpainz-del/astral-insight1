@@ -83,13 +83,15 @@ export default function SigilForge() {
     dctx.stroke();
 
     const drawStroke = (ctx, stroke) => {
-      if (!stroke.points || !stroke.points.length) return;
+      if (!stroke || !stroke.points || !stroke.points.length) return;
       ctx.beginPath();
-      ctx.moveTo(stroke.points[0].x, stroke.points[0].y);
-      for(let i=1; i<stroke.points.length; i++) ctx.lineTo(stroke.points[i].x, stroke.points[i].y);
-      ctx.strokeStyle = stroke.color;
-      ctx.lineWidth = stroke.size;
-      ctx.globalAlpha = stroke.opacity;
+      ctx.moveTo(stroke.points[0].x || 0, stroke.points[0].y || 0);
+      for(let i=1; i<stroke.points.length; i++) {
+        if(stroke.points[i]) ctx.lineTo(stroke.points[i].x || 0, stroke.points[i].y || 0);
+      }
+      ctx.strokeStyle = stroke.color || '#fff';
+      ctx.lineWidth = stroke.size || 5;
+      ctx.globalAlpha = stroke.opacity !== undefined ? stroke.opacity : 1;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       ctx.stroke();
@@ -106,21 +108,23 @@ export default function SigilForge() {
         ctx.save(); ctx.translate(W, H); ctx.scale(-1, -1); drawStroke(ctx, stroke); ctx.restore();
       }
       if (symmetry >= 8) {
-        for (let angle of [90, 180, 270]) {
+        [90, 180, 270].forEach(angle => {
           ctx.save();
           ctx.translate(cx, cy); ctx.rotate(angle * Math.PI / 180); ctx.translate(-cx, -cy);
           drawStroke(ctx, stroke);
           ctx.save(); ctx.translate(W, 0); ctx.scale(-1, 1); drawStroke(ctx, stroke); ctx.restore();
           ctx.restore();
-        }
+        });
       }
       ctx.restore();
     };
 
-    strokes.forEach(s => {
-      drawStroke(dctx, s);
-      drawSymmetries(mctx, s);
-    });
+    if (Array.isArray(strokes)) {
+      strokes.forEach(s => {
+        drawStroke(dctx, s);
+        drawSymmetries(mctx, s);
+      });
+    }
     
     if (currentStrokeRef.current) {
       drawStroke(dctx, currentStrokeRef.current);
@@ -149,11 +153,14 @@ export default function SigilForge() {
     const rect = canvas.getBoundingClientRect();
     const sx = canvas.width / rect.width;
     const sy = canvas.height / rect.height;
-    let clientX, clientY;
+    let clientX = 0, clientY = 0;
     if (e.touches && e.touches.length > 0) {
       clientX = e.touches[0].clientX;
       clientY = e.touches[0].clientY;
-    } else {
+    } else if (e.changedTouches && e.changedTouches.length > 0) {
+      clientX = e.changedTouches[0].clientX;
+      clientY = e.changedTouches[0].clientY;
+    } else if (e.clientX !== undefined) {
       clientX = e.clientX;
       clientY = e.clientY;
     }
@@ -167,32 +174,34 @@ export default function SigilForge() {
     svg += `<g stroke-linecap="round" stroke-linejoin="round" fill="none">`;
     
     const renderStroke = (stroke) => {
-      if (!stroke.points || !stroke.points.length) return '';
-      let d = `M ${stroke.points[0].x.toFixed(2)} ${stroke.points[0].y.toFixed(2)}`;
+      if (!stroke || !stroke.points || !stroke.points.length) return '';
+      let d = `M ${(stroke.points[0].x || 0).toFixed(2)} ${(stroke.points[0].y || 0).toFixed(2)}`;
       for (let i=1; i<stroke.points.length; i++) {
-        d += ` L ${stroke.points[i].x.toFixed(2)} ${stroke.points[i].y.toFixed(2)}`;
+        if(stroke.points[i]) d += ` L ${(stroke.points[i].x || 0).toFixed(2)} ${(stroke.points[i].y || 0).toFixed(2)}`;
       }
       return `<path d="${d}" stroke="${stroke.color}" stroke-width="${stroke.size}" opacity="${stroke.opacity}" />`;
     };
 
-    strokes.forEach(stroke => {
-      svg += renderStroke(stroke);
-      if (symmetry >= 2) {
-        svg += `<g transform="translate(${W}, 0) scale(-1, 1)">${renderStroke(stroke)}</g>`;
-      }
-      if (symmetry >= 4) {
-        svg += `<g transform="translate(0, ${H}) scale(1, -1)">${renderStroke(stroke)}</g>`;
-        svg += `<g transform="translate(${W}, ${H}) scale(-1, -1)">${renderStroke(stroke)}</g>`;
-      }
-      if (symmetry >= 8) {
-        for (let angle of [90, 180, 270]) {
-           svg += `<g transform="translate(${cx}, ${cy}) rotate(${angle}) translate(${-cx}, ${-cy})">`;
-           svg += renderStroke(stroke);
-           svg += `<g transform="translate(${W}, 0) scale(-1, 1)">${renderStroke(stroke)}</g>`;
-           svg += `</g>`;
+    if (Array.isArray(strokes)) {
+      strokes.forEach(stroke => {
+        svg += renderStroke(stroke);
+        if (symmetry >= 2) {
+          svg += `<g transform="translate(${W}, 0) scale(-1, 1)">${renderStroke(stroke)}</g>`;
         }
-      }
-    });
+        if (symmetry >= 4) {
+          svg += `<g transform="translate(0, ${H}) scale(1, -1)">${renderStroke(stroke)}</g>`;
+          svg += `<g transform="translate(${W}, ${H}) scale(-1, -1)">${renderStroke(stroke)}</g>`;
+        }
+        if (symmetry >= 8) {
+          [90, 180, 270].forEach(angle => {
+             svg += `<g transform="translate(${cx}, ${cy}) rotate(${angle}) translate(${-cx}, ${-cy})">`;
+             svg += renderStroke(stroke);
+             svg += `<g transform="translate(${W}, 0) scale(-1, 1)">${renderStroke(stroke)}</g>`;
+             svg += `</g>`;
+          });
+        }
+      });
+    }
     svg += `</g></svg>`;
     return svg;
   };
