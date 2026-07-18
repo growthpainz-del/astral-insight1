@@ -117,8 +117,14 @@ export default function CanvasSpiritWheel({
         ctx.translate(textRad, 0);
         ctx.rotate(Math.PI / 2);
         
+        const ringWidth = rOut - rIn;
+        const baseFontSize = config.fontSize || Math.max(10, ringWidth * 0.15);
+        const symbolScale = activeTheme?.symbolScale || 0.55;
+        const symbolFontSize = Math.max(16, ringWidth * symbolScale);
+        const fontFamily = activeTheme?.fontFamily || 'sans-serif';
+
         ctx.fillStyle = config.text || '#FFF';
-        ctx.font = `bold ${config.fontSize || 14}px ${activeTheme?.fontFamily || 'sans-serif'}`;
+        ctx.font = `bold ${baseFontSize}px ${fontFamily}`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         
@@ -135,13 +141,13 @@ export default function CanvasSpiritWheel({
             imageCache.current[item.id] = img;
           }
           if (img.complete && img.naturalWidth > 0 && !img.failed) {
-            const size = (rOut - rIn) * 0.6;
+            const size = ringWidth * symbolScale;
             if (showLabels && (item.label || item.name)) {
-              ctx.drawImage(img, -size / 2, -size / 2 - 8, size, size);
-              ctx.font = `bold ${Math.max(8, (config.fontSize || 14) - 4)}px ${activeTheme?.fontFamily || 'sans-serif'}`;
+              ctx.drawImage(img, -size / 2, -size / 2 - (baseFontSize/2), size, size);
+              ctx.font = `bold ${Math.max(8, baseFontSize * 0.8)}px ${fontFamily}`;
               let txt = item.label || item.name;
               if (txt.length > 12) txt = txt.substring(0, 10) + '..';
-              ctx.fillText(txt, 0, size / 2 + 6);
+              ctx.fillText(txt, 0, size / 2 + (baseFontSize * 0.6));
             } else {
               ctx.drawImage(img, -size / 2, -size / 2, size, size);
             }
@@ -149,6 +155,7 @@ export default function CanvasSpiritWheel({
             // Fallback to text if image fails to load
             let txt = item.label || item.name || 'Error';
             if (txt.length <= 3) {
+              ctx.font = `${symbolFontSize}px ${fontFamily}`;
               ctx.fillText(txt, 0, 0);
             } else {
               ctx.restore();
@@ -156,7 +163,7 @@ export default function CanvasSpiritWheel({
               ctx.rotate(textAngle);
               ctx.translate(rIn + 8, 0);
               ctx.fillStyle = config.text || '#FFF';
-              ctx.font = `bold ${Math.max(8, (config.fontSize || 14) - 2)}px ${activeTheme?.fontFamily || 'sans-serif'}`;
+              ctx.font = `bold ${Math.max(8, baseFontSize * 0.9)}px ${fontFamily}`;
               ctx.textAlign = 'left';
               ctx.textBaseline = 'middle';
               const availWidth = rOut - rIn - 16;
@@ -183,6 +190,7 @@ export default function CanvasSpiritWheel({
           let txt = (isFallbackId ? (item.label || item.name) : item.id) || item.label || item.name || '';
           
           if (txt.length <= 3) {
+            ctx.font = `${symbolFontSize}px ${fontFamily}`;
             ctx.fillText(txt, 0, 0);
           } else {
             // Draw longer text radially to avoid overlap
@@ -192,7 +200,7 @@ export default function CanvasSpiritWheel({
             ctx.translate(rIn + 8, 0);
             
             ctx.fillStyle = config.text || '#FFF';
-            ctx.font = `bold ${Math.max(8, (config.fontSize || 14) - 2)}px ${activeTheme?.fontFamily || 'sans-serif'}`;
+            ctx.font = `bold ${Math.max(8, baseFontSize * 0.9)}px ${fontFamily}`;
             ctx.textAlign = 'left';
             ctx.textBaseline = 'middle';
             

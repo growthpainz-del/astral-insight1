@@ -74,6 +74,18 @@ export const WHEEL_THEMES = {
     blendMode: 'screen',
     layerOrder: 'color_top'
   },
+  runic_large: {
+    name: "Runic (Large Symbols)",
+    outerBg: "#1f1d19", outerGrad: "#1f1d19", outerBorder: "#a37a3f",
+    middleBg: "#2c2822", middleGrad: "#2c2822", middleBorder: "#a37a3f",
+    innerBg: "#3b362c", innerGrad: "#3b362c", innerBorder: "#a37a3f",
+    hubBorder: "#a37a3f", hubBg: "#0f0e0c",
+    textOuter: "#e6c387", textMiddle: "#e6c387", textInner: "#e6c387",
+    divider: "#a37a3f", pin: "#e6c387",
+    textureUrl: "https://www.transparenttextures.com/patterns/black-paper.png",
+    fontFamily: 'serif',
+    symbolScale: 0.8
+  },
   custom: {
     name: "Custom Build"
   }
