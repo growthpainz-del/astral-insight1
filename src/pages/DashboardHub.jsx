@@ -229,9 +229,9 @@ export default function DashboardHub() {
         <main className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 pt-10 sm:pt-16 space-y-12 sm:space-y-16">
           <header className="text-center space-y-4">
             <img 
-              src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/dceb9973f_FFC86774-57E4-432D-9291-05752E7FDC5A.png" 
+              src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/87ddf47a1_2EC745CC-69B3-47EE-AC3A-6F29ABBF057F.png" 
               alt="Astral Insight Logo" 
-              className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-2xl shadow-xl shadow-purple-900/40 border border-purple-500/20 mb-6"
+              className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full object-cover shadow-xl shadow-purple-900/40 border-2 border-purple-500/30 mb-6"
             />
             <h1 style={{
               fontFamily: "'Cinzel', serif", fontWeight: 700,
