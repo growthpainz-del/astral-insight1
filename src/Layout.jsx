@@ -472,9 +472,9 @@ export default function Layout({ children, currentPageName }) {
                 <div className="w-10"></div>
                 <Link to={createPageUrl("DashboardHub")} className="flex items-center gap-2">
                   <img
-                    src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/0fad39924_IMG_0076.png"
+                    src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/87ddf47a1_2EC745CC-69B3-47EE-AC3A-6F29ABBF057F.png"
                     alt="Logo"
-                    className="h-8 w-8"
+                    className="h-8 w-8 rounded-full object-cover"
                   />
                 </Link>
                 {["CosmicHub", "ReadingRoom", "Studio", "Journal", "DashboardHub"].includes(
@@ -486,9 +486,9 @@ export default function Layout({ children, currentPageName }) {
                     style={{ WebkitTapHighlightColor: "transparent" }}
                   >
                     <img
-                      src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/0fad39924_IMG_0076.png"
+                      src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/87ddf47a1_2EC745CC-69B3-47EE-AC3A-6F29ABBF057F.png"
                       alt="Logo"
-                      className="h-6 w-6 rounded"
+                      className="h-6 w-6 rounded-full object-cover"
                     />
                   </Link>
                 ) : (

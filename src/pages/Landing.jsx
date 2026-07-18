@@ -24,9 +24,9 @@ export default function Landing() {
         <header className="w-full flex justify-between items-center mb-16 md:mb-24">
           <div className="flex items-center gap-3">
             <img 
-              src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/0fad39924_IMG_0076.png" 
+              src="https://media.base44.com/images/public/68d2a300021f94d0f312c039/87ddf47a1_2EC745CC-69B3-47EE-AC3A-6F29ABBF057F.png" 
               alt="Astral Insight" 
-              className="w-10 h-10 rounded-full border border-purple-500/30" 
+              className="w-10 h-10 rounded-full object-cover border border-purple-500/30" 
             />
             <span 
               className="font-bold tracking-widest uppercase text-lg text-purple-100" 
