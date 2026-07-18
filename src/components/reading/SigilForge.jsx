@@ -35,10 +35,11 @@ export default function SigilForge() {
 
   const [brushColor, setBrushColor] = useState('#ffffff');
   const [brushSize, setBrushSize] = useState(5);
-  const [mirrorAmount, setMirrorAmount] = useState(50);
+  const [symmetry, setSymmetry] = useState(2); // 1, 2, 4, 8
   const [brushOpacity, setBrushOpacity] = useState(100);
-  const [erasing, setErasing] = useState(false);
-  const [fillMode, setFillMode] = useState(false);
+
+  const [strokes, setStrokes] = useState([]);
+  const currentStrokeRef = useRef(null);
 
   const [isForging, setIsForging] = useState(false);
   const [isSavingToWheel, setIsSavingToWheel] = useState(false);
@@ -53,34 +54,95 @@ export default function SigilForge() {
   const [texMirror, setTexMirror] = useState(0);
 
   const isDrawingRef = useRef(false);
-  const lastPosRef = useRef({ x: 0, y: 0 });
 
   const palette = PALETTES[paletteId];
 
-  useEffect(() => {
+  const redrawAll = () => {
+    const dc = drawCanvasRef.current;
+    const mc = mirrorCanvasRef.current;
+    if (!dc || !mc) return;
+    const dctx = dc.getContext('2d');
+    const mctx = mc.getContext('2d');
+    
+    const W = dc.width; const H = dc.height;
+    const cx = W/2; const cy = H/2;
+    
+    dctx.clearRect(0,0,W,H);
+    mctx.clearRect(0,0,W,H);
+    
+    // Draw guidelines on DC
+    dctx.strokeStyle = 'rgba(255,255,255,0.05)';
+    dctx.lineWidth = 1;
+    dctx.beginPath();
+    if (symmetry >= 2) { dctx.moveTo(cx, 0); dctx.lineTo(cx, H); }
+    if (symmetry >= 4) { dctx.moveTo(0, cy); dctx.lineTo(W, cy); }
+    if (symmetry >= 8) { 
+      dctx.moveTo(0, 0); dctx.lineTo(W, H); 
+      dctx.moveTo(W, 0); dctx.lineTo(0, H); 
+    }
+    dctx.stroke();
+
+    const drawStroke = (ctx, stroke) => {
+      if (!stroke.points || !stroke.points.length) return;
+      ctx.beginPath();
+      ctx.moveTo(stroke.points[0].x, stroke.points[0].y);
+      for(let i=1; i<stroke.points.length; i++) ctx.lineTo(stroke.points[i].x, stroke.points[i].y);
+      ctx.strokeStyle = stroke.color;
+      ctx.lineWidth = stroke.size;
+      ctx.globalAlpha = stroke.opacity;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.stroke();
+    };
+
+    const drawSymmetries = (ctx, stroke) => {
+      ctx.save();
+      drawStroke(ctx, stroke);
+      if (symmetry >= 2) {
+        ctx.save(); ctx.translate(W, 0); ctx.scale(-1, 1); drawStroke(ctx, stroke); ctx.restore();
+      }
+      if (symmetry >= 4) {
+        ctx.save(); ctx.translate(0, H); ctx.scale(1, -1); drawStroke(ctx, stroke); ctx.restore();
+        ctx.save(); ctx.translate(W, H); ctx.scale(-1, -1); drawStroke(ctx, stroke); ctx.restore();
+      }
+      if (symmetry >= 8) {
+        for (let angle of [90, 180, 270]) {
+          ctx.save();
+          ctx.translate(cx, cy); ctx.rotate(angle * Math.PI / 180); ctx.translate(-cx, -cy);
+          drawStroke(ctx, stroke);
+          ctx.save(); ctx.translate(W, 0); ctx.scale(-1, 1); drawStroke(ctx, stroke); ctx.restore();
+          ctx.restore();
+        }
+      }
+      ctx.restore();
+    };
+
+    strokes.forEach(s => {
+      drawStroke(dctx, s);
+      drawSymmetries(mctx, s);
+    });
+    
+    if (currentStrokeRef.current) {
+      drawStroke(dctx, currentStrokeRef.current);
+      drawSymmetries(mctx, currentStrokeRef.current);
+    }
+    
     drawSymbolOnStone();
-  }, [paletteId, stoneTexture, texMirror]);
+  };
 
   useEffect(() => {
-    // init canvases
+    redrawAll();
+  }, [strokes, symmetry, paletteId, stoneTexture, texMirror]);
+
+  useEffect(() => {
     const W = 160, H = 180;
     const dc = drawCanvasRef.current;
     const mc = mirrorCanvasRef.current;
     const sc = stoneCanvasRef.current;
-    if (!dc || !mc) return;
-
-    dc.width = W; dc.height = H;
-    mc.width = W; mc.height = H;
-    
-    if (sc) {
-      sc.width = 200;
-      sc.height = 200;
-    }
-
-    const dctx = dc.getContext('2d');
-    dctx.clearRect(0, 0, W, H);
-
-    updateMirror();
+    if (dc) { dc.width = W; dc.height = H; }
+    if (mc) { mc.width = W; mc.height = H; }
+    if (sc) { sc.width = 200; sc.height = 200; }
+    redrawAll();
   }, []);
 
   const getXY = (e, canvas) => {
@@ -98,210 +160,87 @@ export default function SigilForge() {
     return { x: (clientX - rect.left) * sx, y: (clientY - rect.top) * sy };
   };
 
-  const hexToRgba = (hex, opacity) => {
-    let c;
-    if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
-        c= hex.substring(1).split('');
-        if(c.length== 3){
-            c= [c[0], c[0], c[1], c[1], c[2], c[2]];
-        }
-        c= '0x'+c.join('');
-        return [(c>>16)&255, (c>>8)&255, c&255, opacity === undefined ? 255 : opacity];
-    }
-    return [0,0,0, opacity === undefined ? 255 : opacity];
-  };
-
-  const floodFill = (ctx, startX, startY, fillColorArray, tolerance = 30) => {
-    const canvas = ctx.canvas;
-    const w = canvas.width;
-    const h = canvas.height;
-    const imageData = ctx.getImageData(0, 0, w, h);
-    const data = imageData.data;
-
-    const getPixelPos = (x, y) => (y * w + x) * 4;
-    const startPos = getPixelPos(startX, startY);
-    const startR = data[startPos];
-    const startG = data[startPos + 1];
-    const startB = data[startPos + 2];
-    const startA = data[startPos + 3];
-
-    // If filling same color, do nothing
-    if (Math.abs(startR - fillColorArray[0]) <= tolerance && 
-        Math.abs(startG - fillColorArray[1]) <= tolerance && 
-        Math.abs(startB - fillColorArray[2]) <= tolerance && 
-        Math.abs(startA - fillColorArray[3]) <= tolerance) {
-        return;
-    }
-
-    const matchStartColor = (pos) => {
-        return Math.abs(data[pos] - startR) <= tolerance &&
-               Math.abs(data[pos + 1] - startG) <= tolerance &&
-               Math.abs(data[pos + 2] - startB) <= tolerance &&
-               Math.abs(data[pos + 3] - startA) <= tolerance;
+  const generateSVG = () => {
+    const W = 160; const H = 180;
+    const cx = W/2; const cy = H/2;
+    let svg = `<svg viewBox="0 0 ${W} ${H}" width="${W*8}" height="${H*8}" xmlns="http://www.w3.org/2000/svg">`;
+    svg += `<g stroke-linecap="round" stroke-linejoin="round" fill="none">`;
+    
+    const renderStroke = (stroke) => {
+      if (!stroke.points || !stroke.points.length) return '';
+      let d = `M ${stroke.points[0].x.toFixed(2)} ${stroke.points[0].y.toFixed(2)}`;
+      for (let i=1; i<stroke.points.length; i++) {
+        d += ` L ${stroke.points[i].x.toFixed(2)} ${stroke.points[i].y.toFixed(2)}`;
+      }
+      return `<path d="${d}" stroke="${stroke.color}" stroke-width="${stroke.size}" opacity="${stroke.opacity}" />`;
     };
 
-    const colorPixel = (pos) => {
-        data[pos] = fillColorArray[0];
-        data[pos + 1] = fillColorArray[1];
-        data[pos + 2] = fillColorArray[2];
-        data[pos + 3] = fillColorArray[3];
-    };
-
-    const pixelStack = [[startX, startY]];
-
-    while (pixelStack.length > 0) {
-        const newPos = pixelStack.pop();
-        let x = newPos[0];
-        let y = newPos[1];
-
-        let pixelPos = getPixelPos(x, y);
-        while (y >= 0 && matchStartColor(pixelPos)) {
-            y--;
-            pixelPos -= w * 4;
+    strokes.forEach(stroke => {
+      svg += renderStroke(stroke);
+      if (symmetry >= 2) {
+        svg += `<g transform="translate(${W}, 0) scale(-1, 1)">${renderStroke(stroke)}</g>`;
+      }
+      if (symmetry >= 4) {
+        svg += `<g transform="translate(0, ${H}) scale(1, -1)">${renderStroke(stroke)}</g>`;
+        svg += `<g transform="translate(${W}, ${H}) scale(-1, -1)">${renderStroke(stroke)}</g>`;
+      }
+      if (symmetry >= 8) {
+        for (let angle of [90, 180, 270]) {
+           svg += `<g transform="translate(${cx}, ${cy}) rotate(${angle}) translate(${-cx}, ${-cy})">`;
+           svg += renderStroke(stroke);
+           svg += `<g transform="translate(${W}, 0) scale(-1, 1)">${renderStroke(stroke)}</g>`;
+           svg += `</g>`;
         }
-        pixelPos += w * 4;
-        y++;
-
-        let reachLeft = false;
-        let reachRight = false;
-        
-        while (y < h && matchStartColor(pixelPos)) {
-            colorPixel(pixelPos);
-
-            if (x > 0) {
-                if (matchStartColor(pixelPos - 4)) {
-                    if (!reachLeft) {
-                        pixelStack.push([x - 1, y]);
-                        reachLeft = true;
-                    }
-                } else if (reachLeft) {
-                    reachLeft = false;
-                }
-            }
-
-            if (x < w - 1) {
-                if (matchStartColor(pixelPos + 4)) {
-                    if (!reachRight) {
-                        pixelStack.push([x + 1, y]);
-                        reachRight = true;
-                    }
-                } else if (reachRight) {
-                    reachRight = false;
-                }
-            }
-
-            y++;
-            pixelPos += w * 4;
-        }
-    }
-
-    ctx.putImageData(imageData, 0, 0);
+      }
+    });
+    svg += `</g></svg>`;
+    return svg;
   };
 
   const startDraw = (e) => {
     e.preventDefault();
     const pos = getXY(e, drawCanvasRef.current);
-    
-    if (fillMode) {
-      const ctx = drawCanvasRef.current.getContext('2d');
-      const opacityValue = Math.round((brushOpacity / 100) * 255);
-      const colorArr = erasing ? [0, 0, 0, 0] : hexToRgba(brushColor, opacityValue);
-      floodFill(ctx, Math.floor(pos.x), Math.floor(pos.y), colorArr);
-      updateMirror();
-      return;
-    }
-    
     isDrawingRef.current = true;
-    lastPosRef.current = pos;
-
-    const ctx = drawCanvasRef.current.getContext('2d');
-    ctx.globalCompositeOperation = erasing ? 'destination-out' : 'source-over';
-    ctx.globalAlpha = brushOpacity / 100;
-    ctx.beginPath();
-    ctx.arc(pos.x, pos.y, brushSize / 2, 0, Math.PI * 2);
-    ctx.fillStyle = brushColor;
-    ctx.fill();
-    updateMirror();
+    currentStrokeRef.current = {
+      color: brushColor,
+      size: brushSize,
+      opacity: brushOpacity / 100,
+      points: [pos]
+    };
+    redrawAll();
   };
 
   const doDraw = (e) => {
-    if (!isDrawingRef.current) return;
+    if (!isDrawingRef.current || !currentStrokeRef.current) return;
     e.preventDefault();
     const pos = getXY(e, drawCanvasRef.current);
-    const ctx = drawCanvasRef.current.getContext('2d');
-
-    ctx.globalCompositeOperation = erasing ? 'destination-out' : 'source-over';
-    ctx.globalAlpha = brushOpacity / 100;
-    ctx.strokeStyle = brushColor;
-    ctx.lineWidth = brushSize;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-
-    ctx.beginPath();
-    ctx.moveTo(lastPosRef.current.x, lastPosRef.current.y);
-    ctx.lineTo(pos.x, pos.y);
-    ctx.stroke();
-
-    lastPosRef.current = pos;
-    updateMirror();
+    const lastPos = currentStrokeRef.current.points[currentStrokeRef.current.points.length - 1];
+    const dist = Math.hypot(pos.x - lastPos.x, pos.y - lastPos.y);
+    if (dist > 1.5) {
+      currentStrokeRef.current.points.push(pos);
+      redrawAll();
+    }
   };
 
   const stopDraw = () => {
+    if (!isDrawingRef.current) return;
     isDrawingRef.current = false;
-    const ctx = drawCanvasRef.current.getContext('2d');
-    ctx.globalAlpha = 1;
+    if (currentStrokeRef.current && currentStrokeRef.current.points.length > 1) {
+      setStrokes(prev => [...prev, currentStrokeRef.current]);
+    }
+    currentStrokeRef.current = null;
+    redrawAll();
   };
 
-  const updateMirror = () => {
-    const dc = drawCanvasRef.current;
-    const mc = mirrorCanvasRef.current;
-    if (!dc || !mc) return;
-
-    const W = mc.width, H = mc.height;
-    const mctx = mc.getContext('2d');
-    const tmp = tmpCanvasRef.current;
-    tmp.width = W; tmp.height = H;
-    const tmpCtx = tmp.getContext('2d');
-
-    mctx.clearRect(0, 0, W, H);
-    mctx.globalAlpha = 1;
-    mctx.drawImage(dc, 0, 0, W, H);
-
-    const mAmt = mirrorAmount / 100;
-    if (mAmt > 0) {
-      tmpCtx.clearRect(0, 0, W, H);
-      tmpCtx.save();
-      tmpCtx.translate(W, 0);
-      tmpCtx.scale(-1, 1);
-      tmpCtx.drawImage(dc, 0, 0, W, H);
-      tmpCtx.restore();
-      mctx.globalAlpha = mAmt;
-      mctx.drawImage(tmp, 0, 0);
-      mctx.globalAlpha = 1;
-    }
-
-    if (mAmt > 0.2 && mAmt < 0.8) {
-      mctx.globalAlpha = 0.12;
-      mctx.fillStyle = '#000';
-      mctx.fillRect(W / 2 - 1, 0, 2, H);
-      mctx.globalAlpha = 1;
-    }
-    drawSymbolOnStone();
+  const undoLast = () => {
+    setStrokes(prev => prev.slice(0, -1));
   };
 
   const clearCanvas = () => {
-    const dc = drawCanvasRef.current;
-    const ctx = dc.getContext('2d');
-    ctx.clearRect(0, 0, dc.width, dc.height);
-    updateMirror();
+    setStrokes([]);
     setSymbolName("");
     setOracleReading("");
     setErrorMsg("");
-    
-    const sc = stoneCanvasRef.current;
-    if (sc) {
-      sc.getContext('2d').clearRect(0, 0, sc.width, sc.height);
-    }
   };
 
   const handleTexUpload = (e) => {
@@ -317,11 +256,11 @@ export default function SigilForge() {
   const saveToWheel = async () => {
     try {
       setIsSavingToWheel(true);
-      const c = stoneCanvasRef.current;
-      if (!c) return;
       const safeName = symbolName.trim() || "Unnamed Sigil";
-      const blob = await new Promise(res => c.toBlob(res, 'image/png'));
-      const file = new File([blob], `sigil-${safeName.toLowerCase().replace(/[^a-z0-9]/g, '') || 'sigil'}.png`, { type: "image/png" });
+      
+      const svgString = generateSVG();
+      const blob = new Blob([svgString], { type: "image/svg+xml" });
+      const file = new File([blob], `sigil-${safeName.toLowerCase().replace(/[^a-z0-9]/g, '') || 'sigil'}.svg`, { type: "image/svg+xml" });
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
       
       const user = await base44.auth.me();
@@ -562,7 +501,7 @@ CRITICAL RULES FOR VARIETY:
             <input 
               type="color" 
               value={brushColor}
-              onChange={(e) => { setBrushColor(e.target.value); setErasing(false); }}
+              onChange={(e) => setBrushColor(e.target.value)}
               className="w-8 h-8 rounded cursor-pointer p-0 border-0 bg-transparent"
               title="Color Wheel"
             />
@@ -571,7 +510,7 @@ CRITICAL RULES FOR VARIETY:
                 key={c}
                 className={`color-swatch ${brushColor === c ? 'active' : ''}`}
                 style={{ background: c }}
-                onClick={() => { setBrushColor(c); setErasing(false); }}
+                onClick={() => setBrushColor(c)}
               />
             ))}
           </div>
@@ -581,19 +520,19 @@ CRITICAL RULES FOR VARIETY:
               Brush <input type="range" min="1" max="28" value={brushSize} onChange={e => setBrushSize(Number(e.target.value))} className="w-20" />
             </div>
             <div className="v-slider-group">
-              Mirror <input type="range" min="0" max="100" value={mirrorAmount} onChange={e => { setMirrorAmount(Number(e.target.value)); updateMirror(); }} className="w-20" />
-              <span className="text-[#C17A3A] min-w-[30px]">{mirrorAmount}%</span>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap gap-4 items-center">
-            <div className="v-slider-group">
               Opacity <input type="range" min="10" max="100" value={brushOpacity} onChange={e => setBrushOpacity(Number(e.target.value))} className="w-20" />
               <span className="text-[#C17A3A] min-w-[30px]">{brushOpacity}%</span>
             </div>
-            <button className={`v-btn ${!erasing && !fillMode ? 'active' : ''}`} onClick={() => { setErasing(false); setFillMode(false); }}>Brush</button>
-            <button className={`v-btn ${fillMode && !erasing ? 'active' : ''}`} onClick={() => { setFillMode(true); setErasing(false); }}>Fill</button>
-            <button className={`v-btn ${erasing ? 'active' : ''}`} onClick={() => { setErasing(true); setFillMode(false); }}>Erase</button>
+          </div>
+
+          <div className="flex flex-wrap gap-4 items-center mt-1">
+            <div className="v-slider-group mr-2">Symmetry:</div>
+            <button className={`v-btn ${symmetry === 1 ? 'active' : ''}`} onClick={() => setSymmetry(1)}>None</button>
+            <button className={`v-btn ${symmetry === 2 ? 'active' : ''}`} onClick={() => setSymmetry(2)}>Mirror</button>
+            <button className={`v-btn ${symmetry === 4 ? 'active' : ''}`} onClick={() => setSymmetry(4)}>Quad</button>
+            <button className={`v-btn ${symmetry === 8 ? 'active' : ''}`} onClick={() => setSymmetry(8)}>Mandala</button>
+            <div className="flex-1"></div>
+            <button className="v-btn" onClick={undoLast} disabled={strokes.length === 0}>Undo</button>
             <button className="v-btn" onClick={clearCanvas}>Clear</button>
           </div>
         </div>
