@@ -1,0 +1,30 @@
+{
+  "name": "ReadingCard",
+  "type": "object",
+  "properties": {
+    "session_id": {
+      "type": "string",
+      "description": "References ReadingSession.id"
+    },
+    "position_key": {
+      "type": "string",
+      "description": "e.g. 'inner_ring_2', 'past', 'center'"
+    },
+    "card_id": {
+      "type": "string",
+      "description": "References your oracle deck JSON / card ID"
+    },
+    "revealed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reader_note": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "session_id",
+    "position_key",
+    "card_id"
+  ]
+}

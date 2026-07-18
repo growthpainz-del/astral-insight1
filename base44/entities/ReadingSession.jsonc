@@ -1,0 +1,39 @@
+{
+  "name": "ReadingSession",
+  "type": "object",
+  "properties": {
+    "reader_id": {
+      "type": "string",
+      "description": "User ID of the reader hosting the session"
+    },
+    "client_id": {
+      "type": "string",
+      "description": "User ID of the client, null until claimed via invite link"
+    },
+    "invite_token": {
+      "type": "string",
+      "description": "Unique token to invite the client to the session"
+    },
+    "spread_type": {
+      "type": "string",
+      "description": "e.g. 'celtic_cross', 'spirit_wheel_3ring'"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "waiting",
+        "active",
+        "completed"
+      ],
+      "default": "waiting"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "reader_id",
+    "spread_type"
+  ]
+}

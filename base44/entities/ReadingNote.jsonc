@@ -1,0 +1,17 @@
+{
+  "name": "ReadingNote",
+  "type": "object",
+  "properties": {
+    "session_id": {
+      "type": "string",
+      "description": "References ReadingSession.id"
+    },
+    "note": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "session_id",
+    "note"
+  ]
+}
