@@ -89,6 +89,9 @@ export default function SigilForge() {
       for(let i=1; i<stroke.points.length; i++) {
         if(stroke.points[i]) ctx.lineTo(stroke.points[i].x || 0, stroke.points[i].y || 0);
       }
+      if (stroke.points.length === 1) {
+        ctx.lineTo((stroke.points[0].x || 0) + 0.1, stroke.points[0].y || 0);
+      }
       ctx.strokeStyle = stroke.color || '#fff';
       ctx.lineWidth = stroke.size || 5;
       ctx.globalAlpha = stroke.opacity !== undefined ? stroke.opacity : 1;
@@ -234,11 +237,12 @@ export default function SigilForge() {
   const stopDraw = () => {
     if (!isDrawingRef.current) return;
     isDrawingRef.current = false;
-    if (currentStrokeRef.current && currentStrokeRef.current.points.length > 1) {
+    if (currentStrokeRef.current && currentStrokeRef.current.points.length > 0) {
       setStrokes(prev => [...prev, currentStrokeRef.current]);
+    } else {
+      redrawAll();
     }
     currentStrokeRef.current = null;
-    redrawAll();
   };
 
   const undoLast = () => {
