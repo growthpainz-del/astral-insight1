@@ -9,6 +9,7 @@ import PageNotFound from './lib/PageNotFound'
 import { AuthProvider, useAuth } from '@/lib/AuthContext'
 import UserNotRegisteredError from '@/components/UserNotRegisteredError'
 import ReadingRoom from './pages/ReadingRoom'
+import ReaderDashboard from './pages/ReaderDashboard'
 import SpiritWheel from './pages/SpiritWheel'
 import SigilForge from './pages/SigilForge'
 import PrivacyPolicy from './pages/PrivacyPolicy'
@@ -132,6 +133,14 @@ const AuthenticatedApp = () => {
         element={
           <LayoutWrapper currentPageName="ReadingRoom">
             <ReadingRoom />
+          </LayoutWrapper>
+        }
+      />
+      <Route
+        path="/ReaderDashboard"
+        element={
+          <LayoutWrapper currentPageName="ReaderDashboard">
+            <ReaderDashboard />
           </LayoutWrapper>
         }
       />

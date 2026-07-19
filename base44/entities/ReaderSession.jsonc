@@ -1,0 +1,41 @@
+{
+  "name": "ReaderSession",
+  "type": "object",
+  "properties": {
+    "reader_id": {
+      "type": "string"
+    },
+    "client_id": {
+      "type": "string"
+    },
+    "mode": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "deck_id": {
+      "type": "string"
+    },
+    "card_positions": {
+      "type": "array"
+    },
+    "chat_messages": {
+      "type": "array"
+    },
+    "guest_name": {
+      "type": "string"
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ended_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "reader_id"
+  ]
+}
