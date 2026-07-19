@@ -353,11 +353,19 @@ export default function ReadingStage({ session, interactive, deckCards }) {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}
             className="absolute inset-4 md:inset-auto md:top-4 md:right-4 md:bottom-4 md:w-[300px] z-50 flex flex-col overflow-hidden"
             style={{ background: "rgba(0,0,0,0.85)", backdropFilter: "blur(20px)", border: "1px solid rgba(201,168,76,0.4)", borderRadius: 20, boxShadow: "0 0 40px rgba(147,51,234,0.3)" }}>
-            <div style={{ padding: "16px", borderBottom: "1px solid rgba(201,168,76,0.2)", display: "flex", justifyContent: "space-between", alignItems: "flex-start", background: "rgba(88,28,135,0.2)" }}>
-              <div>
-                <h3 style={{ fontSize: 16, fontWeight: 700, color: "white", fontFamily: "Cinzel, serif", margin: 0 }}>{selectedCardForInterpretation.composed?.cardName || selectedCardForInterpretation.cardData.name}</h3>
+            <div className="p-4 border-b border-[#c9a84c]/20 flex justify-between items-start bg-purple-900/20 relative">
+              <div className="pr-8">
+                <h3 className="text-base font-bold text-white font-['Cinzel'] m-0 leading-tight">
+                  {selectedCardForInterpretation.composed?.cardName || selectedCardForInterpretation.cardData.name}
+                </h3>
               </div>
-              <button onClick={() => setSelectedCardForInterpretation(null)} style={{ background: "transparent", border: "none", color: "rgba(255,255,255,0.6)", cursor: "pointer", fontSize: 18, padding: 4 }}>✕</button>
+              <button 
+                onClick={() => setSelectedCardForInterpretation(null)} 
+                className="absolute top-3 right-3 text-white/60 hover:text-white bg-black/40 hover:bg-black/60 rounded-full border-none cursor-pointer p-1.5 z-10 transition-colors"
+                aria-label="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
             <div style={{ flex: 1, overflowY: "auto", padding: 16, display: "flex", flexDirection: "column", gap: 12 }}>
               {selectedCardForInterpretation.composed?.sections
