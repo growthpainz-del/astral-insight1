@@ -10,6 +10,7 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext'
 import UserNotRegisteredError from '@/components/UserNotRegisteredError'
 import ReadingRoom from './pages/ReadingRoom'
 import ReaderDashboard from './pages/ReaderDashboard'
+import JoinSession from './pages/JoinSession'
 import SpiritWheel from './pages/SpiritWheel'
 import SigilForge from './pages/SigilForge'
 import PrivacyPolicy from './pages/PrivacyPolicy'
@@ -141,6 +142,14 @@ const AuthenticatedApp = () => {
         element={
           <LayoutWrapper currentPageName="ReaderDashboard">
             <ReaderDashboard />
+          </LayoutWrapper>
+        }
+      />
+      <Route
+        path="/join/:sessionId"
+        element={
+          <LayoutWrapper currentPageName="JoinSession">
+            <JoinSession />
           </LayoutWrapper>
         }
       />

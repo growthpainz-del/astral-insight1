@@ -12,6 +12,9 @@
         "offline"
       ],
       "default": "offline"
+    },
+    "display_name": {
+      "type": "string"
     }
   },
   "required": [
