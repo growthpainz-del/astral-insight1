@@ -268,7 +268,8 @@ export default function ReadingRoom() {
                 size="sm"
                 className="h-8 px-2 text-xs text-cyan-300 hover:text-cyan-100 hover:bg-cyan-900/50" 
                 onClick={() => {
-                  window.open(liveSessionUrl, "LiveRoom", "width=1000,height=800,left=100,top=100");
+                  const popUrl = liveSessionUrl + (liveSessionUrl.includes('?') ? '&' : '?') + 'embed=true';
+                  window.open(popUrl, "LiveRoom", "width=1000,height=800,left=100,top=100");
                   setLiveSessionUrl(null);
                 }}
               >
