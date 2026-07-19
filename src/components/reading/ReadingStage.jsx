@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Hand, X, Sparkles } from 'lucide-react';
+import { composeCardQuick } from '@/utils/interpretationComposer';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const TableCard = ({ 
   cardData, 
@@ -43,6 +45,13 @@ const TableCard = ({
     onUpdate({ revealed: !cardData.revealed });
   };
 
+  const handleClick = (e) => {
+    // If it's a double click, it might trigger click too, but we handle logic in parent
+    if (cardData.revealed && onUpdate) {
+      onUpdate({ _action: 'click' });
+    }
+  };
+
   const renderCardFace = () => {
     if (!fullCard) return <div className="w-full h-full bg-slate-800 text-white flex items-center justify-center text-[10px] text-center p-1 border border-slate-600 rounded shadow-lg">Unknown</div>;
     return (
@@ -80,6 +89,7 @@ const TableCard = ({
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerUp}
       onDoubleClick={handleFlip}
+      onClick={handleClick}
     >
       <div 
         className="w-full h-full relative transition-all duration-500"
@@ -101,6 +111,27 @@ export default function ReadingStage({ session, interactive, deckCards }) {
   const [interpreting, setInterpreting] = useState(false);
   const [sharedInterpretation, setSharedInterpretation] = useState(session?.shared_interpretation || null);
   const [showInterpretation, setShowInterpretation] = useState(!!session?.shared_interpretation);
+  const [selectedCardForInterpretation, setSelectedCardForInterpretation] = useState(null);
+  const prevPositionsRef = useRef(positions);
+
+  useEffect(() => {
+    // Detect newly revealed cards
+    const prev = prevPositionsRef.current;
+    if (prev && positions) {
+      for (let i = 0; i < positions.length; i++) {
+        if (positions[i].revealed && prev[i] && !prev[i].revealed) {
+          // Card was just flipped! Show interpretation.
+          const cardData = deckCards?.find(c => c.id === positions[i].card_id);
+          if (cardData) {
+            const composed = composeCardQuick(cardData, null, false, "");
+            setSelectedCardForInterpretation({ cardData, composed });
+          }
+          break; // Only open one at a time
+        }
+      }
+    }
+    prevPositionsRef.current = positions;
+  }, [positions, deckCards]);
 
   const interpretReading = async () => {
     if (!positions.length) return;
@@ -182,6 +213,15 @@ export default function ReadingStage({ session, interactive, deckCards }) {
   };
 
   const updateCard = (index, updates) => {
+    if (updates._action === 'click') {
+      const pos = positions[index];
+      const cardData = deckCards?.find(c => c.id === pos.card_id);
+      if (cardData && pos.revealed) {
+        const composed = composeCardQuick(cardData, null, false, "");
+        setSelectedCardForInterpretation({ cardData, composed });
+      }
+      return;
+    }
     const newPos = [...positions];
     newPos[index] = { ...newPos[index], ...updates };
     savePositions(newPos);
@@ -269,6 +309,32 @@ export default function ReadingStage({ session, interactive, deckCards }) {
           </div>
         </div>
       )}
+
+      {/* Card Interpretation Panel */}
+      <AnimatePresence>
+        {selectedCardForInterpretation && (
+          <motion.div initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 50 }}
+            style={{ position: "absolute", top: 16, right: 16, bottom: 16, width: 300, background: "rgba(0,0,0,0.85)", backdropFilter: "blur(20px)", border: "1px solid rgba(201,168,76,0.4)", borderRadius: 20, boxShadow: "0 0 40px rgba(147,51,234,0.3)", overflow: "hidden", zIndex: 50, display: "flex", flexDirection: "column" }}>
+            <div style={{ padding: "16px", borderBottom: "1px solid rgba(201,168,76,0.2)", display: "flex", justifyContent: "space-between", alignItems: "flex-start", background: "rgba(88,28,135,0.2)" }}>
+              <div>
+                <h3 style={{ fontSize: 16, fontWeight: 700, color: "white", fontFamily: "Cinzel, serif", margin: 0 }}>{selectedCardForInterpretation.composed?.cardName || selectedCardForInterpretation.cardData.name}</h3>
+              </div>
+              <button onClick={() => setSelectedCardForInterpretation(null)} style={{ background: "transparent", border: "none", color: "rgba(255,255,255,0.6)", cursor: "pointer", fontSize: 18, padding: 4 }}>✕</button>
+            </div>
+            <div style={{ flex: 1, overflowY: "auto", padding: 16, display: "flex", flexDirection: "column", gap: 12 }}>
+              {selectedCardForInterpretation.composed?.sections
+                ? selectedCardForInterpretation.composed.sections.map((sec, idx) => (
+                    <div key={idx} style={{ fontSize: 13, ...(sec.isPersonal ? { background: "rgba(49,46,129,0.3)", padding: 12, borderRadius: 12, border: "1px solid rgba(99,102,241,0.3)" } : {}) }}>
+                      <p style={{ fontWeight: 600, color: "rgba(192,132,252,0.9)", marginBottom: 4, display: "flex", alignItems: "center", gap: 6 }}><span>{sec.icon}</span>{sec.label}</p>
+                      <p style={{ color: "rgba(233,213,255,0.9)", lineHeight: 1.6, margin: 0 }}>{sec.content}</p>
+                    </div>
+                  ))
+                : <p style={{ color: "rgba(233,213,255,0.9)", fontSize: 13 }}>{selectedCardForInterpretation.composed?.summary || selectedCardForInterpretation.cardData?.overall_meaning || "A mysterious force is at play."}</p>
+              }
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
