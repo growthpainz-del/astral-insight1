@@ -21,6 +21,13 @@ export default function ReadingRoom() {
   const [joinInput, setJoinInput] = useState("");
   const [hostedToken, setHostedToken] = useState("");
 
+  const handleCopyInvite = () => {
+    const url = `${window.location.origin}${createPageUrl("ReadingRoom")}`;
+    const text = `Join my live reading session! Go to ${url} and enter invite code: ${hostedToken}`;
+    navigator.clipboard.writeText(text);
+    alert("Invite copied to clipboard!");
+  };
+
   const createHostSession = async () => {
     setConnectingReader('creating');
     try {
@@ -221,9 +228,16 @@ export default function ReadingRoom() {
 
             <div className="space-y-4">
               {hostedToken && (
-                <div className="bg-purple-900/40 border border-purple-500/50 rounded-xl p-4 text-center">
+                <div className="bg-purple-900/40 border border-purple-500/50 rounded-xl p-4 text-center relative group">
                   <p className="text-xs text-purple-200 uppercase tracking-widest mb-2">Your Invite Code</p>
-                  <p className="text-2xl font-bold text-white tracking-widest font-mono select-all">{hostedToken}</p>
+                  <p className="text-3xl font-bold text-white tracking-widest font-mono select-all mb-4">{hostedToken}</p>
+                  <Button 
+                    onClick={handleCopyInvite}
+                    variant="outline" 
+                    className="w-full bg-[#0a0618] border-purple-500/50 hover:bg-purple-800 hover:text-white"
+                  >
+                    Copy Invite Message
+                  </Button>
                 </div>
               )}
               <Button 
@@ -240,17 +254,38 @@ export default function ReadingRoom() {
 
       {/* Live Video Session Overlay */}
       {liveSessionUrl && (
-        <div className="fixed inset-0 z-[200] bg-[#07050f] flex flex-col animate-in fade-in duration-300">
-          <div className="flex items-center justify-between p-4 border-b border-[#a078ff]/15 bg-[#1a0f35]/80 backdrop-blur-md">
-            <div className="flex items-center gap-3">
-              <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.6)]"></div>
-              <span className="font-bold tracking-widest uppercase text-sm text-purple-100" style={{ fontFamily: "'Cinzel', serif" }}>
-                Live Reading in Progress
+        <div className="fixed bottom-4 right-4 w-[400px] h-[550px] max-w-[calc(100vw-32px)] max-h-[calc(100vh-100px)] z-[200] bg-[#07050f] flex flex-col rounded-2xl overflow-hidden shadow-[0_10px_40px_rgba(0,0,0,0.8)] border border-[#a078ff]/40 animate-in slide-in-from-bottom-8">
+          <div className="flex items-center justify-between p-3 border-b border-[#a078ff]/15 bg-[#1a0f35]/95 backdrop-blur-md">
+            <div className="flex items-center gap-2">
+              <div className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.6)]"></div>
+              <span className="font-bold tracking-widest uppercase text-xs text-purple-100" style={{ fontFamily: "'Cinzel', serif" }}>
+                Live Room
               </span>
             </div>
-            <Button variant="ghost" className="text-purple-300 hover:text-white hover:bg-red-900/50 rounded-full" onClick={() => setLiveSessionUrl(null)}>
-              <X className="w-5 h-5 mr-2" /> End Session
-            </Button>
+            <div className="flex items-center gap-1">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="h-8 px-2 text-xs text-cyan-300 hover:text-cyan-100 hover:bg-cyan-900/50" 
+                onClick={() => {
+                  window.open(liveSessionUrl, "LiveRoom", "width=1000,height=800,left=100,top=100");
+                  setLiveSessionUrl(null);
+                }}
+              >
+                Pop Out
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="h-8 w-8 p-0 text-purple-300 hover:text-white hover:bg-red-900/50 rounded-full" 
+                onClick={() => setLiveSessionUrl(null)}
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+          <div className="bg-purple-900/20 px-3 py-1.5 text-[10px] text-purple-200/80 text-center border-b border-purple-500/20">
+            <strong>Tip:</strong> Click "Pop Out" above to open the video in a new window so you can navigate to a deck and do the reading!
           </div>
           <iframe 
             src={liveSessionUrl} 
