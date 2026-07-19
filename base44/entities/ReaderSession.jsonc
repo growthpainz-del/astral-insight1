@@ -33,6 +33,12 @@
     "ended_at": {
       "type": "string",
       "format": "date-time"
+    },
+    "host_room_url": {
+      "type": "string"
+    },
+    "room_url": {
+      "type": "string"
     }
   },
   "required": [

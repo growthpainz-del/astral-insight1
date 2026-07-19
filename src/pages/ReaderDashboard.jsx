@@ -67,14 +67,21 @@ export default function ReaderDashboard() {
 
   // --- Create a session + shareable guest invite link ---
   const createInviteSession = async (deckId) => {
+    const res = await base44.functions.invoke('createLiveRoom', {});
+    if (!res.data?.roomUrl) {
+      alert("Failed to create live room");
+      return;
+    }
     const session = await base44.entities.ReaderSession.create({
       reader_id: readerProfile.id,
       client_id: null,
-      mode: "chat",
+      mode: "audio",
       status: "waiting",
       deck_id: deckId || null,
       card_positions: [],
       chat_messages: [],
+      host_room_url: res.data.hostRoomUrl,
+      room_url: res.data.roomUrl,
     });
     setInviteLink(`${window.location.origin}/join/${session.id}`);
   };
@@ -107,24 +114,7 @@ export default function ReaderDashboard() {
     setDeckCards([]);
   };
 
-  // --- Send chat message ---
-  const sendChatMessage = async () => {
-    if (!chatInput.trim() || !activeSession) return;
-    const messages = activeSession.chat_messages || [];
-    const newMessages = [
-      ...messages,
-      {
-        sender: "reader",
-        text: chatInput.trim(),
-        timestamp: new Date().toISOString(),
-      },
-    ];
-    await base44.entities.ReaderSession.update(activeSession.id, {
-      chat_messages: newMessages,
-    });
-    setActiveSession({ ...activeSession, chat_messages: newMessages });
-    setChatInput("");
-  };
+  // Chat logic removed in favor of live audio
 
   if (loading) {
     return (
@@ -180,35 +170,15 @@ export default function ReaderDashboard() {
             deckCards={deckCards}
           />
 
-          <div style={styles.chatPanel}>
-            <div style={styles.chatMessages}>
-              {(activeSession.chat_messages || []).map((msg, i) => (
-                <div
-                  key={i}
-                  style={{
-                    ...styles.chatBubble,
-                    alignSelf: msg.sender === "reader" ? "flex-end" : "flex-start",
-                    backgroundColor:
-                      msg.sender === "reader" ? "#5B2A86" : "#2a2a3a",
-                  }}
-                >
-                  {msg.text}
-                </div>
-              ))}
-            </div>
-            <div style={styles.chatInputRow}>
-              <input
-                value={chatInput}
-                onChange={(e) => setChatInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && sendChatMessage()}
-                placeholder="Type a message..."
-                style={styles.chatInput}
+          {activeSession.host_room_url && (
+            <div style={styles.audioPanel}>
+              <iframe
+                src={`${activeSession.host_room_url}?embed=true&audio=on&video=off&background=off`}
+                allow="camera; microphone; fullscreen; speaker; display-capture"
+                style={styles.iframe}
               />
-              <button onClick={sendChatMessage} style={styles.sendButton}>
-                Send
-              </button>
             </div>
-          </div>
+          )}
         </div>
       ) : (
         <div style={styles.queueSection}>
@@ -373,42 +343,17 @@ const styles = {
     padding: "8px 14px",
     fontWeight: 600,
   },
-  chatPanel: {
-    height: "30vh",
-    display: "flex",
-    flexDirection: "column",
+  audioPanel: {
+    height: "120px",
     border: "1px solid #5B2A86",
     borderRadius: "12px",
     overflow: "hidden",
+    marginTop: "auto",
+    background: "#0a0618",
   },
-  chatMessages: {
-    flex: 1,
-    display: "flex",
-    flexDirection: "column",
-    gap: "8px",
-    padding: "12px",
-    overflowY: "auto",
-  },
-  chatBubble: {
-    maxWidth: "75%",
-    padding: "8px 12px",
-    borderRadius: "12px",
-    fontSize: "14px",
-  },
-  chatInputRow: { display: "flex", borderTop: "1px solid #5B2A86" },
-  chatInput: {
-    flex: 1,
-    padding: "12px",
-    background: "transparent",
+  iframe: {
+    width: "100%",
+    height: "100%",
     border: "none",
-    color: "#fff",
-    outline: "none",
-  },
-  sendButton: {
-    padding: "0 20px",
-    background: "#FFD700",
-    color: "#0b0b0b",
-    border: "none",
-    fontWeight: 700,
   },
 };

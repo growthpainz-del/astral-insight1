@@ -16,7 +16,6 @@ export default function JoinSession() {
 
   const [guestName, setGuestName] = useState("");
   const [hasJoined, setHasJoined] = useState(false);
-  const [chatInput, setChatInput] = useState("");
 
   // --- Load session + reader on mount ---
   useEffect(() => {
@@ -84,24 +83,7 @@ export default function JoinSession() {
     setHasJoined(true);
   };
 
-  // --- Guest sends a chat message ---
-  const sendChatMessage = async () => {
-    if (!chatInput.trim() || !session) return;
-    const messages = session.chat_messages || [];
-    const newMessages = [
-      ...messages,
-      {
-        sender: "client",
-        text: chatInput.trim(),
-        timestamp: new Date().toISOString(),
-      },
-    ];
-    await base44.entities.ReaderSession.update(session.id, {
-      chat_messages: newMessages,
-    });
-    setSession({ ...session, chat_messages: newMessages });
-    setChatInput("");
-  };
+  // Chat logic removed
 
   if (loading) {
     return (
@@ -188,35 +170,15 @@ export default function JoinSession() {
 
       <ReadingStage session={session} interactive={false} deckCards={deckCards} />
 
-      <div style={styles.chatPanel}>
-        <div style={styles.chatMessages}>
-          {(session.chat_messages || []).map((msg, i) => (
-            <div
-              key={i}
-              style={{
-                ...styles.chatBubble,
-                alignSelf: msg.sender === "client" ? "flex-end" : "flex-start",
-                backgroundColor:
-                  msg.sender === "client" ? "#5B2A86" : "#2a2a3a",
-              }}
-            >
-              {msg.text}
-            </div>
-          ))}
-        </div>
-        <div style={styles.chatInputRow}>
-          <input
-            value={chatInput}
-            onChange={(e) => setChatInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && sendChatMessage()}
-            placeholder="Type a message..."
-            style={styles.chatInput}
+      {session.room_url && (
+        <div style={styles.audioPanel}>
+          <iframe
+            src={`${session.room_url}?embed=true&audio=on&video=off&background=off`}
+            allow="camera; microphone; fullscreen; speaker; display-capture"
+            style={styles.iframe}
           />
-          <button onClick={sendChatMessage} style={styles.sendButton}>
-            Send
-          </button>
         </div>
-      </div>
+      )}
     </div>
   );
 }
@@ -269,42 +231,17 @@ const styles = {
     fontSize: "15px",
   },
   sessionHeader: { marginBottom: "2px" },
-  chatPanel: {
-    height: "28vh",
-    display: "flex",
-    flexDirection: "column",
+  audioPanel: {
+    height: "120px",
     border: "1px solid #5B2A86",
     borderRadius: "12px",
     overflow: "hidden",
+    marginTop: "auto",
+    background: "#0a0618",
   },
-  chatMessages: {
-    flex: 1,
-    display: "flex",
-    flexDirection: "column",
-    gap: "8px",
-    padding: "12px",
-    overflowY: "auto",
-  },
-  chatBubble: {
-    maxWidth: "75%",
-    padding: "8px 12px",
-    borderRadius: "12px",
-    fontSize: "14px",
-  },
-  chatInputRow: { display: "flex", borderTop: "1px solid #5B2A86" },
-  chatInput: {
-    flex: 1,
-    padding: "12px",
-    background: "transparent",
+  iframe: {
+    width: "100%",
+    height: "100%",
     border: "none",
-    color: "#fff",
-    outline: "none",
-  },
-  sendButton: {
-    padding: "0 20px",
-    background: "#FFD700",
-    color: "#0b0b0b",
-    border: "none",
-    fontWeight: 700,
   },
 };
