@@ -18,6 +18,18 @@
       "type": "string",
       "description": "e.g. 'celtic_cross', 'spirit_wheel_3ring'"
     },
+    "deck_id": {
+      "type": "string",
+      "description": "ID of the deck used for this session"
+    },
+    "card_positions": {
+      "type": "array",
+      "description": "Array of objects like { card_id, x, y, rotation, revealed, label }",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
     "room_url": {
       "type": "string",
       "description": "Whereby room URL for the client"
