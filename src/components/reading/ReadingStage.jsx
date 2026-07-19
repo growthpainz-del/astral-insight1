@@ -99,7 +99,8 @@ const TableCard = ({
 export default function ReadingStage({ session, interactive, deckCards }) {
   const [positions, setPositions] = useState(session?.card_positions || []);
   const [interpreting, setInterpreting] = useState(false);
-  const [interpretation, setInterpretation] = useState(null);
+  const [sharedInterpretation, setSharedInterpretation] = useState(session?.shared_interpretation || null);
+  const [showInterpretation, setShowInterpretation] = useState(!!session?.shared_interpretation);
 
   const interpretReading = async () => {
     if (!positions.length) return;
@@ -113,7 +114,11 @@ export default function ReadingStage({ session, interactive, deckCards }) {
       const prompt = `You are a mystical tarot reader. Interpret these cards currently on the reading table: ${cardNames.join(', ')}. Provide a concise, insightful reading focusing on the combined energy of these cards. Keep it to 2-3 short paragraphs, formatted gracefully. Do not mention that they are face down unless it signifies something hidden.`;
       
       const res = await base44.integrations.Core.InvokeLLM({ prompt });
-      setInterpretation(res);
+      if (session?.id) {
+        await base44.entities.ReadingSession.update(session.id, { shared_interpretation: res });
+      }
+      setSharedInterpretation(res);
+      setShowInterpretation(true);
     } catch (e) {
       console.error(e);
       alert('Failed to interpret reading.');
@@ -126,7 +131,17 @@ export default function ReadingStage({ session, interactive, deckCards }) {
     if (session?.id) {
       const unsub = base44.entities.ReadingSession.subscribe((event) => {
         if (event.id === session.id && event.type === 'update') {
-          setPositions(event.data.card_positions || []);
+          if (event.data.card_positions) {
+            setPositions(event.data.card_positions);
+          }
+          if (event.data.shared_interpretation !== undefined) {
+            setSharedInterpretation(event.data.shared_interpretation);
+            if (event.data.shared_interpretation) {
+               setShowInterpretation(true);
+            } else {
+               setShowInterpretation(false);
+            }
+          }
         }
       });
       return unsub;
@@ -135,7 +150,11 @@ export default function ReadingStage({ session, interactive, deckCards }) {
 
   useEffect(() => {
     setPositions(session?.card_positions || []);
-  }, [session?.card_positions]);
+    if (session?.shared_interpretation !== undefined) {
+      setSharedInterpretation(session?.shared_interpretation);
+      if (session?.shared_interpretation) setShowInterpretation(true);
+    }
+  }, [session?.card_positions, session?.shared_interpretation]);
 
   const savePositions = async (newPos) => {
     setPositions(newPos);
@@ -172,6 +191,11 @@ export default function ReadingStage({ session, interactive, deckCards }) {
     if (!interactive) return;
     if (window.confirm("Clear all cards?")) {
       savePositions([]);
+      if (session?.id) {
+        base44.entities.ReadingSession.update(session.id, { shared_interpretation: null });
+      }
+      setSharedInterpretation(null);
+      setShowInterpretation(false);
     }
   };
 
@@ -219,24 +243,29 @@ export default function ReadingStage({ session, interactive, deckCards }) {
           )}
           <Button size="sm" variant="outline" onClick={interpretReading} disabled={interpreting || !positions.length} className="border-purple-500/50 text-purple-300 hover:bg-purple-500/20">
             <Sparkles className="w-4 h-4 mr-1" />
-            {interpreting ? 'Reading...' : 'Interpret'}
+            {interpreting ? 'Reading...' : sharedInterpretation ? 'Re-interpret' : 'Interpret'}
           </Button>
+          {sharedInterpretation && !showInterpretation && (
+            <Button size="sm" variant="outline" onClick={() => setShowInterpretation(true)} className="border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20">
+              View Reading
+            </Button>
+          )}
         </div>
       </div>
 
-      {interpretation && (
+      {showInterpretation && sharedInterpretation && (
         <div className="absolute inset-0 z-50 bg-[#07050f]/95 p-6 overflow-y-auto backdrop-blur-sm animate-in fade-in flex flex-col">
           <div className="flex justify-between items-center mb-6 border-b border-[#a078ff]/20 pb-4">
             <h3 className="text-xl font-bold text-cyan-300 font-['Cinzel'] flex items-center gap-2">
               <Sparkles className="w-5 h-5" />
               Table Interpretation
             </h3>
-            <Button variant="ghost" size="sm" onClick={() => setInterpretation(null)} className="text-purple-300 hover:text-white hover:bg-red-500/20 rounded-full p-2 h-8 w-8">
+            <Button variant="ghost" size="sm" onClick={() => setShowInterpretation(false)} className="text-purple-300 hover:text-white hover:bg-red-500/20 rounded-full p-2 h-8 w-8">
               <X className="w-4 h-4" />
             </Button>
           </div>
           <div className="text-purple-100 text-sm leading-relaxed whitespace-pre-wrap max-w-2xl mx-auto">
-            {interpretation}
+            {sharedInterpretation}
           </div>
         </div>
       )}

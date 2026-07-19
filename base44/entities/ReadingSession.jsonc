@@ -30,6 +30,10 @@
         "additionalProperties": true
       }
     },
+    "shared_interpretation": {
+      "type": "string",
+      "description": "Synchronized interpretation visible to both reader and client"
+    },
     "room_url": {
       "type": "string",
       "description": "Whereby room URL for the client"
