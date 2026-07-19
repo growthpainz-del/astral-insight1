@@ -173,7 +173,7 @@ export default function ReaderDashboard() {
           {activeSession.host_room_url && (
             <div style={styles.audioPanel}>
               <iframe
-                src={`${activeSession.host_room_url}?embed=true&audio=on&video=off&background=off`}
+                src={`${activeSession.host_room_url}?embed=true&audio=on&video=off&background=off&leaveButton=off&chat=off&people=off`}
                 allow="camera; microphone; fullscreen; speaker; display-capture"
                 style={styles.iframe}
               />

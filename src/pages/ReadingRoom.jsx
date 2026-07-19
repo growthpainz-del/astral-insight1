@@ -200,6 +200,16 @@ export default function ReadingRoom() {
               interactive={activeSession.reader_id === (currentUser?.id || "guest")} 
               deckCards={deckCards} 
             />
+
+            {liveSessionUrl && (
+               <div className="mt-8 h-[120px] rounded-xl overflow-hidden border border-[#a078ff]/30 bg-[#0a0618]">
+                 <iframe 
+                   src={`${liveSessionUrl}${liveSessionUrl.includes('?') ? '&' : '?'}embed=true&audio=on&video=off&background=off&leaveButton=off&chat=off&people=off`} 
+                   allow="camera; microphone; fullscreen; speaker; display-capture" 
+                   className="w-full h-full border-0"
+                 />
+               </div>
+            )}
           </>
         ) : (
           <>
@@ -285,49 +295,7 @@ export default function ReadingRoom() {
         )}
       </div>
 
-      {/* Live Video Session Overlay */}
-      {liveSessionUrl && (
-        <div className="fixed bottom-4 right-4 w-[400px] h-[550px] max-w-[calc(100vw-32px)] max-h-[calc(100vh-100px)] z-[200] bg-[#07050f] flex flex-col rounded-2xl overflow-hidden shadow-[0_10px_40px_rgba(0,0,0,0.8)] border border-[#a078ff]/40 animate-in slide-in-from-bottom-8">
-          <div className="flex items-center justify-between p-3 border-b border-[#a078ff]/15 bg-[#1a0f35]/95 backdrop-blur-md">
-            <div className="flex items-center gap-2">
-              <div className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.6)]"></div>
-              <span className="font-bold tracking-widest uppercase text-xs text-purple-100" style={{ fontFamily: "'Cinzel', serif" }}>
-                Live Room
-              </span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Button 
-                variant="ghost" 
-                size="sm"
-                className="h-8 px-2 text-xs text-cyan-300 hover:text-cyan-100 hover:bg-cyan-900/50" 
-                onClick={() => {
-                  const popUrl = liveSessionUrl + (liveSessionUrl.includes('?') ? '&' : '?') + 'embed=true';
-                  window.open(popUrl, "LiveRoom", "width=1000,height=800,left=100,top=100");
-                  setLiveSessionUrl(null);
-                }}
-              >
-                Pop Out
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm"
-                className="h-8 w-8 p-0 text-purple-300 hover:text-white hover:bg-red-900/50 rounded-full" 
-                onClick={() => setLiveSessionUrl(null)}
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
-          <div className="bg-purple-900/20 px-3 py-1.5 text-[10px] text-purple-200/80 text-center border-b border-purple-500/20">
-            <strong>Tip:</strong> Click "Pop Out" above to open the video in a new window so you can navigate to a deck and do the reading!
-          </div>
-          <iframe 
-            src={liveSessionUrl + (liveSessionUrl.includes('?') ? '&' : '?') + 'embed=true'} 
-            allow="camera; microphone; fullscreen; speaker; display-capture" 
-            className="flex-1 w-full border-0 bg-black"
-          />
-        </div>
-      )}
+
 
           </div>
           </PullToRefresh>
