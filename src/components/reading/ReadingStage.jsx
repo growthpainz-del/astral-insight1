@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
-import { Hand } from 'lucide-react';
+import { Hand, X, Sparkles } from 'lucide-react';
 
 const TableCard = ({ 
   cardData, 
@@ -98,6 +98,29 @@ const TableCard = ({
 
 export default function ReadingStage({ session, interactive, deckCards }) {
   const [positions, setPositions] = useState(session?.card_positions || []);
+  const [interpreting, setInterpreting] = useState(false);
+  const [interpretation, setInterpretation] = useState(null);
+
+  const interpretReading = async () => {
+    if (!positions.length) return;
+    setInterpreting(true);
+    try {
+      const cardNames = positions.map(pos => {
+        const c = deckCards?.find(dc => dc.id === pos.card_id);
+        return c ? `${c.name}${!pos.revealed ? ' (Face Down)' : ''}` : 'Unknown Card';
+      });
+      
+      const prompt = `You are a mystical tarot reader. Interpret these cards currently on the reading table: ${cardNames.join(', ')}. Provide a concise, insightful reading focusing on the combined energy of these cards. Keep it to 2-3 short paragraphs, formatted gracefully. Do not mention that they are face down unless it signifies something hidden.`;
+      
+      const res = await base44.integrations.Core.InvokeLLM({ prompt });
+      setInterpretation(res);
+    } catch (e) {
+      console.error(e);
+      alert('Failed to interpret reading.');
+    } finally {
+      setInterpreting(false);
+    }
+  };
 
   useEffect(() => {
     if (session?.id) {
@@ -178,19 +201,42 @@ export default function ReadingStage({ session, interactive, deckCards }) {
         )}
       </div>
 
-      {interactive && (
-        <div className="p-4 bg-[#1a0f35]/95 border-t border-[#a078ff]/30 flex items-center justify-between backdrop-blur-md">
-          <div className="text-xs text-purple-300">
-            <span className="opacity-70">Drag to move • Double-click to flip</span>
+      <div className="p-3 sm:p-4 bg-[#1a0f35]/95 border-t border-[#a078ff]/30 flex flex-col sm:flex-row items-center justify-between gap-3 backdrop-blur-md">
+        <div className="text-xs text-purple-300 text-center sm:text-left">
+          <span className="opacity-70">{interactive ? "Drag to move • Double-click to flip" : "Watching Reader's Table"}</span>
+        </div>
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          {interactive && (
+            <>
+              <Button variant="outline" size="sm" onClick={clearTable} className="border-red-500/50 text-red-300 hover:bg-red-500/20">
+                Clear
+              </Button>
+              <Button size="sm" onClick={drawCard} className="bg-cyan-600 hover:bg-cyan-500 text-white shadow-[0_0_10px_rgba(8,145,178,0.5)]">
+                <Hand className="w-4 h-4 mr-1" />
+                Draw
+              </Button>
+            </>
+          )}
+          <Button size="sm" variant="outline" onClick={interpretReading} disabled={interpreting || !positions.length} className="border-purple-500/50 text-purple-300 hover:bg-purple-500/20">
+            <Sparkles className="w-4 h-4 mr-1" />
+            {interpreting ? 'Reading...' : 'Interpret'}
+          </Button>
+        </div>
+      </div>
+
+      {interpretation && (
+        <div className="absolute inset-0 z-50 bg-[#07050f]/95 p-6 overflow-y-auto backdrop-blur-sm animate-in fade-in flex flex-col">
+          <div className="flex justify-between items-center mb-6 border-b border-[#a078ff]/20 pb-4">
+            <h3 className="text-xl font-bold text-cyan-300 font-['Cinzel'] flex items-center gap-2">
+              <Sparkles className="w-5 h-5" />
+              Table Interpretation
+            </h3>
+            <Button variant="ghost" size="sm" onClick={() => setInterpretation(null)} className="text-purple-300 hover:text-white hover:bg-red-500/20 rounded-full p-2 h-8 w-8">
+              <X className="w-4 h-4" />
+            </Button>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={clearTable} className="border-red-500/50 text-red-300 hover:bg-red-500/20">
-              Clear
-            </Button>
-            <Button size="sm" onClick={drawCard} className="bg-cyan-600 hover:bg-cyan-500 text-white shadow-[0_0_10px_rgba(8,145,178,0.5)]">
-              <Hand className="w-4 h-4 mr-2" />
-              Draw Card
-            </Button>
+          <div className="text-purple-100 text-sm leading-relaxed whitespace-pre-wrap max-w-2xl mx-auto">
+            {interpretation}
           </div>
         </div>
       )}
