@@ -112,6 +112,7 @@ export default function ReadingStage({ session, interactive, deckCards }) {
   const [sharedInterpretation, setSharedInterpretation] = useState(session?.shared_interpretation || null);
   const [showInterpretation, setShowInterpretation] = useState(!!session?.shared_interpretation);
   const [selectedCardForInterpretation, setSelectedCardForInterpretation] = useState(null);
+  const [isShuffling, setIsShuffling] = useState(false);
   const prevPositionsRef = useRef(positions);
 
   useEffect(() => {
@@ -244,6 +245,35 @@ export default function ReadingStage({ session, interactive, deckCards }) {
       <div className="flex-1 relative overflow-hidden" style={{ background: 'radial-gradient(circle at center, #1a0f35 0%, #07050f 100%)' }}>
         <div className="absolute inset-0 opacity-10 bg-[linear-gradient(to_right,#a078ff_1px,transparent_1px),linear-gradient(to_bottom,#a078ff_1px,transparent_1px)] bg-[size:4rem_4rem]"></div>
         
+        {isShuffling ? (
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm z-40">
+             <div className="w-32 h-40 relative perspective-1000">
+                {[...Array(5)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="absolute inset-0 rounded-lg bg-gradient-to-br from-indigo-900 to-purple-900 border-2 border-indigo-400/50 shadow-[0_0_15px_rgba(79,70,229,0.5)]"
+                    initial={{ x: 0, y: 0, rotateZ: 0 }}
+                    animate={{
+                      x: [0, (i % 2 === 0 ? 1 : -1) * 60, 0],
+                      y: [0, -20 + i * 5, 0],
+                      rotateZ: [0, (i % 2 === 0 ? 1 : -1) * 15, 0],
+                      zIndex: [1, 5, 1]
+                    }}
+                    transition={{
+                      duration: 0.8,
+                      repeat: 2,
+                      ease: "easeInOut",
+                      delay: i * 0.1
+                    }}
+                  />
+                ))}
+             </div>
+             <p className="mt-8 text-cyan-300 tracking-widest uppercase font-bold animate-pulse" style={{ fontFamily: "'Cinzel', serif" }}>
+               Shuffling Deck...
+             </p>
+          </div>
+        ) : null}
+
         {positions.map((pos, idx) => (
           <TableCard 
             key={idx}
@@ -274,6 +304,13 @@ export default function ReadingStage({ session, interactive, deckCards }) {
             <>
               <Button variant="outline" size="sm" onClick={clearTable} className="border-red-500/50 text-red-300 hover:bg-red-500/20">
                 Clear
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => {
+                if (!interactive) return;
+                setIsShuffling(true);
+                setTimeout(() => setIsShuffling(false), 2500);
+              }} className="border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20">
+                Shuffle
               </Button>
               <Button size="sm" onClick={drawCard} className="bg-cyan-600 hover:bg-cyan-500 text-white shadow-[0_0_10px_rgba(8,145,178,0.5)]">
                 <Hand className="w-4 h-4 mr-1" />
