@@ -1,5 +1,5 @@
-export default async function(req: Request) {
-  const apiKey = process.env.WHEREBY_API_KEY;
+Deno.serve(async (req: Request) => {
+  const apiKey = Deno.env.get("WHEREBY_API_KEY");
   if (!apiKey) {
     return new Response(JSON.stringify({ error: "Whereby API key not configured. Please add WHEREBY_API_KEY to your secrets." }), { 
       status: 500, 
@@ -41,4 +41,4 @@ export default async function(req: Request) {
       headers: { "Content-Type": "application/json" } 
     });
   }
-}
+});
