@@ -18,6 +18,7 @@ Deno.serve(async (req: Request) => {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
+        isLocked: false,
         endDate: endDate,
         fields: ["hostRoomUrl", "roomUrl"]
       })

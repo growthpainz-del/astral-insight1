@@ -288,7 +288,7 @@ export default function ReadingRoom() {
             <strong>Tip:</strong> Click "Pop Out" above to open the video in a new window so you can navigate to a deck and do the reading!
           </div>
           <iframe 
-            src={liveSessionUrl} 
+            src={liveSessionUrl + (liveSessionUrl.includes('?') ? '&' : '?') + 'embed=true'} 
             allow="camera; microphone; fullscreen; speaker; display-capture" 
             className="flex-1 w-full border-0 bg-black"
           />
