@@ -115,6 +115,15 @@ export default function ReadingStage({ session, interactive, deckCards }) {
   const [isShuffling, setIsShuffling] = useState(false);
   const prevPositionsRef = useRef(positions);
 
+  // Trigger shuffle animation on new session load if table is empty
+  useEffect(() => {
+    if (interactive && positions.length === 0) {
+      setIsShuffling(true);
+      const timer = setTimeout(() => setIsShuffling(false), 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [session?.id, interactive]);
+
   useEffect(() => {
     // Detect newly revealed cards
     const prev = prevPositionsRef.current;
@@ -247,28 +256,32 @@ export default function ReadingStage({ session, interactive, deckCards }) {
         
         {isShuffling ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm z-40">
-             <div className="w-32 h-40 relative perspective-1000">
-                {[...Array(5)].map((_, i) => (
+             <div className="w-32 h-48 relative perspective-1000">
+                {[...Array(8)].map((_, i) => (
                   <motion.div
                     key={i}
-                    className="absolute inset-0 rounded-lg bg-gradient-to-br from-indigo-900 to-purple-900 border-2 border-indigo-400/50 shadow-[0_0_15px_rgba(79,70,229,0.5)]"
-                    initial={{ x: 0, y: 0, rotateZ: 0 }}
+                    className="absolute inset-0 rounded-xl bg-gradient-to-br from-indigo-900 to-purple-900 border-2 border-indigo-400/50 shadow-[0_0_20px_rgba(79,70,229,0.4)]"
+                    style={{
+                      backgroundImage: `repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.05) 10px, rgba(255,255,255,0.05) 20px)`
+                    }}
+                    initial={{ x: 0, y: 0, rotateZ: 0, scale: 1 }}
                     animate={{
-                      x: [0, (i % 2 === 0 ? 1 : -1) * 60, 0],
-                      y: [0, -20 + i * 5, 0],
-                      rotateZ: [0, (i % 2 === 0 ? 1 : -1) * 15, 0],
-                      zIndex: [1, 5, 1]
+                      x: [0, (i % 2 === 0 ? 1 : -1) * (50 + i * 5), 0],
+                      y: [0, -10 + i * 3, 0],
+                      rotateZ: [0, (i % 2 === 0 ? 1 : -1) * (10 + i * 2), 0],
+                      scale: [1, 1.05, 1],
+                      zIndex: [1, i % 2 === 0 ? 10 : 5, 1]
                     }}
                     transition={{
-                      duration: 0.8,
-                      repeat: 2,
+                      duration: 0.6,
+                      repeat: 4,
                       ease: "easeInOut",
-                      delay: i * 0.1
+                      delay: i * 0.05
                     }}
                   />
                 ))}
              </div>
-             <p className="mt-8 text-cyan-300 tracking-widest uppercase font-bold animate-pulse" style={{ fontFamily: "'Cinzel', serif" }}>
+             <p className="mt-8 text-cyan-300 tracking-widest uppercase font-bold animate-pulse" style={{ fontFamily: "'Cinzel', serif", textShadow: "0 0 10px rgba(6,182,212,0.5)" }}>
                Shuffling Deck...
              </p>
           </div>
@@ -307,8 +320,18 @@ export default function ReadingStage({ session, interactive, deckCards }) {
               </Button>
               <Button variant="outline" size="sm" onClick={() => {
                 if (!interactive) return;
+                if (positions.length > 0) {
+                  if (window.confirm("Clear table and reshuffle deck?")) {
+                    savePositions([]);
+                    if (session?.id) base44.entities.ReadingSession.update(session.id, { shared_interpretation: null });
+                    setSharedInterpretation(null);
+                    setShowInterpretation(false);
+                  } else {
+                    return;
+                  }
+                }
                 setIsShuffling(true);
-                setTimeout(() => setIsShuffling(false), 2500);
+                setTimeout(() => setIsShuffling(false), 2400);
               }} className="border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20">
                 Shuffle
               </Button>
