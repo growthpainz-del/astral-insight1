@@ -210,7 +210,16 @@ export default function ReadingStage({ session, interactive, deckCards }) {
 
   const drawCard = () => {
     if (!interactive || !deckCards?.length) return;
-    const randomCard = deckCards[Math.floor(Math.random() * deckCards.length)];
+    
+    const drawnCardIds = new Set(positions.map(p => p.card_id));
+    const availableCards = deckCards.filter(c => !drawnCardIds.has(c.id));
+    
+    if (availableCards.length === 0) {
+      alert("No more cards left in the deck!");
+      return;
+    }
+
+    const randomCard = availableCards[Math.floor(Math.random() * availableCards.length)];
     const newCard = {
       card_id: randomCard.id,
       x: 50 + (Math.random() * 10 - 5),
