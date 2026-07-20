@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import MoonPhaseWidget from "@/components/dashboard/MoonPhaseWidget";
+import CosmicInsight from "@/components/dashboard/CosmicInsight";
 import { BookOpen, Palette, Sparkles, Layers, Image as ImageIcon, History, Compass, HelpCircle, Star, GitMerge, Sprout, Users, Coins, ShieldAlert } from "lucide-react";
 import { isUserAdmin } from "@/components/utils/adminGuard";
 import { base44 } from "@/api/base44Client";
@@ -248,6 +249,10 @@ export default function DashboardHub() {
 
           <section className="animate-in fade-in slide-in-from-bottom-8 duration-700 delay-100 fill-mode-both">
             <MoonPhaseWidget />
+          </section>
+
+          <section className="animate-in fade-in slide-in-from-bottom-8 duration-700 delay-150 fill-mode-both max-w-2xl mx-auto">
+            <CosmicInsight theme="general" />
           </section>
 
           <div className="space-y-12">
