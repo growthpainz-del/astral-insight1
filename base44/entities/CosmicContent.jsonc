@@ -1,0 +1,35 @@
+{
+  "name": "CosmicContent",
+  "type": "object",
+  "properties": {
+    "lookup_key": {
+      "type": "string",
+      "description": "Composite key: moonPhase:zodiacSign:theme"
+    },
+    "moon_phase": {
+      "type": "string"
+    },
+    "zodiac_sign": {
+      "type": "string"
+    },
+    "theme": {
+      "type": "string"
+    },
+    "content": {
+      "type": "string"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "valid_until": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "lookup_key",
+    "content",
+    "valid_until"
+  ]
+}
