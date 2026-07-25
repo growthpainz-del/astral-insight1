@@ -24,11 +24,12 @@ export default function ReadingRoom() {
   const [activeSession, setActiveSession] = useState(null);
   const [deckCards, setDeckCards] = useState([]);
 
+  const inviteLink = `${window.location.origin}${createPageUrl(`join/${hostedToken}`)}`;
+
   const handleCopyInvite = () => {
-    const url = `${window.location.origin}${createPageUrl("ReadingRoom")}`;
-    const text = `Join my live reading session! Go to ${url} and enter invite code: ${hostedToken}`;
+    const text = `Join my live reading session! Click here: ${inviteLink}`;
     navigator.clipboard.writeText(text);
-    alert("Invite copied to clipboard!");
+    alert("Invite link copied to clipboard!");
   };
 
   const createHostSession = async () => {
@@ -192,7 +193,14 @@ export default function ReadingRoom() {
               <h2 className="text-2xl font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-purple-300 mb-2" style={{ fontFamily: "'Cinzel', serif" }}>
                 Active Session
               </h2>
-              {hostedToken && <p className="text-sm text-purple-200">Invite Code: <strong>{hostedToken}</strong></p>}
+              {hostedToken && (
+                <div className="text-sm text-purple-200">
+                  <p>Invite Code: <strong>{hostedToken}</strong></p>
+                  <a href={inviteLink} target="_blank" rel="noreferrer" className="text-cyan-400 hover:text-cyan-300 underline break-all mt-1 inline-block">
+                    {inviteLink}
+                  </a>
+                </div>
+              )}
             </div>
             
             <ReadingStage 
@@ -270,14 +278,17 @@ export default function ReadingRoom() {
                 <div className="space-y-4">
                   {hostedToken && (
                     <div className="bg-purple-900/40 border border-purple-500/50 rounded-xl p-4 text-center relative group">
-                      <p className="text-xs text-purple-200 uppercase tracking-widest mb-2">Your Invite Code</p>
-                      <p className="text-3xl font-bold text-white tracking-widest font-mono select-all mb-4">{hostedToken}</p>
+                      <p className="text-xs text-purple-200 uppercase tracking-widest mb-2">Your Invite Link & Code</p>
+                      <p className="text-3xl font-bold text-white tracking-widest font-mono select-all mb-2">{hostedToken}</p>
+                      <a href={inviteLink} target="_blank" rel="noreferrer" className="block text-cyan-400 hover:text-cyan-300 text-sm break-all mb-4 underline underline-offset-2">
+                        {inviteLink}
+                      </a>
                       <Button 
                         onClick={handleCopyInvite}
                         variant="outline" 
                         className="w-full bg-[#0a0618] border-purple-500/50 hover:bg-purple-800 hover:text-white"
                       >
-                        Copy Invite Message
+                        Copy Invite Link
                       </Button>
                     </div>
                   )}
