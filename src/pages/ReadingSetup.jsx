@@ -26,6 +26,8 @@ export default function ReadingSetup() {
   const [readingMode, setReadingMode] = useState("spread");
   const [selectedSpreadId, setSelectedSpreadId] = useState("");
   const [isGeneratingSpread, setIsGeneratingSpread] = useState(false);
+  const [sessionType, setSessionType] = useState("solo");
+  const [isProvisioning, setIsProvisioning] = useState(false);
 
   const handleGenerateAISpread = async () => {
     setIsGeneratingSpread(true);
@@ -84,9 +86,37 @@ export default function ReadingSetup() {
     loadData();
   }, [deckIdFromUrl]);
 
-  const handleStart = () => {
+  const handleStart = async () => {
     const spreadParam = readingMode === "freeform" ? "freeform" : selectedSpreadId;
-    navigate(createPageUrl(`Reading?deckId=${deck.id}&spread=${encodeURIComponent(spreadParam)}&question=${encodeURIComponent(question)}`));
+    
+    if (sessionType === "live") {
+      setIsProvisioning(true);
+      try {
+        const res = await base44.functions.invoke('createLiveRoom', {});
+        if (!res.data?.roomUrl) throw new Error("Failed to provision audio room");
+        
+        const token = Math.random().toString(36).substring(2, 8).toUpperCase();
+        const me = await base44.auth.me().catch(() => null);
+        
+        const session = await base44.entities.ReadingSession.create({
+          reader_id: me?.id || "guest",
+          invite_token: token,
+          spread_type: spreadParam,
+          deck_id: deck.id,
+          card_positions: [],
+          status: 'active',
+          room_url: res.data.roomUrl,
+          host_room_url: res.data.hostRoomUrl
+        });
+        
+        navigate(createPageUrl(`ReadingRoom?sessionId=${session.id}`));
+      } catch (e) {
+        alert("Failed to start live session: " + e.message);
+        setIsProvisioning(false);
+      }
+    } else {
+      navigate(createPageUrl(`Reading?deckId=${deck.id}&spread=${encodeURIComponent(spreadParam)}&question=${encodeURIComponent(question)}`));
+    }
   };
 
   if (loading) {
@@ -132,6 +162,20 @@ export default function ReadingSetup() {
           </div>
 
           <div>
+            <label className="font-['Cinzel'] text-[11px] tracking-[0.2em] uppercase text-[#b4a0dc]/60 mb-2 block">Session Type</label>
+            <Tabs value={sessionType} onValueChange={setSessionType} className="w-full mb-6">
+              <TabsList className="grid w-full grid-cols-2 bg-[#160f2a] border border-[#a078ff]/20 h-14 rounded-xl p-1">
+                <TabsTrigger value="solo" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-purple-300/70 rounded-lg text-sm transition-all">
+                  Solo Reading
+                </TabsTrigger>
+                <TabsTrigger value="live" className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white text-cyan-300/70 rounded-lg text-sm transition-all">
+                  Live Shared Session
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
+
+          <div>
             <label className="font-['Cinzel'] text-[11px] tracking-[0.2em] uppercase text-[#b4a0dc]/60 mb-2 block">Reading Style</label>
             <Tabs value={readingMode} onValueChange={setReadingMode} className="w-full">
               <TabsList className="grid w-full grid-cols-2 bg-[#160f2a] border border-[#a078ff]/20 h-14 rounded-xl p-1">
@@ -169,10 +213,11 @@ export default function ReadingSetup() {
 
           <Button 
             onClick={handleStart}
-            disabled={readingMode === "spread" && !selectedSpreadId}
+            disabled={(readingMode === "spread" && !selectedSpreadId) || isProvisioning}
             className="w-full mt-4 p-[16px] h-14 rounded-full border-none cursor-pointer font-['Cinzel'] text-[14px] tracking-[0.15em] uppercase text-white bg-gradient-to-br from-[#7c3aed] to-[#a78bfa] shadow-[0_4px_20px_rgba(124,58,237,0.45)] flex items-center justify-center gap-[9px] transition-all hover:-translate-y-[2px] hover:shadow-[0_6px_28px_rgba(124,58,237,0.6)] active:scale-[0.97] disabled:opacity-50"
           >
-            <Sparkles className="w-5 h-5 mr-1" /> Start Reading
+            {isProvisioning ? <Loader2 className="w-5 h-5 mr-1 animate-spin" /> : <Sparkles className="w-5 h-5 mr-1" />} 
+            {sessionType === "live" ? "Create Shared Session" : "Start Reading"}
           </Button>
         </div>
       </div>

@@ -120,6 +120,20 @@ export default function ReadingRoom() {
   }, []);
 
   useEffect(() => {
+    const sid = searchParams.get('sessionId');
+    if (sid) {
+      base44.entities.ReadingSession.get(sid).then(session => {
+        if (session) {
+          setActiveSession(session);
+          setHostedToken(session.invite_token);
+          setLiveSessionUrl(session.host_room_url);
+          setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 500);
+        }
+      }).catch(console.error);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
     if (activeSession?.deck_id) {
       base44.entities.Card.filter({ deck_id: activeSession.deck_id }).then(setDeckCards);
     }
