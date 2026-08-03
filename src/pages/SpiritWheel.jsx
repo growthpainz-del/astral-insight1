@@ -523,9 +523,9 @@ export default function SpiritWheel() {
       style={{ 
         backgroundColor: activeTheme.pageBg || '#0f172a',
         backgroundImage: activeTheme.pageBgImage ? `url('${activeTheme.pageBgImage}')` : (activeTheme.pageBg && !activeTheme.isTiles ? 'none' : `url('https://www.transparenttextures.com/patterns/wood-pattern.png')`),
-        backgroundSize: activeTheme.pageBgImage ? 'cover' : 'auto',
-        backgroundPosition: 'center',
-        backgroundRepeat: activeTheme.pageBgImage ? 'no-repeat' : 'repeat'
+        backgroundSize: activeTheme.pageBgSize || (activeTheme.pageBgImage ? 'cover' : 'auto'),
+        backgroundPosition: activeTheme.pageBgPosition || 'center',
+        backgroundRepeat: activeTheme.pageBgRepeat || (activeTheme.pageBgImage ? 'no-repeat' : 'repeat')
       }}
     >
       <style>{`

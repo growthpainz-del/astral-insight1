@@ -35,13 +35,13 @@ function WheelThemePreview({ activeTheme }) {
           <div className="absolute inset-0 w-full h-full pointer-events-none rounded-full overflow-hidden">
             {activeTheme.layerOrder === 'color_top' ? (
               <>
-                <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.outerTextureUrl ?? activeTheme.textureUrl}")`, backgroundSize: 'cover' }} />
+                <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.outerTextureUrl ?? activeTheme.textureUrl}")`, backgroundSize: activeTheme.bgSize || 'cover', backgroundPosition: activeTheme.bgPosition || 'center', backgroundRepeat: activeTheme.bgRepeat || 'no-repeat' }} />
                 <div className="absolute inset-0 w-full h-full" style={{ background: `radial-gradient(circle, ${activeTheme.outerBg} 0%, ${activeTheme.outerGrad} 100%)`, opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
               </>
             ) : (
               <>
                 <div className="absolute inset-0 w-full h-full" style={{ background: `radial-gradient(circle, ${activeTheme.outerBg} 0%, ${activeTheme.outerGrad} 100%)` }} />
-                <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.outerTextureUrl ?? activeTheme.textureUrl}")`, backgroundSize: 'cover', opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
+                <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.outerTextureUrl ?? activeTheme.textureUrl}")`, backgroundSize: activeTheme.bgSize || 'cover', backgroundPosition: activeTheme.bgPosition || 'center', backgroundRepeat: activeTheme.bgRepeat || 'no-repeat', opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
               </>
             )}
           </div>
@@ -61,13 +61,13 @@ function WheelThemePreview({ activeTheme }) {
           <div className="absolute inset-0 w-full h-full pointer-events-none rounded-full overflow-hidden">
             {activeTheme.layerOrder === 'color_top' ? (
               <>
-                <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.outerTextureUrl ?? activeTheme.textureUrl}")`, backgroundSize: 'cover' }} />
+                <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.outerTextureUrl ?? activeTheme.textureUrl}")`, backgroundSize: activeTheme.bgSize || 'cover', backgroundPosition: activeTheme.bgPosition || 'center', backgroundRepeat: activeTheme.bgRepeat || 'no-repeat' }} />
                 <div className="absolute inset-0 w-full h-full" style={{ background: `radial-gradient(circle, ${activeTheme.outerBg} 0%, ${activeTheme.outerGrad} 100%)`, opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
               </>
             ) : (
               <>
                 <div className="absolute inset-0 w-full h-full" style={{ background: `radial-gradient(circle, ${activeTheme.outerBg} 0%, ${activeTheme.outerGrad} 100%)` }} />
-                <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.outerTextureUrl ?? activeTheme.textureUrl}")`, backgroundSize: 'cover', opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
+                <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.outerTextureUrl ?? activeTheme.textureUrl}")`, backgroundSize: activeTheme.bgSize || 'cover', backgroundPosition: activeTheme.bgPosition || 'center', backgroundRepeat: activeTheme.bgRepeat || 'no-repeat', opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
               </>
             )}
           </div>
@@ -87,13 +87,13 @@ function WheelThemePreview({ activeTheme }) {
           <div className="absolute inset-0 w-full h-full pointer-events-none rounded-full overflow-hidden">
             {activeTheme.layerOrder === 'color_top' ? (
               <>
-                <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.middleTextureUrl ?? activeTheme.textureUrl}")`, backgroundSize: 'cover' }} />
+                <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.middleTextureUrl ?? activeTheme.textureUrl}")`, backgroundSize: activeTheme.bgSize || 'cover', backgroundPosition: activeTheme.bgPosition || 'center', backgroundRepeat: activeTheme.bgRepeat || 'no-repeat' }} />
                 <div className="absolute inset-0 w-full h-full" style={{ background: `radial-gradient(circle, ${activeTheme.middleBg} 0%, ${activeTheme.middleGrad} 100%)`, opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
               </>
             ) : (
               <>
                 <div className="absolute inset-0 w-full h-full" style={{ background: `radial-gradient(circle, ${activeTheme.middleBg} 0%, ${activeTheme.middleGrad} 100%)` }} />
-                <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.middleTextureUrl ?? activeTheme.textureUrl}")`, backgroundSize: 'cover', opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
+                <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.middleTextureUrl ?? activeTheme.textureUrl}")`, backgroundSize: activeTheme.bgSize || 'cover', backgroundPosition: activeTheme.bgPosition || 'center', backgroundRepeat: activeTheme.bgRepeat || 'no-repeat', opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
               </>
             )}
           </div>
@@ -113,13 +113,13 @@ function WheelThemePreview({ activeTheme }) {
           <div className="absolute inset-0 w-full h-full pointer-events-none rounded-full overflow-hidden">
             {activeTheme.layerOrder === 'color_top' ? (
               <>
-                <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.innerTextureUrl ?? activeTheme.textureUrl}")`, backgroundSize: 'cover' }} />
+                <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.innerTextureUrl ?? activeTheme.textureUrl}")`, backgroundSize: activeTheme.bgSize || 'cover', backgroundPosition: activeTheme.bgPosition || 'center', backgroundRepeat: activeTheme.bgRepeat || 'no-repeat' }} />
                 <div className="absolute inset-0 w-full h-full" style={{ background: `radial-gradient(circle, ${activeTheme.innerBg} 0%, ${activeTheme.innerGrad} 100%)`, opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
               </>
             ) : (
               <>
                 <div className="absolute inset-0 w-full h-full" style={{ background: `radial-gradient(circle, ${activeTheme.innerBg} 0%, ${activeTheme.innerGrad} 100%)` }} />
-                <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.innerTextureUrl ?? activeTheme.textureUrl}")`, backgroundSize: 'cover', opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
+                <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url("${activeTheme.innerTextureUrl ?? activeTheme.textureUrl}")`, backgroundSize: activeTheme.bgSize || 'cover', backgroundPosition: activeTheme.bgPosition || 'center', backgroundRepeat: activeTheme.bgRepeat || 'no-repeat', opacity: activeTheme.topLayerOpacity ?? 1, mixBlendMode: activeTheme.blendMode || 'multiply' }} />
               </>
             )}
           </div>
@@ -1500,7 +1500,32 @@ export default function SpiritWheelDesigner() {
               </div>
 
               <div className="mt-[12px]">
-                <div className="text-[9px] tracking-[0.18em] uppercase text-[rgba(180,160,220,0.42)] mb-[6px]" style={{ fontFamily: "'Cinzel', serif" }}>Layer & Blending Options</div>
+                <div className="text-[9px] tracking-[0.18em] uppercase text-[rgba(180,160,220,0.42)] mb-[6px]" style={{ fontFamily: "'Cinzel', serif" }}>Texture Positioning & Blending Options</div>
+                <div className="flex gap-[8px] items-center flex-wrap mb-2">
+                  <input 
+                    placeholder="Size (e.g. cover, contain, 100%)" 
+                    value={customTheme.bgSize || ""} 
+                    onChange={e => handleCustomThemeChange({ bgSize: e.target.value})}
+                    className="bg-[#160f2a] border border-[rgba(160,120,255,0.16)] rounded-[7px] px-[10px] py-[7px] text-[13px] text-[rgba(225,215,255,0.9)] outline-none w-[120px]"
+                    style={{ fontFamily: "'Crimson Text', serif" }}
+                  />
+                  <input 
+                    placeholder="Pos (e.g. center, top left)" 
+                    value={customTheme.bgPosition || ""} 
+                    onChange={e => handleCustomThemeChange({ bgPosition: e.target.value})}
+                    className="bg-[#160f2a] border border-[rgba(160,120,255,0.16)] rounded-[7px] px-[10px] py-[7px] text-[13px] text-[rgba(225,215,255,0.9)] outline-none w-[120px]"
+                    style={{ fontFamily: "'Crimson Text', serif" }}
+                  />
+                  <select 
+                    value={customTheme.bgRepeat || 'no-repeat'} 
+                    onChange={e => handleCustomThemeChange({ bgRepeat: e.target.value})}
+                    className="bg-[#160f2a] border border-[rgba(160,120,255,0.16)] rounded-[7px] px-[10px] py-[7px] text-[13px] text-[rgba(225,215,255,0.9)] outline-none appearance-none cursor-pointer"
+                    style={{ fontFamily: "'Crimson Text', serif" }}
+                  >
+                    <option value="no-repeat">No Repeat</option>
+                    <option value="repeat">Repeat</option>
+                  </select>
+                </div>
                 <div className="flex gap-[8px] items-center flex-wrap">
                   <select 
                     value={customTheme.layerOrder || 'texture_top'} 
@@ -1567,6 +1592,31 @@ export default function SpiritWheelDesigner() {
                   >
                     🖼 Gallery
                   </button>
+                </div>
+                <div className="flex gap-[8px] mt-[8px]">
+                  <input 
+                    placeholder="Bg Size (e.g. cover)" 
+                    value={customTheme.pageBgSize || ""} 
+                    onChange={e => handleCustomThemeChange({ pageBgSize: e.target.value})}
+                    className="w-1/3 bg-[#160f2a] border border-[rgba(160,120,255,0.16)] rounded-[7px] px-[10px] py-[7px] text-[13px] text-[rgba(225,215,255,0.9)] outline-none"
+                    style={{ fontFamily: "'Crimson Text', serif" }}
+                  />
+                  <input 
+                    placeholder="Bg Pos (e.g. center)" 
+                    value={customTheme.pageBgPosition || ""} 
+                    onChange={e => handleCustomThemeChange({ pageBgPosition: e.target.value})}
+                    className="w-1/3 bg-[#160f2a] border border-[rgba(160,120,255,0.16)] rounded-[7px] px-[10px] py-[7px] text-[13px] text-[rgba(225,215,255,0.9)] outline-none"
+                    style={{ fontFamily: "'Crimson Text', serif" }}
+                  />
+                  <select 
+                    value={customTheme.pageBgRepeat || 'no-repeat'} 
+                    onChange={e => handleCustomThemeChange({ pageBgRepeat: e.target.value})}
+                    className="w-1/3 bg-[#160f2a] border border-[rgba(160,120,255,0.16)] rounded-[7px] px-[10px] py-[7px] text-[13px] text-[rgba(225,215,255,0.9)] outline-none appearance-none cursor-pointer"
+                    style={{ fontFamily: "'Crimson Text', serif" }}
+                  >
+                    <option value="no-repeat">No Repeat</option>
+                    <option value="repeat">Repeat</option>
+                  </select>
                 </div>
               </div>
 
