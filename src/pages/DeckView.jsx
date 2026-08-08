@@ -134,6 +134,7 @@ export default function DeckView() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting]       = useState(false);
   const [isDuplicating, setIsDuplicating] = useState(false);
+  const [isOrderingPrint, setIsOrderingPrint] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -211,6 +212,20 @@ export default function DeckView() {
       toast.error("Failed to duplicate deck: " + (e.message || "Unknown error"));
     } finally {
       setIsDuplicating(false);
+    }
+  };
+
+  const handleOrderPrint = async () => {
+    if (!deck?.id) return;
+    setIsOrderingPrint(true);
+    try {
+      const res = await base44.functions.invoke("qpmnCreateOrder", { deckId: deck.id });
+      if (res.data?.error) throw new Error(res.data.error);
+      toast.success("Print order sent to QPMN successfully!");
+    } catch (e) {
+      toast.error(`Order failed: ${e.message || "Unknown error"}`);
+    } finally {
+      setIsOrderingPrint(false);
     }
   };
 
@@ -382,6 +397,7 @@ export default function DeckView() {
               { id: "spreadDesigner", label: "Spread Designer", icon: Layers, color: "rgba(99,102,241,0.3)", isLink: true, to: createPageUrl(`SpreadDesigner?deckId=${deck?.id || ""}`) },
               { id: "duplicate", label: isDuplicating ? "Duplicating…" : "Duplicate Deck", icon: isDuplicating ? Loader2 : Copy, color: "#0e7490", action: handleDuplicateDeck },
               { id: "exportJson", label: "Export Deck JSON", icon: Download, color: "#065f46", action: handleExportJson },
+              { id: "qpmnPrint", label: isOrderingPrint ? "Ordering..." : "Order Print (QPMN)", icon: isOrderingPrint ? Loader2 : Send, color: "#10b981", action: handleOrderPrint },
               { id: "deleteDeck", label: "Delete Deck", icon: Trash2, color: "#991b1b", action: () => setDeleteDialogOpen(true) },
             ]
           };
