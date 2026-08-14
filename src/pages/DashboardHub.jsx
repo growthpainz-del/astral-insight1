@@ -224,7 +224,7 @@ export default function DashboardHub() {
         }
       `}</style>
 
-      <div className="min-h-screen relative font-['Crimson_Text'] text-white selection:bg-purple-500/30 pb-20 overflow-x-hidden">
+      <div className="min-h-screen relative font-['Crimson_Text'] text-white selection:bg-purple-500/30 pb-20">
         <CosmosCanvas />
         <DustMotes />
 

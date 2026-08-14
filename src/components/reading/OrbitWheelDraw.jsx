@@ -154,7 +154,7 @@ export default function OrbitWheelDraw({
       {/* SVG Geometry Layer */}
       <svg width="100%" height="100%" viewBox="0 0 400 400" className="absolute inset-0 pointer-events-none" style={{ left: '50%', top: '50%', transform: 'translate(-50%, -50%)', width: 400, height: 400 }}>
         {/* Dashed orbit track */}
-        <circle cx="200" cy="200" r="160" fill="none" stroke="rgba(253, 224, 71, 0.4)" strokeWidth="2" strokeDasharray="6 8" />
+        <circle cx="200" cy="200" r="160" fill="none" stroke="rgba(253, 224, 71, 0.6)" strokeWidth="3" strokeDasharray="8 8" style={{ filter: 'drop-shadow(0 0 4px rgba(253, 224, 71, 0.4))' }} />
         
         {/* Geometric shape connecting vertices */}
         <polygon 
@@ -163,9 +163,9 @@ export default function OrbitWheelDraw({
             return `${200 + 160 * Math.cos(rad)},${200 + 160 * Math.sin(rad)}`;
           }).join(' ')} 
           fill="none" 
-          stroke="rgba(253, 224, 71, 0.8)" 
-          strokeWidth="3" 
-          style={{ filter: 'drop-shadow(0 0 6px rgba(253, 224, 71, 0.8))' }} 
+          stroke="rgba(253, 224, 71, 1)" 
+          strokeWidth="4" 
+          style={{ filter: 'drop-shadow(0 0 8px rgba(253, 224, 71, 0.8))' }} 
         />
       </svg>
 
@@ -173,10 +173,10 @@ export default function OrbitWheelDraw({
         <div className="absolute z-50">
           <button 
             onClick={startSpin} 
-            className="rounded-full border-[3px] border-yellow-200/80 text-yellow-100 font-bold w-32 h-32 flex flex-col items-center justify-center bg-black/60 backdrop-blur-md transition-all hover:bg-black/80 shadow-[0_0_30px_rgba(253,224,71,0.3)] hover:shadow-[0_0_40px_rgba(253,224,71,0.5)]"
+            className="rounded-full border-[3px] border-[#fde047] text-[#fef08a] font-bold w-32 h-32 flex flex-col items-center justify-center bg-[#1a1a1a]/90 backdrop-blur-md transition-all hover:bg-black/80 shadow-[0_0_20px_rgba(253,224,71,0.4)] hover:shadow-[0_0_30px_rgba(253,224,71,0.6)]"
           >
             <span className="text-sm tracking-widest leading-tight text-center">PRESS<br/>TO BEGIN</span>
-            <ChevronDown className="w-5 h-5 mt-2 opacity-80" />
+            <ChevronDown className="w-5 h-5 mt-1 opacity-90" />
           </button>
         </div>
       )}
@@ -198,8 +198,8 @@ export default function OrbitWheelDraw({
              }}
            >
              {!isCaptured && (
-               <div className="w-10 h-10 rounded-full border-2 border-yellow-200/80 bg-black/50 backdrop-blur flex items-center justify-center shadow-[0_0_15px_rgba(253,224,71,0.6)]">
-                 <span className="text-yellow-200 font-bold text-base">{i + 1}</span>
+               <div className="w-[42px] h-[42px] rounded-full border-[3px] border-[#fde047] bg-[#1a1a1a]/90 backdrop-blur flex items-center justify-center shadow-[0_0_15px_rgba(253,224,71,0.6)]">
+                 <span className="text-[#fef08a] font-bold text-lg">{i + 1}</span>
                </div>
              )}
              
@@ -213,13 +213,13 @@ export default function OrbitWheelDraw({
                       rotateY: isCaptured.isRevealed ? 180 : 0 
                    }}
                    transition={{ duration: 0.6, type: 'spring' }}
-                   className="absolute inset-0 rounded-lg shadow-[0_0_20px_rgba(253,224,71,0.6)]"
+                   className="absolute inset-0 rounded-lg shadow-[0_0_25px_rgba(253,224,71,0.8)]"
                    style={{ transformStyle: 'preserve-3d' }}
                  >
-                    <div className="absolute inset-0 rounded-lg overflow-hidden border-2 border-yellow-200/80" style={{ backfaceVisibility: 'hidden' }}>
+                    <div className="absolute inset-0 rounded-lg overflow-hidden border-2 border-[#fde047]" style={{ backfaceVisibility: 'hidden' }}>
                        <img src={deckBackImage} alt="Back" className="w-full h-full object-cover" />
                     </div>
-                    <div className="absolute inset-0 rounded-lg overflow-hidden border-2 border-yellow-200/80 bg-slate-900" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
+                    <div className="absolute inset-0 rounded-lg overflow-hidden border-2 border-[#fde047] bg-slate-900" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
                        {isCaptured.cardData?.image_url ? (
                           <img src={isCaptured.cardData.image_url} alt="Front" className="w-full h-full object-cover" />
                        ) : (
@@ -241,7 +241,7 @@ export default function OrbitWheelDraw({
       <div 
         ref={ringRef}
         className="absolute top-1/2 left-1/2 w-0 h-0 transition-opacity duration-1000"
-        style={{ opacity: phase === 'idle' ? 0.5 : (phase === 'complete' ? 0 : 1) }}
+        style={{ opacity: phase === 'idle' ? 0.6 : (phase === 'complete' ? 0 : 1) }}
       >
          {orbiting.map(card => {
             const rad = (card.baseAngle - 90) * (Math.PI / 180);
@@ -252,11 +252,11 @@ export default function OrbitWheelDraw({
             return (
               <div
                 key={`orbit-${card.id}`}
-                className="absolute w-[44px] h-[66px] -ml-[22px] -mt-[33px] rounded shadow-[0_0_10px_rgba(255,255,255,0.1)] overflow-hidden border border-white/20"
+                className="absolute w-[50px] h-[75px] -ml-[25px] -mt-[37.5px] rounded-sm shadow-[0_0_15px_rgba(255,255,255,0.15)] overflow-hidden border border-white/30"
                 data-basestyles={`translate(${x}px, ${y}px)`}
                 style={{ transform: `translate(${x}px, ${y}px)` }}
               >
-                 <img src={deckBackImage} alt="Back" className="w-full h-full object-cover opacity-60 filter contrast-125" />
+                 <img src={deckBackImage} alt="Back" className="w-full h-full object-cover opacity-80 filter brightness-110" />
               </div>
             );
          })}

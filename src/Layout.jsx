@@ -445,7 +445,7 @@ export default function Layout({ children, currentPageName }) {
 
   return (
     <AppErrorBoundary>
-      <div className="min-h-screen flex flex-col">
+      <div className="h-[100dvh] flex flex-col overflow-hidden">
         <NetworkBanner />
 
         {/* Fixed background */}
@@ -463,9 +463,9 @@ export default function Layout({ children, currentPageName }) {
           )}
         </div>
 
-        <div className="flex flex-1 bg-transparent">
+        <div className="flex flex-1 bg-transparent overflow-hidden">
           {/* Sidebar removed */}
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col overflow-hidden">
             {/* Global header */}
             {currentPageName !== "Reading" && currentPageName !== "ReadingSimple" && (
               <header className="bg-slate-900/95 backdrop-blur-lg border-b border-purple-800/40 h-16 pt-[env(safe-area-inset-top)] flex items-center px-4 justify-between flex-shrink-0 sticky top-0 z-40">
@@ -511,7 +511,6 @@ export default function Layout({ children, currentPageName }) {
               style={{
                 overflowY: "auto",
                 WebkitOverflowScrolling: "touch",
-                minHeight: "100dvh",
               }}
             >
 
