@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useId } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Sparkles, ChevronDown } from 'lucide-react';
@@ -21,9 +21,17 @@ export default function OrbitWheelDraw({
   const lastTime = useRef(performance.now());
   const animRef = useRef();
   const ringRef = useRef();
-  
+
   const orbitRef = useRef([]);
   const capturedRef = useRef([]);
+
+  const uid = useId();
+  const gradGold = `orbitGold-${uid}`;
+  const gradGlow = `orbitGlow-${uid}`;
+
+  // Vertical compression applied to the orbiting ring so it reads as a
+  // tilted, perspective orbit rather than a flat carousel.
+  const ORBIT_TILT = 0.55;
 
   useEffect(() => {
     const initial = Array.from({ length: orbitCount }).map((_, i) => ({
@@ -51,20 +59,46 @@ export default function OrbitWheelDraw({
     return { x: radius * Math.cos(rad), y: radius * Math.sin(rad) };
   };
 
+  // 0 = far edge of the orbit (small, dim, behind), 1 = near edge (large, bright, in front)
+  const getOrbitDepth = (angleDeg) => {
+    const rad = (angleDeg - 90) * (Math.PI / 180);
+    return (Math.sin(rad) + 1) / 2;
+  };
+
+  const getOrbitStyle = (angleDeg, counterRotateDeg) => {
+    const rad = (angleDeg - 90) * (Math.PI / 180);
+    const r = 160;
+    const x = r * Math.cos(rad);
+    const y = r * Math.sin(rad) * ORBIT_TILT;
+    const depth = getOrbitDepth(angleDeg);
+    const scale = 0.62 + 0.38 * depth;
+    const opacity = 0.35 + 0.65 * depth;
+    const zIndex = Math.round(depth * 100);
+    return {
+      transform: `translate(${x}px, ${y}px) rotate(${counterRotateDeg}deg) scale(${scale})`,
+      opacity,
+      zIndex,
+    };
+  };
+
   const startSpin = () => {
     setPhase('spinning');
     lastTime.current = performance.now();
-    
+
     const loop = (time) => {
       const dt = time - lastTime.current;
       lastTime.current = time;
       ringRotation.current = (ringRotation.current + spinSpeed * dt) % 360;
-      
+
       if (ringRef.current) {
-        ringRef.current.style.transform = `translate(-50%, -50%) rotate(${ringRotation.current}deg)`;
         const children = ringRef.current.children;
         for (let i = 0; i < children.length; i++) {
-          children[i].style.transform = children[i].dataset.basestyles + ` rotate(${-ringRotation.current}deg)`;
+          const baseAngle = parseFloat(children[i].dataset.baseangle);
+          const currentAngle = (baseAngle + ringRotation.current) % 360;
+          const s = getOrbitStyle(currentAngle, -ringRotation.current);
+          children[i].style.transform = s.transform;
+          children[i].style.opacity = s.opacity;
+          children[i].style.zIndex = s.zIndex;
         }
       }
       animRef.current = requestAnimationFrame(loop);
@@ -83,7 +117,7 @@ export default function OrbitWheelDraw({
       // 2. Fire pulse visual
       const pos = getVertexPosition(i, 160);
       setActivePulse({ id: i, to: pos });
-      
+
       // wait for pulse travel
       await new Promise(r => setTimeout(r, 500));
       setActivePulse(null);
@@ -118,7 +152,7 @@ export default function OrbitWheelDraw({
           isRevealed: false,
           cardData: null,
         };
-        
+
         capturedRef.current = [...capturedRef.current, newCapture];
         setCapturedSlots([...capturedRef.current]);
 
@@ -130,7 +164,7 @@ export default function OrbitWheelDraw({
         if (onCardCaptured) {
           try {
             const data = await onCardCaptured(captureIndex, capturedRef.current.length - 1);
-            capturedRef.current = capturedRef.current.map(c => 
+            capturedRef.current = capturedRef.current.map(c =>
               c.slotIndex === captureIndex ? { ...c, isRevealed: true, cardData: data } : c
             );
             setCapturedSlots([...capturedRef.current]);
@@ -152,32 +186,86 @@ export default function OrbitWheelDraw({
   return (
     <div className="relative w-full max-w-[400px] aspect-square mx-auto flex items-center justify-center overflow-visible bg-transparent" style={{ containerType: 'inline-size' }}>
       <div className="w-[400px] h-[400px] relative origin-center" style={{ transform: 'scale(min(1, calc(100cqw / 400)))' }}>
+
+        {/* Ambient cosmic glow — soft, screen-blended so it sits well over any dark background */}
+        <div
+          className="absolute inset-0 pointer-events-none transition-opacity duration-1000"
+          style={{
+            opacity: phase === 'idle' ? 0.5 : 1,
+            background: 'radial-gradient(circle at 50% 50%, rgba(253,224,71,0.16) 0%, rgba(168,85,247,0.10) 42%, transparent 72%)',
+            mixBlendMode: 'screen',
+          }}
+        />
+
         {/* SVG Geometry Layer */}
         <svg width="400" height="400" viewBox="0 0 400 400" className="absolute inset-0 pointer-events-none">
-          {/* Dashed orbit track */}
-          <circle cx="200" cy="200" r="160" fill="none" stroke="rgba(253, 224, 71, 0.6)" strokeWidth="3" strokeDasharray="8 8" style={{ filter: 'drop-shadow(0 0 4px rgba(253, 224, 71, 0.4))' }} />
-          
+          <defs>
+            <linearGradient id={gradGold} x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#fde047" />
+              <stop offset="55%" stopColor="#f59e0b" />
+              <stop offset="100%" stopColor="#c084fc" />
+            </linearGradient>
+            <radialGradient id={gradGlow} cx="50%" cy="50%" r="50%">
+              <stop offset="70%" stopColor="rgba(253,224,71,0)" />
+              <stop offset="88%" stopColor="rgba(253,224,71,0.10)" />
+              <stop offset="100%" stopColor="rgba(253,224,71,0)" />
+            </radialGradient>
+          </defs>
+
+          {/* Soft outer halo behind the track */}
+          <circle cx="200" cy="200" r="172" fill={`url(#${gradGlow})`} />
+
+          {/* Slowly-drifting dashed orbit track, independent of the card spin */}
+          <g style={{ transformOrigin: '200px 200px', animation: 'orbitTrackSpin 60s linear infinite' }}>
+            <circle cx="200" cy="200" r="160" fill="none" stroke="rgba(253, 224, 71, 0.45)" strokeWidth="2" strokeDasharray="2 10" />
+          </g>
+          <circle cx="200" cy="200" r="160" fill="none" stroke="rgba(253, 224, 71, 0.55)" strokeWidth="1.5" strokeDasharray="8 8" style={{ filter: 'drop-shadow(0 0 4px rgba(253, 224, 71, 0.4))' }} />
+
           {/* Geometric shape connecting vertices */}
-          <polygon 
+          <polygon
             points={Array.from({ length: spreadSize }).map((_, i) => {
               const rad = ((360 / spreadSize) * i - 90) * (Math.PI / 180);
               return `${200 + 160 * Math.cos(rad)},${200 + 160 * Math.sin(rad)}`;
-            }).join(' ')} 
-            fill="none" 
-            stroke="rgba(253, 224, 71, 1)" 
-            strokeWidth="4" 
-            style={{ filter: 'drop-shadow(0 0 8px rgba(253, 224, 71, 0.8))' }} 
+            }).join(' ')}
+            fill="none"
+            stroke={`url(#${gradGold})`}
+            strokeWidth="3.5"
+            strokeLinejoin="round"
+            style={{ filter: 'drop-shadow(0 0 8px rgba(253, 224, 71, 0.7))' }}
           />
+
+          <style>{`
+            @keyframes orbitTrackSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+          `}</style>
         </svg>
 
         {phase === 'idle' && (
           <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">
-            <button 
-              onClick={startSpin} 
-              className="pointer-events-auto rounded-full border-[3px] border-[#fde047] text-[#fef08a] font-bold w-32 h-32 flex flex-col items-center justify-center bg-[#1a1a1a]/90 backdrop-blur-md transition-all hover:bg-black/80 shadow-[0_0_20px_rgba(253,224,71,0.4)] hover:shadow-[0_0_30px_rgba(253,224,71,0.6)]"
+            <button
+              onClick={startSpin}
+              className="pointer-events-auto group relative rounded-full w-32 h-32 flex flex-col items-center justify-center font-bold transition-all duration-300"
+              style={{
+                background: 'radial-gradient(circle at 35% 30%, rgba(253,224,71,0.22), rgba(20,16,10,0.92) 65%)',
+                border: '2px solid transparent',
+                backgroundClip: 'padding-box',
+                boxShadow: '0 0 22px rgba(253,224,71,0.35), inset 0 0 18px rgba(253,224,71,0.08)',
+              }}
             >
-              <span className="text-sm tracking-widest leading-tight text-center">PRESS<br/>TO BEGIN</span>
-              <ChevronDown className="w-5 h-5 mt-1 opacity-90" />
+              {/* Gradient ring wrapper */}
+              <span
+                className="absolute inset-0 rounded-full -z-10"
+                style={{
+                  background: 'linear-gradient(135deg, #fde047, #f59e0b 55%, #c084fc)',
+                  padding: 3,
+                  WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                  WebkitMaskComposite: 'xor',
+                  maskComposite: 'exclude',
+                }}
+              />
+              <span className="absolute inset-[-6px] rounded-full border border-[#fde047]/30 animate-ping" style={{ animationDuration: '2.4s' }} />
+              <Sparkles className="w-4 h-4 mb-1 text-[#fde047] opacity-80 group-hover:opacity-100 transition-opacity" />
+              <span className="text-sm tracking-widest leading-tight text-center text-[#fef08a]">PRESS<br/>TO BEGIN</span>
+              <ChevronDown className="w-4 h-4 mt-1 text-[#fef08a]/80" />
             </button>
           </div>
         )}
@@ -186,41 +274,64 @@ export default function OrbitWheelDraw({
         {Array.from({ length: spreadSize }).map((_, i) => {
            const pos = getVertexPosition(i, 160);
            const isCaptured = capturedSlots.find(c => c.slotIndex === i);
-           
+
            return (
              <div
                key={`vertex-${i}`}
                className="absolute top-1/2 left-1/2 flex items-center justify-center transition-all duration-500"
-               style={{ 
+               style={{
                  width: 60, height: 90,
                  marginLeft: -30, marginTop: -45,
                  transform: `translate(${pos.x}px, ${pos.y}px)`,
-                 zIndex: isCaptured ? 20 : 10
+                 zIndex: isCaptured ? 200 : 150
                }}
              >
                {!isCaptured && (
-                 <div className="w-[42px] h-[42px] rounded-full border-[3px] border-[#fde047] bg-[#1a1a1a]/90 backdrop-blur flex items-center justify-center shadow-[0_0_15px_rgba(253,224,71,0.6)]">
-                   <span className="text-[#fef08a] font-bold text-lg">{i + 1}</span>
+                 <div className="relative w-[42px] h-[42px] rounded-full flex items-center justify-center">
+                   <span
+                     className="absolute inset-0 rounded-full animate-pulse"
+                     style={{
+                       background: 'radial-gradient(circle, rgba(253,224,71,0.25) 0%, transparent 70%)',
+                       animationDuration: '2.2s',
+                     }}
+                   />
+                   <div
+                     className="relative w-full h-full rounded-full bg-[#1a1a1a]/90 backdrop-blur flex items-center justify-center"
+                     style={{
+                       border: '2px solid transparent',
+                       backgroundImage: 'linear-gradient(#1a1a1a, #1a1a1a), linear-gradient(135deg, #fde047, #f59e0b 60%, #c084fc)',
+                       backgroundOrigin: 'border-box',
+                       backgroundClip: 'padding-box, border-box',
+                       boxShadow: '0 0 15px rgba(253,224,71,0.55)',
+                     }}
+                   >
+                     <span className="text-[#fef08a] font-bold text-lg">{i + 1}</span>
+                   </div>
                  </div>
                )}
-               
+
                <AnimatePresence>
                  {isCaptured && (
                    <motion.div
                      initial={{ opacity: 0, scale: 1.5, rotateY: 0 }}
-                     animate={{ 
-                        opacity: 1, 
-                        scale: 1, 
-                        rotateY: isCaptured.isRevealed ? 180 : 0 
+                     animate={{
+                        opacity: 1,
+                        scale: 1,
+                        rotateY: isCaptured.isRevealed ? 180 : 0
                      }}
                      transition={{ duration: 0.6, type: 'spring' }}
-                     className="absolute inset-0 rounded-lg shadow-[0_0_25px_rgba(253,224,71,0.8)]"
-                     style={{ transformStyle: 'preserve-3d' }}
+                     className="absolute inset-0 rounded-lg"
+                     style={{
+                       transformStyle: 'preserve-3d',
+                       padding: 2,
+                       background: 'linear-gradient(135deg, #fde047, #f59e0b 55%, #c084fc)',
+                       boxShadow: '0 0 26px rgba(253,224,71,0.55), 0 0 40px rgba(168,85,247,0.25)',
+                     }}
                    >
-                      <div className="absolute inset-0 rounded-lg overflow-hidden border-2 border-[#fde047]" style={{ backfaceVisibility: 'hidden' }}>
+                      <div className="absolute inset-[2px] rounded-md overflow-hidden" style={{ backfaceVisibility: 'hidden' }}>
                          <img src={deckBackImage} alt="Back" className="w-full h-full object-cover" />
                       </div>
-                      <div className="absolute inset-0 rounded-lg overflow-hidden border-2 border-[#fde047] bg-slate-900" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
+                      <div className="absolute inset-[2px] rounded-md overflow-hidden bg-slate-900" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
                          {isCaptured.cardData?.image_url ? (
                             <img src={isCaptured.cardData.image_url} alt="Front" className="w-full h-full object-cover" />
                          ) : (
@@ -238,46 +349,63 @@ export default function OrbitWheelDraw({
            );
         })}
 
-        {/* Orbiting Ring */}
-        <div 
+        {/* Orbiting Ring — tilted ellipse with depth-based scale/opacity so cards feel like
+            they're actually circling in space rather than sliding around a flat disc. */}
+        <div
           ref={ringRef}
           className="absolute top-1/2 left-1/2 w-0 h-0 transition-opacity duration-1000"
-          style={{ opacity: phase === 'idle' ? 0.6 : (phase === 'complete' ? 0 : 1) }}
+          style={{ transform: 'translate(-50%, -50%)', opacity: phase === 'idle' ? 0.6 : (phase === 'complete' ? 0 : 1) }}
         >
            {orbiting.map(card => {
-              const rad = (card.baseAngle - 90) * (Math.PI / 180);
-              const r = 160; // Orbit radius matches vertices
-              const x = r * Math.cos(rad);
-              const y = r * Math.sin(rad);
-
+              const s = getOrbitStyle(card.baseAngle, 0);
               return (
                 <div
                   key={`orbit-${card.id}`}
-                  className="absolute w-[50px] h-[75px] -ml-[25px] -mt-[37.5px] rounded-sm shadow-[0_0_15px_rgba(255,255,255,0.15)] overflow-hidden border border-white/30"
-                  data-basestyles={`translate(${x}px, ${y}px)`}
-                  style={{ transform: `translate(${x}px, ${y}px)` }}
+                  className="absolute w-[50px] h-[75px] -ml-[25px] -mt-[37.5px] rounded-md overflow-hidden"
+                  data-baseangle={card.baseAngle}
+                  style={{
+                    transform: s.transform,
+                    opacity: s.opacity,
+                    zIndex: s.zIndex,
+                    border: '1px solid rgba(253,224,71,0.35)',
+                    boxShadow: '0 0 14px rgba(253,224,71,0.18), 0 4px 10px rgba(0,0,0,0.4)',
+                  }}
                 >
-                   <img src={deckBackImage} alt="Back" className="w-full h-full object-cover opacity-80 filter brightness-110" />
+                   <img src={deckBackImage} alt="Back" className="w-full h-full object-cover brightness-110" />
                 </div>
               );
            })}
         </div>
 
-        {/* Pulse Particle */}
+        {/* Pulse Particle — layered gold/violet comet with a soft trailing halo */}
         <AnimatePresence>
           {activePulse && (
             <motion.div
-              initial={{ x: 0, y: 0, scale: 0.5, opacity: 1 }}
-              animate={{ x: activePulse.to.x, y: activePulse.to.y, scale: 1.5, opacity: 0 }}
+              initial={{ x: 0, y: 0, scale: 0.4, opacity: 1 }}
+              animate={{ x: activePulse.to.x, y: activePulse.to.y, scale: 1.6, opacity: 0 }}
               transition={{ duration: 0.5, ease: 'easeOut' }}
-              className="absolute top-1/2 left-1/2 w-4 h-4 -ml-2 -mt-2 rounded-full bg-yellow-200 shadow-[0_0_20px_#fef08a]"
+              className="absolute top-1/2 left-1/2 w-4 h-4 -ml-2 -mt-2 rounded-full"
+              style={{
+                background: 'radial-gradient(circle, #fef9c3 0%, #fde047 40%, #c084fc 100%)',
+                boxShadow: '0 0 12px 4px rgba(253,224,71,0.85), 0 0 26px 10px rgba(192,132,252,0.35)',
+              }}
             />
           )}
         </AnimatePresence>
 
-        {/* Center Emitter (Visible during spin) */}
+        {/* Center Emitter — pulsing energy core with expanding rings */}
         {phase !== 'idle' && (
-          <div className="absolute top-1/2 left-1/2 w-6 h-6 -ml-3 -mt-3 rounded-full bg-yellow-200 shadow-[0_0_20px_#fde047] border-2 border-white/50" />
+          <div className="absolute top-1/2 left-1/2 w-6 h-6 -ml-3 -mt-3 pointer-events-none">
+            <span className="absolute inset-0 rounded-full border border-[#fde047]/50 animate-ping" style={{ animationDuration: '1.8s' }} />
+            <span className="absolute inset-[-8px] rounded-full border border-[#c084fc]/30 animate-ping" style={{ animationDuration: '2.6s', animationDelay: '0.4s' }} />
+            <div
+              className="absolute inset-0 rounded-full border-2 border-white/60"
+              style={{
+                background: 'radial-gradient(circle, #fef9c3, #fde047 60%, #f59e0b)',
+                boxShadow: '0 0 20px #fde047, 0 0 34px rgba(192,132,252,0.4)',
+              }}
+            />
+          </div>
         )}
       </div>
     </div>
