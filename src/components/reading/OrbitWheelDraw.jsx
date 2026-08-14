@@ -19,6 +19,8 @@ export default function OrbitWheelDraw({
   const [capturedSlots, setCapturedSlots] = useState([]);
   const [orbiting, setOrbiting] = useState([]);
   const [activePulse, setActivePulse] = useState(null);
+  const [targetCard, setTargetCard] = useState(null);
+  const [flare, setFlare] = useState(null);
   const [isCapturing, setIsCapturing] = useState(false);
   const isCapturingRef = useRef(false);
 
@@ -31,7 +33,6 @@ export default function OrbitWheelDraw({
   const capturedRef = useRef([]);
 
   const uid = useId();
-  const gradGold = `orbitGold-${uid}`;
   const gradGlow = `orbitGlow-${uid}`;
 
   // Vertical compression applied to the orbiting ring so it reads as a
@@ -70,11 +71,18 @@ export default function OrbitWheelDraw({
     return (Math.sin(rad) + 1) / 2;
   };
 
-  const getOrbitStyle = (angleDeg, counterRotateDeg) => {
+  // The orbiting cards live on a tilted ellipse (see ORBIT_TILT), not the plain
+  // circle the vertices/pulse used to target — this is the single source of
+  // truth for "where is a card at this angle" so anything aiming at a card
+  // (the shooting star, the freeze-frame target) lands exactly on it.
+  const getOrbitXY = (angleDeg) => {
     const rad = (angleDeg - 90) * (Math.PI / 180);
     const r = 160;
-    const x = r * Math.cos(rad);
-    const y = r * Math.sin(rad) * ORBIT_TILT;
+    return { x: r * Math.cos(rad), y: r * Math.sin(rad) * ORBIT_TILT };
+  };
+
+  const getOrbitStyle = (angleDeg, counterRotateDeg) => {
+    const { x, y } = getOrbitXY(angleDeg);
     const depth = getOrbitDepth(angleDeg);
     const scale = 0.62 + 0.38 * depth;
     const opacity = 0.35 + 0.65 * depth;
@@ -114,10 +122,15 @@ export default function OrbitWheelDraw({
     // fireCapture(), fired by tapping the center hub. Nothing auto-fires.
   };
 
-  // Player-triggered: launch a shooting star from the hub to the next open
-  // vertex and capture whichever card is currently nearest that vertex.
-  // Timing skill (tapping when a card feels aligned) replaces the old
-  // automatic interval-based capture.
+  // Player-triggered capture, in three beats:
+  //   1. Lock target — whichever card is nearest the next open vertex right
+  //      now is chosen immediately and frozen in place (it stops orbiting),
+  //      so what you see is exactly what gets hit — no more shots that
+  //      sail off toward a point no card is actually at.
+  //   2. Shooting star — travels from the hub to that frozen card's exact
+  //      screen position.
+  //   3. Flare — a burst of light at the point of impact, then the card
+  //      flies into its numbered slot.
   const fireCapture = async () => {
     if (isCapturingRef.current) return;
     if (phase !== 'spinning') return;
@@ -125,18 +138,7 @@ export default function OrbitWheelDraw({
     if (slotIndex >= spreadSize) return;
     if (!orbitRef.current.length) return;
 
-    isCapturingRef.current = true;
-    setIsCapturing(true);
-
-    // 1. Fire the shooting star toward the next open vertex
-    const pos = getVertexPosition(slotIndex, 160);
-    setActivePulse({ id: slotIndex, to: pos });
-
-    // wait for the star's travel animation
-    await new Promise(r => setTimeout(r, 500));
-    setActivePulse(null);
-
-    // 2. Capture whichever card is closest to that vertex angle right now
+    // 1. Lock the target card right now, at its true current position
     const vertexAngle = (360 / spreadSize) * slotIndex;
     let closestCard = null;
     let minDistance = Infinity;
@@ -152,38 +154,57 @@ export default function OrbitWheelDraw({
        }
     });
 
-    if (closestCard) {
-      // Remove from orbit pool
-      const newOrbit = [...orbitRef.current];
-      newOrbit.splice(closestIndex, 1);
-      orbitRef.current = newOrbit;
-      setOrbiting(newOrbit);
+    if (!closestCard) return;
 
-      const newCapture = {
-        slotIndex,
-        cardId: closestCard.id,
-        isRevealed: false,
-        cardData: null,
-      };
+    isCapturingRef.current = true;
+    setIsCapturing(true);
 
-      capturedRef.current = [...capturedRef.current, newCapture];
-      setCapturedSlots([...capturedRef.current]);
+    const impactAngle = (closestCard.baseAngle + ringRotation.current) % 360;
+    const impactPos = getOrbitXY(impactAngle);
 
-      if (window.navigator && window.navigator.vibrate) {
-        window.navigator.vibrate(50);
-      }
+    // Pull it out of the moving pool so it visibly freezes at impactPos
+    // instead of continuing to drift while the shot is in flight.
+    const newOrbit = [...orbitRef.current];
+    newOrbit.splice(closestIndex, 1);
+    orbitRef.current = newOrbit;
+    setOrbiting(newOrbit);
+    setTargetCard({ ...closestCard, pos: impactPos });
 
-      // Delegate identity resolution to parent
-      if (onCardCaptured) {
-        try {
-          const data = await onCardCaptured(slotIndex, capturedRef.current.length - 1);
-          capturedRef.current = capturedRef.current.map(c =>
-            c.slotIndex === slotIndex ? { ...c, isRevealed: true, cardData: data } : c
-          );
-          setCapturedSlots([...capturedRef.current]);
-        } catch (e) {
-          console.error("Card capture resolution failed:", e);
-        }
+    // 2. Fire the shooting star at the frozen card
+    setActivePulse({ id: slotIndex, to: impactPos });
+    await new Promise(r => setTimeout(r, 450));
+    setActivePulse(null);
+
+    // 3. Flare of light on impact, then hand off to the slot animation
+    setFlare({ id: slotIndex, pos: impactPos });
+    await new Promise(r => setTimeout(r, 320));
+    setFlare(null);
+    setTargetCard(null);
+
+    const newCapture = {
+      slotIndex,
+      cardId: closestCard.id,
+      isRevealed: false,
+      cardData: null,
+    };
+
+    capturedRef.current = [...capturedRef.current, newCapture];
+    setCapturedSlots([...capturedRef.current]);
+
+    if (window.navigator && window.navigator.vibrate) {
+      window.navigator.vibrate(50);
+    }
+
+    // Delegate identity resolution to parent
+    if (onCardCaptured) {
+      try {
+        const data = await onCardCaptured(slotIndex, capturedRef.current.length - 1);
+        capturedRef.current = capturedRef.current.map(c =>
+          c.slotIndex === slotIndex ? { ...c, isRevealed: true, cardData: data } : c
+        );
+        setCapturedSlots([...capturedRef.current]);
+      } catch (e) {
+        console.error("Card capture resolution failed:", e);
       }
     }
 
@@ -216,11 +237,6 @@ export default function OrbitWheelDraw({
         {/* SVG Geometry Layer */}
         <svg width="400" height="400" viewBox="0 0 400 400" className="absolute inset-0 pointer-events-none">
           <defs>
-            <linearGradient id={gradGold} x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#fde047" />
-              <stop offset="55%" stopColor="#f59e0b" />
-              <stop offset="100%" stopColor="#c084fc" />
-            </linearGradient>
             <radialGradient id={gradGlow} cx="50%" cy="50%" r="50%">
               <stop offset="70%" stopColor="rgba(253,224,71,0)" />
               <stop offset="88%" stopColor="rgba(253,224,71,0.10)" />
@@ -236,19 +252,6 @@ export default function OrbitWheelDraw({
             <circle cx="200" cy="200" r="160" fill="none" stroke="rgba(253, 224, 71, 0.45)" strokeWidth="2" strokeDasharray="2 10" />
           </g>
           <circle cx="200" cy="200" r="160" fill="none" stroke="rgba(253, 224, 71, 0.55)" strokeWidth="1.5" strokeDasharray="8 8" style={{ filter: 'drop-shadow(0 0 4px rgba(253, 224, 71, 0.4))' }} />
-
-          {/* Geometric shape connecting vertices */}
-          <polygon
-            points={Array.from({ length: spreadSize }).map((_, i) => {
-              const rad = ((360 / spreadSize) * i - 90) * (Math.PI / 180);
-              return `${200 + 160 * Math.cos(rad)},${200 + 160 * Math.sin(rad)}`;
-            }).join(' ')}
-            fill="none"
-            stroke={`url(#${gradGold})`}
-            strokeWidth="3.5"
-            strokeLinejoin="round"
-            style={{ filter: 'drop-shadow(0 0 8px rgba(253, 224, 71, 0.7))' }}
-          />
 
           <style>{`
             @keyframes orbitTrackSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
@@ -397,9 +400,34 @@ export default function OrbitWheelDraw({
            })}
         </div>
 
+        {/* Frozen Target — the exact card fireCapture() locked onto, held still at
+            its true position (and highlighted) for the duration of the shot so
+            the star always visibly lands on something real. */}
+        <AnimatePresence>
+          {targetCard && (
+            <motion.div
+              key={`target-${targetCard.id}`}
+              initial={{ scale: 1 }}
+              animate={{ scale: [1, 1.08, 1] }}
+              exit={{ opacity: 0, scale: 0.6 }}
+              transition={{ duration: 0.5, repeat: Infinity, ease: 'easeInOut' }}
+              className="absolute top-1/2 left-1/2 w-[50px] h-[75px] -ml-[25px] -mt-[37.5px] rounded-md overflow-hidden flex items-center justify-center p-1.5"
+              style={{
+                transform: `translate(${targetCard.pos.x}px, ${targetCard.pos.y}px)`,
+                zIndex: 140,
+                background: 'radial-gradient(circle at 50% 40%, #2a2340, #12101a)',
+                border: '1.5px solid #fde047',
+                boxShadow: '0 0 22px rgba(253,224,71,0.7), 0 0 40px rgba(192,132,252,0.35)',
+              }}
+            >
+              <img src={deckBackImage} alt="" className="w-full h-full object-contain brightness-125" />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Shooting Star — a comet head plus a fixed-length trail rotated to point
             back toward the hub, so it reads as a star being launched rather than
-            a dot sliding across. Fired by the player via fireCapture(). */}
+            a dot sliding across. Aimed at the frozen target's real position. */}
         <AnimatePresence>
           {activePulse && (() => {
             const angleRad = Math.atan2(activePulse.to.y, activePulse.to.x);
@@ -411,7 +439,7 @@ export default function OrbitWheelDraw({
                   initial={{ opacity: 0, scaleX: 0 }}
                   animate={{ opacity: [0, 1, 0], scaleX: 1 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 0.5, ease: 'easeOut' }}
+                  transition={{ duration: 0.45, ease: 'easeOut' }}
                   className="absolute top-1/2 left-1/2 h-[3px] rounded-full pointer-events-none"
                   style={{
                     width: dist,
@@ -423,8 +451,8 @@ export default function OrbitWheelDraw({
                 />
                 <motion.div
                   initial={{ x: 0, y: 0, scale: 0.4, opacity: 1 }}
-                  animate={{ x: activePulse.to.x, y: activePulse.to.y, scale: 1.6, opacity: 0 }}
-                  transition={{ duration: 0.5, ease: 'easeOut' }}
+                  animate={{ x: activePulse.to.x, y: activePulse.to.y, scale: 1.1, opacity: 1 }}
+                  transition={{ duration: 0.45, ease: 'easeOut' }}
                   className="absolute top-1/2 left-1/2 w-4 h-4 -ml-2 -mt-2 rounded-full"
                   style={{
                     background: 'radial-gradient(circle, #fef9c3 0%, #fde047 40%, #c084fc 100%)',
@@ -434,6 +462,50 @@ export default function OrbitWheelDraw({
               </React.Fragment>
             );
           })()}
+        </AnimatePresence>
+
+        {/* Impact Flare — a burst of light where the star lands: a hot core flash,
+            an expanding shockwave ring, and a handful of radiating sparks. */}
+        <AnimatePresence>
+          {flare && (
+            <motion.div
+              key={`flare-${flare.id}`}
+              className="absolute top-1/2 left-1/2 pointer-events-none"
+              style={{ transform: `translate(${flare.pos.x}px, ${flare.pos.y}px)` }}
+            >
+              <motion.div
+                initial={{ scale: 0.2, opacity: 1 }}
+                animate={{ scale: 2.2, opacity: 0 }}
+                transition={{ duration: 0.42, ease: 'easeOut' }}
+                className="absolute w-10 h-10 -ml-5 -mt-5 rounded-full"
+                style={{ background: 'radial-gradient(circle, #ffffff 0%, #fef9c3 30%, #fde047 55%, rgba(192,132,252,0.4) 80%, transparent 100%)' }}
+              />
+              <motion.div
+                initial={{ scale: 0.4, opacity: 0.9 }}
+                animate={{ scale: 3, opacity: 0 }}
+                transition={{ duration: 0.55, ease: 'easeOut' }}
+                className="absolute w-10 h-10 -ml-5 -mt-5 rounded-full border-2"
+                style={{ borderColor: 'rgba(253,224,71,0.85)' }}
+              />
+              {Array.from({ length: 6 }).map((_, i) => {
+                const sparkAngle = i * 60 + 15;
+                return (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 1, scaleX: 0 }}
+                    animate={{ opacity: 0, scaleX: 1 }}
+                    transition={{ duration: 0.4, ease: 'easeOut' }}
+                    className="absolute h-[2px] w-5 rounded-full"
+                    style={{
+                      transformOrigin: '0% 50%',
+                      transform: `rotate(${sparkAngle}deg)`,
+                      background: 'linear-gradient(90deg, #fef9c3, rgba(192,132,252,0))',
+                    }}
+                  />
+                );
+              })}
+            </motion.div>
+          )}
         </AnimatePresence>
 
         {/* Center Hub — the medallion everything actually orbits around, and the
