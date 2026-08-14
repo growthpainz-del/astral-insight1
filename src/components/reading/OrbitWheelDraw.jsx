@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, ChevronDown } from 'lucide-react';
 
 export default function OrbitWheelDraw({
   spreadSize = 3,
@@ -151,11 +151,33 @@ export default function OrbitWheelDraw({
 
   return (
     <div className="relative w-full max-w-md aspect-square mx-auto flex items-center justify-center overflow-hidden bg-transparent">
+      {/* SVG Geometry Layer */}
+      <svg width="100%" height="100%" viewBox="0 0 400 400" className="absolute inset-0 pointer-events-none" style={{ left: '50%', top: '50%', transform: 'translate(-50%, -50%)', width: 400, height: 400 }}>
+        {/* Dashed orbit track */}
+        <circle cx="200" cy="200" r="160" fill="none" stroke="rgba(253, 224, 71, 0.4)" strokeWidth="2" strokeDasharray="6 8" />
+        
+        {/* Geometric shape connecting vertices */}
+        <polygon 
+          points={Array.from({ length: spreadSize }).map((_, i) => {
+            const rad = ((360 / spreadSize) * i - 90) * (Math.PI / 180);
+            return `${200 + 160 * Math.cos(rad)},${200 + 160 * Math.sin(rad)}`;
+          }).join(' ')} 
+          fill="none" 
+          stroke="rgba(253, 224, 71, 0.8)" 
+          strokeWidth="3" 
+          style={{ filter: 'drop-shadow(0 0 6px rgba(253, 224, 71, 0.8))' }} 
+        />
+      </svg>
+
       {phase === 'idle' && (
         <div className="absolute z-50">
-          <Button onClick={startSpin} className="rounded-full bg-purple-600 hover:bg-purple-500 text-white font-bold px-8 py-6 shadow-[0_0_20px_rgba(147,51,234,0.5)]">
-            <Sparkles className="mr-2 w-5 h-5" /> Press to Begin
-          </Button>
+          <button 
+            onClick={startSpin} 
+            className="rounded-full border-[3px] border-yellow-200/80 text-yellow-100 font-bold w-32 h-32 flex flex-col items-center justify-center bg-black/60 backdrop-blur-md transition-all hover:bg-black/80 shadow-[0_0_30px_rgba(253,224,71,0.3)] hover:shadow-[0_0_40px_rgba(253,224,71,0.5)]"
+          >
+            <span className="text-sm tracking-widest leading-tight text-center">PRESS<br/>TO BEGIN</span>
+            <ChevronDown className="w-5 h-5 mt-2 opacity-80" />
+          </button>
         </div>
       )}
 
@@ -167,13 +189,19 @@ export default function OrbitWheelDraw({
          return (
            <div
              key={`vertex-${i}`}
-             className="absolute top-1/2 left-1/2 w-[60px] h-[90px] -ml-[30px] -mt-[45px] rounded-lg border-2 border-dashed border-white/20 flex items-center justify-center transition-all duration-500"
+             className="absolute top-1/2 left-1/2 flex items-center justify-center transition-all duration-500"
              style={{ 
+               width: 60, height: 90,
+               marginLeft: -30, marginTop: -45,
                transform: `translate(${pos.x}px, ${pos.y}px)`,
-               boxShadow: isCaptured ? '0 0 30px rgba(168,85,247,0.4)' : 'none'
+               zIndex: isCaptured ? 20 : 10
              }}
            >
-             {!isCaptured && <span className="text-white/30 font-bold">{i + 1}</span>}
+             {!isCaptured && (
+               <div className="w-10 h-10 rounded-full border-2 border-yellow-200/80 bg-black/50 backdrop-blur flex items-center justify-center shadow-[0_0_15px_rgba(253,224,71,0.6)]">
+                 <span className="text-yellow-200 font-bold text-base">{i + 1}</span>
+               </div>
+             )}
              
              <AnimatePresence>
                {isCaptured && (
@@ -185,13 +213,13 @@ export default function OrbitWheelDraw({
                       rotateY: isCaptured.isRevealed ? 180 : 0 
                    }}
                    transition={{ duration: 0.6, type: 'spring' }}
-                   className="absolute inset-0"
+                   className="absolute inset-0 rounded-lg shadow-[0_0_20px_rgba(253,224,71,0.6)]"
                    style={{ transformStyle: 'preserve-3d' }}
                  >
-                    <div className="absolute inset-0 rounded-lg overflow-hidden shadow-lg border border-white/10" style={{ backfaceVisibility: 'hidden' }}>
+                    <div className="absolute inset-0 rounded-lg overflow-hidden border-2 border-yellow-200/80" style={{ backfaceVisibility: 'hidden' }}>
                        <img src={deckBackImage} alt="Back" className="w-full h-full object-cover" />
                     </div>
-                    <div className="absolute inset-0 rounded-lg overflow-hidden shadow-lg border border-white/20 bg-slate-900" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
+                    <div className="absolute inset-0 rounded-lg overflow-hidden border-2 border-yellow-200/80 bg-slate-900" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
                        {isCaptured.cardData?.image_url ? (
                           <img src={isCaptured.cardData.image_url} alt="Front" className="w-full h-full object-cover" />
                        ) : (
@@ -213,22 +241,22 @@ export default function OrbitWheelDraw({
       <div 
         ref={ringRef}
         className="absolute top-1/2 left-1/2 w-0 h-0 transition-opacity duration-1000"
-        style={{ opacity: phase === 'idle' ? 0.4 : (phase === 'complete' ? 0 : 1) }}
+        style={{ opacity: phase === 'idle' ? 0.5 : (phase === 'complete' ? 0 : 1) }}
       >
          {orbiting.map(card => {
             const rad = (card.baseAngle - 90) * (Math.PI / 180);
-            const r = 90; // Orbit radius smaller than vertices
+            const r = 160; // Orbit radius matches vertices
             const x = r * Math.cos(rad);
             const y = r * Math.sin(rad);
 
             return (
               <div
                 key={`orbit-${card.id}`}
-                className="absolute w-10 h-14 -ml-5 -mt-7 rounded shadow-sm overflow-hidden"
+                className="absolute w-[44px] h-[66px] -ml-[22px] -mt-[33px] rounded shadow-[0_0_10px_rgba(255,255,255,0.1)] overflow-hidden border border-white/20"
                 data-basestyles={`translate(${x}px, ${y}px)`}
                 style={{ transform: `translate(${x}px, ${y}px)` }}
               >
-                 <img src={deckBackImage} alt="Back" className="w-full h-full object-cover opacity-70" />
+                 <img src={deckBackImage} alt="Back" className="w-full h-full object-cover opacity-60 filter contrast-125" />
               </div>
             );
          })}
@@ -241,13 +269,15 @@ export default function OrbitWheelDraw({
             initial={{ x: 0, y: 0, scale: 0.5, opacity: 1 }}
             animate={{ x: activePulse.to.x, y: activePulse.to.y, scale: 1.5, opacity: 0 }}
             transition={{ duration: 0.5, ease: 'easeOut' }}
-            className="absolute top-1/2 left-1/2 w-4 h-4 -ml-2 -mt-2 rounded-full bg-cyan-400 shadow-[0_0_20px_#22d3ee]"
+            className="absolute top-1/2 left-1/2 w-4 h-4 -ml-2 -mt-2 rounded-full bg-yellow-200 shadow-[0_0_20px_#fef08a]"
           />
         )}
       </AnimatePresence>
 
-      {/* Center Emitter */}
-      <div className="absolute top-1/2 left-1/2 w-6 h-6 -ml-3 -mt-3 rounded-full bg-purple-500 shadow-[0_0_20px_#a855f7] border-2 border-white/50" />
+      {/* Center Emitter (Visible during spin) */}
+      {phase !== 'idle' && (
+        <div className="absolute top-1/2 left-1/2 w-6 h-6 -ml-3 -mt-3 rounded-full bg-yellow-200 shadow-[0_0_20px_#fde047] border-2 border-white/50" />
+      )}
     </div>
   );
 }
