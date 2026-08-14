@@ -19,6 +19,8 @@ export default function OrbitWheelDraw({
   const [capturedSlots, setCapturedSlots] = useState([]);
   const [orbiting, setOrbiting] = useState([]);
   const [activePulse, setActivePulse] = useState(null);
+  const [isCapturing, setIsCapturing] = useState(false);
+  const isCapturingRef = useRef(false);
 
   const ringRotation = useRef(0);
   const lastTime = useRef(performance.now());
@@ -108,82 +110,93 @@ export default function OrbitWheelDraw({
     };
     animRef.current = requestAnimationFrame(loop);
 
-    runPulseSequence();
+    // The ring just spins from here — capture is now player-triggered via
+    // fireCapture(), fired by tapping the center hub. Nothing auto-fires.
   };
 
-  const runPulseSequence = async () => {
-    for (let i = 0; i < spreadSize; i++) {
-      // 1. Wait for interval (minus pulse animation time)
-      await new Promise(r => setTimeout(r, pulseInterval - 500));
-      if (!orbitRef.current.length) break;
+  // Player-triggered: launch a shooting star from the hub to the next open
+  // vertex and capture whichever card is currently nearest that vertex.
+  // Timing skill (tapping when a card feels aligned) replaces the old
+  // automatic interval-based capture.
+  const fireCapture = async () => {
+    if (isCapturingRef.current) return;
+    if (phase !== 'spinning') return;
+    const slotIndex = capturedRef.current.length;
+    if (slotIndex >= spreadSize) return;
+    if (!orbitRef.current.length) return;
 
-      // 2. Fire pulse visual
-      const pos = getVertexPosition(i, 160);
-      setActivePulse({ id: i, to: pos });
+    isCapturingRef.current = true;
+    setIsCapturing(true);
 
-      // wait for pulse travel
-      await new Promise(r => setTimeout(r, 500));
-      setActivePulse(null);
+    // 1. Fire the shooting star toward the next open vertex
+    const pos = getVertexPosition(slotIndex, 160);
+    setActivePulse({ id: slotIndex, to: pos });
 
-      // 3. Capture logic
-      const vertexAngle = (360 / spreadSize) * i;
-      let closestCard = null;
-      let minDistance = Infinity;
-      let closestIndex = -1;
+    // wait for the star's travel animation
+    await new Promise(r => setTimeout(r, 500));
+    setActivePulse(null);
 
-      orbitRef.current.forEach((card, idx) => {
-         const currentAngle = (card.baseAngle + ringRotation.current) % 360;
-         const dist = getShortestDistance(currentAngle, vertexAngle);
-         if (dist < minDistance) {
-           minDistance = dist;
-           closestCard = card;
-           closestIndex = idx;
-         }
-      });
+    // 2. Capture whichever card is closest to that vertex angle right now
+    const vertexAngle = (360 / spreadSize) * slotIndex;
+    let closestCard = null;
+    let minDistance = Infinity;
+    let closestIndex = -1;
 
-      if (closestCard) {
-        // Remove from orbit pool
-        const newOrbit = [...orbitRef.current];
-        newOrbit.splice(closestIndex, 1);
-        orbitRef.current = newOrbit;
-        setOrbiting(newOrbit);
+    orbitRef.current.forEach((card, idx) => {
+       const currentAngle = (card.baseAngle + ringRotation.current) % 360;
+       const dist = getShortestDistance(currentAngle, vertexAngle);
+       if (dist < minDistance) {
+         minDistance = dist;
+         closestCard = card;
+         closestIndex = idx;
+       }
+    });
 
-        const captureIndex = i;
-        const newCapture = {
-          slotIndex: captureIndex,
-          cardId: closestCard.id,
-          isRevealed: false,
-          cardData: null,
-        };
+    if (closestCard) {
+      // Remove from orbit pool
+      const newOrbit = [...orbitRef.current];
+      newOrbit.splice(closestIndex, 1);
+      orbitRef.current = newOrbit;
+      setOrbiting(newOrbit);
 
-        capturedRef.current = [...capturedRef.current, newCapture];
-        setCapturedSlots([...capturedRef.current]);
+      const newCapture = {
+        slotIndex,
+        cardId: closestCard.id,
+        isRevealed: false,
+        cardData: null,
+      };
 
-        if (window.navigator && window.navigator.vibrate) {
-          window.navigator.vibrate(50);
-        }
+      capturedRef.current = [...capturedRef.current, newCapture];
+      setCapturedSlots([...capturedRef.current]);
 
-        // Delegate identity resolution to parent
-        if (onCardCaptured) {
-          try {
-            const data = await onCardCaptured(captureIndex, capturedRef.current.length - 1);
-            capturedRef.current = capturedRef.current.map(c =>
-              c.slotIndex === captureIndex ? { ...c, isRevealed: true, cardData: data } : c
-            );
-            setCapturedSlots([...capturedRef.current]);
-          } catch (e) {
-            console.error("Card capture resolution failed:", e);
-          }
+      if (window.navigator && window.navigator.vibrate) {
+        window.navigator.vibrate(50);
+      }
+
+      // Delegate identity resolution to parent
+      if (onCardCaptured) {
+        try {
+          const data = await onCardCaptured(slotIndex, capturedRef.current.length - 1);
+          capturedRef.current = capturedRef.current.map(c =>
+            c.slotIndex === slotIndex ? { ...c, isRevealed: true, cardData: data } : c
+          );
+          setCapturedSlots([...capturedRef.current]);
+        } catch (e) {
+          console.error("Card capture resolution failed:", e);
         }
       }
     }
 
-    // Wrap up
-    setTimeout(() => {
-       if (animRef.current) cancelAnimationFrame(animRef.current);
-       setPhase('complete');
-       if (onComplete) onComplete(capturedRef.current);
-    }, 1000);
+    isCapturingRef.current = false;
+    setIsCapturing(false);
+
+    if (capturedRef.current.length >= spreadSize) {
+      setTimeout(() => {
+         if (animRef.current) cancelAnimationFrame(animRef.current);
+         setPhase('complete');
+         if (onComplete) onComplete(capturedRef.current);
+      }, 500);
+    }
   };
 
   return (
@@ -384,68 +397,118 @@ export default function OrbitWheelDraw({
            })}
         </div>
 
-        {/* Pulse Particle — layered gold/violet comet with a soft trailing halo */}
+        {/* Shooting Star — a comet head plus a fixed-length trail rotated to point
+            back toward the hub, so it reads as a star being launched rather than
+            a dot sliding across. Fired by the player via fireCapture(). */}
         <AnimatePresence>
-          {activePulse && (
-            <motion.div
-              initial={{ x: 0, y: 0, scale: 0.4, opacity: 1 }}
-              animate={{ x: activePulse.to.x, y: activePulse.to.y, scale: 1.6, opacity: 0 }}
-              transition={{ duration: 0.5, ease: 'easeOut' }}
-              className="absolute top-1/2 left-1/2 w-4 h-4 -ml-2 -mt-2 rounded-full"
-              style={{
-                background: 'radial-gradient(circle, #fef9c3 0%, #fde047 40%, #c084fc 100%)',
-                boxShadow: '0 0 12px 4px rgba(253,224,71,0.85), 0 0 26px 10px rgba(192,132,252,0.35)',
-              }}
-            />
-          )}
+          {activePulse && (() => {
+            const angleRad = Math.atan2(activePulse.to.y, activePulse.to.x);
+            const angleDeg = angleRad * (180 / Math.PI);
+            const dist = Math.hypot(activePulse.to.x, activePulse.to.y);
+            return (
+              <React.Fragment key={activePulse.id}>
+                <motion.div
+                  initial={{ opacity: 0, scaleX: 0 }}
+                  animate={{ opacity: [0, 1, 0], scaleX: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.5, ease: 'easeOut' }}
+                  className="absolute top-1/2 left-1/2 h-[3px] rounded-full pointer-events-none"
+                  style={{
+                    width: dist,
+                    marginTop: -1.5,
+                    transformOrigin: '0% 50%',
+                    transform: `rotate(${angleDeg}deg)`,
+                    background: 'linear-gradient(90deg, rgba(253,224,71,0) 0%, rgba(253,224,71,0.75) 60%, #fef9c3 100%)',
+                  }}
+                />
+                <motion.div
+                  initial={{ x: 0, y: 0, scale: 0.4, opacity: 1 }}
+                  animate={{ x: activePulse.to.x, y: activePulse.to.y, scale: 1.6, opacity: 0 }}
+                  transition={{ duration: 0.5, ease: 'easeOut' }}
+                  className="absolute top-1/2 left-1/2 w-4 h-4 -ml-2 -mt-2 rounded-full"
+                  style={{
+                    background: 'radial-gradient(circle, #fef9c3 0%, #fde047 40%, #c084fc 100%)',
+                    boxShadow: '0 0 12px 4px rgba(253,224,71,0.85), 0 0 26px 10px rgba(192,132,252,0.35)',
+                  }}
+                />
+              </React.Fragment>
+            );
+          })()}
         </AnimatePresence>
 
-        {/* Center Hub — the medallion everything actually orbits around. Visible at all
-            times (a glowing ring peeks out from behind the start button while idle;
-            takes center stage once spinning/complete). */}
-        <div
-          className="absolute top-1/2 left-1/2 rounded-full pointer-events-none transition-all duration-700"
-          style={{
-            width: phase === 'idle' ? 150 : 168,
-            height: phase === 'idle' ? 150 : 168,
-            marginLeft: phase === 'idle' ? -75 : -84,
-            marginTop: phase === 'idle' ? -75 : -84,
-            zIndex: 30,
-          }}
-        >
-          <span className="absolute inset-0 rounded-full border border-[#fde047]/40 animate-ping" style={{ animationDuration: '2.2s' }} />
-          <span className="absolute inset-[-10px] rounded-full border border-[#c084fc]/25 animate-ping" style={{ animationDuration: '3s', animationDelay: '0.4s' }} />
-          <div
-            className="absolute inset-0 rounded-full"
-            style={{
-              background: 'radial-gradient(circle at 50% 50%, rgba(253,224,71,0.35) 0%, rgba(192,132,252,0.12) 55%, transparent 78%)',
-              filter: 'blur(2px)',
-            }}
-          />
-          <div
-            className="absolute inset-[10%] rounded-full overflow-hidden flex items-center justify-center p-3"
-            style={{
-              background: 'radial-gradient(circle at 50% 40%, #241e35, #0e0c14)',
-              border: '2px solid transparent',
-              backgroundImage: 'radial-gradient(circle at 50% 40%, #241e35, #0e0c14), linear-gradient(135deg, #fde047, #f59e0b 55%, #c084fc)',
-              backgroundOrigin: 'border-box',
-              backgroundClip: 'padding-box, border-box',
-              boxShadow: '0 0 30px rgba(253,224,71,0.4), 0 0 55px rgba(168,85,247,0.2)',
-            }}
-          >
-            {centerImage ? (
-              <img src={centerImage} alt="" className="w-full h-full object-contain" />
-            ) : (
+        {/* Center Hub — the medallion everything actually orbits around, and the
+            player's "shoot" control. Visible at all times (a glowing ring peeks
+            out from behind the start button while idle); tappable while spinning
+            to launch a shooting star at the next open slot. */}
+        {(() => {
+          const canCapture = phase === 'spinning' && !isCapturing && capturedSlots.length < spreadSize && orbiting.length > 0;
+          return (
+            <div
+              className="absolute top-1/2 left-1/2 rounded-full pointer-events-none transition-all duration-700"
+              style={{
+                width: phase === 'idle' ? 150 : 168,
+                height: phase === 'idle' ? 150 : 168,
+                marginLeft: phase === 'idle' ? -75 : -84,
+                marginTop: phase === 'idle' ? -75 : -84,
+                zIndex: 30,
+              }}
+            >
+              <span className="absolute inset-0 rounded-full border border-[#fde047]/40 animate-ping" style={{ animationDuration: '2.2s' }} />
+              <span className="absolute inset-[-10px] rounded-full border border-[#c084fc]/25 animate-ping" style={{ animationDuration: '3s', animationDelay: '0.4s' }} />
               <div
-                className="w-1/2 h-1/2 rounded-full"
+                className="absolute inset-0 rounded-full"
                 style={{
-                  background: 'radial-gradient(circle, #fef9c3, #fde047 60%, #f59e0b)',
-                  boxShadow: '0 0 20px #fde047, 0 0 34px rgba(192,132,252,0.4)',
+                  background: 'radial-gradient(circle at 50% 50%, rgba(253,224,71,0.35) 0%, rgba(192,132,252,0.12) 55%, transparent 78%)',
+                  filter: 'blur(2px)',
                 }}
               />
-            )}
-          </div>
-        </div>
+              <motion.button
+                type="button"
+                onClick={fireCapture}
+                disabled={!canCapture}
+                whileTap={canCapture ? { scale: 0.92 } : {}}
+                animate={canCapture ? { scale: [1, 1.035, 1] } : { scale: 1 }}
+                transition={canCapture ? { duration: 1.6, repeat: Infinity, ease: 'easeInOut' } : {}}
+                className="absolute inset-[10%] rounded-full overflow-hidden flex items-center justify-center p-3"
+                style={{
+                  pointerEvents: canCapture ? 'auto' : 'none',
+                  cursor: canCapture ? 'pointer' : 'default',
+                  background: 'radial-gradient(circle at 50% 40%, #241e35, #0e0c14)',
+                  border: '2px solid transparent',
+                  backgroundImage: 'radial-gradient(circle at 50% 40%, #241e35, #0e0c14), linear-gradient(135deg, #fde047, #f59e0b 55%, #c084fc)',
+                  backgroundOrigin: 'border-box',
+                  backgroundClip: 'padding-box, border-box',
+                  boxShadow: canCapture
+                    ? '0 0 34px rgba(253,224,71,0.6), 0 0 60px rgba(168,85,247,0.3)'
+                    : '0 0 30px rgba(253,224,71,0.4), 0 0 55px rgba(168,85,247,0.2)',
+                }}
+              >
+                {centerImage ? (
+                  <img src={centerImage} alt={canCapture ? 'Tap to capture' : ''} className="w-full h-full object-contain" draggable={false} />
+                ) : (
+                  <div
+                    className="w-1/2 h-1/2 rounded-full"
+                    style={{
+                      background: 'radial-gradient(circle, #fef9c3, #fde047 60%, #f59e0b)',
+                      boxShadow: '0 0 20px #fde047, 0 0 34px rgba(192,132,252,0.4)',
+                    }}
+                  />
+                )}
+              </motion.button>
+
+              {canCapture && (
+                <motion.span
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: [0.5, 1, 0.5] }}
+                  transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
+                  className="absolute left-1/2 -translate-x-1/2 top-full mt-2 whitespace-nowrap text-[10px] tracking-[0.2em] font-bold text-[#fef08a] pointer-events-none"
+                >
+                  TAP TO CAPTURE
+                </motion.span>
+              )}
+            </div>
+          );
+        })()}
       </div>
     </div>
   );
