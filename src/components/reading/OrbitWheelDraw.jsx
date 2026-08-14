@@ -150,134 +150,136 @@ export default function OrbitWheelDraw({
   };
 
   return (
-    <div className="relative w-full max-w-md aspect-square mx-auto flex items-center justify-center overflow-hidden bg-transparent">
-      {/* SVG Geometry Layer */}
-      <svg width="100%" height="100%" viewBox="0 0 400 400" className="absolute inset-0 pointer-events-none" style={{ left: '50%', top: '50%', transform: 'translate(-50%, -50%)', width: 400, height: 400 }}>
-        {/* Dashed orbit track */}
-        <circle cx="200" cy="200" r="160" fill="none" stroke="rgba(253, 224, 71, 0.6)" strokeWidth="3" strokeDasharray="8 8" style={{ filter: 'drop-shadow(0 0 4px rgba(253, 224, 71, 0.4))' }} />
-        
-        {/* Geometric shape connecting vertices */}
-        <polygon 
-          points={Array.from({ length: spreadSize }).map((_, i) => {
-            const rad = ((360 / spreadSize) * i - 90) * (Math.PI / 180);
-            return `${200 + 160 * Math.cos(rad)},${200 + 160 * Math.sin(rad)}`;
-          }).join(' ')} 
-          fill="none" 
-          stroke="rgba(253, 224, 71, 1)" 
-          strokeWidth="4" 
-          style={{ filter: 'drop-shadow(0 0 8px rgba(253, 224, 71, 0.8))' }} 
-        />
-      </svg>
-
-      {phase === 'idle' && (
-        <div className="absolute z-50">
-          <button 
-            onClick={startSpin} 
-            className="rounded-full border-[3px] border-[#fde047] text-[#fef08a] font-bold w-32 h-32 flex flex-col items-center justify-center bg-[#1a1a1a]/90 backdrop-blur-md transition-all hover:bg-black/80 shadow-[0_0_20px_rgba(253,224,71,0.4)] hover:shadow-[0_0_30px_rgba(253,224,71,0.6)]"
-          >
-            <span className="text-sm tracking-widest leading-tight text-center">PRESS<br/>TO BEGIN</span>
-            <ChevronDown className="w-5 h-5 mt-1 opacity-90" />
-          </button>
-        </div>
-      )}
-
-      {/* Vertices (Spread Slots) */}
-      {Array.from({ length: spreadSize }).map((_, i) => {
-         const pos = getVertexPosition(i, 160);
-         const isCaptured = capturedSlots.find(c => c.slotIndex === i);
-         
-         return (
-           <div
-             key={`vertex-${i}`}
-             className="absolute top-1/2 left-1/2 flex items-center justify-center transition-all duration-500"
-             style={{ 
-               width: 60, height: 90,
-               marginLeft: -30, marginTop: -45,
-               transform: `translate(${pos.x}px, ${pos.y}px)`,
-               zIndex: isCaptured ? 20 : 10
-             }}
-           >
-             {!isCaptured && (
-               <div className="w-[42px] h-[42px] rounded-full border-[3px] border-[#fde047] bg-[#1a1a1a]/90 backdrop-blur flex items-center justify-center shadow-[0_0_15px_rgba(253,224,71,0.6)]">
-                 <span className="text-[#fef08a] font-bold text-lg">{i + 1}</span>
-               </div>
-             )}
-             
-             <AnimatePresence>
-               {isCaptured && (
-                 <motion.div
-                   initial={{ opacity: 0, scale: 1.5, rotateY: 0 }}
-                   animate={{ 
-                      opacity: 1, 
-                      scale: 1, 
-                      rotateY: isCaptured.isRevealed ? 180 : 0 
-                   }}
-                   transition={{ duration: 0.6, type: 'spring' }}
-                   className="absolute inset-0 rounded-lg shadow-[0_0_25px_rgba(253,224,71,0.8)]"
-                   style={{ transformStyle: 'preserve-3d' }}
-                 >
-                    <div className="absolute inset-0 rounded-lg overflow-hidden border-2 border-[#fde047]" style={{ backfaceVisibility: 'hidden' }}>
-                       <img src={deckBackImage} alt="Back" className="w-full h-full object-cover" />
-                    </div>
-                    <div className="absolute inset-0 rounded-lg overflow-hidden border-2 border-[#fde047] bg-slate-900" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
-                       {isCaptured.cardData?.image_url ? (
-                          <img src={isCaptured.cardData.image_url} alt="Front" className="w-full h-full object-cover" />
-                       ) : (
-                          <div className="w-full h-full flex flex-col items-center justify-center p-2 text-center">
-                            <span className="text-[10px] text-white/80 leading-tight">
-                              {isCaptured.cardData?.name || 'Revealed'}
-                            </span>
-                          </div>
-                       )}
-                    </div>
-                 </motion.div>
-               )}
-             </AnimatePresence>
-           </div>
-         );
-      })}
-
-      {/* Orbiting Ring */}
-      <div 
-        ref={ringRef}
-        className="absolute top-1/2 left-1/2 w-0 h-0 transition-opacity duration-1000"
-        style={{ opacity: phase === 'idle' ? 0.6 : (phase === 'complete' ? 0 : 1) }}
-      >
-         {orbiting.map(card => {
-            const rad = (card.baseAngle - 90) * (Math.PI / 180);
-            const r = 160; // Orbit radius matches vertices
-            const x = r * Math.cos(rad);
-            const y = r * Math.sin(rad);
-
-            return (
-              <div
-                key={`orbit-${card.id}`}
-                className="absolute w-[50px] h-[75px] -ml-[25px] -mt-[37.5px] rounded-sm shadow-[0_0_15px_rgba(255,255,255,0.15)] overflow-hidden border border-white/30"
-                data-basestyles={`translate(${x}px, ${y}px)`}
-                style={{ transform: `translate(${x}px, ${y}px)` }}
-              >
-                 <img src={deckBackImage} alt="Back" className="w-full h-full object-cover opacity-80 filter brightness-110" />
-              </div>
-            );
-         })}
-      </div>
-
-      {/* Pulse Particle */}
-      <AnimatePresence>
-        {activePulse && (
-          <motion.div
-            initial={{ x: 0, y: 0, scale: 0.5, opacity: 1 }}
-            animate={{ x: activePulse.to.x, y: activePulse.to.y, scale: 1.5, opacity: 0 }}
-            transition={{ duration: 0.5, ease: 'easeOut' }}
-            className="absolute top-1/2 left-1/2 w-4 h-4 -ml-2 -mt-2 rounded-full bg-yellow-200 shadow-[0_0_20px_#fef08a]"
+    <div className="relative w-full max-w-[400px] aspect-square mx-auto flex items-center justify-center overflow-visible bg-transparent" style={{ containerType: 'inline-size' }}>
+      <div className="w-[400px] h-[400px] relative origin-center" style={{ transform: 'scale(min(1, calc(100cqw / 400)))' }}>
+        {/* SVG Geometry Layer */}
+        <svg width="400" height="400" viewBox="0 0 400 400" className="absolute inset-0 pointer-events-none">
+          {/* Dashed orbit track */}
+          <circle cx="200" cy="200" r="160" fill="none" stroke="rgba(253, 224, 71, 0.6)" strokeWidth="3" strokeDasharray="8 8" style={{ filter: 'drop-shadow(0 0 4px rgba(253, 224, 71, 0.4))' }} />
+          
+          {/* Geometric shape connecting vertices */}
+          <polygon 
+            points={Array.from({ length: spreadSize }).map((_, i) => {
+              const rad = ((360 / spreadSize) * i - 90) * (Math.PI / 180);
+              return `${200 + 160 * Math.cos(rad)},${200 + 160 * Math.sin(rad)}`;
+            }).join(' ')} 
+            fill="none" 
+            stroke="rgba(253, 224, 71, 1)" 
+            strokeWidth="4" 
+            style={{ filter: 'drop-shadow(0 0 8px rgba(253, 224, 71, 0.8))' }} 
           />
-        )}
-      </AnimatePresence>
+        </svg>
 
-      {/* Center Emitter (Visible during spin) */}
-      {phase !== 'idle' && (
-        <div className="absolute top-1/2 left-1/2 w-6 h-6 -ml-3 -mt-3 rounded-full bg-yellow-200 shadow-[0_0_20px_#fde047] border-2 border-white/50" />
-      )}
+        {phase === 'idle' && (
+          <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">
+            <button 
+              onClick={startSpin} 
+              className="pointer-events-auto rounded-full border-[3px] border-[#fde047] text-[#fef08a] font-bold w-32 h-32 flex flex-col items-center justify-center bg-[#1a1a1a]/90 backdrop-blur-md transition-all hover:bg-black/80 shadow-[0_0_20px_rgba(253,224,71,0.4)] hover:shadow-[0_0_30px_rgba(253,224,71,0.6)]"
+            >
+              <span className="text-sm tracking-widest leading-tight text-center">PRESS<br/>TO BEGIN</span>
+              <ChevronDown className="w-5 h-5 mt-1 opacity-90" />
+            </button>
+          </div>
+        )}
+
+        {/* Vertices (Spread Slots) */}
+        {Array.from({ length: spreadSize }).map((_, i) => {
+           const pos = getVertexPosition(i, 160);
+           const isCaptured = capturedSlots.find(c => c.slotIndex === i);
+           
+           return (
+             <div
+               key={`vertex-${i}`}
+               className="absolute top-1/2 left-1/2 flex items-center justify-center transition-all duration-500"
+               style={{ 
+                 width: 60, height: 90,
+                 marginLeft: -30, marginTop: -45,
+                 transform: `translate(${pos.x}px, ${pos.y}px)`,
+                 zIndex: isCaptured ? 20 : 10
+               }}
+             >
+               {!isCaptured && (
+                 <div className="w-[42px] h-[42px] rounded-full border-[3px] border-[#fde047] bg-[#1a1a1a]/90 backdrop-blur flex items-center justify-center shadow-[0_0_15px_rgba(253,224,71,0.6)]">
+                   <span className="text-[#fef08a] font-bold text-lg">{i + 1}</span>
+                 </div>
+               )}
+               
+               <AnimatePresence>
+                 {isCaptured && (
+                   <motion.div
+                     initial={{ opacity: 0, scale: 1.5, rotateY: 0 }}
+                     animate={{ 
+                        opacity: 1, 
+                        scale: 1, 
+                        rotateY: isCaptured.isRevealed ? 180 : 0 
+                     }}
+                     transition={{ duration: 0.6, type: 'spring' }}
+                     className="absolute inset-0 rounded-lg shadow-[0_0_25px_rgba(253,224,71,0.8)]"
+                     style={{ transformStyle: 'preserve-3d' }}
+                   >
+                      <div className="absolute inset-0 rounded-lg overflow-hidden border-2 border-[#fde047]" style={{ backfaceVisibility: 'hidden' }}>
+                         <img src={deckBackImage} alt="Back" className="w-full h-full object-cover" />
+                      </div>
+                      <div className="absolute inset-0 rounded-lg overflow-hidden border-2 border-[#fde047] bg-slate-900" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
+                         {isCaptured.cardData?.image_url ? (
+                            <img src={isCaptured.cardData.image_url} alt="Front" className="w-full h-full object-cover" />
+                         ) : (
+                            <div className="w-full h-full flex flex-col items-center justify-center p-2 text-center">
+                              <span className="text-[10px] text-white/80 leading-tight">
+                                {isCaptured.cardData?.name || 'Revealed'}
+                              </span>
+                            </div>
+                         )}
+                      </div>
+                   </motion.div>
+                 )}
+               </AnimatePresence>
+             </div>
+           );
+        })}
+
+        {/* Orbiting Ring */}
+        <div 
+          ref={ringRef}
+          className="absolute top-1/2 left-1/2 w-0 h-0 transition-opacity duration-1000"
+          style={{ opacity: phase === 'idle' ? 0.6 : (phase === 'complete' ? 0 : 1) }}
+        >
+           {orbiting.map(card => {
+              const rad = (card.baseAngle - 90) * (Math.PI / 180);
+              const r = 160; // Orbit radius matches vertices
+              const x = r * Math.cos(rad);
+              const y = r * Math.sin(rad);
+
+              return (
+                <div
+                  key={`orbit-${card.id}`}
+                  className="absolute w-[50px] h-[75px] -ml-[25px] -mt-[37.5px] rounded-sm shadow-[0_0_15px_rgba(255,255,255,0.15)] overflow-hidden border border-white/30"
+                  data-basestyles={`translate(${x}px, ${y}px)`}
+                  style={{ transform: `translate(${x}px, ${y}px)` }}
+                >
+                   <img src={deckBackImage} alt="Back" className="w-full h-full object-cover opacity-80 filter brightness-110" />
+                </div>
+              );
+           })}
+        </div>
+
+        {/* Pulse Particle */}
+        <AnimatePresence>
+          {activePulse && (
+            <motion.div
+              initial={{ x: 0, y: 0, scale: 0.5, opacity: 1 }}
+              animate={{ x: activePulse.to.x, y: activePulse.to.y, scale: 1.5, opacity: 0 }}
+              transition={{ duration: 0.5, ease: 'easeOut' }}
+              className="absolute top-1/2 left-1/2 w-4 h-4 -ml-2 -mt-2 rounded-full bg-yellow-200 shadow-[0_0_20px_#fef08a]"
+            />
+          )}
+        </AnimatePresence>
+
+        {/* Center Emitter (Visible during spin) */}
+        {phase !== 'idle' && (
+          <div className="absolute top-1/2 left-1/2 w-6 h-6 -ml-3 -mt-3 rounded-full bg-yellow-200 shadow-[0_0_20px_#fde047] border-2 border-white/50" />
+        )}
+      </div>
     </div>
   );
 }
