@@ -25,6 +25,7 @@ import DashboardHub from './pages/DashboardHub'
 import ReadingSetup from './pages/ReadingSetup'
 import ReadingSimple from './pages/ReadingSimple'
 import Landing from './pages/Landing'
+import OrbitTest from './pages/OrbitTest'
 
 const { Pages, Layout, mainPage } = pagesConfig
 
@@ -232,6 +233,14 @@ const AuthenticatedApp = () => {
         path="/SpiritWheelDesigner/*"
         element={
           <AdminRoute Page={SpiritWheelDesigner} pageName="SpiritWheelDesigner" user={user} />
+        }
+      />
+      <Route
+        path="/OrbitTest"
+        element={
+          <LayoutWrapper currentPageName="OrbitTest">
+            <OrbitTest />
+          </LayoutWrapper>
         }
       />
       <Route
