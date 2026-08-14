@@ -9,6 +9,9 @@ export default function OrbitWheelDraw({
   onCardCaptured,
   onComplete,
   deckBackImage = "https://media.base44.com/images/public/68d2a300021f94d0f312c039/87ddf47a1_2EC745CC-69B3-47EE-AC3A-6F29ABBF057F.png",
+  // The medallion the cards orbit around. Defaults to the same emblem used
+  // on the card backs, shown large and uncropped at the hub.
+  centerImage = "https://media.base44.com/images/public/68d2a300021f94d0f312c039/87ddf47a1_2EC745CC-69B3-47EE-AC3A-6F29ABBF057F.png",
   spinSpeed = 0.08,
   pulseInterval = 2000,
 }) {
@@ -328,8 +331,11 @@ export default function OrbitWheelDraw({
                        boxShadow: '0 0 26px rgba(253,224,71,0.55), 0 0 40px rgba(168,85,247,0.25)',
                      }}
                    >
-                      <div className="absolute inset-[2px] rounded-md overflow-hidden" style={{ backfaceVisibility: 'hidden' }}>
-                         <img src={deckBackImage} alt="Back" className="w-full h-full object-cover" />
+                      <div
+                        className="absolute inset-[2px] rounded-md overflow-hidden flex items-center justify-center p-2"
+                        style={{ backfaceVisibility: 'hidden', background: 'radial-gradient(circle at 50% 40%, #1f1a2e, #0e0c14)' }}
+                      >
+                         <img src={deckBackImage} alt="Back" className="w-full h-full object-contain" />
                       </div>
                       <div className="absolute inset-[2px] rounded-md overflow-hidden bg-slate-900" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
                          {isCaptured.cardData?.image_url ? (
@@ -361,17 +367,18 @@ export default function OrbitWheelDraw({
               return (
                 <div
                   key={`orbit-${card.id}`}
-                  className="absolute w-[50px] h-[75px] -ml-[25px] -mt-[37.5px] rounded-md overflow-hidden"
+                  className="absolute w-[50px] h-[75px] -ml-[25px] -mt-[37.5px] rounded-md overflow-hidden flex items-center justify-center p-1.5"
                   data-baseangle={card.baseAngle}
                   style={{
                     transform: s.transform,
                     opacity: s.opacity,
                     zIndex: s.zIndex,
+                    background: 'radial-gradient(circle at 50% 40%, #1f1a2e, #0e0c14)',
                     border: '1px solid rgba(253,224,71,0.35)',
                     boxShadow: '0 0 14px rgba(253,224,71,0.18), 0 4px 10px rgba(0,0,0,0.4)',
                   }}
                 >
-                   <img src={deckBackImage} alt="Back" className="w-full h-full object-cover brightness-110" />
+                   <img src={deckBackImage} alt="Back" className="w-full h-full object-contain brightness-110" />
                 </div>
               );
            })}
@@ -393,20 +400,52 @@ export default function OrbitWheelDraw({
           )}
         </AnimatePresence>
 
-        {/* Center Emitter — pulsing energy core with expanding rings */}
-        {phase !== 'idle' && (
-          <div className="absolute top-1/2 left-1/2 w-6 h-6 -ml-3 -mt-3 pointer-events-none">
-            <span className="absolute inset-0 rounded-full border border-[#fde047]/50 animate-ping" style={{ animationDuration: '1.8s' }} />
-            <span className="absolute inset-[-8px] rounded-full border border-[#c084fc]/30 animate-ping" style={{ animationDuration: '2.6s', animationDelay: '0.4s' }} />
-            <div
-              className="absolute inset-0 rounded-full border-2 border-white/60"
-              style={{
-                background: 'radial-gradient(circle, #fef9c3, #fde047 60%, #f59e0b)',
-                boxShadow: '0 0 20px #fde047, 0 0 34px rgba(192,132,252,0.4)',
-              }}
-            />
+        {/* Center Hub — the medallion everything actually orbits around. Visible at all
+            times (a glowing ring peeks out from behind the start button while idle;
+            takes center stage once spinning/complete). */}
+        <div
+          className="absolute top-1/2 left-1/2 rounded-full pointer-events-none transition-all duration-700"
+          style={{
+            width: phase === 'idle' ? 150 : 168,
+            height: phase === 'idle' ? 150 : 168,
+            marginLeft: phase === 'idle' ? -75 : -84,
+            marginTop: phase === 'idle' ? -75 : -84,
+            zIndex: 30,
+          }}
+        >
+          <span className="absolute inset-0 rounded-full border border-[#fde047]/40 animate-ping" style={{ animationDuration: '2.2s' }} />
+          <span className="absolute inset-[-10px] rounded-full border border-[#c084fc]/25 animate-ping" style={{ animationDuration: '3s', animationDelay: '0.4s' }} />
+          <div
+            className="absolute inset-0 rounded-full"
+            style={{
+              background: 'radial-gradient(circle at 50% 50%, rgba(253,224,71,0.35) 0%, rgba(192,132,252,0.12) 55%, transparent 78%)',
+              filter: 'blur(2px)',
+            }}
+          />
+          <div
+            className="absolute inset-[10%] rounded-full overflow-hidden flex items-center justify-center p-3"
+            style={{
+              background: 'radial-gradient(circle at 50% 40%, #241e35, #0e0c14)',
+              border: '2px solid transparent',
+              backgroundImage: 'radial-gradient(circle at 50% 40%, #241e35, #0e0c14), linear-gradient(135deg, #fde047, #f59e0b 55%, #c084fc)',
+              backgroundOrigin: 'border-box',
+              backgroundClip: 'padding-box, border-box',
+              boxShadow: '0 0 30px rgba(253,224,71,0.4), 0 0 55px rgba(168,85,247,0.2)',
+            }}
+          >
+            {centerImage ? (
+              <img src={centerImage} alt="" className="w-full h-full object-contain" />
+            ) : (
+              <div
+                className="w-1/2 h-1/2 rounded-full"
+                style={{
+                  background: 'radial-gradient(circle, #fef9c3, #fde047 60%, #f59e0b)',
+                  boxShadow: '0 0 20px #fde047, 0 0 34px rgba(192,132,252,0.4)',
+                }}
+              />
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
