@@ -22,9 +22,41 @@ function CosmosCanvas() {
     const ctx = canvas.getContext("2d");
     let raf;
 
+    let bgCanvas = document.createElement("canvas");
+    let bgCtx = bgCanvas.getContext("2d");
+
+    const nebulae = Array.from({ length: NEBULA_COUNT }, () => ({
+      x: Math.random(), y: Math.random(),
+      rx: randomBetween(120, 320), ry: randomBetween(80, 220),
+      hue: [240, 260, 200, 280, 190, 300][Math.floor(Math.random() * 6)],
+      alpha: randomBetween(0.04, 0.11),
+    }));
+
+    const renderStaticBackground = (W, H) => {
+      bgCanvas.width = W;
+      bgCanvas.height = H;
+      const bg = bgCtx.createRadialGradient(W * 0.5, H * 0.45, 0, W * 0.5, H * 0.5, W * 0.85);
+      bg.addColorStop(0, "#0d0820");
+      bg.addColorStop(0.5, "#060412");
+      bg.addColorStop(1, "#020208");
+      bgCtx.fillStyle = bg;
+      bgCtx.fillRect(0, 0, W, H);
+
+      nebulae.forEach((n) => {
+        const grd = bgCtx.createRadialGradient(n.x * W, n.y * H, 0, n.x * W, n.y * H, n.rx);
+        grd.addColorStop(0, `hsla(${n.hue},70%,55%,${n.alpha})`);
+        grd.addColorStop(1, `hsla(${n.hue},70%,30%,0)`);
+        bgCtx.beginPath();
+        bgCtx.ellipse(n.x * W, n.y * H, n.rx, n.ry, 0.4, 0, Math.PI * 2);
+        bgCtx.fillStyle = grd;
+        bgCtx.fill();
+      });
+    };
+
     const resize = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
+      renderStaticBackground(canvas.width, canvas.height);
     };
     resize();
     window.addEventListener("resize", resize);
@@ -36,34 +68,21 @@ function CosmosCanvas() {
       phase: Math.random() * Math.PI * 2,
     }));
 
-    const nebulae = Array.from({ length: NEBULA_COUNT }, () => ({
-      x: Math.random(), y: Math.random(),
-      rx: randomBetween(120, 320), ry: randomBetween(80, 220),
-      hue: [240, 260, 200, 280, 190, 300][Math.floor(Math.random() * 6)],
-      alpha: randomBetween(0.04, 0.11),
-    }));
-
     let t = 0;
-    const draw = () => {
+    let lastTime = performance.now();
+    const draw = (time) => {
+      // Throttle to roughly 30 FPS to save battery/CPU
+      if (time - lastTime < 33) {
+        raf = requestAnimationFrame(draw);
+        return;
+      }
+      lastTime = time;
+
       const W = canvas.width, H = canvas.height;
       ctx.clearRect(0, 0, W, H);
-
-      const bg = ctx.createRadialGradient(W * 0.5, H * 0.45, 0, W * 0.5, H * 0.5, W * 0.85);
-      bg.addColorStop(0, "#0d0820");
-      bg.addColorStop(0.5, "#060412");
-      bg.addColorStop(1, "#020208");
-      ctx.fillStyle = bg;
-      ctx.fillRect(0, 0, W, H);
-
-      nebulae.forEach((n) => {
-        const grd = ctx.createRadialGradient(n.x * W, n.y * H, 0, n.x * W, n.y * H, n.rx);
-        grd.addColorStop(0, `hsla(${n.hue},70%,55%,${n.alpha})`);
-        grd.addColorStop(1, `hsla(${n.hue},70%,30%,0)`);
-        ctx.beginPath();
-        ctx.ellipse(n.x * W, n.y * H, n.rx, n.ry, 0.4, 0, Math.PI * 2);
-        ctx.fillStyle = grd;
-        ctx.fill();
-      });
+      
+      // Draw pre-rendered background
+      ctx.drawImage(bgCanvas, 0, 0);
 
       stars.forEach((s) => {
         const twinkle = 0.5 + 0.5 * Math.sin(t * s.speed * 2000 + s.phase);
@@ -73,10 +92,10 @@ function CosmosCanvas() {
         ctx.fill();
       });
 
-      t += 0.016;
+      t += 0.033;
       raf = requestAnimationFrame(draw);
     };
-    draw();
+    raf = requestAnimationFrame(draw);
 
     return () => {
       cancelAnimationFrame(raf);
