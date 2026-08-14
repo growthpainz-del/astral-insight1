@@ -140,6 +140,7 @@ const CATEGORIES = [
     features: [
       { title: "Reading Room", desc: "Draw cards & gain deep insights.", to: createPageUrl("ReadingRoom"), icon: BookOpen, color: "#a78bfa" },
       { title: "Spirit Wheel", desc: "Instant cosmic guidance with a spin.", to: createPageUrl("SpiritWheel"), icon: Sparkles, color: "#67e8f9" },
+      { title: "Orbit Wheel Test", desc: "Test the new decoupled orbit physics layer.", to: createPageUrl("OrbitTest"), icon: Sparkles, color: "#a855f7" },
       { title: "Reading History", desc: "View past readings and track your journey.", to: createPageUrl("History"), icon: History, color: "#94a3b8" },
       { title: "Journal", desc: "Write reflections and notes on your daily life.", to: createPageUrl("Journal"), icon: Compass, color: "#fbbf24" },
     ]
