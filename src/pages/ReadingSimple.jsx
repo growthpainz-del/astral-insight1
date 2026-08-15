@@ -3,7 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { composeReading, composeCardQuick, buildCardPromptByMode, buildFullReadingPromptByMode } from "@/utils/interpretationComposer";
 import CosMosisModePicker from "@/components/cosmosis/CosMosisModePicker";
 import { Button } from "@/components/ui/button";
-import { Loader2, ChevronLeft, Hand, Shuffle, Eye, Sparkles, Settings2, Save } from "lucide-react";
+import { Loader2, ChevronLeft, Hand, Shuffle, Eye, EyeOff, Sparkles, Settings2, Save } from "lucide-react";
 import SpreadLayout, { SYSTEM_SPREADS } from "@/components/reading/CompactSpread";
 import BottomCardShelf from "@/components/reading/BottomCardShelf";
 import { motion, AnimatePresence, useAnimation } from "framer-motion";
@@ -99,6 +99,11 @@ export default function ReadingSimple() {
   const [deckRemaining, setDeckRemaining] = useState([]);
   const [drawnCards, setDrawnCards] = useState([]);
   const [readingHistory, setReadingHistory] = useState([]);
+  // Blind mode: when true, no reading history / recurring-theme data is
+  // handed to the interpreter. The reading is drawn only from the card,
+  // its position, and whatever the person typed as their question —
+  // nothing the app remembers about them.
+  const [blindMode, setBlindMode] = useState(false);
   const [composedReading, setComposedReading] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
