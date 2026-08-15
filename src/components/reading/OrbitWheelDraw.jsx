@@ -12,6 +12,11 @@ export default function OrbitWheelDraw({
   // on the card backs, shown large and uncropped at the hub.
   centerImage = "https://media.base44.com/images/public/68d2a300021f94d0f312c039/87ddf47a1_2EC745CC-69B3-47EE-AC3A-6F29ABBF057F.png",
   spinSpeed = 0.08,
+  // Total real cards this draw could pull from (e.g. the full deck size).
+  // Used only to cap how many replenishment placeholders the ring can
+  // ever introduce — keeps a small deck from cycling in more backs than
+  // actually exist. Defaults to orbitCount, i.e. no replenishment.
+  totalAvailable,
   // Visual declutter toggles: hide the numbered vertex labels and/or the
   // dashed orbit-track rings without touching the underlying geometry.
   showVertexLabels = true,
@@ -35,6 +40,9 @@ export default function OrbitWheelDraw({
 
   const orbitRef = useRef([]);
   const capturedRef = useRef([]);
+  // Next placeholder id to hand out when a vacated ring slot gets
+  // replenished. Starts after the initial batch (0..orbitCount-1).
+  const nextIdRef = useRef(orbitCount);
 
   // Hub spin state: counter-rotates relative to the ring, slows as the
   // spread fills up, and flips direction on every successful selection so
@@ -58,6 +66,7 @@ export default function OrbitWheelDraw({
     }));
     setOrbiting(initial);
     orbitRef.current = initial;
+    nextIdRef.current = orbitCount;
   }, [orbitCount]);
 
   useEffect(() => {
@@ -176,6 +185,20 @@ export default function OrbitWheelDraw({
     // continuing to drift while it's highlighted.
     const newOrbit = [...orbitRef.current];
     newOrbit.splice(idx, 1);
+
+    // Replenish the vacated slot from the rest of the deck so the ring
+    // stays visually full for the whole draw instead of thinning out —
+    // purely cosmetic (every back looks identical either way), but it
+    // keeps the deck feeling as large as it actually is. Skipped on the
+    // draw's final capture (ring is about to disappear anyway) and once
+    // we've handed out as many placeholders as the deck actually has.
+    const cap = totalAvailable ?? orbitCount;
+    const isFinalCapture = capturedRef.current.length + 1 >= spreadSize;
+    if (!isFinalCapture && nextIdRef.current < cap) {
+      newOrbit.push({ id: nextIdRef.current, baseAngle: card.baseAngle });
+      nextIdRef.current += 1;
+    }
+
     orbitRef.current = newOrbit;
     setOrbiting(newOrbit);
 
