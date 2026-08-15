@@ -145,7 +145,7 @@ export default function OrbitWheelDraw({
   //      numbered slot.
   //   3. Flare — a burst of light on arrival, then it settles into the
   //      slot (back showing, reveal handled by the parent's resolver).
-  const selectCard = async (card) => {
+  const selectCard = async (card, event) => {
     if (isCapturingRef.current) return;
     if (phase !== 'spinning') return;
     const slotIndex = capturedRef.current.length;
@@ -160,6 +160,17 @@ export default function OrbitWheelDraw({
     const impactAngle = (card.baseAngle + ringRotation.current) % 360;
     const impactPos = getOrbitXY(impactAngle);
     const vertexPos = getVertexPosition(slotIndex, 160);
+
+    // Capture everything about this exact instant BEFORE anything else
+    // happens — this is the only entropy the identity resolver gets, and
+    // none of it existed a moment earlier. Nothing is precomputed.
+    const moment = {
+      timestamp: performance.now(),
+      ringAngleAtTap: ringRotation.current,
+      cardAngleAtTap: impactAngle,
+      clientX: event?.clientX ?? event?.touches?.[0]?.clientX ?? null,
+      clientY: event?.clientY ?? event?.touches?.[0]?.clientY ?? null,
+    };
 
     // Pull it out of the moving pool so it visibly freezes instead of
     // continuing to drift while it's highlighted.
@@ -198,10 +209,13 @@ export default function OrbitWheelDraw({
       window.navigator.vibrate(50);
     }
 
-    // Delegate identity resolution to parent
+    // Delegate identity resolution to parent. This is where the actual
+    // draw happens — the parent should decide identity live, right now,
+    // from whatever's left in the pool, using `moment` as tap-provenance.
+    // It must NOT look up a pre-decided result.
     if (onCardCaptured) {
       try {
-        const data = await onCardCaptured(slotIndex, capturedRef.current.length - 1);
+        const data = await onCardCaptured(slotIndex, capturedRef.current.length - 1, moment);
         capturedRef.current = capturedRef.current.map(c =>
           c.slotIndex === slotIndex ? { ...c, isRevealed: true, cardData: data } : c
         );
