@@ -469,7 +469,7 @@ export default function ReadingSimple() {
           {/* Action buttons */}
           <SidebarBtn
             onClick={handleDrawCard}
-            disabled={deckRemaining.length === 0 || (readingMode === "spread" && selectedSpread && drawnCards.length >= selectedSpread.positions.length)}
+            disabled={deckRemaining.length === 0 || (readingMode === "spread" && selectedSpread && drawnCards.length >= selectedSpread.positions.length) || (orbitSelectMode && readingMode === "spread" && selectedSpread && !orbitDrawComplete)}
             icon={<Hand style={{ width: 18, height: 18 }} />}
             label="Draw"
             primary
@@ -497,6 +497,18 @@ export default function ReadingSimple() {
             label={blindMode ? "Blind: On" : "Blind: Off"}
             primary={blindMode}
           />
+          {readingMode === "spread" && (
+            <SidebarBtn
+              onClick={() => {
+                setOrbitSelectMode(v => !v);
+                setOrbitDrawComplete(false);
+                setOrbitWheelKey(k => k + 1);
+              }}
+              icon={<Orbit style={{ width: 16, height: 16 }} />}
+              label={orbitSelectMode ? "Orbit: On" : "Orbit: Off"}
+              primary={orbitSelectMode}
+            />
+          )}
 
           {readingMode === "spread" && selectedSpread && (
             <SidebarBtn
