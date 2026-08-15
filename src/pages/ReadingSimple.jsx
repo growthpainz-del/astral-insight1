@@ -308,7 +308,48 @@ export default function ReadingSimple() {
 
   const handleShuffle = () => {
     setIsShuffling(true);
+    setOrbitDrawComplete(false);
+    setOrbitWheelKey(k => k + 1);
     setTimeout(() => { setDeckRemaining([...cards].sort(() => Math.random() - 0.5)); setDrawnCards([]); setRevealedIndices(new Set()); setIsShuffling(false); }, 1200);
+  };
+
+  // Keep a synchronous mirror of deckRemaining so the orbit wheel's tap
+  // handler (fired from a real, synchronous user event) never reads a
+  // stale pool across a React state-update boundary.
+  useEffect(() => { deckRemainingRef.current = deckRemaining; }, [deckRemaining]);
+
+  // Called by OrbitWheelDraw the instant a tap resolves — this is the
+  // live draw itself. `moment` is tap-provenance (timestamp, ring angle,
+  // tap coordinates); the actual identity comes from crypto RNG against
+  // whatever's left in the pool right now, not a pre-decided order.
+  const handleOrbitCardCaptured = async (slotIndex, captureOrderIndex, moment) => {
+    const { card, remainingPool } = drawLiveCard(deckRemainingRef.current, moment);
+    deckRemainingRef.current = remainingPool;
+    setDeckRemaining(remainingPool);
+
+    const newCard = {
+      id: Date.now().toString() + Math.random(),
+      cardData: card,
+      x: 0, y: 0, rotation: 0,
+      isFlipped: false,
+      isReversed: Math.random() < 0.25,
+    };
+
+    setDrawnCards(prev => {
+      const next = [...prev];
+      while (next.length <= slotIndex) next.push(null);
+      next[slotIndex] = newCard;
+      return next;
+    });
+
+    return card;
+  };
+
+  const handleOrbitComplete = (capturedArray) => {
+    // The wheel already revealed each card as it landed in its slot —
+    // don't make SpreadLayout hide them again behind the deck back.
+    setRevealedIndices(new Set(capturedArray.map(c => c.slotIndex)));
+    setOrbitDrawComplete(true);
   };
 
   const revealAll = () => {
