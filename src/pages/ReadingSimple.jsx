@@ -115,6 +115,11 @@ export default function ReadingSimple() {
   const [orbitDrawComplete, setOrbitDrawComplete] = useState(false);
   const [orbitWheelKey, setOrbitWheelKey] = useState(0);
   const deckRemainingRef = useRef([]);
+  // Keep a synchronous mirror of deckRemaining so the orbit wheel's tap
+  // handler (fired from a real, synchronous user event) never reads a
+  // stale pool across a React state-update boundary. Must live above any
+  // early return in this component — hooks can't be conditional.
+  useEffect(() => { deckRemainingRef.current = deckRemaining; }, [deckRemaining]);
   const [composedReading, setComposedReading] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -312,11 +317,6 @@ export default function ReadingSimple() {
     setOrbitWheelKey(k => k + 1);
     setTimeout(() => { setDeckRemaining([...cards].sort(() => Math.random() - 0.5)); setDrawnCards([]); setRevealedIndices(new Set()); setIsShuffling(false); }, 1200);
   };
-
-  // Keep a synchronous mirror of deckRemaining so the orbit wheel's tap
-  // handler (fired from a real, synchronous user event) never reads a
-  // stale pool across a React state-update boundary.
-  useEffect(() => { deckRemainingRef.current = deckRemaining; }, [deckRemaining]);
 
   // Called by OrbitWheelDraw the instant a tap resolves — this is the
   // live draw itself. `moment` is tap-provenance (timestamp, ring angle,
