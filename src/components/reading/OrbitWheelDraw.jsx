@@ -389,7 +389,8 @@ export default function OrbitWheelDraw({
           style={{ transform: 'translate(-50%, -50%)', opacity: phase === 'idle' ? 0.6 : (phase === 'complete' ? 0 : 1) }}
         >
            {orbiting.map(card => {
-              const s = getOrbitStyle(card.baseAngle, 0);
+              const currentAngle = (card.baseAngle + ringRotation.current) % 360;
+              const s = getOrbitStyle(currentAngle, -ringRotation.current);
               return (
                 <div
                   key={`orbit-${card.id}`}
