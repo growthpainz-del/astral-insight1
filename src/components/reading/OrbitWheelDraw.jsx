@@ -14,6 +14,10 @@ export default function OrbitWheelDraw({
   centerImage = "https://media.base44.com/images/public/68d2a300021f94d0f312c039/87ddf47a1_2EC745CC-69B3-47EE-AC3A-6F29ABBF057F.png",
   spinSpeed = 0.08,
   pulseInterval = 2000,
+  // Visual declutter toggles: hide the numbered vertex labels and/or the
+  // dashed orbit-track rings without touching the underlying geometry.
+  showVertexLabels = true,
+  showOrbitTrack = true,
 }) {
   const [phase, setPhase] = useState('idle');
   const [capturedSlots, setCapturedSlots] = useState([]);
@@ -221,7 +225,7 @@ export default function OrbitWheelDraw({
   };
 
   return (
-    <div className="relative w-full max-w-[400px] aspect-square mx-auto flex items-center justify-center overflow-visible bg-transparent" style={{ containerType: 'inline-size' }}>
+    <div className="relative w-full max-w-[400px] aspect-square mx-auto flex items-center justify-center overflow-visible bg-transparent" style={{ containerType: 'inline-size', touchAction: 'manipulation' }}>
       <div className="w-[400px] h-[400px] relative origin-center" style={{ transform: 'scale(min(1, calc(100cqw / 400)))' }}>
 
         {/* Ambient cosmic glow — soft, screen-blended so it sits well over any dark background */}
@@ -247,11 +251,15 @@ export default function OrbitWheelDraw({
           {/* Soft outer halo behind the track */}
           <circle cx="200" cy="200" r="172" fill={`url(#${gradGlow})`} />
 
-          {/* Slowly-drifting dashed orbit track, independent of the card spin */}
-          <g style={{ transformOrigin: '200px 200px', animation: 'orbitTrackSpin 60s linear infinite' }}>
-            <circle cx="200" cy="200" r="160" fill="none" stroke="rgba(253, 224, 71, 0.45)" strokeWidth="2" strokeDasharray="2 10" />
-          </g>
-          <circle cx="200" cy="200" r="160" fill="none" stroke="rgba(253, 224, 71, 0.55)" strokeWidth="1.5" strokeDasharray="8 8" style={{ filter: 'drop-shadow(0 0 4px rgba(253, 224, 71, 0.4))' }} />
+          {showOrbitTrack && (
+            <>
+              {/* Slowly-drifting dashed orbit track, independent of the card spin */}
+              <g style={{ transformOrigin: '200px 200px', animation: 'orbitTrackSpin 60s linear infinite' }}>
+                <circle cx="200" cy="200" r="160" fill="none" stroke="rgba(253, 224, 71, 0.45)" strokeWidth="2" strokeDasharray="2 10" />
+              </g>
+              <circle cx="200" cy="200" r="160" fill="none" stroke="rgba(253, 224, 71, 0.55)" strokeWidth="1.5" strokeDasharray="8 8" style={{ filter: 'drop-shadow(0 0 4px rgba(253, 224, 71, 0.4))' }} />
+            </>
+          )}
 
           <style>{`
             @keyframes orbitTrackSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
@@ -324,7 +332,9 @@ export default function OrbitWheelDraw({
                        boxShadow: '0 0 15px rgba(253,224,71,0.55)',
                      }}
                    >
-                     <span className="text-[#fef08a] font-bold text-lg">{i + 1}</span>
+                     {showVertexLabels && (
+                       <span className="text-[#fef08a] font-bold text-lg">{i + 1}</span>
+                     )}
                    </div>
                  </div>
                )}
@@ -545,6 +555,8 @@ export default function OrbitWheelDraw({
                 style={{
                   pointerEvents: canCapture ? 'auto' : 'none',
                   cursor: canCapture ? 'pointer' : 'default',
+                  touchAction: 'manipulation',
+                  WebkitTapHighlightColor: 'transparent',
                   background: 'radial-gradient(circle at 50% 40%, #241e35, #0e0c14)',
                   border: '2px solid transparent',
                   backgroundImage: 'radial-gradient(circle at 50% 40%, #241e35, #0e0c14), linear-gradient(135deg, #fde047, #f59e0b 55%, #c084fc)',
