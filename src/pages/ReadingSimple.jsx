@@ -545,6 +545,22 @@ export default function ReadingSimple() {
               onDrop={(e) => { e.preventDefault(); try { const p = JSON.parse(e.dataTransfer.getData('application/json')); if (p?.source === 'bottom-shelf') handleDrawSpecificCard(p.cardIndex); } catch(err) {} }}
             >
               {selectedSpread ? (
+                orbitSelectMode && !orbitDrawComplete ? (
+                  <div style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center", margin: "auto", padding: 16, gap: 12 }}>
+                    <p style={{ color: "rgba(233,213,255,0.7)", fontSize: 12, fontFamily: "Cinzel, serif", letterSpacing: "0.05em", textAlign: "center" }}>
+                      Tap the cards you're drawn to — each is resolved live, in the moment you choose it.
+                    </p>
+                    <OrbitWheelDraw
+                      key={orbitWheelKey}
+                      spreadSize={selectedSpread.positions.length}
+                      orbitCount={Math.min(Math.max(deckRemaining.length, selectedSpread.positions.length), 22)}
+                      deckBackImage={deck?.back_image_url}
+                      centerImage={deck?.back_image_url}
+                      onCardCaptured={handleOrbitCardCaptured}
+                      onComplete={handleOrbitComplete}
+                    />
+                  </div>
+                ) : (
                 <div style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center", margin: "auto", padding: 16 }}>
                   <SpreadLayout
                     spread={selectedSpread}
@@ -559,6 +575,7 @@ export default function ReadingSimple() {
                     onPositionUpdate={handlePositionUpdate}
                   />
                 </div>
+                )
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", opacity: 0.4 }}>
                   <Sparkles style={{ width: 48, height: 48, color: "#c084fc", marginBottom: 16 }} />
