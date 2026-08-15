@@ -553,6 +553,10 @@ export default function ReadingSimple() {
                   <div style={{ fontSize: 13, color: "rgba(233,213,255,0.9)", background: "rgba(49,46,129,0.3)", padding: 16, borderRadius: 12, border: "1px solid rgba(99,102,241,0.3)" }}>
                     <p style={{ fontWeight: 600, color: "#67e8f9", marginBottom: 8, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", display: "flex", alignItems: "center", gap: 8 }}><Sparkles style={{ width: 14, height: 14 }} />CosMosis</p>
                     <div style={{ whiteSpace: "pre-wrap", lineHeight: 1.6 }}>{aiInterpretation}</div>
+                    <p style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid rgba(99,102,241,0.25)", fontSize: 10, color: blindMode ? "rgba(196,181,253,0.75)" : "rgba(255,255,255,0.35)", display: "flex", alignItems: "center", gap: 6 }}>
+                      {blindMode ? <EyeOff style={{ width: 11, height: 11 }} /> : <Eye style={{ width: 11, height: 11 }} />}
+                      {blindMode ? "Blind reading \u2014 no reference to your history" : "Personalized using your reading patterns"}
+                    </p>
                   </div>
                 )}
               </div>
