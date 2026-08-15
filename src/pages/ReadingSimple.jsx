@@ -150,7 +150,7 @@ export default function ReadingSimple() {
     drawnCards.forEach((c, i) => {
       if (c) { validCards.push(c); if (selectedSpread?.positions[i]) validPositions.push(selectedSpread.positions[i]); }
     });
-    return composeReading(validCards, selectedSpread ? { ...selectedSpread, positions: validPositions } : null, questionParam || "", readingHistory, deckIdFromUrl);
+    return composeReading(validCards, selectedSpread ? { ...selectedSpread, positions: validPositions } : null, questionParam || "", blindMode ? [] : readingHistory, deckIdFromUrl);
   };
 
   const getSpreadInsight = async () => {
