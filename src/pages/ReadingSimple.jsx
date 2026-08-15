@@ -573,9 +573,15 @@ export default function ReadingSimple() {
             <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }}
               style={{ background: "#0f0a1e", border: "1px solid rgba(201,168,76,0.3)", borderRadius: 20, boxShadow: "0 0 60px rgba(147,51,234,0.3)", overflow: "hidden", width: "100%", maxWidth: 600, maxHeight: "85vh", display: "flex", flexDirection: "column" }}>
               <div style={{ padding: 16, borderBottom: "1px solid rgba(201,168,76,0.2)", display: "flex", justifyContent: "space-between", alignItems: "center", background: "rgba(88,28,135,0.3)" }}>
-                <h3 style={{ fontSize: 18, fontWeight: 700, color: "white", fontFamily: "Cinzel, serif", display: "flex", alignItems: "center", gap: 8, margin: 0 }}>
-                  <Sparkles style={{ width: 20, height: 20, color: "#c084fc" }} />Reading Interpretation
-                </h3>
+                <div>
+                  <h3 style={{ fontSize: 18, fontWeight: 700, color: "white", fontFamily: "Cinzel, serif", display: "flex", alignItems: "center", gap: 8, margin: 0 }}>
+                    <Sparkles style={{ width: 20, height: 20, color: "#c084fc" }} />Reading Interpretation
+                  </h3>
+                  <p style={{ margin: "6px 0 0", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.08em", color: blindMode ? "rgba(196,181,253,0.85)" : "rgba(255,255,255,0.4)", display: "flex", alignItems: "center", gap: 6 }}>
+                    {blindMode ? <EyeOff style={{ width: 11, height: 11 }} /> : <Eye style={{ width: 11, height: 11 }} />}
+                    {blindMode ? "Blind reading \u2014 no reference to your history" : "Personalized using your reading patterns"}
+                  </p>
+                </div>
                 <button onClick={() => setShowSpreadInterpretation(false)} style={{ background: "transparent", border: "none", color: "rgba(255,255,255,0.6)", cursor: "pointer", fontSize: 18 }}>✕</button>
               </div>
               <div style={{ flex: 1, overflowY: "auto", padding: 24, display: "flex", flexDirection: "column", gap: 16 }}>
