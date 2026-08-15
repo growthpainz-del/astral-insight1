@@ -439,6 +439,12 @@ export default function ReadingSimple() {
             icon={<Shuffle style={{ width: 16, height: 16 }} />}
             label="Shuffle"
           />
+          <SidebarBtn
+            onClick={() => setBlindMode(v => !v)}
+            icon={blindMode ? <EyeOff style={{ width: 16, height: 16 }} /> : <Eye style={{ width: 16, height: 16 }} />}
+            label={blindMode ? "Blind: On" : "Blind: Off"}
+            primary={blindMode}
+          />
 
           {readingMode === "spread" && selectedSpread && (
             <SidebarBtn
