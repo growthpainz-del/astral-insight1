@@ -3,8 +3,10 @@ import { Link, useSearchParams } from "react-router-dom";
 import { composeReading, composeCardQuick, buildCardPromptByMode, buildFullReadingPromptByMode } from "@/utils/interpretationComposer";
 import CosMosisModePicker from "@/components/cosmosis/CosMosisModePicker";
 import { Button } from "@/components/ui/button";
-import { Loader2, ChevronLeft, Hand, Shuffle, Eye, EyeOff, Sparkles, Settings2, Save } from "lucide-react";
+import { Loader2, ChevronLeft, Hand, Shuffle, Eye, EyeOff, Sparkles, Settings2, Save, Orbit } from "lucide-react";
 import SpreadLayout, { SYSTEM_SPREADS } from "@/components/reading/CompactSpread";
+import OrbitWheelDraw from "@/components/reading/OrbitWheelDraw";
+import { drawLiveCard } from "@/utils/liveDraw";
 import BottomCardShelf from "@/components/reading/BottomCardShelf";
 import { motion, AnimatePresence, useAnimation } from "framer-motion";
 import { createPageUrl } from "@/utils";
@@ -104,6 +106,15 @@ export default function ReadingSimple() {
   // its position, and whatever the person typed as their question —
   // nothing the app remembers about them.
   const [blindMode, setBlindMode] = useState(false);
+  // Orbit Select: opt-in alternate draw mechanic. When on (and while a
+  // spread's slots aren't all filled yet), the orbit wheel replaces the
+  // normal spread canvas — tap cards directly from the ring instead of
+  // using the Draw button. Card identity is still resolved live, per tap,
+  // from deckRemaining (see handleOrbitCardCaptured).
+  const [orbitSelectMode, setOrbitSelectMode] = useState(false);
+  const [orbitDrawComplete, setOrbitDrawComplete] = useState(false);
+  const [orbitWheelKey, setOrbitWheelKey] = useState(0);
+  const deckRemainingRef = useRef([]);
   const [composedReading, setComposedReading] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
