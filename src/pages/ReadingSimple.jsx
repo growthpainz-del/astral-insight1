@@ -554,6 +554,7 @@ export default function ReadingSimple() {
                       key={orbitWheelKey}
                       spreadSize={selectedSpread.positions.length}
                       orbitCount={Math.min(Math.max(deckRemaining.length, selectedSpread.positions.length), 22)}
+                      totalAvailable={cards.length}
                       deckBackImage={deck?.back_image_url}
                       centerImage={deck?.back_image_url}
                       onCardCaptured={handleOrbitCardCaptured}
