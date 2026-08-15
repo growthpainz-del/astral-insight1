@@ -411,7 +411,7 @@ export default function OrbitWheelDraw({
               <div
                 key={`orbit-${card.id}`}
                 role={canSelect ? 'button' : undefined}
-                onClick={canSelect ? () => selectCard(card) : undefined}
+                onClick={canSelect ? (e) => selectCard(card, e) : undefined}
                 data-baseangle={card.baseAngle}
                 className="absolute w-[50px] h-[75px] -ml-[25px] -mt-[37.5px] rounded-md overflow-hidden flex items-center justify-center p-1.5"
                 style={{
