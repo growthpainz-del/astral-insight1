@@ -35,6 +35,8 @@ export default function OrbitTest() {
           pulseInterval={2000}
           onCardCaptured={handleCardCaptured}
           onComplete={handleComplete}
+          showVertexLabels={false}
+          showOrbitTrack={false}
         />
       </div>
 
