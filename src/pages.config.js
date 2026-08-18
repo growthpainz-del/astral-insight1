@@ -49,6 +49,9 @@
  */
 import Account from './pages/Account';
 import BetaTasks from './pages/BetaTasks';
+import ReaderDashboard from './pages/ReaderDashboard';
+import JoinSession from './pages/JoinSession';
+import ReadingRoom from './pages/ReadingRoom';
 import AdminDeckReview from './pages/AdminDeckReview';
 import AdminTokenGrant from './pages/AdminTokenGrant';
 import AdminUsers from './pages/AdminUsers';
@@ -98,6 +101,9 @@ import __Layout from './Layout.jsx';
 export const PAGES = {
     "Account": Account,
     "BetaTasks": BetaTasks,
+    "ReaderDashboard": ReaderDashboard,
+    "JoinSession": JoinSession,
+    "ReadingRoom": ReadingRoom,
     "AdminDeckReview": AdminDeckReview,
     "AdminTokenGrant": AdminTokenGrant,
     "AdminUsers": AdminUsers,
