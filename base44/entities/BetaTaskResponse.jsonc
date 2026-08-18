@@ -1,0 +1,35 @@
+{
+  "name": "BetaTaskResponse",
+  "properties": {
+    "active_session_seconds": {
+      "description": "Active engaged time in-app before this response, pause-aware via visibilitychange",
+      "type": "number"
+    },
+    "note": {
+      "description": "Optional short note from the tester",
+      "type": "string"
+    },
+    "result": {
+      "description": "One-tap outcome",
+      "enum": [
+        "worked",
+        "broken",
+        "confusing"
+      ],
+      "type": "string"
+    },
+    "task_id": {
+      "description": "References BetaTask.id",
+      "type": "string"
+    },
+    "tester_email": {
+      "description": "Auto-captured from logged-in tester",
+      "type": "string"
+    }
+  },
+  "required": [
+    "task_id",
+    "result"
+  ],
+  "type": "object"
+}

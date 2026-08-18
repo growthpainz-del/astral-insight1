@@ -1,0 +1,60 @@
+{
+  "name": "BetaTask",
+  "properties": {
+    "area": {
+      "description": "App area this task tests",
+      "enum": [
+        "reading_flow",
+        "spirit_wheel",
+        "decks",
+        "journal",
+        "fusions",
+        "navigation",
+        "account_billing",
+        "admin"
+      ],
+      "type": "string"
+    },
+    "deep_link_page": {
+      "description": "Page name (createPageUrl target) to jump the tester straight into, if applicable",
+      "type": "string"
+    },
+    "instructions": {
+      "description": "Plain-language steps for the tester to follow",
+      "type": "string"
+    },
+    "is_active": {
+      "default": true,
+      "type": "boolean"
+    },
+    "known_risk": {
+      "description": "Why this was flagged in the audit (e.g. orphaned route, broken link, complex flow)",
+      "type": "string"
+    },
+    "order": {
+      "default": 0,
+      "description": "Display order within the binder",
+      "type": "number"
+    },
+    "priority": {
+      "default": "medium",
+      "description": "How critical this area is to test, based on audit",
+      "enum": [
+        "high",
+        "medium",
+        "low"
+      ],
+      "type": "string"
+    },
+    "title": {
+      "description": "Short task name shown in the binder list",
+      "type": "string"
+    }
+  },
+  "required": [
+    "title",
+    "area",
+    "instructions"
+  ],
+  "type": "object"
+}
