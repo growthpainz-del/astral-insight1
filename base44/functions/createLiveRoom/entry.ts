@@ -1,7 +1,7 @@
 Deno.serve(async (req: Request) => {
-  const apiKey = Deno.env.get("WHEREBY_API_KEY");
+  const apiKey = Deno.env.get("ASTRAL_ROOM_WHEREBY");
   if (!apiKey) {
-    return new Response(JSON.stringify({ error: "Whereby API key not configured. Please add WHEREBY_API_KEY to your secrets." }), { 
+    return new Response(JSON.stringify({ error: "Whereby API key not configured. Please add ASTRAL_ROOM_WHEREBY to your secrets." }), { 
       status: 500, 
       headers: { "Content-Type": "application/json" } 
     });
