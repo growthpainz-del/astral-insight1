@@ -180,7 +180,7 @@ const CATEGORIES = [
       { title: "Create Deck", desc: "Start a new journey with a fresh deck.", to: createPageUrl("CreateDeck"), icon: Sprout, color: "#34d399" },
       { title: "Spreads", desc: "Design and manage custom card spreads.", to: createPageUrl("SpreadManager"), icon: Layers, color: "#818cf8" },
       { title: "Persona", desc: "Configure your AI reading persona.", to: createPageUrl("Persona"), icon: Sparkles, color: "#fcd34d" },
-      { title: "Print on Demand", desc: "Set up physical printing for your decks.", to: createPageUrl("PrintifySetup"), icon: Image, color: "#2dd4bf" },
+      { title: "Print on Demand", desc: "Set up physical printing for your decks.", to: createPageUrl("PrintifySetup"), icon: ImageIcon, color: "#2dd4bf" },
     ]
   },
   {
