@@ -82,6 +82,19 @@
   body {
     @apply bg-background text-foreground;
     overscroll-behavior-y: none;
+    color-scheme: dark;
+  }
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  textarea:-webkit-autofill:hover,
+  textarea:-webkit-autofill:focus {
+    -webkit-text-fill-color: #ffffff;
+    -webkit-box-shadow: 0 0 0px 1000px rgba(10, 6, 24, 0.9) inset;
+    box-shadow: 0 0 0px 1000px rgba(10, 6, 24, 0.9) inset;
+    caret-color: #ffffff;
+    transition: background-color 9999s ease-in-out 0s;
   }
 }
 
