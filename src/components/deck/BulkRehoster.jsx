@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, RefreshCw, ShieldCheck, AlertTriangle } from "lucide-react";
-import { rehostDeckImages } from "@/functions/rehostDeckImages";
+import { base44 } from "@/api/base44Client";
 
 export default function BulkRehoster({ deckId, isOpen, onClose, onDone }) {
   const [running, setRunning] = React.useState(false);
@@ -23,7 +23,7 @@ export default function BulkRehoster({ deckId, isOpen, onClose, onDone }) {
     setError("");
     setResult(null);
     try {
-      const { data } = await rehostDeckImages({ deckId });
+      const { data } = await base44.functions.invoke("rehostDeckImages", { deckId });
       setResult(data);
       if (onDone) onDone();
     } catch (e) {
