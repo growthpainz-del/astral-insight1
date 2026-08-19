@@ -496,7 +496,7 @@ export default function ReadingStage({ session, interactive, deckCards }) {
       <AnimatePresence>
         {selectedCardForInterpretation && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}
-            className="absolute top-4 left-4 right-4 max-h-[calc(100%-2rem)] md:left-auto md:top-4 md:right-4 md:bottom-4 md:w-[320px] md:max-h-none z-50 flex flex-col overflow-hidden shadow-2xl"
+            className="absolute top-4 left-4 right-4 max-h-[min(60%,320px)] md:left-auto md:top-4 md:right-4 md:w-[320px] md:max-h-[70%] z-50 flex flex-col overflow-hidden shadow-2xl"
             style={{ background: "rgba(0,0,0,0.85)", backdropFilter: "blur(20px)", border: "1px solid rgba(201,168,76,0.4)", borderRadius: 16, boxShadow: "0 0 40px rgba(147,51,234,0.3)" }}>
             <div className="p-4 pr-12 border-b border-[#c9a84c]/20 flex justify-between items-start bg-purple-900/30 relative shrink-0">
               <h3 className="text-base font-bold text-white font-['Cinzel'] m-0 leading-tight break-words w-full">
