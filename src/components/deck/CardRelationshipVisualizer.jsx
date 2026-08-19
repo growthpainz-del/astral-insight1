@@ -219,7 +219,8 @@ async function detectRelationships(cards, options = {}) {
     includeImageAnalysis = false,
     includeMeaningAnalysis = false,
     maxImagePairs = 10, // Limit image analysis pairs to avoid rate limits
-    onProgress
+    onProgress,
+    getShouldStop
   } = options;
 
   if (!cards || cards.length < 2) {
@@ -236,7 +237,9 @@ async function detectRelationships(cards, options = {}) {
   let imagePairsAnalyzed = 0;
 
   for (let i = 0; i < cards.length; i++) {
+    if (getShouldStop && getShouldStop()) break;
     for (let j = i + 1; j < cards.length; j++) {
+      if (getShouldStop && getShouldStop()) break;
       const card1 = cards[i];
       const card2 = cards[j];
 
@@ -1134,6 +1137,7 @@ export default function CardRelationshipVisualizer({ deckId, cards: providedCard
   // NEW: Advanced detection options
   const [includeImageAnalysis, setIncludeImageAnalysis] = React.useState(false);
   const [includeMeaningAnalysis, setIncludeMeaningAnalysis] = React.useState(false);
+  const stopDetectionRef = React.useRef(false);
 
   // Load cards if not provided
   React.useEffect(() => {
@@ -1176,6 +1180,9 @@ export default function CardRelationshipVisualizer({ deckId, cards: providedCard
       return;
     }
 
+    let isCancelled = false;
+    stopDetectionRef.current = false;
+
     const runDetection = async () => {
       setDetecting(true);
       console.log(`🔍 Starting auto-detection for ${cards.length} cards...`);
@@ -1187,19 +1194,30 @@ export default function CardRelationshipVisualizer({ deckId, cards: providedCard
           includeImageAnalysis,
           includeMeaningAnalysis,
           maxImagePairs: 15, // Limit to 15 image pairs to avoid rate limits
-          onProgress: setDetectionProgress
+          onProgress: (progress) => {
+            if (!isCancelled) setDetectionProgress(progress);
+          },
+          getShouldStop: () => stopDetectionRef.current || isCancelled
         });
-        setRelationships(detected);
+        if (!isCancelled) {
+          setRelationships(detected);
+        }
       } catch (error) {
         console.error('❌ Detection failed:', error);
-        setRelationships([]);
+        if (!isCancelled) setRelationships([]);
       } finally {
-        setDetecting(false);
-        setDetectionProgress({ current: 0, total: 0 });
+        if (!isCancelled) {
+          setDetecting(false);
+          setDetectionProgress({ current: 0, total: 0 });
+        }
       }
     };
 
     runDetection();
+
+    return () => {
+      isCancelled = true;
+    };
   }, [cards, includeImageAnalysis, includeMeaningAnalysis]);
 
   // Combine auto-detected and saved relationships
@@ -1420,7 +1438,17 @@ export default function CardRelationshipVisualizer({ deckId, cards: providedCard
           <div className="mt-3 bg-black/30 rounded-lg p-3">
             <div className="flex items-center justify-between text-sm text-white mb-2">
               <span>Analyzing relationships...</span>
-              <span>{detectionProgress.current} / {detectionProgress.total}</span>
+              <div className="flex items-center gap-4">
+                <span>{detectionProgress.current} / {detectionProgress.total}</span>
+                <Button 
+                  size="sm" 
+                  variant="destructive" 
+                  className="h-6 text-xs px-2"
+                  onClick={() => { stopDetectionRef.current = true; }}
+                >
+                  Stop & Keep
+                </Button>
+              </div>
             </div>
             <div className="w-full bg-white/10 rounded-full h-2">
               <div
