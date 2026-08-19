@@ -10,6 +10,8 @@ import PullToRefresh from "@/components/common/PullToRefresh";
 import CoverflowDeckSelector from "@/components/reading/CoverflowDeckSelector";
 import ReadingStage from "@/components/reading/ReadingStage";
 import FloatingWherebyTV from "@/components/reading/FloatingWherebyTV";
+import ReaderProfileEditor from "@/components/reading/ReaderProfileEditor";
+import ReaderProfileCard from "@/components/reading/ReaderProfileCard";
 
 export default function ReadingRoom() {
   const [searchParams] = useSearchParams();
