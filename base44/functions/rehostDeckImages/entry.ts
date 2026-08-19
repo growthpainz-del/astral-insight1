@@ -34,7 +34,7 @@ async function rehostOne(base44, sourceUrl, filenameBase) {
   const filename = `${sanitizeName(filenameBase)}.${ext}`;
   const file = new File([buf], filename, { type: contentType });
   // Upload to public storage
-  const uploaded = await base44.asServiceRole.integrations.UploadFile({ file });
+  const uploaded = await base44.integrations.Core.UploadFile({ file });
   return uploaded?.file_url || uploaded?.url || null;
 }
 
