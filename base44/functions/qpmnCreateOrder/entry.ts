@@ -18,14 +18,17 @@ export default async function(req) {
       return Response.json({ error: 'deckId is required' }, { status: 400 });
     }
 
-    // Use service role to get full deck and card details safely if needed,
-    // though the user should own it. Let's stick to serviceRole just to make sure we get all cards
-    const deck = await base44.asServiceRole.entities.Deck.get(deckId);
+    // Get full deck and card details securely with user context
+    const deck = await base44.entities.Deck.get(deckId);
     if (!deck) {
       return Response.json({ error: 'Deck not found' }, { status: 404 });
     }
 
-    const cards = await base44.asServiceRole.entities.Card.filter({ deck_id: deckId });
+    if (user.role !== 'admin' && deck.created_by_id !== user.id) {
+      return Response.json({ error: 'Forbidden: You do not own this deck' }, { status: 403 });
+    }
+
+    const cards = await base44.entities.Card.filter({ deck_id: deckId });
     
     const apiKey = secrets.get("QPMN_API_KEY");
     if (!apiKey) {

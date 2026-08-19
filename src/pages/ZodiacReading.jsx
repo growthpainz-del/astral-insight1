@@ -533,9 +533,19 @@ Address ${name} directly throughout. Make it personal, mystical, and practical. 
             <CardContent className="p-8">
               <div className="prose prose-invert prose-p:text-purple-200/90 prose-h3:text-cyan-300 prose-strong:text-cyan-200 max-w-none">
                 <h2 className="text-3xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-cyan-300 mb-6">Your Cosmic Blueprint</h2>
-                <div dangerouslySetInnerHTML={{
-                  __html: reading.aiReading.replace(/\n/g, '<br/>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                }} />
+                <div>
+                  {reading.aiReading.split('\n').map((line, i) => (
+                    <React.Fragment key={i}>
+                      {line.split(/(\*\*.*?\*\*)/g).map((part, j) => {
+                        if (part.startsWith('**') && part.endsWith('**')) {
+                          return <strong key={j}>{part.slice(2, -2)}</strong>;
+                        }
+                        return part;
+                      })}
+                      <br />
+                    </React.Fragment>
+                  ))}
+                </div>
               </div>
             </CardContent>
           </Card>

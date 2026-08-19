@@ -87,6 +87,10 @@ Deno.serve(async (req) => {
     if (!deck) {
       return Response.json({ error: 'Deck not found' }, { status: 404 });
     }
+    
+    if (user.role !== 'admin' && deck.created_by_id !== user.id) {
+      return Response.json({ error: 'Forbidden: You do not own this deck' }, { status: 403 });
+    }
 
     // Load cards for name matching and ordering
     const cards = await base44.entities.Card.filter({ deck_id: deckId }, 'number', 1000);
