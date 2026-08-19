@@ -30,9 +30,7 @@
     "create": {
       "$or": [
         {
-          "user_condition": {
-            "chat_approved": true
-          }
+          "created_by_id": "{{user.id}}"
         },
         {
           "user_condition": {
@@ -56,14 +54,28 @@
       ]
     },
     "update": {
-      "user_condition": {
-        "role": "admin"
-      }
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
     },
     "delete": {
-      "user_condition": {
-        "role": "admin"
-      }
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
     }
   }
 }
