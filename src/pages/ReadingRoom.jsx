@@ -9,6 +9,7 @@ import PullToRefresh from "@/components/common/PullToRefresh";
 
 import CoverflowDeckSelector from "@/components/reading/CoverflowDeckSelector";
 import ReadingStage from "@/components/reading/ReadingStage";
+import FloatingWherebyTV from "@/components/reading/FloatingWherebyTV";
 
 export default function ReadingRoom() {
   const [searchParams] = useSearchParams();
@@ -252,15 +253,7 @@ export default function ReadingRoom() {
               deckCards={deckCards} 
             />
 
-            {liveSessionUrl && (
-               <div className="mt-8 h-[120px] rounded-xl overflow-hidden border border-[#a078ff]/30 bg-[#0a0618]">
-                 <iframe 
-                   src={`${liveSessionUrl}${liveSessionUrl.includes('?') ? '&' : '?'}embed=true&audio=on&video=off&background=off&leaveButton=off&chat=off&people=off`} 
-                   allow="camera; microphone; fullscreen; speaker; display-capture" 
-                   className="w-full h-full border-0"
-                 />
-               </div>
-            )}
+            {liveSessionUrl && <FloatingWherebyTV url={liveSessionUrl} />}
           </>
         ) : (
           <>
