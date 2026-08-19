@@ -1,0 +1,24 @@
+{
+  "name": "ChatMessage",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "message": {
+      "type": "string"
+    },
+    "room_id": {
+      "type": "string",
+      "default": "global",
+      "description": "ID of the room, or 'global' for site-wide chat"
+    }
+  },
+  "required": [
+    "user_id",
+    "message"
+  ]
+}

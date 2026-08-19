@@ -317,14 +317,14 @@ export default function ReadingStage({ session, interactive, deckCards }) {
         )}
       </div>
 
-      <div className="p-3 sm:p-4 bg-[#1a0f35]/95 border-t border-[#a078ff]/30 flex flex-col sm:flex-row items-center justify-between gap-3 backdrop-blur-md">
-        <div className="text-xs text-purple-300 text-center sm:text-left">
-          <span className="opacity-70">{interactive ? "Drag to move • Double-click to flip" : "Watching Reader's Table"}</span>
+      <div className="p-2 sm:p-4 bg-[#1a0f35]/95 border-t border-[#a078ff]/30 flex flex-col sm:flex-row items-center justify-between gap-2 backdrop-blur-md relative z-20 shrink-0">
+        <div className="text-[10px] sm:text-xs text-purple-300 text-center sm:text-left shrink-0">
+          <span className="opacity-70">{interactive ? "Drag • Double-click flip" : "Watching Reader's Table"}</span>
         </div>
-        <div className="flex flex-wrap items-center justify-center gap-2">
+        <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 scrollbar-hide justify-start sm:justify-end shrink-0">
           {interactive && (
             <>
-              <Button variant="outline" size="sm" onClick={clearTable} className="border-red-500/50 text-red-300 hover:bg-red-500/20">
+              <Button variant="outline" size="sm" onClick={clearTable} className="border-red-500/50 text-red-300 hover:bg-red-500/20 whitespace-nowrap px-2">
                 Clear
               </Button>
               <Button variant="outline" size="sm" onClick={() => {
@@ -341,22 +341,22 @@ export default function ReadingStage({ session, interactive, deckCards }) {
                 }
                 setIsShuffling(true);
                 setTimeout(() => setIsShuffling(false), 2400);
-              }} className="border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20">
+              }} className="border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 whitespace-nowrap px-2">
                 Shuffle
               </Button>
-              <Button size="sm" onClick={drawCard} className="bg-cyan-600 hover:bg-cyan-500 text-white shadow-[0_0_10px_rgba(8,145,178,0.5)]">
-                <Hand className="w-4 h-4 mr-1" />
+              <Button size="sm" onClick={drawCard} className="bg-cyan-600 hover:bg-cyan-500 text-white shadow-[0_0_10px_rgba(8,145,178,0.5)] whitespace-nowrap px-3">
+                <Hand className="w-4 h-4 mr-1 hidden sm:block" />
                 Draw
               </Button>
             </>
           )}
-          <Button size="sm" variant="outline" onClick={interpretReading} disabled={interpreting || !positions.length} className="border-purple-500/50 text-purple-300 hover:bg-purple-500/20">
-            <Sparkles className="w-4 h-4 mr-1" />
+          <Button size="sm" variant="outline" onClick={interpretReading} disabled={interpreting || !positions.length} className="border-purple-500/50 text-purple-300 hover:bg-purple-500/20 whitespace-nowrap px-2">
+            <Sparkles className="w-4 h-4 mr-1 hidden sm:block" />
             {interpreting ? 'Reading...' : sharedInterpretation ? 'Re-interpret' : 'Interpret'}
           </Button>
           {sharedInterpretation && !showInterpretation && (
-            <Button size="sm" variant="outline" onClick={() => setShowInterpretation(true)} className="border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20">
-              View Reading
+            <Button size="sm" variant="outline" onClick={() => setShowInterpretation(true)} className="border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20 whitespace-nowrap px-2">
+              View
             </Button>
           )}
         </div>

@@ -44,6 +44,7 @@ import {
 } from "@/components/ui/select";
 import FloatingSave from "@/components/common/FloatingSave";
 import MobileBottomNav from "@/components/navigation/MobileBottomNav";
+import GlobalChat from "@/components/common/GlobalChat";
 import { motion, AnimatePresence } from "framer-motion";
 import { isUserAdmin } from "@/components/utils/adminGuard";
 import NetworkBanner from "@/components/common/NetworkBanner";
@@ -575,6 +576,7 @@ export default function Layout({ children, currentPageName }) {
         </div>
 
         <MobileBottomNav />
+        <GlobalChat user={user} />
 
         {/* Unauthenticated login button */}
         {!user && !redirectingToLogin && (
