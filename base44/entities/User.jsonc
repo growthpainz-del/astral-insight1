@@ -66,6 +66,11 @@
     "is_online": {
       "type": "boolean",
       "default": false
+    },
+    "chat_approved": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this user has been approved to send/read site-wide chat messages"
     }
   },
   "required": [
