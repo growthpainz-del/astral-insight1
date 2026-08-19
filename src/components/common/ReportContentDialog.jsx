@@ -67,7 +67,7 @@ export default function ReportContentDialog({ isOpen, onClose, contentType, cont
                             onChange={(e) => setReason(e.target.value)}
                             placeholder="Please describe why this content is inappropriate..."
                             rows={4}
-                            className="bg-black/20 border-slate-700 text-white placeholder:text-slate-500 focus:border-red-400"
+                            className="bg-black/20 border-slate-700 text-white placeholder:text-white/40 focus:border-red-400"
                         />
                     </div>
                 </div>
