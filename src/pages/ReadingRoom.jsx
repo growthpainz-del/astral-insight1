@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
-import { Sparkles, AlertCircle, RotateCcw, X, Video } from "lucide-react";
+import { Sparkles, AlertCircle, RotateCcw, X, Video, Save, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { queueApiCall } from "@/components/utils/apiQueue";
 import PullToRefresh from "@/components/common/PullToRefresh";
@@ -24,6 +24,8 @@ export default function ReadingRoom() {
   const [hostedToken, setHostedToken] = useState("");
   const [activeSession, setActiveSession] = useState(null);
   const [deckCards, setDeckCards] = useState([]);
+  const [savingReading, setSavingReading] = useState(false);
+  const [readingSaved, setReadingSaved] = useState(false);
 
   const inviteLink = `${window.location.origin}${createPageUrl(`join/${hostedToken}`)}`;
 
@@ -60,6 +62,47 @@ export default function ReadingRoom() {
       alert('Error creating live session: ' + e.message);
     } finally {
       setConnectingReader(null);
+    }
+  };
+
+  const saveLiveReading = async () => {
+    if (!currentUser) {
+      alert("Log in to save this reading to your history.");
+      return;
+    }
+    if (!activeSession?.card_positions?.length) {
+      alert("No cards on the table yet to save.");
+      return;
+    }
+    setSavingReading(true);
+    try {
+      const cardsDrawn = activeSession.card_positions.map((pos, idx) => {
+        const full = deckCards.find((c) => c.id === pos.card_id);
+        return {
+          card_id: pos.card_id,
+          position: pos.label || `Position ${idx + 1}`,
+          is_reversed: false,
+          card_name: full?.name || "Unknown Card",
+          image_url: full?.image_url || ""
+        };
+      });
+
+      await base44.entities.Reading.create({
+        title: `Live Reading — ${new Date().toLocaleDateString()}`,
+        spread_type: "custom",
+        deck_id: activeSession.deck_id,
+        cards_drawn: cardsDrawn,
+        interpretation: activeSession.shared_interpretation || "",
+        date: new Date().toISOString().slice(0, 10),
+        category: "Live Reading"
+      });
+
+      setReadingSaved(true);
+      setTimeout(() => setReadingSaved(false), 4000);
+    } catch (e) {
+      alert("Couldn't save this reading: " + e.message);
+    } finally {
+      setSavingReading(false);
     }
   };
 
@@ -252,6 +295,23 @@ export default function ReadingRoom() {
               interactive={activeSession.reader_id === (currentUser?.id || "guest")} 
               deckCards={deckCards} 
             />
+
+            {currentUser && (
+              <div className="flex justify-center mt-4">
+                <Button
+                  onClick={saveLiveReading}
+                  disabled={savingReading || !activeSession.card_positions?.length}
+                  variant="outline"
+                  className="border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/20"
+                >
+                  {readingSaved ? (
+                    <><Check className="w-4 h-4 mr-2" /> Saved to History</>
+                  ) : (
+                    <><Save className="w-4 h-4 mr-2" /> {savingReading ? "Saving..." : "Save This Reading"}</>
+                  )}
+                </Button>
+              </div>
+            )}
 
             {liveSessionUrl && <FloatingWherebyTV url={liveSessionUrl} />}
           </>
