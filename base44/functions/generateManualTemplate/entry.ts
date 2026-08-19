@@ -20,6 +20,12 @@ Deno.serve(async (req) => {
 
     const deck = await base44.entities.Deck.get(deckId);
     const cards = await base44.entities.Card.filter({ deck_id: deckId }, 'number', 78);
+    let relationships = [];
+    try {
+      relationships = await base44.entities.CardRelationship.filter({ deck_id: deckId });
+    } catch (e) {
+      console.warn("Could not fetch card relationships:", e);
+    }
 
     // Prepare card list for the AI context
     const cardContext = cards.map(c => {
@@ -29,6 +35,12 @@ Deno.serve(async (req) => {
       if (c.reversed_meaning) parts.push(`Reversed: ${c.reversed_meaning}`);
       if (c.keywords?.length) parts.push(`Keywords: ${c.keywords.join(', ')}`);
       return parts.join(' | ');
+    }).join('\n');
+
+    const relationshipContext = relationships.map(r => {
+      const c1 = cards.find(c => c.id === r.card_id_1)?.name || r.card_id_1;
+      const c2 = cards.find(c => c.id === r.card_id_2)?.name || r.card_id_2;
+      return `${c1} & ${c2} [${r.relationship_type}]: ${r.custom_notes || 'No custom notes'}`;
     }).join('\n');
 
     const prompt = `You are a professional oracle/tarot deck creator writing a comprehensive, beautifully formatted guidebook (manual) for a new deck.
@@ -45,6 +57,9 @@ Extra Instructions: ${extraContext || 'None'}
 
 EXISTING CARDS:
 ${cardContext}
+
+CARD RELATIONSHIPS:
+${relationshipContext || 'No specific relationships defined.'}
 
 TASK:
 Write the complete Markdown manual for this deck. Do NOT output JSON, just output the raw Markdown text.
