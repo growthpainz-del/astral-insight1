@@ -40,6 +40,7 @@ const ADMIN_ONLY_PAGES = new Set([
   'SpreadManager',
   'SpreadDesigner',
   'SpiritWheelDesigner',
+  'AdminLivePresence'
 ])
 
 const LayoutWrapper = ({ children, currentPageName }) =>
@@ -215,6 +216,12 @@ const AuthenticatedApp = () => {
         path="/SpreadManager"
         element={
           <AdminRoute Page={SpreadManager} pageName="SpreadManager" user={user} />
+        }
+      />
+      <Route
+        path="/AdminLivePresence"
+        element={
+          <AdminRoute Page={React.lazy(() => import('./pages/AdminLivePresence'))} pageName="AdminLivePresence" user={user} />
         }
       />
       <Route

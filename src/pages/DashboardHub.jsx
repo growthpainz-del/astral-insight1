@@ -202,10 +202,13 @@ const CATEGORIES = [
   }
 ];
 
+import { Activity } from "lucide-react";
+
 const ADMIN_CATEGORY = {
   title: "Admin Controls",
   icon: ShieldAlert,
   features: [
+    { title: "Live Presence", desc: "See who is online right now.", to: createPageUrl("AdminLivePresence"), icon: Activity, color: "#22c55e" },
     { title: "Manage Users", desc: "View and manage user accounts.", to: createPageUrl("AdminUsers"), icon: Users, color: "#ef4444" },
     { title: "Review Decks", desc: "Approve submitted decks.", to: createPageUrl("AdminDeckReview"), icon: Sparkles, color: "#f97316" },
     { title: "Token Grant", desc: "Grant tokens to users.", to: createPageUrl("AdminTokenGrant"), icon: Coins, color: "#eab308" },
