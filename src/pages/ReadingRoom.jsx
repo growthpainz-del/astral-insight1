@@ -432,7 +432,18 @@ export default function ReadingRoom() {
         )}
       </div>
 
-
+      {currentUser && (
+        <ReaderProfileEditor
+          open={showProfileEditor}
+          onOpenChange={setShowProfileEditor}
+          currentUser={currentUser}
+          onSaved={(saved) => {
+            if (activeSession?.reader_id === currentUser.id) {
+              setHostProfile(saved);
+            }
+          }}
+        />
+      )}
 
           </div>
           </PullToRefresh>
