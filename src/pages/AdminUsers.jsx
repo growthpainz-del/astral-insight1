@@ -154,9 +154,8 @@ export default function AdminUsersPage() {
             >
               <ArrowLeft className="w-4 h-4" />
             </Button>
-            <h1 className="text-3xl font-bold text-white tracking-wide flex items-center gap-2 mb-0">
+            <h1 className="text-3xl font-bold text-white tracking-wide flex items-center gap-2">
               <Users className="w-8 h-8 text-purple-400" />
-              <span className="sr-only-placeholder" />
               User Management
             </h1>
           </div>
@@ -175,6 +174,8 @@ export default function AdminUsersPage() {
             </Button>
           </div>
         </motion.div>
+
+        <ChatRequestsPanel />
 
         <div className="bg-slate-900/50 backdrop-blur-lg rounded-2xl border border-purple-500/40 overflow-hidden">
           <div className="overflow-x-auto">
