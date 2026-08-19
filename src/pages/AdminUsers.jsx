@@ -30,6 +30,7 @@ import {
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import ChatRequestsPanel from "@/components/common/ChatRequestsPanel";
 
 const TIERS = ["free", "mystic", "oracle_pro", "creator"];
 
@@ -153,8 +154,9 @@ export default function AdminUsersPage() {
             >
               <ArrowLeft className="w-4 h-4" />
             </Button>
-            <h1 className="text-3xl font-bold text-white tracking-wide flex items-center gap-2">
+            <h1 className="text-3xl font-bold text-white tracking-wide flex items-center gap-2 mb-0">
               <Users className="w-8 h-8 text-purple-400" />
+              <span className="sr-only-placeholder" />
               User Management
             </h1>
           </div>
