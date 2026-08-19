@@ -606,7 +606,7 @@ Address ${name} directly throughout. Make it personal, mystical, and practical. 
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Enter your full name"
-                className="bg-black border-purple-500/30 text-cyan-300 placeholder:text-gray-600 focus:border-purple-400" // Updated Input styling
+                className="bg-black border-purple-500/30 text-cyan-300 placeholder:text-white/40 focus:border-purple-400" // Updated Input styling
               />
             </div>
 
