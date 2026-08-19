@@ -244,6 +244,9 @@ export default function ReadingStage({ session, interactive, deckCards }) {
                setShowInterpretation(false);
             }
           }
+          if (event.data.mat_style) {
+            setMatStyleKey(event.data.mat_style);
+          }
         }
       });
       return unsub;
