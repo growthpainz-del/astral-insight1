@@ -132,7 +132,7 @@ export default function AdminLivePresence() {
             </div>
             <div className="space-y-3">
               {onlineUsers.length === 0 ? (
-                <div className="p-8 text-center text-slate-500 border border-dashed border-slate-800 rounded-xl">
+                <div className="p-8 text-center text-purple-300/50 border border-dashed border-purple-500/20 rounded-xl">
                   No one is currently online
                 </div>
               ) : (
