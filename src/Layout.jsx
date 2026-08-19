@@ -96,6 +96,22 @@ export default function Layout({ children, currentPageName }) {
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const disableBgParticles = isIOS || prefersReducedMotion;
 
+  // Presence heartbeat
+  useEffect(() => {
+    let intervalId;
+    if (user) {
+      // Update immediately
+      base44.auth.updateMe({ last_active_at: new Date().toISOString(), is_online: true }).catch(() => {});
+      // Then every 2 minutes
+      intervalId = setInterval(() => {
+        base44.auth.updateMe({ last_active_at: new Date().toISOString(), is_online: true }).catch(() => {});
+      }, 120000);
+    }
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [user]);
+
   // Initialize app — only runs on mount / explicit retry
   useEffect(() => {
     let mounted = true;
@@ -308,6 +324,11 @@ export default function Layout({ children, currentPageName }) {
   }, [currentPageName, isAdmin]);
 
   const handleLogout = async () => {
+    try {
+      if (user) {
+        await base44.auth.updateMe({ is_online: false, last_active_at: new Date().toISOString() });
+      }
+    } catch (_) {}
     await base44.auth.logout(createPageUrl("CosmicHub"));
   };
 

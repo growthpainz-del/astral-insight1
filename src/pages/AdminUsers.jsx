@@ -37,6 +37,7 @@ export default function AdminUsersPage() {
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [filterOnline, setFilterOnline] = useState(false);
 
   // Single dialog handles grant / set-balance / set-subscription
   const [dialog, setDialog] = useState(null); // { type, user }
@@ -157,10 +158,20 @@ export default function AdminUsersPage() {
               User Management
             </h1>
           </div>
-          <Button onClick={loadUsers} variant="outline" className="border-purple-500 text-purple-300">
-            <RotateCcw className="w-4 h-4 mr-2" />
-            Refresh
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={() => setFilterOnline(!filterOnline)}
+              variant={filterOnline ? "default" : "outline"}
+              className={filterOnline ? "bg-green-600 hover:bg-green-700 text-white" : "border-purple-500 text-purple-300"}
+            >
+              <div className={`w-2 h-2 rounded-full mr-2 ${filterOnline ? "bg-white" : "bg-green-500"}`}></div>
+              Online Only
+            </Button>
+            <Button onClick={loadUsers} variant="outline" className="border-purple-500 text-purple-300">
+              <RotateCcw className="w-4 h-4 mr-2" />
+              Refresh
+            </Button>
+          </div>
         </motion.div>
 
         <div className="bg-slate-900/50 backdrop-blur-lg rounded-2xl border border-purple-500/40 overflow-hidden">
@@ -176,7 +187,11 @@ export default function AdminUsersPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/10">
-                {users.map((user, index) => (
+                {users.filter(u => {
+                  if (!filterOnline) return true;
+                  const isOnline = u.is_online || (u.last_active_at && new Date(u.last_active_at).getTime() > Date.now() - 5 * 60 * 1000);
+                  return isOnline;
+                }).map((user, index) => (
                   <motion.tr
                     key={user.id}
                     initial={{ opacity: 0, y: 10 }}
@@ -185,8 +200,17 @@ export default function AdminUsersPage() {
                     className="hover:bg-white/5 transition-colors"
                   >
                     <td className="px-4 py-3">
-                      <div className="font-medium text-white">{user.full_name || "No name"}</div>
-                      <div className="text-sm text-purple-300">{user.email}</div>
+                      <div className="flex items-center gap-2">
+                        <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
+                          user.is_online || (user.last_active_at && new Date(user.last_active_at).getTime() > Date.now() - 5 * 60 * 1000) 
+                            ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)]" 
+                            : "bg-slate-600"
+                        }`}></div>
+                        <div>
+                          <div className="font-medium text-white">{user.full_name || "No name"}</div>
+                          <div className="text-sm text-purple-300">{user.email}</div>
+                        </div>
+                      </div>
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
