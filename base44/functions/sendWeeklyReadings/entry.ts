@@ -43,6 +43,15 @@ async function drawCards(base44, deckId, spreadType) {
   return drawn;
 }
 
+function escapeHTML(str) {
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 function generateEmailHTML(user, deck, drawnCards, question, readingId) {
   const appUrl = Deno.env.get('BASE44_APP_URL') || 'https://your-app.com';
   
@@ -74,24 +83,24 @@ function generateEmailHTML(user, deck, drawnCards, question, readingId) {
   <div class="container">
     <div class="header">
       <h1>✨ Your Weekly Reading</h1>
-      <p>From ${deck.name}</p>
+      <p>From ${escapeHTML(deck.name)}</p>
     </div>
     
     <div class="content">
       <div class="question">
-        <strong>Your Question:</strong> ${question}
+        <strong>Your Question:</strong> ${escapeHTML(question)}
       </div>
       
       ${drawnCards.map(card => `
         <div class="card">
-          ${card.image_url ? `<img src="${card.image_url}" alt="${card.name}" style="width: 100%; border-radius: 8px; margin-bottom: 10px;">` : ''}
-          <div class="card-name">${card.name} ${card.is_reversed ? '<span class="reversed">(Reversed)</span>' : ''}</div>
+          ${card.image_url ? `<img src="${card.image_url}" alt="${escapeHTML(card.name)}" style="width: 100%; border-radius: 8px; margin-bottom: 10px;">` : ''}
+          <div class="card-name">${escapeHTML(card.name)} ${card.is_reversed ? '<span class="reversed">(Reversed)</span>' : ''}</div>
           <div class="card-position">Position ${card.position}</div>
           <div class="card-meaning">
-            ${card.is_reversed ? 
+            ${escapeHTML(card.is_reversed ? 
               (card.reversed_meaning || card.overall_meaning || 'No meaning available') : 
               (card.upright_meaning || card.overall_meaning || 'No meaning available')
-            }
+            )}
           </div>
         </div>
       `).join('')}

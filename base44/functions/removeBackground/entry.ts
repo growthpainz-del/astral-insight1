@@ -43,9 +43,9 @@ Deno.serve(async (req) => {
 
     const processed = await removeBgFetch(imageUrl, apiKey);
 
-    // Upload processed PNG to public storage
+    // Upload processed PNG to public storage securely scoped to the user
     const file = new File([processed], 'removed-bg.png', { type: 'image/png' });
-    const uploaded = await base44.asServiceRole.integrations.UploadFile({ file });
+    const uploaded = await base44.integrations.Core.UploadFile({ file });
     const file_url = uploaded?.file_url || uploaded?.url;
 
     if (!file_url) {
