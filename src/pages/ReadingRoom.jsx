@@ -200,6 +200,17 @@ export default function ReadingRoom() {
 
 
 
+  useEffect(() => {
+    const readerId = activeSession?.reader_id;
+    if (!readerId) {
+      setHostProfile(null);
+      return;
+    }
+    base44.entities.Reader.filter({ user_id: readerId })
+      .then((res) => setHostProfile(res?.[0] || null))
+      .catch(console.error);
+  }, [activeSession?.reader_id]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-black flex items-center justify-center">
