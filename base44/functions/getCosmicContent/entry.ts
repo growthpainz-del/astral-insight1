@@ -40,6 +40,14 @@ function getPhaseEndDate(date = new Date()) {
 // ---------------------------------------------------------------
 Deno.serve(async (req) => {
   const base44 = createClientFromRequest(req);
+  
+  let user;
+  try {
+    user = await base44.auth.me();
+  } catch (e) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const { zodiacSign, theme } = await req.json();
 
   if (!zodiacSign || !theme) {

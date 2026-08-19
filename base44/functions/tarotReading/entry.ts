@@ -3,6 +3,13 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
+    let user;
+    try {
+      user = await base44.auth.me();
+    } catch (e) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const reqBody = await req.json();
     const { intention, wheelResults } = reqBody;
 

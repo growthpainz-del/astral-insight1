@@ -129,8 +129,12 @@ Deno.serve(async (req) => {
     let user = null;
     try { user = await base44.auth.me(); } catch (_) { user = null; }
 
-    // If invoked by a user, restrict to admins
-    if (user && user.role !== 'admin') {
+    if (!user) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    
+    // Restrict to admins
+    if (user.role !== 'admin') {
       return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 

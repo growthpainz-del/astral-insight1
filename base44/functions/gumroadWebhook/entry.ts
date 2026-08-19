@@ -40,8 +40,19 @@ const PRODUCT_TOKEN_MAP = {
   'ndqug': { tokens: 200, tier: null },        // 200 Tokens
 };
 
-function verifyGumroadSignature(body, signature, secret) {
-  return true; // Basic verification
+// Web Crypto API HMAC-SHA256 verification
+async function verifyGumroadSignature(bodyText, signature, secret) {
+  if (!signature || !secret) return false;
+  try {
+    const encoder = new TextEncoder();
+    const key = await crypto.subtle.importKey(
+      'raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['verify']
+    );
+    const signatureBytes = new Uint8Array(signature.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+    return await crypto.subtle.verify('HMAC', key, signatureBytes, encoder.encode(bodyText));
+  } catch (e) {
+    return false;
+  }
 }
 
 async function grantTokens(base44, userEmail, tokenAmount, reason = 'purchase') {
@@ -103,7 +114,15 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     
-    const payload = await req.json().catch(() => ({}));
+    const bodyText = await req.text();
+    const payload = JSON.parse(bodyText || '{}');
+    const signature = req.headers.get('x-gumroad-signature');
+    const secret = Deno.env.get('GUMROAD_WEBHOOK_SECRET');
+    
+    if (!await verifyGumroadSignature(bodyText, signature, secret)) {
+      return Response.json({ error: 'Unauthorized webhook' }, { status: 401 });
+    }
+
     console.log('📨 Gumroad webhook received:', JSON.stringify(payload, null, 2));
 
     const {

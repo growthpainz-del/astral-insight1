@@ -60,12 +60,19 @@ const COSMIC_SYMBOLS = [
 Deno.serve(async (req) => {
     try {
         const base44 = createClientFromRequest(req);
+        let user;
+        try {
+            user = await base44.auth.me();
+        } catch (e) {
+            return Response.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
         const { category_id, category: providedCategory, deck_id, drawnCards, spread, includeMoonPhase, question_category } = await req.json();
 
         // 1. Get the category definition from the database
         let category = providedCategory;
         if (category_id && category_id !== "default") {
-            const dbCategory = await base44.asServiceRole.entities.ReadingCategory.get(category_id);
+            const dbCategory = await base44.entities.ReadingCategory.get(category_id);
             if (dbCategory) category = dbCategory;
         }
 
@@ -73,7 +80,7 @@ Deno.serve(async (req) => {
             return Response.json({ error: "Category not found." }, { status: 404 });
         }
 
-        const deck = await base44.asServiceRole.entities.Deck.get(deck_id);
+        const deck = await base44.entities.Deck.get(deck_id);
         const engineConfig = deck?.engine_config || {};
         const activeCosmicSymbols = engineConfig.cosmic_symbols?.categories || COSMIC_SYMBOLS;
 
@@ -177,7 +184,7 @@ Deno.serve(async (req) => {
                         const relKey = `${minId}|${maxId}`;
                         pairs.push({ name1: c1.name, name2: c2.name, relKey });
                         relationshipPromises.push(
-                            base44.asServiceRole.entities.CardRelationship.filter({ deck_id: deck_id, relationship_key: relKey })
+                            base44.entities.CardRelationship.filter({ deck_id: deck_id, relationship_key: relKey })
                         );
                     }
                 }

@@ -1,4 +1,14 @@
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
+
 Deno.serve(async (req: Request) => {
+  const base44 = createClientFromRequest(req);
+  let user;
+  try {
+    user = await base44.auth.me();
+  } catch (e) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const apiKey = Deno.env.get("ASTRAL_ROOM_WHEREBY");
   if (!apiKey) {
     return new Response(JSON.stringify({ error: "Whereby API key not configured. Please add ASTRAL_ROOM_WHEREBY to your secrets." }), { 
