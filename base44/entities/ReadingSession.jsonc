@@ -2,6 +2,11 @@
   "name": "ReadingSession",
   "type": "object",
   "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional description"
+    },
     "reader_id": {
       "type": "string",
       "description": "User ID of the reader hosting the session"
@@ -59,62 +64,5 @@
   "required": [
     "reader_id",
     "spread_type"
-  ],
-  "rls": {
-    "create": {
-      "$or": [
-        {
-          "created_by_id": "{{user.id}}"
-        },
-        {
-          "data.reader_id": "{{user.id}}"
-        },
-        {
-          "data.client_id": "{{user.id}}"
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
-    },
-    "read": null,
-    "update": {
-      "$or": [
-        {
-          "created_by_id": "{{user.id}}"
-        },
-        {
-          "data.reader_id": "{{user.id}}"
-        },
-        {
-          "data.client_id": "{{user.id}}"
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
-    },
-    "delete": {
-      "$or": [
-        {
-          "created_by_id": "{{user.id}}"
-        },
-        {
-          "data.reader_id": "{{user.id}}"
-        },
-        {
-          "data.client_id": "{{user.id}}"
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
-    }
-  }
+  ]
 }

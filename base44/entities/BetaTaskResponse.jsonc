@@ -1,6 +1,11 @@
 {
   "name": "BetaTaskResponse",
   "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional description"
+    },
     "active_session_seconds": {
       "description": "Active engaged time in-app before this response, pause-aware via visibilitychange",
       "type": "number"

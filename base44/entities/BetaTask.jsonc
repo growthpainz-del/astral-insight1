@@ -1,6 +1,11 @@
 {
   "name": "BetaTask",
   "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional description"
+    },
     "area": {
       "description": "App area this task tests",
       "enum": [
