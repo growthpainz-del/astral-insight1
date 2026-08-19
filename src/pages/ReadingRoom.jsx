@@ -305,6 +305,12 @@ export default function ReadingRoom() {
               )}
             </div>
             
+            <div className="max-w-2xl mx-auto">
+              {activeSession.reader_id !== (currentUser?.id || "guest") && (
+                <ReaderProfileCard reader={hostProfile} />
+              )}
+            </div>
+
             <ReadingStage 
               session={activeSession} 
               interactive={activeSession.reader_id === (currentUser?.id || "guest")} 
