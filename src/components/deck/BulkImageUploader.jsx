@@ -140,7 +140,7 @@ export default function BulkImageUploader({ deckId, onUploadComplete, onClose })
             <p className="mb-2 text-sm text-gray-400">
                 <span className="font-semibold">Click to browse</span> or drag and drop
             </p>
-            <p className="text-xs text-gray-500">PNG, JPG, GIF, WEBP</p>
+            <p className="text-xs text-purple-300/60">PNG, JPG, GIF, WEBP</p>
         </div>
         
         {isDragActive && (
