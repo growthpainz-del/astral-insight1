@@ -43,7 +43,7 @@
       "$or": [
         {
           "user_condition": {
-            "chat_approved": true
+            "data.chat_approved": true
           }
         },
         {
