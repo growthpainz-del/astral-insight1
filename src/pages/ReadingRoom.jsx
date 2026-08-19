@@ -134,6 +134,17 @@ export default function ReadingRoom() {
   }, [searchParams]);
 
   useEffect(() => {
+    if (activeSession?.id) {
+      const unsub = base44.entities.ReadingSession.subscribe((event) => {
+        if (event.id === activeSession.id && event.type === 'update') {
+          setActiveSession(prev => ({ ...prev, ...event.data }));
+        }
+      });
+      return unsub;
+    }
+  }, [activeSession?.id]);
+
+  useEffect(() => {
     if (activeSession?.deck_id) {
       base44.entities.Card.filter({ deck_id: activeSession.deck_id }).then(setDeckCards);
     }
@@ -195,7 +206,25 @@ export default function ReadingRoom() {
         publicDecks={publicDecks} 
         myDecks={myDecks} 
         onDrawCards={(deck) => {
-          window.location.href = createPageUrl(`ReadingSetup?deckId=${deck.id}`);
+          if (activeSession) {
+            const isHost = activeSession.reader_id === (currentUser?.id || "guest");
+            if (isHost) {
+              if (window.confirm(`Change the live session deck to "${deck.name}"? This will clear the current reading.`)) {
+                base44.entities.ReadingSession.update(activeSession.id, {
+                  deck_id: deck.id,
+                  card_positions: [],
+                  shared_interpretation: null
+                }).then(updated => {
+                  setActiveSession(updated);
+                  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                }).catch(e => alert("Error changing deck: " + e.message));
+              }
+            } else {
+              alert("Only the reader hosting the session can change the deck.");
+            }
+          } else {
+            window.location.href = createPageUrl(`ReadingSetup?deckId=${deck.id}`);
+          }
         }} 
       />
 
