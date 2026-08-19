@@ -169,7 +169,7 @@ export default function BetaTasks() {
             <Loader2 className="w-8 h-8 animate-spin text-purple-400" />
           </div>
         ) : tasks.length === 0 ? (
-          <div className="text-center py-16 text-gray-500">No tasks yet.</div>
+          <div className="text-center py-16 text-purple-300/60">No tasks yet.</div>
         ) : (
           Object.entries(grouped).map(([area, areaTasks]) => (
             <div key={area} className="mb-8">
@@ -199,7 +199,7 @@ export default function BetaTasks() {
                         </div>
                         <p className="text-sm text-gray-400 line-clamp-1">{task.instructions}</p>
                       </div>
-                      <ArrowRight className="w-4 h-4 text-gray-500 shrink-0" />
+                      <ArrowRight className="w-4 h-4 text-purple-300/50 shrink-0" />
                     </button>
                   );
                 })}
