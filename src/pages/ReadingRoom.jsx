@@ -28,6 +28,8 @@ export default function ReadingRoom() {
   const [deckCards, setDeckCards] = useState([]);
   const [savingReading, setSavingReading] = useState(false);
   const [readingSaved, setReadingSaved] = useState(false);
+  const [showProfileEditor, setShowProfileEditor] = useState(false);
+  const [hostProfile, setHostProfile] = useState(null);
 
   const inviteLink = `${window.location.origin}${createPageUrl(`join/${hostedToken}`)}`;
 
