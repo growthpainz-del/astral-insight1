@@ -1,0 +1,70 @@
+{
+  "name": "ChatAccessRequest",
+  "properties": {
+    "description": {
+      "description": "Optional description",
+      "maxLength": 1000,
+      "type": "string"
+    },
+    "intro_message": {
+      "description": "Optional short note from the requester about why they want to chat",
+      "maxLength": 500,
+      "type": "string"
+    },
+    "requester_email": {
+      "type": "string"
+    },
+    "requester_id": {
+      "description": "User ID of the person requesting chat access",
+      "type": "string"
+    },
+    "requester_name": {
+      "type": "string"
+    },
+    "responded_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "status": {
+      "default": "pending",
+      "enum": [
+        "pending",
+        "accepted",
+        "declined"
+      ],
+      "type": "string"
+    }
+  },
+  "required": [
+    "requester_id",
+    "status"
+  ],
+  "rls": {
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  },
+  "type": "object"
+}
