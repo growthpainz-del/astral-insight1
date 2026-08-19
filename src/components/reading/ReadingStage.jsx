@@ -1,9 +1,54 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
-import { Hand, X, Sparkles } from 'lucide-react';
+import { Hand, X, Sparkles, Palette } from 'lucide-react';
 import { composeCardQuick } from '@/utils/interpretationComposer';
 import { motion, AnimatePresence } from 'framer-motion';
+
+const MAT_STYLES = {
+  nebula: {
+    label: 'Nebula',
+    swatch: 'radial-gradient(circle at 30% 30%, #4c2a8a, #07050f)',
+    background: 'radial-gradient(circle at center, #1a0f35 0%, #07050f 100%)',
+    gridColor: '#a078ff',
+    gridOpacity: 0.1
+  },
+  midnight_velvet: {
+    label: 'Midnight Velvet',
+    swatch: 'radial-gradient(circle at 30% 30%, #1e1033, #05030a)',
+    background: 'radial-gradient(ellipse at center, #150a28 0%, #030106 100%)',
+    gridColor: '#6d4fc9',
+    gridOpacity: 0.05
+  },
+  rose_gold: {
+    label: 'Rose Gold',
+    swatch: 'radial-gradient(circle at 30% 30%, #7a3b4a, #2a1015)',
+    background: 'radial-gradient(circle at center, #3a1a24 0%, #180a0e 100%)',
+    gridColor: '#e8b4a0',
+    gridOpacity: 0.08
+  },
+  moonlit_linen: {
+    label: 'Moonlit Linen',
+    swatch: 'radial-gradient(circle at 30% 30%, #4a4a5a, #26262f)',
+    background: 'radial-gradient(circle at center, #3a3a48 0%, #1c1c24 100%)',
+    gridColor: '#c9c9d9',
+    gridOpacity: 0.07
+  },
+  forest_moss: {
+    label: 'Forest Moss',
+    swatch: 'radial-gradient(circle at 30% 30%, #1f3a2a, #0a1710)',
+    background: 'radial-gradient(circle at center, #16281c 0%, #070d0a 100%)',
+    gridColor: '#7fb896',
+    gridOpacity: 0.08
+  },
+  starfield_black: {
+    label: 'Starfield',
+    swatch: 'radial-gradient(circle at 30% 30%, #0d0d12, #000000)',
+    background: 'radial-gradient(circle at center, #0a0a10 0%, #000000 100%)',
+    gridColor: '#ffffff',
+    gridOpacity: 0.04
+  }
+};
 
 const TableCard = ({ 
   cardData, 
@@ -113,7 +158,23 @@ export default function ReadingStage({ session, interactive, deckCards }) {
   const [showInterpretation, setShowInterpretation] = useState(!!session?.shared_interpretation);
   const [selectedCardForInterpretation, setSelectedCardForInterpretation] = useState(null);
   const [isShuffling, setIsShuffling] = useState(false);
+  const [matStyleKey, setMatStyleKey] = useState(session?.mat_style || 'nebula');
+  const [showMatPicker, setShowMatPicker] = useState(false);
   const prevPositionsRef = useRef(positions);
+
+  const activeMat = MAT_STYLES[matStyleKey] || MAT_STYLES.nebula;
+
+  const chooseMatStyle = async (key) => {
+    setMatStyleKey(key);
+    setShowMatPicker(false);
+    if (interactive && session?.id) {
+      try {
+        await base44.entities.ReadingSession.update(session.id, { mat_style: key });
+      } catch (err) {
+        console.error('Failed to save mat style', err);
+      }
+    }
+  };
 
   // Trigger shuffle animation on new session load if table is empty
   useEffect(() => {
@@ -195,7 +256,10 @@ export default function ReadingStage({ session, interactive, deckCards }) {
       setSharedInterpretation(session?.shared_interpretation);
       if (session?.shared_interpretation) setShowInterpretation(true);
     }
-  }, [session?.card_positions, session?.shared_interpretation]);
+    if (session?.mat_style) {
+      setMatStyleKey(session.mat_style);
+    }
+  }, [session?.card_positions, session?.shared_interpretation, session?.mat_style]);
 
   const savePositions = async (newPos) => {
     setPositions(newPos);
@@ -260,8 +324,54 @@ export default function ReadingStage({ session, interactive, deckCards }) {
 
   return (
     <div className="flex flex-col w-full h-[60vh] md:h-[70vh] bg-[#07050f] border border-[#a078ff]/30 rounded-xl overflow-hidden shadow-2xl relative mb-8">
-      <div className="flex-1 relative overflow-hidden" style={{ background: 'radial-gradient(circle at center, #1a0f35 0%, #07050f 100%)' }}>
-        <div className="absolute inset-0 opacity-10 bg-[linear-gradient(to_right,#a078ff_1px,transparent_1px),linear-gradient(to_bottom,#a078ff_1px,transparent_1px)] bg-[size:4rem_4rem]"></div>
+      <div className="flex-1 relative overflow-hidden" style={{ background: activeMat.background }}>
+        <div
+          className="absolute inset-0 bg-[size:4rem_4rem]"
+          style={{
+            opacity: activeMat.gridOpacity,
+            backgroundImage: `linear-gradient(to right, ${activeMat.gridColor} 1px, transparent 1px), linear-gradient(to bottom, ${activeMat.gridColor} 1px, transparent 1px)`
+          }}
+        ></div>
+
+        {interactive && (
+          <div className="absolute top-3 right-3 z-30">
+            <button
+              onClick={() => setShowMatPicker((v) => !v)}
+              className="w-8 h-8 rounded-full bg-black/50 border border-white/20 flex items-center justify-center text-purple-200 hover:text-cyan-300 hover:border-cyan-400/50 transition-colors backdrop-blur-sm"
+              title="Change mat style"
+            >
+              <Palette className="w-4 h-4" />
+            </button>
+            <AnimatePresence>
+              {showMatPicker && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9, y: -8 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9, y: -8 }}
+                  className="absolute right-0 mt-2 p-3 rounded-xl bg-[#0c081c]/95 border border-purple-500/40 backdrop-blur-md shadow-xl w-[220px]"
+                >
+                  <p className="text-[10px] uppercase tracking-widest text-purple-300/60 mb-2">Mat Style</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {Object.entries(MAT_STYLES).map(([key, style]) => (
+                      <button
+                        key={key}
+                        onClick={() => chooseMatStyle(key)}
+                        className={`flex flex-col items-center gap-1 group`}
+                        title={style.label}
+                      >
+                        <span
+                          className={`w-9 h-9 rounded-full border-2 transition-all ${matStyleKey === key ? 'border-cyan-400 scale-110' : 'border-white/20 group-hover:border-white/50'}`}
+                          style={{ background: style.swatch }}
+                        />
+                        <span className="text-[9px] text-purple-200/70 text-center leading-tight">{style.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
         
         {isShuffling ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm z-40">
