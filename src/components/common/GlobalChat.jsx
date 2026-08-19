@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
-import { MessageSquare, X, Send, ChevronDown, CheckCircle2 } from "lucide-react";
+import { MessageSquare, X, Send, ChevronDown, CheckCircle2, Lock, Clock, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function GlobalChat({ user }) {
@@ -12,7 +13,59 @@ export default function GlobalChat({ user }) {
   const [isSending, setIsSending] = useState(false);
   const messagesEndRef = useRef(null);
 
+  // Access-gating state
+  const [accessLoading, setAccessLoading] = useState(true);
+  const [myRequest, setMyRequest] = useState(null); // null | {status: 'pending'|'accepted'|'declined', ...}
+  const [introMessage, setIntroMessage] = useState("");
+  const [submittingRequest, setSubmittingRequest] = useState(false);
+
+  const isAdmin = user?.role === "admin";
+  const isApproved = isAdmin || !!user?.chat_approved;
+
+  // Determine this user's access status
   useEffect(() => {
+    if (!user) {
+      setAccessLoading(false);
+      setMyRequest(null);
+      return;
+    }
+    if (isApproved) {
+      setAccessLoading(false);
+      return;
+    }
+    setAccessLoading(true);
+    base44.entities.ChatAccessRequest.filter({ requester_id: user.id })
+      .then((res) => {
+        const sorted = (res || []).sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
+        setMyRequest(sorted[0] || null);
+      })
+      .catch(console.error)
+      .finally(() => setAccessLoading(false));
+  }, [user?.id, isApproved]);
+
+  const submitAccessRequest = async () => {
+    if (!user || submittingRequest) return;
+    setSubmittingRequest(true);
+    try {
+      const created = await base44.entities.ChatAccessRequest.create({
+        requester_id: user.id,
+        requester_name: user.full_name || user.email?.split("@")[0] || "Mystic",
+        requester_email: user.email || "",
+        intro_message: introMessage.trim(),
+        status: "pending"
+      });
+      setMyRequest(created);
+      setIntroMessage("");
+    } catch (e) {
+      alert("Couldn't send your chat request: " + e.message);
+    } finally {
+      setSubmittingRequest(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!isApproved) return;
+
     // Load initial messages
     base44.entities.ChatMessage.list("-created_date", 50)
       .then(res => {
@@ -41,7 +94,7 @@ export default function GlobalChat({ user }) {
     });
 
     return unsub;
-  }, []);
+  }, [isApproved]);
 
   useEffect(() => {
     if (isOpen) {
@@ -120,9 +173,47 @@ export default function GlobalChat({ user }) {
               </button>
             </div>
 
-            {/* Messages Area */}
+            {/* Messages Area / Access Gate */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-hide flex flex-col">
-              {messages.length === 0 ? (
+              {!user ? (
+                <div className="flex-1 flex flex-col items-center justify-center text-center gap-2 opacity-90">
+                  <Lock className="w-8 h-8 text-purple-400 mb-1" />
+                  <p className="text-sm text-purple-200 font-medium">Log in to request chat access</p>
+                  <p className="text-xs text-purple-300/60 max-w-[240px]">This is a private, request-only space — no one can message directly without being accepted first.</p>
+                </div>
+              ) : accessLoading ? (
+                <div className="flex-1 flex items-center justify-center opacity-60">
+                  <p className="text-sm text-purple-300">Checking access…</p>
+                </div>
+              ) : !isApproved && (!myRequest || myRequest.status === "declined") ? (
+                <div className="flex-1 flex flex-col items-center justify-center text-center gap-3 px-2">
+                  <Lock className="w-8 h-8 text-purple-400" />
+                  <p className="text-sm text-purple-200 font-medium">
+                    {myRequest?.status === "declined" ? "Your last request wasn't accepted" : "Request access to chat"}
+                  </p>
+                  <p className="text-xs text-purple-300/60 max-w-[260px]">Send a short note and you'll be let in once it's accepted.</p>
+                  <Textarea
+                    value={introMessage}
+                    onChange={(e) => setIntroMessage(e.target.value)}
+                    placeholder="Say a bit about why you'd like to chat (optional)"
+                    className="bg-slate-900/60 border-purple-500/40 text-white placeholder-purple-300/40 text-sm w-full"
+                    rows={3}
+                  />
+                  <Button
+                    onClick={submitAccessRequest}
+                    disabled={submittingRequest}
+                    className="bg-purple-600 hover:bg-purple-500 text-white w-full"
+                  >
+                    {submittingRequest ? "Sending..." : myRequest?.status === "declined" ? "Request Again" : "Send Chat Request"}
+                  </Button>
+                </div>
+              ) : !isApproved && myRequest?.status === "pending" ? (
+                <div className="flex-1 flex flex-col items-center justify-center text-center gap-2 opacity-90">
+                  <Clock className="w-8 h-8 text-amber-300 mb-1" />
+                  <p className="text-sm text-purple-200 font-medium">Request sent</p>
+                  <p className="text-xs text-purple-300/60 max-w-[240px]">Waiting for approval — you'll get access as soon as it's accepted.</p>
+                </div>
+              ) : messages.length === 0 ? (
                 <div className="flex-1 flex flex-col items-center justify-center opacity-50">
                   <MessageSquare className="w-8 h-8 text-purple-400 mb-2" />
                   <p className="text-sm text-purple-300">It's quiet in the cosmos...</p>
@@ -152,11 +243,11 @@ export default function GlobalChat({ user }) {
                   );
                 })
               )}
-              <div ref={messagesEndRef} />
+              {isApproved && <div ref={messagesEndRef} />}
             </div>
 
             {/* Input Area */}
-            {user ? (
+            {isApproved ? (
               <form onSubmit={handleSend} className="p-3 bg-black/40 border-t border-purple-500/30 flex gap-2 shrink-0">
                 <input
                   type="text"
@@ -175,7 +266,7 @@ export default function GlobalChat({ user }) {
               </form>
             ) : (
               <div className="p-3 bg-black/40 border-t border-purple-500/30 text-center shrink-0">
-                <p className="text-xs text-purple-300 opacity-70">Login to join the conversation</p>
+                <p className="text-xs text-purple-300 opacity-70">Chat access is by request only</p>
               </div>
             )}
           </motion.div>
