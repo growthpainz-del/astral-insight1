@@ -70,7 +70,8 @@ REQUIREMENTS:
 3. Include a comprehensive "Card Meanings" section. For each card in the deck, provide detailed meanings matching the requested Definition Style and Tone.
 4. If "overwriteCards" is true or if existing card meanings are empty/generic, generate entirely NEW, deep, creative meanings for every card. Do NOT just copy the brief existing text. Expand on it creatively!
 5. Make sure the manual is beautifully structured using Markdown headings (##, ###), bullet points, and bold text.
-6. The manual should sound like a published, professional guidebook.`;
+6. The manual should sound like a published, professional guidebook.
+7. If any CARD RELATIONSHIPS are provided, include a "Card Synergies & Relationships" section detailing how these specific cards interact with each other.`;
 
     const result = await base44.integrations.Core.InvokeLLM({
       prompt,
