@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Hand, X, Sparkles, Palette } from 'lucide-react';
 import { composeCardQuick } from '@/utils/interpretationComposer';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useDragControls } from 'framer-motion';
 
 const MAT_STYLES = {
   nebula: {
@@ -160,7 +160,12 @@ export default function ReadingStage({ session, interactive, deckCards }) {
   const [isShuffling, setIsShuffling] = useState(false);
   const [matStyleKey, setMatStyleKey] = useState(session?.mat_style || 'nebula');
   const [showMatPicker, setShowMatPicker] = useState(false);
+  const [panelSize, setPanelSize] = useState({ width: 320, height: 380 });
   const prevPositionsRef = useRef(positions);
+  const tableContainerRef = useRef(null);
+  const dragControls = useDragControls();
+  const resizingRef = useRef(false);
+  const resizeStartRef = useRef({ x: 0, y: 0, width: 0, height: 0 });
 
   const activeMat = MAT_STYLES[matStyleKey] || MAT_STYLES.nebula;
 
@@ -313,6 +318,36 @@ export default function ReadingStage({ session, interactive, deckCards }) {
     savePositions(newPos);
   };
 
+  const startResize = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    resizingRef.current = true;
+    resizeStartRef.current = {
+      x: e.clientX,
+      y: e.clientY,
+      width: panelSize.width,
+      height: panelSize.height
+    };
+    window.addEventListener('pointermove', handleResizeMove);
+    window.addEventListener('pointerup', stopResize);
+  };
+
+  const handleResizeMove = (e) => {
+    if (!resizingRef.current) return;
+    const dx = e.clientX - resizeStartRef.current.x;
+    const dy = e.clientY - resizeStartRef.current.y;
+    setPanelSize({
+      width: Math.max(260, Math.min(560, resizeStartRef.current.width + dx)),
+      height: Math.max(220, Math.min(700, resizeStartRef.current.height + dy))
+    });
+  };
+
+  const stopResize = () => {
+    resizingRef.current = false;
+    window.removeEventListener('pointermove', handleResizeMove);
+    window.removeEventListener('pointerup', stopResize);
+  };
+
   const clearTable = () => {
     if (!interactive) return;
     if (window.confirm("Clear all cards?")) {
@@ -326,7 +361,7 @@ export default function ReadingStage({ session, interactive, deckCards }) {
   };
 
   return (
-    <div className="flex flex-col w-full h-[60vh] md:h-[70vh] bg-[#07050f] border border-[#a078ff]/30 rounded-xl overflow-hidden shadow-2xl relative mb-8">
+    <div ref={tableContainerRef} className="flex flex-col w-full h-[60vh] md:h-[70vh] bg-[#07050f] border border-[#a078ff]/30 rounded-xl overflow-hidden shadow-2xl relative mb-8">
       <div className="flex-1 relative overflow-hidden" style={{ background: activeMat.background }}>
         <div
           className="absolute inset-0 bg-[size:4rem_4rem]"
@@ -492,13 +527,30 @@ export default function ReadingStage({ session, interactive, deckCards }) {
         </div>
       )}
 
-      {/* Card Interpretation Panel */}
+      {/* Card Interpretation Panel — floating, draggable, resizable, anchored left by default */}
       <AnimatePresence>
         {selectedCardForInterpretation && (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}
-            className="absolute top-4 left-4 right-4 max-h-[min(60%,320px)] md:left-auto md:top-4 md:right-4 md:w-[320px] md:max-h-[70%] z-50 flex flex-col overflow-hidden shadow-2xl"
-            style={{ background: "rgba(0,0,0,0.85)", backdropFilter: "blur(20px)", border: "1px solid rgba(201,168,76,0.4)", borderRadius: 16, boxShadow: "0 0 40px rgba(147,51,234,0.3)" }}>
-            <div className="p-4 pr-12 border-b border-[#c9a84c]/20 flex justify-between items-start bg-purple-900/30 relative shrink-0">
+          <motion.div
+            drag
+            dragListener={false}
+            dragControls={dragControls}
+            dragMomentum={false}
+            dragConstraints={tableContainerRef}
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}
+            className="absolute z-50 flex flex-col overflow-hidden shadow-2xl"
+            style={{
+              left: 16,
+              top: 16,
+              width: panelSize.width,
+              height: panelSize.height,
+              maxWidth: 'calc(100% - 32px)',
+              maxHeight: 'calc(100% - 32px)',
+              background: "rgba(0,0,0,0.85)", backdropFilter: "blur(20px)", border: "1px solid rgba(201,168,76,0.4)", borderRadius: 16, boxShadow: "0 0 40px rgba(147,51,234,0.3)"
+            }}>
+            <div
+              className="p-4 pr-12 border-b border-[#c9a84c]/20 flex justify-between items-start bg-purple-900/30 relative shrink-0 cursor-grab active:cursor-grabbing touch-none"
+              onPointerDown={(e) => dragControls.start(e)}
+            >
               <h3 className="text-base font-bold text-white font-['Cinzel'] m-0 leading-tight break-words w-full">
                 {selectedCardForInterpretation.composed?.cardName || selectedCardForInterpretation.cardData.name}
               </h3>
@@ -520,6 +572,16 @@ export default function ReadingStage({ session, interactive, deckCards }) {
                   ))
                 : <p className="break-words" style={{ color: "rgba(233,213,255,0.9)", fontSize: 13 }}>{selectedCardForInterpretation.composed?.summary || selectedCardForInterpretation.cardData?.overall_meaning || "A mysterious force is at play."}</p>
               }
+            </div>
+            {/* Resize handle */}
+            <div
+              onPointerDown={startResize}
+              className="absolute bottom-0 right-0 w-6 h-6 cursor-nwse-resize flex items-end justify-end p-1.5 text-white/30 hover:text-cyan-300 transition-colors touch-none"
+              title="Drag to resize"
+            >
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                <path d="M9 1L1 9M9 5L5 9" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+              </svg>
             </div>
           </motion.div>
         )}
