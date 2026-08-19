@@ -576,7 +576,7 @@ Provide your commentary on this answer in your unique voice. Be entertaining and
                           value={customTone}
                           onChange={(e) => setCustomTone(e.target.value)}
                           placeholder="e.g., sarcastic, dark, optimistic..."
-                          className="bg-black/50 border-purple-500/30 text-white placeholder:text-gray-500"
+                          className="bg-black/50 border-purple-500/30 text-white placeholder:text-white/40"
                         />
                       </div>
                     )}
@@ -587,9 +587,9 @@ Provide your commentary on this answer in your unique voice. Be entertaining and
                         value={question}
                         onChange={(e) => setQuestion(e.target.value.slice(0, 100))}
                         placeholder="Ask a yes/no question..."
-                        className="bg-black/50 border-purple-500/30 text-white placeholder:text-gray-500"
+                        className="bg-black/50 border-purple-500/30 text-white placeholder:text-white/40"
                       />
-                      <p className="text-xs text-gray-500 mt-1">{question.length}/100 characters</p>
+                      <p className="text-xs text-purple-300/60 mt-1">{question.length}/100 characters</p>
                     </div>
 
                     {/* Token Cost Preview */}
