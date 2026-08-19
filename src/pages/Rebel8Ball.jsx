@@ -522,7 +522,7 @@ Provide your commentary on this answer in your unique voice. Be entertaining and
                         </SelectContent>
                       </Select>
                       {currentPersona && (
-                        <p className="text-xs text-gray-500 mt-1">
+                        <p className="text-xs text-purple-300/60 mt-1">
                           {currentPersona.icon} {currentPersona.description}
                         </p>
                       )}
