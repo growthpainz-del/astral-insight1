@@ -166,8 +166,16 @@ export default function AgentChat() {
                                 <div className="w-16 h-16 rounded-full bg-purple-900/20 border border-purple-500/30 flex items-center justify-center mb-4">
                                     <Sparkles className="w-8 h-8 text-purple-400 opacity-80" />
                                 </div>
-                                <p className="text-lg font-medium text-slate-300">CosMosis is ready</p>
-                                <p className="text-sm mt-2 max-w-md">Discover the cosmos within. Ask a question, share what stirs, or begin a reading.</p>
+                                <p className="text-lg font-medium text-slate-300">
+                                    {agentName === "beta_bot" ? "Beta Bot is ready" : agentName === "astral_insight_guide" ? "Astral Insight Guide is ready" : "CosMosis is ready"}
+                                </p>
+                                <p className="text-sm mt-2 max-w-md">
+                                    {agentName === "beta_bot"
+                                        ? "Ask what to test next, share how something went, or ask about any deck or feature."
+                                        : agentName === "astral_insight_guide"
+                                        ? "Build decks, cards, spreads, and readings, or ask about anything in the app's data."
+                                        : "Discover the cosmos within. Ask a question, share what stirs, or begin a reading."}
+                                </p>
                             </div>
                         )}
                         
