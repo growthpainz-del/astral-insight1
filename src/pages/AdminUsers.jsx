@@ -26,6 +26,7 @@ import {
   Coins,
   Settings,
   Loader2,
+  Sparkles,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -126,6 +127,22 @@ export default function AdminUsersPage() {
     }
   };
 
+  const [togglingBetaId, setTogglingBetaId] = useState(null);
+
+  const handleToggleBeta = async (user) => {
+    setTogglingBetaId(user.id);
+    try {
+      const next = !user.is_beta_tester;
+      await User.update(user.id, { is_beta_tester: next });
+      toast.success(next ? `${user.email} is now a beta tester.` : `${user.email} removed from beta.`);
+      loadUsers();
+    } catch (error) {
+      toast.error(`Failed: ${error.message}`);
+    } finally {
+      setTogglingBetaId(null);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 p-4 md:p-8 flex items-center justify-center">
@@ -186,6 +203,7 @@ export default function AdminUsersPage() {
                   <th className="px-4 py-3 text-left text-xs font-semibold text-purple-300 uppercase">Tokens</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-purple-300 uppercase">Role</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-purple-300 uppercase">Subscription</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-purple-300 uppercase">Beta</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-purple-300 uppercase">Actions</th>
                 </tr>
               </thead>
@@ -244,6 +262,13 @@ export default function AdminUsersPage() {
                       )}
                     </td>
                     <td className="px-4 py-3">
+                      <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                        user.is_beta_tester ? "bg-emerald-900/50 text-emerald-300" : "bg-slate-700 text-slate-400"
+                      }`}>
+                        {user.is_beta_tester ? "Founding Tester" : "—"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         <Button size="sm" onClick={() => openDialog("grant", user)} className="bg-amber-600 hover:bg-amber-700">
                           <Plus className="w-3 h-3 mr-1" /> Add Tokens
@@ -253,6 +278,16 @@ export default function AdminUsersPage() {
                         </Button>
                         <Button size="sm" variant="outline" onClick={() => openDialog("sub", user)} className="border-blue-500 text-blue-300 hover:bg-blue-900/30">
                           <Crown className="w-3 h-3 mr-1" /> Set Sub
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={togglingBetaId === user.id}
+                          onClick={() => handleToggleBeta(user)}
+                          className={user.is_beta_tester ? "border-emerald-500 text-emerald-300 hover:bg-emerald-900/30" : "border-slate-500 text-slate-300 hover:bg-slate-800"}
+                        >
+                          {togglingBetaId === user.id ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Sparkles className="w-3 h-3 mr-1" />}
+                          {user.is_beta_tester ? "Remove Beta" : "Make Beta"}
                         </Button>
                       </div>
                     </td>
