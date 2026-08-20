@@ -9,7 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { isUserAdmin } from "@/components/utils/adminGuard";
 
 export default function AgentChat() {
-    const [agentName, setAgentName] = useState("cosmic_oracle_chronicler");
+    const searchParamsInit = new URLSearchParams(window.location.search);
+    const [agentName, setAgentName] = useState(searchParamsInit.get("agent") || "cosmic_oracle_chronicler");
     const [conversationId, setConversationId] = useState(null);
     const [conversation, setConversation] = useState(null);
     const [messages, setMessages] = useState([]);
@@ -21,6 +22,7 @@ export default function AgentChat() {
     // List of agents
     const agents = [
         { id: "cosmic_oracle_chronicler", name: "Oracle Chronicler (Frenzie)" },
+        { id: "beta_bot", name: "Beta Bot (Founding Testers)" },
         { id: "astral_insight_guide", name: "Astral Insight Guide (Admin)" },
     ];
 
@@ -122,7 +124,15 @@ export default function AgentChat() {
     };
 
     const isAdmin = user ? isUserAdmin(user) : false;
-    const availableAgents = isAdmin ? agents : agents.filter(a => a.id === "cosmic_oracle_chronicler");
+    const isBetaTester = user ? !!user.is_beta_tester : false;
+    // beta_bot is visible to beta testers (or admins, who can see everything);
+    // astral_insight_guide (full content CRUD) stays admin-only regardless of
+    // beta status -- being a tester never implies content-editing permission.
+    const availableAgents = agents.filter(a => {
+        if (a.id === "astral_insight_guide") return isAdmin;
+        if (a.id === "beta_bot") return isAdmin || isBetaTester;
+        return true;
+    });
 
     return (
         <div className="p-4 md:p-6 h-[calc(100dvh-4rem)] md:h-[calc(100vh-2rem)] max-h-screen">
