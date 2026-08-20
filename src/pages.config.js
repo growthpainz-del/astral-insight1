@@ -49,6 +49,7 @@
  */
 import Account from './pages/Account';
 import BetaTasks from './pages/BetaTasks';
+import DashboardHub from './pages/DashboardHub';
 import ReaderDashboard from './pages/ReaderDashboard';
 import JoinSession from './pages/JoinSession';
 import ReadingRoom from './pages/ReadingRoom';
@@ -101,6 +102,7 @@ import __Layout from './Layout.jsx';
 export const PAGES = {
     "Account": Account,
     "BetaTasks": BetaTasks,
+    "DashboardHub": DashboardHub,
     "ReaderDashboard": ReaderDashboard,
     "JoinSession": JoinSession,
     "ReadingRoom": ReadingRoom,
