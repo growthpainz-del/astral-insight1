@@ -146,6 +146,22 @@ export default function Layout({ children, currentPageName }) {
         setUser(currentUser);
         setIsAdmin(isUserAdmin(currentUser));
         setInitError(null);
+
+        // First-login beta onboarding: a beta account that has never been
+        // onboarded gets redirected straight into a Beta Bot conversation,
+        // exactly once. beta_onboarded_at is written immediately (not after
+        // the greeting completes) so a slow/failed agent response can never
+        // cause a redirect loop -- the trigger fires once per account, full
+        // stop, regardless of what happens in the resulting conversation.
+        if (currentUser?.is_beta_tester && !currentUser?.beta_onboarded_at) {
+          try {
+            await base44.entities.User.updateMyUserData({ beta_onboarded_at: new Date().toISOString() });
+          } catch (onboardErr) {
+            console.error("Failed to mark beta_onboarded_at:", onboardErr);
+          }
+          const greeting = encodeURIComponent("Hi, I'm new here as a founding beta tester -- introduce me to Astral Insight.");
+          navigate(`${createPageUrl("AgentChat")}?agent=beta_bot&initialMessage=${greeting}`);
+        }
       } catch (error) {
         if (!mounted) return;
         clearTimeout(timeoutId);
