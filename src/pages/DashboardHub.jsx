@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import MoonPhaseWidget from "@/components/dashboard/MoonPhaseWidget";
 import CosmicInsight from "@/components/dashboard/CosmicInsight";
-import { BookOpen, Palette, Sparkles, Layers, Image as ImageIcon, History, Compass, HelpCircle, Star, GitMerge, Sprout, Users, Coins, ShieldAlert } from "lucide-react";
+import { BookOpen, Palette, Sparkles, Layers, Image as ImageIcon, History, Compass, HelpCircle, Star, GitMerge, Sprout, Users, Coins, ShieldAlert, Rocket, CheckCircle2 } from "lucide-react";
 import { isUserAdmin } from "@/components/utils/adminGuard";
 import { base44 } from "@/api/base44Client";
 
@@ -213,6 +213,15 @@ const ADMIN_CATEGORY = {
     { title: "Review Decks", desc: "Approve submitted decks.", to: createPageUrl("AdminDeckReview"), icon: Sparkles, color: "#f97316" },
     { title: "Token Grant", desc: "Grant tokens to users.", to: createPageUrl("AdminTokenGrant"), icon: Coins, color: "#eab308" },
     { title: "Seed Spreads", desc: "Manage system spreads.", to: createPageUrl("SpreadManager"), icon: Layers, color: "#3b82f6" },
+  ]
+};
+
+const BETA_CATEGORY = {
+  title: "Founding Beta Access",
+  icon: Rocket,
+  features: [
+    { title: "Talk to Beta Bot", desc: "Get walked through what to test, or log feedback conversationally.", to: createPageUrl("AgentChat") + "?agent=beta_bot", icon: Rocket, color: "#10b981" },
+    { title: "Beta Testing Binder", desc: "The full task checklist — tap through what to try.", to: createPageUrl("BetaTasks"), icon: CheckCircle2, color: "#8b5cf6" },
   ]
 };
 
