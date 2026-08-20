@@ -228,15 +228,21 @@ const BETA_CATEGORY = {
 export default function DashboardHub() {
   const [user, setUser] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isBetaTester, setIsBetaTester] = useState(false);
 
   useEffect(() => {
     base44.auth.me().then(u => {
       setUser(u);
       setIsAdmin(isUserAdmin(u));
+      setIsBetaTester(!!u?.is_beta_tester);
     }).catch(console.error);
   }, []);
 
-  const visibleCategories = isAdmin ? [...CATEGORIES, ADMIN_CATEGORY] : CATEGORIES;
+  const visibleCategories = [
+    ...CATEGORIES,
+    ...((isBetaTester || isAdmin) ? [BETA_CATEGORY] : []),
+    ...(isAdmin ? [ADMIN_CATEGORY] : []),
+  ];
 
   return (
     <>
